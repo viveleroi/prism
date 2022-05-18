@@ -10,7 +10,7 @@ v4 is currently in development and not suitable for production use. Stuff WILL c
 Please be patient as I work to get this project where I want, establish documentation, build servers, etc. 
 
 - [**Discord**][discord] - Please visit discord for help before opening issues.
-- [Wiki][wiki]
+- [Docs][docs]
 
 
 **Configs**
@@ -24,4 +24,4 @@ configurations so please ask in discord if you need help.
 - Artwork by LegendarySoldier.
 
 [discord]: https://discord.gg/7FxZScH4EJ
-[wiki]: https://prism-refracted.readthedocs.io/en/latest
+[docs]: https://prism.readthedocs.io/en/latest
