@@ -35,7 +35,6 @@ import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -180,28 +179,6 @@ public class Prism extends JavaPlugin {
                 return actionFamilies;
             });
 
-            // Register materials auto-suggest
-            // @todo remove when the command lib implements this
-            commandManager.registerSuggestion(SuggestionKey.of("materials"), (sender, context) -> {
-                List<String> materials = new ArrayList<>();
-                for (Material material : Material.values()) {
-                    materials.add(material.toString().toLowerCase(Locale.ENGLISH));
-                }
-
-                return materials;
-            });
-
-            // Register entity types auto-suggest
-            // @todo remove when the command lib implements this
-            commandManager.registerSuggestion(SuggestionKey.of("entityTypes"), (sender, context) -> {
-                List<String> entityTypes = new ArrayList<>();
-                for (EntityType entityType : EntityType.values()) {
-                    entityTypes.add(entityType.toString().toLowerCase(Locale.ENGLISH));
-                }
-
-                return entityTypes;
-            });
-
             // Register online player auto-suggest
             commandManager.registerSuggestion(SuggestionKey.of("players"), (sender, context) -> {
                 List<String> players = new ArrayList<>();
@@ -223,8 +200,8 @@ public class Prism extends JavaPlugin {
                 Argument.forString().name("since").build(),
                 Argument.forString().name("before").build(),
                 Argument.listOf(String.class).name("a").suggestion(SuggestionKey.of("actions")).build(),
-                Argument.listOf(Material.class).name("m").suggestion(SuggestionKey.of("materials")).build(),
-                Argument.listOf(EntityType.class).name("e").suggestion(SuggestionKey.of("entityTypes")).build(),
+                Argument.listOf(Material.class).name("m").build(),
+                Argument.listOf(EntityType.class).name("e").build(),
                 Argument.listOf(String.class).name("p").suggestion(SuggestionKey.of("players")).build()
             );
 
