@@ -179,21 +179,26 @@ public class MysqlActivityBatch implements IActivityBatch {
     private byte getOrCreateActionId(String actionKey) throws SQLException {
         byte primaryKey;
 
-        // Attempt to create the record
-        @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "actions "
-            + "(`action`) VALUES (?) ON DUPLICATE KEY UPDATE `action` = `action`";
+        // Select any existing record
+        @Language("SQL") String select = "SELECT action_id FROM " + storageConfig.prefix() + "actions "
+            + "WHERE action = ? ";
 
-        Long longPk = DB.executeInsert(insert, actionKey);
-
-        if (longPk != null) {
-            primaryKey = longPk.byteValue();
-        } else {
-            // Select the existing record
-            @Language("SQL") String select = "SELECT action_id FROM " + storageConfig.prefix() + "actions "
-                + "WHERE action = ? ";
-
-            Integer intPk = DB.getFirstColumn(select, actionKey);
+        Integer intPk = DB.getFirstColumn(select, actionKey);
+        if (intPk != null) {
             primaryKey = intPk.byteValue();
+        } else {
+            // Attempt to create the record
+            @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "actions "
+                + "(`action`) VALUES (?)";
+
+            Long longPk = DB.executeInsert(insert, actionKey);
+
+            if (longPk != null) {
+                primaryKey = longPk.byteValue();
+            } else {
+                throw new SQLException(
+                    String.format("Failed to get or create an action record. Action: %s", actionKey));
+            }
         }
 
         return primaryKey;
@@ -210,26 +215,36 @@ public class MysqlActivityBatch implements IActivityBatch {
     private long getOrCreateCauseId(String cause, @Nullable Long playerId) throws SQLException {
         long primaryKey;
 
-        // Attempt to create the record
-        @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "causes "
-            + "(`cause`, `player_id`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `cause` = `cause`";
-
-        Long longPk = DB.executeInsert(insert, cause, playerId);
-
-        if (longPk != null) {
-            primaryKey = longPk;
-        } else if (playerId != null) {
+        Long longPk;
+        if (playerId != null) {
             // Select the existing record on player
             @Language("SQL") String select = "SELECT cause_id FROM " + storageConfig.prefix() + "causes "
                 + "WHERE player_id = ? ";
 
-            primaryKey = DB.getFirstColumn(select, playerId);
+            longPk = DB.getFirstColumn(select, playerId);
         } else {
             // Select the existing record on cause
             @Language("SQL") String select = "SELECT cause_id FROM " + storageConfig.prefix() + "causes "
                 + "WHERE cause = ? ";
 
-            primaryKey = DB.getFirstColumn(select, cause);
+            longPk = DB.getFirstColumn(select, cause);
+        }
+
+        if (longPk != null) {
+            primaryKey = longPk;
+        } else {
+            // Attempt to create the record
+            @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "causes "
+                    + "(`cause`, `player_id`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `cause` = `cause`";
+
+            longPk = DB.executeInsert(insert, cause, playerId);
+
+            if (longPk != null) {
+                primaryKey = longPk;
+            } else {
+                throw new SQLException(
+                    String.format("Failed to get or create a cause record. Cause: %s, %d", cause, playerId));
+            }
         }
 
         return primaryKey;
@@ -245,20 +260,26 @@ public class MysqlActivityBatch implements IActivityBatch {
     private int getOrCreateEntityTypeId(String entityType) throws SQLException {
         int primaryKey;
 
-        // Attempt to create the record
-        @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "entity_types "
-            + "(`entity_type`) VALUES (?) ON DUPLICATE KEY UPDATE `entity_type` = `entity_type`";
+        // Select the existing record
+        @Language("SQL") String select = "SELECT entity_type_id FROM " + storageConfig.prefix() + "entity_types "
+            + "WHERE entity_type = ? ";
 
-        Long longPk = DB.executeInsert(insert, entityType);
-
+        Long longPk = DB.getFirstColumn(select, entityType);
         if (longPk != null) {
             primaryKey = longPk.intValue();
         } else {
-            // Select the existing record
-            @Language("SQL") String select = "SELECT entity_type_id FROM " + storageConfig.prefix() + "entity_types "
-                + "WHERE entity_type = ? ";
+            // Attempt to create the record
+            @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "entity_types "
+                + "(`entity_type`) VALUES (?) ON DUPLICATE KEY UPDATE `entity_type` = `entity_type`";
 
-            primaryKey = DB.getFirstColumn(select, entityType);
+            longPk = DB.executeInsert(insert, entityType);
+
+            if (longPk != null) {
+                primaryKey = longPk.intValue();
+            } else {
+                throw new SQLException(
+                    String.format("Failed to get or create a entity type record. Material: %s", entityType));
+            }
         }
 
         return primaryKey;
@@ -275,26 +296,34 @@ public class MysqlActivityBatch implements IActivityBatch {
     private int getOrCreateMaterialId(String material, String blockData) throws SQLException {
         int primaryKey;
 
-        // Attempt to create the record
-        @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "material_data "
-            + "(`material`, `data`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `material` = `material`";
+        // Select the existing material or material+data
+        @Language("SQL") String select = "SELECT material_id FROM "
+            + storageConfig.prefix() + "material_data "
+            + "WHERE material = ? ";
 
-        Long longPk = DB.executeInsert(insert, material, blockData);
-
-        if (longPk != null) {
-            primaryKey = longPk.intValue();
+        Integer intPk;
+        if (blockData != null) {
+            select += "AND data = ?";
+            intPk = DB.getFirstColumn(select, material, blockData);
         } else {
-            // Select the existing material or material+data
-            @Language("SQL") String select = "SELECT material_id FROM "
-                + storageConfig.prefix() + "material_data "
-                + "WHERE material = ? ";
+            select += "AND data IS NULL";
+            intPk = DB.getFirstColumn(select, material);
+        }
 
-            if (blockData != null) {
-                select += "AND data = ?";
-                primaryKey = DB.getFirstColumn(select, material, blockData);
+        if (intPk != null) {
+            primaryKey = intPk.intValue();
+        } else {
+            // Attempt to create the record
+            @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "material_data "
+                + "(`material`, `data`) VALUES (?, ?)";
+
+            Long longPk = DB.executeInsert(insert, material, blockData);
+
+            if (longPk != null) {
+                primaryKey = longPk.intValue();
             } else {
-                select += "AND data IS NULL";
-                primaryKey = DB.getFirstColumn(select, material);
+                throw new SQLException(
+                    String.format("Failed to get or create a material record. Material: %s %s", material, blockData));
             }
         }
 
@@ -315,20 +344,26 @@ public class MysqlActivityBatch implements IActivityBatch {
         long primaryKey;
         String uuidStr = TypeUtils.uuidToDbString(playerUuid);
 
-        // Attempt to create the record, or update the world name
-        @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "players "
-            + "(`player`, `player_uuid`) VALUES (?, UNHEX(?)) ON DUPLICATE KEY UPDATE `player` = ?";
+        // Select the existing record
+        @Language("SQL") String select = "SELECT player_id FROM " + storageConfig.prefix() + "players "
+            + "WHERE player_uuid = UNHEX(?)";
 
-        Long longPk = DB.executeInsert(insert, playerName, uuidStr, playerName);
-
+        Long longPk = DB.getFirstColumn(select, uuidStr);
         if (longPk != null) {
             primaryKey = longPk;
         } else {
-            // Select the existing record
-            @Language("SQL") String select = "SELECT player_id FROM " + storageConfig.prefix() + "players "
-                + "WHERE player_uuid = UNHEX(?)";
+            // Attempt to create the record, or update the world name
+            @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "players "
+                + "(`player`, `player_uuid`) VALUES (?, UNHEX(?))";
 
-            primaryKey = DB.getFirstColumn(select, uuidStr);
+            longPk = DB.executeInsert(insert, playerName, uuidStr);
+
+            if (longPk != null) {
+                primaryKey = longPk;
+            } else {
+                throw new SQLException(
+                    String.format("Failed to get or create a player record. Player: %s", playerUuid));
+            }
         }
 
         return primaryKey;
@@ -348,21 +383,27 @@ public class MysqlActivityBatch implements IActivityBatch {
         byte primaryKey;
         String uuidStr = TypeUtils.uuidToDbString(worldUuid);
 
-        // Attempt to create the record, or update the world name
-        @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "worlds "
-            + "(`world`, `world_uuid`) VALUES (?, UNHEX(?)) ON DUPLICATE KEY UPDATE `world` = ?";
+        // Select any existing record
+        // Note: We check *then* insert instead of using on duplicate key because ODK would
+        // generate a new auto-increment primary key and update it every time, leading to ballooning PKs
+        @Language("SQL") String select = "SELECT world_id FROM " + storageConfig.prefix() + "worlds "
+            + "WHERE world_uuid = UNHEX(?)";
 
-        Long longPk = DB.executeInsert(insert, worldName, uuidStr, worldName);
-
-        if (longPk != null) {
-            primaryKey = longPk.byteValue();
-        } else {
-            // Select the existing record
-            @Language("SQL") String select = "SELECT world_id FROM " + storageConfig.prefix() + "worlds "
-                + "WHERE world_uuid = UNHEX(?)";
-
-            Integer intPk = DB.getFirstColumn(select, uuidStr);
+        Integer intPk = DB.getFirstColumn(select, uuidStr);
+        if (intPk != null) {
             primaryKey = intPk.byteValue();
+        } else {
+            // Attempt to create the record, or update the world name
+            @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "worlds "
+                + "(`world`, `world_uuid`) VALUES (?, UNHEX(?))";
+
+            Long longPk = DB.executeInsert(insert, worldName, uuidStr);
+            if (longPk != null) {
+                primaryKey = longPk.byteValue();
+            } else {
+                throw new SQLException(
+                    String.format("Failed to get or create a world record. World: %s", worldUuid));
+            }
         }
 
         return primaryKey;
