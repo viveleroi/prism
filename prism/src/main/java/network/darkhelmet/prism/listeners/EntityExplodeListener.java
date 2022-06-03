@@ -22,80 +22,60 @@ package network.darkhelmet.prism.listeners;
 
 import com.google.inject.Inject;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import network.darkhelmet.prism.api.actions.IActionRegistry;
 import network.darkhelmet.prism.services.configuration.ConfigurationService;
-import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.filters.FilterService;
-import network.darkhelmet.prism.utils.BlockUtils;
-import network.darkhelmet.prism.utils.EntityUtils;
 
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.EnderDragon;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 
-public class BlockBreakListener extends AbstractListener implements Listener {
-    /**
-     * The expectation service.
-     */
-    private final ExpectationService expectationService;
-
+public class EntityExplodeListener extends AbstractListener implements Listener {
     /**
      * Construct the listener.
      *
      * @param configurationService The configuration service
      * @param actionRegistry The action registry
-     * @param expectationService The expectation service
      * @param filterService The filter service
      */
     @Inject
-    public BlockBreakListener(
+    public EntityExplodeListener(
             ConfigurationService configurationService,
             IActionRegistry actionRegistry,
-            ExpectationService expectationService,
             FilterService filterService) {
         super(configurationService, actionRegistry, filterService);
-        this.expectationService = expectationService;
     }
 
     /**
-     * Listens for block break events.
+     * Listens for entity explode events.
      *
      * @param event The event
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onBlockBreak(final BlockBreakEvent event) {
-        final Player player = event.getPlayer();
-        final Block block = BlockUtils.rootBlock(event.getBlock());
-
-        // Find any hanging entities.
-        if (configurationService.prismConfig().actions().hangingBreak()) {
-            for (Entity hanging : EntityUtils.hangingEntities(block.getLocation(), 2)) {
-                expectationService.expect(hanging, player);
-            }
-        }
-
+    public void onEntityExplode(final EntityExplodeEvent event) {
         // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().blockBreak()) {
+        if (!configurationService.prismConfig().actions().explosion()) {
             return;
         }
 
-        // Record all blocks that will detach
-        for (Block detachable : BlockUtils.detachables(new ArrayList<>(), block)) {
-            recordBlockBreakAction(detachable, player);
+        String cause = "explosion";
+        if (event.getEntity() instanceof TNTPrimed) {
+            cause = "tnt";
+        } else if (event.getEntity() instanceof EnderDragon) {
+            cause = "ender dragon";
+        } else {
+            cause = event.getEntity().getType().name().toLowerCase().replace("_", " ");
         }
 
-        // Record all blocks that will fall
-        for (Block faller : BlockUtils.gravity(new ArrayList<>(), block)) {
-            recordBlockBreakAction(faller, player);
+        List<Block> affected = event.blockList();
+        for (Block block : affected) {
+            recordBlockBreakAction(block, cause);
         }
-
-        // Record this block
-        recordBlockBreakAction(block, player);
     }
 }

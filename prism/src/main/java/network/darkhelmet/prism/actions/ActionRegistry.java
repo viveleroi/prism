@@ -53,7 +53,7 @@ public class ActionRegistry implements IActionRegistry {
     public static final ActionType BLOCK_BREAK =
         new BlockActionType("block-break", ActionResultType.REMOVES, true);
     public static final ActionType BLOCK_PLACE =
-            new BlockActionType("block-place", ActionResultType.CREATES, true);
+        new BlockActionType("block-place", ActionResultType.CREATES, true);
     public static final ActionType ENTITY_KILL =
         new EntityActionType("entity-kill", ActionResultType.REMOVES, true);
     public static final ActionType HANGING_BREAK =

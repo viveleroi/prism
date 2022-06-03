@@ -20,8 +20,6 @@
 
 package network.darkhelmet.prism.listeners;
 
-import com.google.inject.Inject;
-
 import network.darkhelmet.prism.actions.ActionRegistry;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.IActionRegistry;
@@ -32,14 +30,23 @@ import network.darkhelmet.prism.services.filters.FilterService;
 import network.darkhelmet.prism.services.recording.RecordingQueue;
 
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockPlaceEvent;
 
-public class BlockPlaceListener extends AbstractListener implements Listener {
+public class AbstractListener {
+    /**
+     * The configuration service.
+     */
+    protected final ConfigurationService configurationService;
+
+    /**
+     * The action registry.
+     */
+    protected final IActionRegistry actionRegistry;
+
+    /**
+     * The filter service.
+     */
+    protected final FilterService filterService;
+
     /**
      * Construct the listener.
      *
@@ -47,38 +54,28 @@ public class BlockPlaceListener extends AbstractListener implements Listener {
      * @param actionRegistry The action registry
      * @param filterService The filter service
      */
-    @Inject
-    public BlockPlaceListener(
+    public AbstractListener(
             ConfigurationService configurationService,
             IActionRegistry actionRegistry,
             FilterService filterService) {
-        super(configurationService, actionRegistry, filterService);
+        this.configurationService = configurationService;
+        this.actionRegistry = actionRegistry;
+        this.filterService = filterService;
     }
 
     /**
-     * Listens for block place events.
+     * Convenience method for recording a block break action.
      *
-     * @param event The event
+     * @param block The block
+     * @param cause The cause
      */
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onBlockPlace(final BlockPlaceEvent event) {
-        final Player player = event.getPlayer();
-
-        // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().blockPlace()) {
-            return;
-        }
-
-        Block blockPlaced = event.getBlockPlaced();
-        final BlockState replacedState = event.getBlockReplacedState();
-
+    protected void recordBlockBreakAction(Block block, Object cause) {
         // Build the action
-        final IAction action = actionRegistry.createBlockAction(
-            ActionRegistry.BLOCK_PLACE, blockPlaced.getState(), replacedState);
+        final IAction action = actionRegistry.createBlockAction(ActionRegistry.BLOCK_BREAK, block.getState());
 
-        // Build the block place by player activity
+        // Build the block break by player activity
         final IActivity activity = Activity.builder()
-            .action(action).location(blockPlaced.getLocation()).cause(player).build();
+            .action(action).location(block.getLocation()).cause(cause).build();
 
         if (filterService.allows(activity)) {
             RecordingQueue.addToQueue(activity);

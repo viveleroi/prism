@@ -34,6 +34,9 @@ public class ActionsConfiguration {
     @Comment("entity-kill is when an entity (or player) kills another.")
     private boolean entityKill = true;
 
+    @Comment("explosion is when a block or entity explodes.")
+    private boolean explosion = true;
+
     @Comment("""
             hanging-break is when an item frame or painting is broken/detached.
             This event will operate if block-break is false, even for detachments.
@@ -68,6 +71,15 @@ public class ActionsConfiguration {
      */
     public boolean entityKill() {
         return entityKill;
+    }
+
+    /**
+     * Get if explosion enabled.
+     *
+     * @return True if enabled
+     */
+    public boolean explosion() {
+        return explosion;
     }
 
     /**
