@@ -58,7 +58,7 @@ public class BlockExplodeListener extends AbstractListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockExplode(final BlockExplodeEvent event) {
         // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().explosion()) {
+        if (!configurationService.prismConfig().actions().blockBreak()) {
             return;
         }
 

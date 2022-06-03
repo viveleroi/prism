@@ -59,18 +59,18 @@ public class EntityExplodeListener extends AbstractListener implements Listener 
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityExplode(final EntityExplodeEvent event) {
-        // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().explosion()) {
-            return;
-        }
-
-        String cause = "explosion";
+        String cause = "";
         if (event.getEntity() instanceof TNTPrimed) {
             cause = "tnt";
         } else if (event.getEntity() instanceof EnderDragon) {
             cause = "ender dragon";
         } else {
             cause = event.getEntity().getType().name().toLowerCase().replace("_", " ");
+        }
+
+        // Ignore recording block breaks if they are disabled
+        if (!configurationService.prismConfig().actions().blockBreak()) {
+            return;
         }
 
         List<Block> affected = event.blockList();
