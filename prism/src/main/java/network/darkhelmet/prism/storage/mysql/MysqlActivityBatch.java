@@ -311,7 +311,7 @@ public class MysqlActivityBatch implements IActivityBatch {
         }
 
         if (intPk != null) {
-            primaryKey = intPk.intValue();
+            primaryKey = intPk;
         } else {
             // Attempt to create the record
             @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "material_data "
