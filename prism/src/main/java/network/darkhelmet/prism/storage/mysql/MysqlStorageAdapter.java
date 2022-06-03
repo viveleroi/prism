@@ -147,6 +147,9 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         long innodbSizeMb = Long.parseLong(dbInfo.get("innodb_buffer_pool_size")) / 1024 / 1024;
         logger.info(String.format("innodb_buffer_pool_size: %d", innodbSizeMb));
         logger.info(String.format("sql_mode: %s", dbInfo.get("sql_mode")));
+
+        String grant = DB.getFirstColumn("SHOW GRANTS FOR CURRENT_USER();");
+        logger.info(String.format("can create routines: %b", grant.contains("CREATE ROUTINE")));
     }
 
     /**
