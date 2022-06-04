@@ -297,6 +297,28 @@ public class MysqlStorageAdapter implements IStorageAdapter {
                     + "END";
                 stmt.execute(actionsProcedure);
 
+                // Cause procedure
+                @Language("SQL") String dropCauseProcedure = "DROP PROCEDURE IF EXISTS getOrCreateCause";
+                stmt.execute(dropCauseProcedure);
+
+                // Create the get-or-create Cause procedure
+                @Language("SQL") String causeProcedure = "CREATE PROCEDURE getOrCreateCause "
+                    + "(IN `cause` VARCHAR(25), IN `playerId` INT(11), OUT `causeId` INT(10)) "
+                    + "BEGIN "
+                    + "    IF `playerId` IS NOT NULL THEN "
+                    + "        SELECT cause_id INTO `causeId` FROM "
+                    + prefix + "causes WHERE player_id = `playerId`; "
+                    + "    ELSEIF `cause` IS NOT NULL THEN "
+                    + "        SELECT cause_id INTO `causeId` FROM " + prefix + "causes WHERE cause = `cause`; "
+                    + "    END IF; "
+                    + "    IF `causeId` IS NULL THEN "
+                    + "        INSERT INTO "
+                    + prefix + "causes (`cause`, `player_id`) VALUES (`cause`, `playerId`); "
+                    + "        SET `causeId` = LAST_INSERT_ID(); "
+                    + "    END IF; "
+                    + "END";
+                stmt.execute(causeProcedure);
+
                 // World procedure
                 @Language("SQL") String dropWorldProcedure = "DROP PROCEDURE IF EXISTS getOrCreateWorld";
                 stmt.execute(dropWorldProcedure);

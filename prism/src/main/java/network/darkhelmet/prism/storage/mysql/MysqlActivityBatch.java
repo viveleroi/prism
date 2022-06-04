@@ -229,35 +229,51 @@ public class MysqlActivityBatch implements IActivityBatch {
     private long getOrCreateCauseId(String cause, @Nullable Long playerId) throws SQLException {
         long primaryKey;
 
-        Long longPk;
-        if (playerId != null) {
-            // Select the existing record on player
-            @Language("SQL") String select = "SELECT cause_id FROM " + storageConfig.prefix() + "causes "
-                + "WHERE player_id = ? ";
+        if (storageConfig.useStoredProcedures()) {
+            try (Connection conn = DB.getGlobalDatabase().getConnection();
+                 CallableStatement callStmt = conn.prepareCall("{CALL getOrCreateCause(?, ?, ?)}")) {
+                callStmt.setString(1, cause);
+                if (playerId != null) {
+                    callStmt.setLong(2, playerId);
+                } else {
+                    callStmt.setNull(2, Types.INTEGER);
+                }
+                callStmt.registerOutParameter(3, Types.INTEGER);
+                callStmt.executeQuery();
 
-            longPk = DB.getFirstColumn(select, playerId);
+                primaryKey = callStmt.getLong(3);
+            }
         } else {
-            // Select the existing record on cause
-            @Language("SQL") String select = "SELECT cause_id FROM " + storageConfig.prefix() + "causes "
-                + "WHERE cause = ? ";
+            Long longPk;
+            if (playerId != null) {
+                // Select the existing record on player
+                @Language("SQL") String select = "SELECT cause_id FROM " + storageConfig.prefix() + "causes "
+                    + "WHERE player_id = ?";
 
-            longPk = DB.getFirstColumn(select, cause);
-        }
+                longPk = DB.getFirstColumn(select, playerId);
+            } else {
+                // Select the existing record on cause
+                @Language("SQL") String select = "SELECT cause_id FROM " + storageConfig.prefix() + "causes "
+                    + "WHERE cause = ?";
 
-        if (longPk != null) {
-            primaryKey = longPk;
-        } else {
-            // Attempt to create the record
-            @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "causes "
-                    + "(`cause`, `player_id`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `cause` = `cause`";
-
-            longPk = DB.executeInsert(insert, cause, playerId);
+                longPk = DB.getFirstColumn(select, cause);
+            }
 
             if (longPk != null) {
                 primaryKey = longPk;
             } else {
-                throw new SQLException(
-                    String.format("Failed to get or create a cause record. Cause: %s, %d", cause, playerId));
+                // Attempt to create the record
+                @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "causes "
+                    + "(`cause`, `player_id`) VALUES (?, ?)";
+
+                longPk = DB.executeInsert(insert, cause, playerId);
+
+                if (longPk != null) {
+                    primaryKey = longPk;
+                } else {
+                    throw new SQLException(
+                        String.format("Failed to get or create a cause record. Cause: %s, %d", cause, playerId));
+                }
             }
         }
 
