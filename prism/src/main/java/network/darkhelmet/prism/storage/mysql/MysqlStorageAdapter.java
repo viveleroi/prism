@@ -287,12 +287,12 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Create the get-or-create Actions procedure
                 @Language("SQL") String actionsProcedure = "CREATE PROCEDURE getOrCreateAction "
-                    + "(IN `@action` VARCHAR(25), OUT `@actionId` TINYINT(3)) "
+                    + "(IN `action` VARCHAR(25), OUT `actionId` TINYINT(3)) "
                     + "BEGIN "
-                    + "    SELECT action_id INTO `@actionId` FROM " + prefix + "actions WHERE action = `@action`; "
-                    + "    IF `@actionId` IS NULL THEN "
-                    + "        INSERT INTO " + prefix + "actions (`action`) VALUES (`@action`); "
-                    + "        SET `@actionId` = LAST_INSERT_ID(); "
+                    + "    SELECT action_id INTO `actionId` FROM " + prefix + "actions WHERE action = `action`; "
+                    + "    IF `actionId` IS NULL THEN "
+                    + "        INSERT INTO " + prefix + "actions (`action`) VALUES (`action`); "
+                    + "        SET `actionId` = LAST_INSERT_ID(); "
                     + "    END IF; "
                     + "END";
                 stmt.execute(actionsProcedure);
@@ -325,14 +325,14 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Create the get-or-create World procedure
                 @Language("SQL") String worldProcedure = "CREATE PROCEDURE getOrCreateWorld "
-                    + "(IN `@world` VARCHAR(255), IN `@uuid` VARCHAR(55), OUT `@worldId` TINYINT(3)) "
+                    + "(IN `world` VARCHAR(255), IN `uuid` VARCHAR(55), OUT `worldId` TINYINT(3)) "
                     + "BEGIN "
-                    + "    SELECT world_id INTO `@worldId` FROM "
-                    + prefix + "worlds WHERE world_uuid = UNHEX(`@uuid`); "
-                    + "    IF `@worldId` IS NULL THEN "
+                    + "    SELECT world_id INTO `worldId` FROM "
+                    + prefix + "worlds WHERE world_uuid = UNHEX(`uuid`); "
+                    + "    IF `worldId` IS NULL THEN "
                     + "        INSERT INTO " + prefix + "worlds (`world`, `world_uuid`) "
-                    + "             VALUES (`@world`, UNHEX(`@uuid`)); "
-                    + "        SET `@worldId` = LAST_INSERT_ID(); "
+                    + "             VALUES (`world`, UNHEX(`uuid`)); "
+                    + "        SET `worldId` = LAST_INSERT_ID(); "
                     + "    END IF; "
                     + "END";
                 stmt.execute(worldProcedure);
