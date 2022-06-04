@@ -279,7 +279,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         DB.executeInsert(setSchemaVer, "schema_ver", "v4");
 
         if (configurationService.storageConfig().useStoredProcedures()) {
-            try(Statement stmt = DB.getGlobalDatabase().getConnection().createStatement()) {
+            try (Statement stmt = DB.getGlobalDatabase().getConnection().createStatement()) {
                 // Drop procedures first because MariaDB doesn't support IF NOT EXISTS in CREATE PROCEDURE
                 // MySQL does, but only in 8.0.29+
                 @Language("SQL") String dropActionsProcedure = "DROP PROCEDURE IF EXISTS getOrCreateAction";
@@ -296,6 +296,24 @@ public class MysqlStorageAdapter implements IStorageAdapter {
                     + "    END IF; "
                     + "END";
                 stmt.execute(actionsProcedure);
+
+                // World procedure
+                @Language("SQL") String dropWorldProcedure = "DROP PROCEDURE IF EXISTS getOrCreateWorld";
+                stmt.execute(dropWorldProcedure);
+
+                // Create the get-or-create World procedure
+                @Language("SQL") String worldProcedure = "CREATE PROCEDURE getOrCreateWorld "
+                    + "(IN `@world` VARCHAR(255), IN `@uuid` VARCHAR(55), OUT `@worldId` TINYINT(3)) "
+                    + "BEGIN "
+                    + "    SELECT world_id INTO `@worldId` FROM "
+                    + prefix + "worlds WHERE world_uuid = UNHEX(`@uuid`); "
+                    + "    IF `@worldId` IS NULL THEN "
+                    + "        INSERT INTO " + prefix + "worlds (`world`, `world_uuid`) "
+                    + "             VALUES (`@world`, UNHEX(`@uuid`)); "
+                    + "        SET `@worldId` = LAST_INSERT_ID(); "
+                    + "    END IF; "
+                    + "END";
+                stmt.execute(worldProcedure);
             }
         }
     }

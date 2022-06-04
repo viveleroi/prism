@@ -22,7 +22,13 @@ package network.darkhelmet.prism.storage.mysql;
 
 import co.aikar.idb.DB;
 
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -176,14 +182,15 @@ public class MysqlActivityBatch implements IActivityBatch {
         byte primaryKey;
 
         if (storageConfig.useStoredProcedures()) {
-            CallableStatement callStmt = DB.getGlobalDatabase().getConnection()
-                .prepareCall("{CALL getOrCreateAction(?, ?)}");
-            callStmt.setString(1, actionKey);
-            callStmt.registerOutParameter(2, Types.INTEGER);
-            callStmt.executeQuery();
+            try (Connection conn = DB.getGlobalDatabase().getConnection();
+                CallableStatement callStmt = conn.prepareCall("{CALL getOrCreateAction(?, ?)}")) {
+                callStmt.setString(1, actionKey);
+                callStmt.registerOutParameter(2, Types.INTEGER);
+                callStmt.executeQuery();
 
-            int intPk = callStmt.getInt(2);
-            primaryKey = (byte) intPk;
+                int intPk = callStmt.getInt(2);
+                primaryKey = (byte) intPk;
+            }
         } else {
             // Select any existing record
             @Language("SQL") String select = "SELECT action_id FROM " + storageConfig.prefix() + "actions "
@@ -390,26 +397,39 @@ public class MysqlActivityBatch implements IActivityBatch {
         byte primaryKey;
         String uuidStr = TypeUtils.uuidToDbString(worldUuid);
 
-        // Select any existing record
-        // Note: We check *then* insert instead of using on duplicate key because ODK would
-        // generate a new auto-increment primary key and update it every time, leading to ballooning PKs
-        @Language("SQL") String select = "SELECT world_id FROM " + storageConfig.prefix() + "worlds "
-            + "WHERE world_uuid = UNHEX(?)";
+        if (storageConfig.useStoredProcedures()) {
+            try (Connection conn = DB.getGlobalDatabase().getConnection();
+                CallableStatement callStmt = conn.prepareCall("{CALL getOrCreateWorld(?, ?, ?)}")) {
+                callStmt.setString(1, worldName);
+                callStmt.setString(2, uuidStr);
+                callStmt.registerOutParameter(3, Types.INTEGER);
+                callStmt.executeQuery();
 
-        Integer intPk = DB.getFirstColumn(select, uuidStr);
-        if (intPk != null) {
-            primaryKey = intPk.byteValue();
+                int intPk = callStmt.getInt(3);
+                primaryKey = (byte) intPk;
+            }
         } else {
-            // Attempt to create the record, or update the world name
-            @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "worlds "
-                + "(`world`, `world_uuid`) VALUES (?, UNHEX(?))";
+            // Select any existing record
+            // Note: We check *then* insert instead of using on duplicate key because ODK would
+            // generate a new auto-increment primary key and update it every time, leading to ballooning PKs
+            @Language("SQL") String select = "SELECT world_id FROM " + storageConfig.prefix() + "worlds "
+                + "WHERE world_uuid = UNHEX(?)";
 
-            Long longPk = DB.executeInsert(insert, worldName, uuidStr);
-            if (longPk != null) {
-                primaryKey = longPk.byteValue();
+            Integer intPk = DB.getFirstColumn(select, uuidStr);
+            if (intPk != null) {
+                primaryKey = intPk.byteValue();
             } else {
-                throw new SQLException(
-                    String.format("Failed to get or create a world record. World: %s", worldUuid));
+                // Attempt to create the record, or update the world name
+                @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "worlds "
+                    + "(`world`, `world_uuid`) VALUES (?, UNHEX(?))";
+
+                Long longPk = DB.executeInsert(insert, worldName, uuidStr);
+                if (longPk != null) {
+                    primaryKey = longPk.byteValue();
+                } else {
+                    throw new SQLException(
+                        String.format("Failed to get or create a world record. World: %s", worldUuid));
+                }
             }
         }
 
