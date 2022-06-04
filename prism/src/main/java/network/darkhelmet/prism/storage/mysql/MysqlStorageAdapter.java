@@ -319,6 +319,23 @@ public class MysqlStorageAdapter implements IStorageAdapter {
                     + "END";
                 stmt.execute(causeProcedure);
 
+                // EntityType procedure
+                @Language("SQL") String dropEntityTypeProcedure = "DROP PROCEDURE IF EXISTS getOrCreateEntityType";
+                stmt.execute(dropEntityTypeProcedure);
+
+                // Create the get-or-create Entity type procedure
+                @Language("SQL") String entityTypeProcedure = "CREATE PROCEDURE getOrCreateEntityType "
+                    + "(IN `entityType` VARCHAR(25), OUT `entityTypeId` SMALLINT(6)) "
+                    + "BEGIN "
+                    + "    SELECT entity_type_id INTO `entityTypeId` FROM "
+                    + prefix + "entity_types WHERE entity_type = `entityType`; "
+                    + "    IF `entityTypeId` IS NULL THEN "
+                    + "        INSERT INTO " + prefix + "entity_types (`entity_type`) VALUES (`entityType`); "
+                    + "        SET `entityTypeId` = LAST_INSERT_ID(); "
+                    + "    END IF; "
+                    + "END";
+                stmt.execute(entityTypeProcedure);
+
                 // World procedure
                 @Language("SQL") String dropWorldProcedure = "DROP PROCEDURE IF EXISTS getOrCreateWorld";
                 stmt.execute(dropWorldProcedure);

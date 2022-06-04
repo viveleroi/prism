@@ -290,25 +290,36 @@ public class MysqlActivityBatch implements IActivityBatch {
     private int getOrCreateEntityTypeId(String entityType) throws SQLException {
         int primaryKey;
 
-        // Select the existing record
-        @Language("SQL") String select = "SELECT entity_type_id FROM " + storageConfig.prefix() + "entity_types "
-            + "WHERE entity_type = ? ";
+        if (storageConfig.useStoredProcedures()) {
+            try (Connection conn = DB.getGlobalDatabase().getConnection();
+                 CallableStatement callStmt = conn.prepareCall("{CALL getOrCreateEntityType(?, ?)}")) {
+                callStmt.setString(1, entityType);
+                callStmt.registerOutParameter(2, Types.INTEGER);
+                callStmt.executeQuery();
 
-        Long longPk = DB.getFirstColumn(select, entityType);
-        if (longPk != null) {
-            primaryKey = longPk.intValue();
+                primaryKey = callStmt.getInt(2);
+            }
         } else {
-            // Attempt to create the record
-            @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "entity_types "
-                + "(`entity_type`) VALUES (?) ON DUPLICATE KEY UPDATE `entity_type` = `entity_type`";
+            // Select the existing record
+            @Language("SQL") String select = "SELECT entity_type_id FROM " + storageConfig.prefix() + "entity_types "
+                + "WHERE entity_type = ? ";
 
-            longPk = DB.executeInsert(insert, entityType);
-
+            Long longPk = DB.getFirstColumn(select, entityType);
             if (longPk != null) {
                 primaryKey = longPk.intValue();
             } else {
-                throw new SQLException(
-                    String.format("Failed to get or create a entity type record. Material: %s", entityType));
+                // Attempt to create the record
+                @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "entity_types "
+                    + "(`entity_type`) VALUES (?)";
+
+                longPk = DB.executeInsert(insert, entityType);
+
+                if (longPk != null) {
+                    primaryKey = longPk.intValue();
+                } else {
+                    throw new SQLException(
+                        String.format("Failed to get or create a entity type record. Material: %s", entityType));
+                }
             }
         }
 
