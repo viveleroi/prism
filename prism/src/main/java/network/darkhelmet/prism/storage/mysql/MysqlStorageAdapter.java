@@ -336,6 +336,29 @@ public class MysqlStorageAdapter implements IStorageAdapter {
                     + "END";
                 stmt.execute(entityTypeProcedure);
 
+                // Material procedure
+                @Language("SQL") String dropMaterialProcedure = "DROP PROCEDURE IF EXISTS getOrCreateMaterial";
+                stmt.execute(dropMaterialProcedure);
+
+                // Create the get-or-create Material type procedure
+                @Language("SQL") String materialProcedure = "CREATE PROCEDURE getOrCreateMaterial "
+                    + "(IN `material` VARCHAR(45), IN `blockData` VARCHAR(155), OUT `materialId` SMALLINT(6)) "
+                    + "BEGIN "
+                    + "    IF blockData IS NOT NULL THEN "
+                    + "        SELECT material_id INTO `materialId` FROM "
+                    + prefix + "material_data WHERE material = `material` AND data = `blockData`; "
+                    + "    ELSE "
+                    + "        SELECT material_id INTO `materialId` FROM "
+                    + prefix + "material_data WHERE material = `material` AND data IS NULL; "
+                    + "    END IF; "
+                    + "    IF `materialId` IS NULL THEN "
+                    + "        INSERT INTO " + prefix + "material_data (`material`, `data`) "
+                    + "        VALUES (`material`, `blockData`); "
+                    + "        SET `materialId` = LAST_INSERT_ID(); "
+                    + "    END IF; "
+                    + "END";
+                stmt.execute(materialProcedure);
+
                 // Player procedure
                 @Language("SQL") String dropPlayerProcedure = "DROP PROCEDURE IF EXISTS getOrCreatePlayer";
                 stmt.execute(dropPlayerProcedure);

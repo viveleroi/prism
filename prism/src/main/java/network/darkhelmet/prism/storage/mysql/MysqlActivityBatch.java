@@ -337,34 +337,51 @@ public class MysqlActivityBatch implements IActivityBatch {
     private int getOrCreateMaterialId(String material, String blockData) throws SQLException {
         int primaryKey;
 
-        // Select the existing material or material+data
-        @Language("SQL") String select = "SELECT material_id FROM "
-            + storageConfig.prefix() + "material_data "
-            + "WHERE material = ? ";
+        if (storageConfig.useStoredProcedures()) {
+            try (Connection conn = DB.getGlobalDatabase().getConnection();
+                 CallableStatement callStmt = conn.prepareCall("{CALL getOrCreateMaterial(?, ?, ?)}")) {
+                callStmt.setString(1, material);
+                if (blockData != null) {
+                    callStmt.setString(2, blockData);
+                } else {
+                    callStmt.setNull(2, Types.VARCHAR);
+                }
+                callStmt.registerOutParameter(3, Types.INTEGER);
+                callStmt.executeQuery();
 
-        Integer intPk;
-        if (blockData != null) {
-            select += "AND data = ?";
-            intPk = DB.getFirstColumn(select, material, blockData);
+                primaryKey = callStmt.getInt(3);
+            }
         } else {
-            select += "AND data IS NULL";
-            intPk = DB.getFirstColumn(select, material);
-        }
+            // Select the existing material or material+data
+            @Language("SQL") String select = "SELECT material_id FROM "
+                + storageConfig.prefix() + "material_data "
+                + "WHERE material = ? ";
 
-        if (intPk != null) {
-            primaryKey = intPk;
-        } else {
-            // Attempt to create the record
-            @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "material_data "
-                + "(`material`, `data`) VALUES (?, ?)";
-
-            Long longPk = DB.executeInsert(insert, material, blockData);
-
-            if (longPk != null) {
-                primaryKey = longPk.intValue();
+            Integer intPk;
+            if (blockData != null) {
+                select += "AND data = ?";
+                intPk = DB.getFirstColumn(select, material, blockData);
             } else {
-                throw new SQLException(
-                    String.format("Failed to get or create a material record. Material: %s %s", material, blockData));
+                select += "AND data IS NULL";
+                intPk = DB.getFirstColumn(select, material);
+            }
+
+            if (intPk != null) {
+                primaryKey = intPk;
+            } else {
+                // Attempt to create the record
+                @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "material_data "
+                    + "(`material`, `data`) VALUES (?, ?)";
+
+                Long longPk = DB.executeInsert(insert, material, blockData);
+
+                if (longPk != null) {
+                    primaryKey = longPk.intValue();
+                } else {
+                    throw new SQLException(
+                        String.format("Failed to get or create a material record. Material: %s %s",
+                            material, blockData));
+                }
             }
         }
 
