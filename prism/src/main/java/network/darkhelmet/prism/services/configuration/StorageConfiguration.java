@@ -52,6 +52,8 @@ public class StorageConfiguration {
     @Comment("Enter the username, if the selected datasource uses authentication.")
     private String username = "root";
 
+    private boolean useStoredProcedures = true;
+
     /**
      * Get the batch max.
      *
@@ -122,5 +124,21 @@ public class StorageConfiguration {
      */
     public String username() {
         return username;
+    }
+
+    /**
+     * Get whether to use stored procedures.
+     *
+     * @return Whether to use stored procedures
+     */
+    public boolean useStoredProcedures() {
+        return useStoredProcedures;
+    }
+
+    /**
+     * Disable the setting for using stored procedures.
+     */
+    public void disallowStoredProcedures() {
+        this.useStoredProcedures = false;
     }
 }

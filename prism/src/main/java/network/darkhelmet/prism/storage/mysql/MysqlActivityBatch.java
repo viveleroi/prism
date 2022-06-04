@@ -22,11 +22,7 @@ package network.darkhelmet.prism.storage.mysql;
 
 import co.aikar.idb.DB;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -179,25 +175,36 @@ public class MysqlActivityBatch implements IActivityBatch {
     private byte getOrCreateActionId(String actionKey) throws SQLException {
         byte primaryKey;
 
-        // Select any existing record
-        @Language("SQL") String select = "SELECT action_id FROM " + storageConfig.prefix() + "actions "
-            + "WHERE action = ? ";
+        if (storageConfig.useStoredProcedures()) {
+            CallableStatement callStmt = DB.getGlobalDatabase().getConnection()
+                .prepareCall("{CALL getOrCreateAction(?, ?)}");
+            callStmt.setString(1, actionKey);
+            callStmt.registerOutParameter(2, Types.INTEGER);
+            callStmt.executeQuery();
 
-        Integer intPk = DB.getFirstColumn(select, actionKey);
-        if (intPk != null) {
-            primaryKey = intPk.byteValue();
+            int intPk = callStmt.getInt(2);
+            primaryKey = (byte) intPk;
         } else {
-            // Attempt to create the record
-            @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "actions "
-                + "(`action`) VALUES (?)";
+            // Select any existing record
+            @Language("SQL") String select = "SELECT action_id FROM " + storageConfig.prefix() + "actions "
+                + "WHERE action = ?";
 
-            Long longPk = DB.executeInsert(insert, actionKey);
-
-            if (longPk != null) {
-                primaryKey = longPk.byteValue();
+            Integer intPk = DB.getFirstColumn(select, actionKey);
+            if (intPk != null) {
+                primaryKey = intPk.byteValue();
             } else {
-                throw new SQLException(
-                    String.format("Failed to get or create an action record. Action: %s", actionKey));
+                // Attempt to create the record
+                @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "actions "
+                    + "(`action`) VALUES (?)";
+
+                Long longPk = DB.executeInsert(insert, actionKey);
+
+                if (longPk != null) {
+                    primaryKey = longPk.byteValue();
+                } else {
+                    throw new SQLException(
+                        String.format("Failed to get or create an action record. Action: %s", actionKey));
+                }
             }
         }
 

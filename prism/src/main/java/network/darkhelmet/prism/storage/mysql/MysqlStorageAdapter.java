@@ -30,6 +30,7 @@ import com.google.inject.Inject;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -149,7 +150,12 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         logger.info(String.format("sql_mode: %s", dbInfo.get("sql_mode")));
 
         String grant = DB.getFirstColumn("SHOW GRANTS FOR CURRENT_USER();");
-        logger.info(String.format("can create routines: %b", grant.contains("CREATE ROUTINE")));
+        boolean canCreateRoutines = grant.contains("CREATE ROUTINE");
+        logger.info(String.format("can create routines: %b", canCreateRoutines));
+
+        if (configurationService.storageConfig().useStoredProcedures() && !canCreateRoutines) {
+            configurationService.storageConfig().disallowStoredProcedures();
+        }
     }
 
     /**
@@ -158,11 +164,12 @@ public class MysqlStorageAdapter implements IStorageAdapter {
      * @throws SQLException The database exception
      */
     protected void prepareSchema() throws SQLException {
+        String prefix = configurationService.storageConfig().prefix();
+
         // Create causes table. This is done here because:
         // 1. We need it for new installs anyway
         // 2. Updater logic needs it for 8->v4
-        @Language("SQL") String createCauses = "CREATE TABLE IF NOT EXISTS `"
-            + configurationService.storageConfig().prefix() + "causes` ("
+        @Language("SQL") String createCauses = "CREATE TABLE IF NOT EXISTS `" + prefix + "causes` ("
             + "`cause_id` int unsigned NOT NULL AUTO_INCREMENT,"
             + "`cause` varchar(25) NOT NULL,"
             + "`player_id` int NULL,"
@@ -171,14 +178,13 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
         // Look for existing tables first.
         List<String> tables = DB.getFirstColumnResults("SHOW TABLES LIKE ?",
-            configurationService.storageConfig().prefix() + "%");
-        if (tables.contains(configurationService.storageConfig().prefix() + "meta")) {
+            prefix + "%");
+        if (tables.contains(prefix + "meta")) {
             // Check existing schema version before we do anything.
             // We can't create tables if existing ones are
             // going to be renamed during an update phase.
             // We'd run into collisions
-            @Language("SQL") String sql = "SELECT v FROM " + configurationService.storageConfig().prefix()
-                + "meta WHERE k = 'schema_ver'";
+            @Language("SQL") String sql = "SELECT v FROM " + prefix + "meta WHERE k = 'schema_ver'";
 
             String schemaVersion = DB.getFirstColumn(sql);
             logger.info(String.format("Prism database version: %s", schemaVersion));
@@ -187,8 +193,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         }
 
         // Create actions table
-        @Language("SQL") String actionsQuery = "CREATE TABLE IF NOT EXISTS `"
-            + configurationService.storageConfig().prefix() + "actions` ("
+        @Language("SQL") String actionsQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "actions` ("
             + "`action_id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,"
             + "`action` varchar(25) NOT NULL,"
             + "PRIMARY KEY (`action_id`), UNIQUE KEY `action` (`action`)"
@@ -196,8 +201,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         DB.executeUpdate(actionsQuery);
 
         // Create the activities table. This one's the fatso.
-        @Language("SQL") String activitiesQuery = "CREATE TABLE IF NOT EXISTS `"
-            + configurationService.storageConfig().prefix() + "activities` ("
+        @Language("SQL") String activitiesQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "activities` ("
             + "`activity_id` int(10) unsigned NOT NULL AUTO_INCREMENT,"
             + "`timestamp` int(10) unsigned NOT NULL,"
             + "`world_id` tinyint(3) unsigned NOT NULL,"
@@ -214,8 +218,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         DB.executeUpdate(activitiesQuery);
 
         // Create the custom data table
-        @Language("SQL") String extraQuery = "CREATE TABLE IF NOT EXISTS `"
-            + configurationService.storageConfig().prefix() + "activities_custom_data` ("
+        @Language("SQL") String extraQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "activities_custom_data` ("
             + "`extra_id` int(10) unsigned NOT NULL AUTO_INCREMENT,"
             + "`activity_id` int(10) unsigned NOT NULL,"
             + "`version` SMALLINT NULL,"
@@ -225,8 +228,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         DB.executeUpdate(extraQuery);
 
         // Create the entity types table
-        @Language("SQL") String entityTypeQuery = "CREATE TABLE IF NOT EXISTS `"
-            + configurationService.storageConfig().prefix() + "entity_types` ("
+        @Language("SQL") String entityTypeQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "entity_types` ("
             + "`entity_type_id` smallint(6) NOT NULL AUTO_INCREMENT,"
             + "`entity_type` varchar(45) DEFAULT NULL,"
             + "PRIMARY KEY (`entity_type_id`),"
@@ -234,8 +236,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         DB.executeUpdate(entityTypeQuery);
 
         // Create the material data table
-        @Language("SQL") String matDataQuery = "CREATE TABLE IF NOT EXISTS `"
-            + configurationService.storageConfig().prefix() + "material_data` ("
+        @Language("SQL") String matDataQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "material_data` ("
             + "`material_id` smallint(6) NOT NULL AUTO_INCREMENT,"
             + "`material` varchar(45) DEFAULT NULL,"
             + "`data` varchar(155) DEFAULT NULL,"
@@ -244,8 +245,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         DB.executeUpdate(matDataQuery);
 
         // Create the meta data table
-        @Language("SQL") String metaQuery = "CREATE TABLE IF NOT EXISTS `"
-            + configurationService.storageConfig().prefix() + "meta` ("
+        @Language("SQL") String metaQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "meta` ("
             + "`meta_id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,"
             + "`k` varchar(25) NOT NULL,"
             + "`v` varchar(155) NOT NULL,"
@@ -254,8 +254,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         DB.executeUpdate(metaQuery);
 
         // Create the players table
-        @Language("SQL") String playersQuery = "CREATE TABLE IF NOT EXISTS `"
-            + configurationService.storageConfig().prefix() + "players` ("
+        @Language("SQL") String playersQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "players` ("
             + "`player_id` int(10) unsigned NOT NULL AUTO_INCREMENT,"
             + "`player` varchar(16) NOT NULL,"
             + "`player_uuid` binary(16) NOT NULL,"
@@ -265,8 +264,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         DB.executeUpdate(playersQuery);
 
         // Create worlds table
-        @Language("SQL") String worldsQuery = "CREATE TABLE IF NOT EXISTS `"
-            + configurationService.storageConfig().prefix() + "worlds` ("
+        @Language("SQL") String worldsQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "worlds` ("
             + "`world_id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,"
             + "`world` varchar(255) NOT NULL,"
             + "`world_uuid` binary(16) NOT NULL,"
@@ -276,10 +274,30 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         DB.executeUpdate(worldsQuery);
 
         // Insert the schema version
-        @Language("SQL") String setSchemaVer = "INSERT INTO `"
-            + configurationService.storageConfig().prefix() + "meta` "
+        @Language("SQL") String setSchemaVer = "INSERT INTO `" + prefix + "meta` "
             + " (`k`, `v`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `v` = `v`";
         DB.executeInsert(setSchemaVer, "schema_ver", "v4");
+
+        if (configurationService.storageConfig().useStoredProcedures()) {
+            try(Statement stmt = DB.getGlobalDatabase().getConnection().createStatement()) {
+                // Drop procedures first because MariaDB doesn't support IF NOT EXISTS in CREATE PROCEDURE
+                // MySQL does, but only in 8.0.29+
+                @Language("SQL") String dropActionsProcedure = "DROP PROCEDURE IF EXISTS getOrCreateAction";
+                stmt.execute(dropActionsProcedure);
+
+                // Create the get-or-create Actions procedure
+                @Language("SQL") String actionsProcedure = "CREATE PROCEDURE getOrCreateAction "
+                    + "(IN `@action` VARCHAR(25), OUT `@actionId` TINYINT(3)) "
+                    + "BEGIN "
+                    + "    SELECT action_id INTO `@actionId` FROM " + prefix + "actions WHERE action = `@action`; "
+                    + "    IF `@actionId` IS NULL THEN "
+                    + "        INSERT INTO " + prefix + "actions (`action`) VALUES (`@action`); "
+                    + "        SET `@actionId` = LAST_INSERT_ID(); "
+                    + "    END IF; "
+                    + "END";
+                stmt.execute(actionsProcedure);
+            }
+        }
     }
 
     /**
