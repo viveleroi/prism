@@ -385,25 +385,37 @@ public class MysqlActivityBatch implements IActivityBatch {
         long primaryKey;
         String uuidStr = TypeUtils.uuidToDbString(playerUuid);
 
-        // Select the existing record
-        @Language("SQL") String select = "SELECT player_id FROM " + storageConfig.prefix() + "players "
-            + "WHERE player_uuid = UNHEX(?)";
+        if (storageConfig.useStoredProcedures()) {
+            try (Connection conn = DB.getGlobalDatabase().getConnection();
+                 CallableStatement callStmt = conn.prepareCall("{CALL getOrCreatePlayer(?, ?, ?)}")) {
+                callStmt.setString(1, playerName);
+                callStmt.setString(2, uuidStr);
+                callStmt.registerOutParameter(3, Types.INTEGER);
+                callStmt.executeQuery();
 
-        Long longPk = DB.getFirstColumn(select, uuidStr);
-        if (longPk != null) {
-            primaryKey = longPk;
+                primaryKey = callStmt.getLong(3);
+            }
         } else {
-            // Attempt to create the record, or update the world name
-            @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "players "
-                + "(`player`, `player_uuid`) VALUES (?, UNHEX(?))";
+            // Select the existing record
+            @Language("SQL") String select = "SELECT player_id FROM " + storageConfig.prefix() + "players "
+                + "WHERE player_uuid = UNHEX(?)";
 
-            longPk = DB.executeInsert(insert, playerName, uuidStr);
-
+            Long longPk = DB.getFirstColumn(select, uuidStr);
             if (longPk != null) {
                 primaryKey = longPk;
             } else {
-                throw new SQLException(
-                    String.format("Failed to get or create a player record. Player: %s", playerUuid));
+                // Attempt to create the record, or update the world name
+                @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "players "
+                    + "(`player`, `player_uuid`) VALUES (?, UNHEX(?))";
+
+                longPk = DB.executeInsert(insert, playerName, uuidStr);
+
+                if (longPk != null) {
+                    primaryKey = longPk;
+                } else {
+                    throw new SQLException(
+                        String.format("Failed to get or create a player record. Player: %s", playerUuid));
+                }
             }
         }
 
