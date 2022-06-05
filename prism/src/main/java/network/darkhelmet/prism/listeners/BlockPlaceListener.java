@@ -28,6 +28,7 @@ import network.darkhelmet.prism.api.actions.IActionRegistry;
 import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.filters.FilterService;
 import network.darkhelmet.prism.services.recording.RecordingQueue;
 
@@ -45,14 +46,16 @@ public class BlockPlaceListener extends AbstractListener implements Listener {
      *
      * @param configurationService The configuration service
      * @param actionRegistry The action registry
+     * @param expectationService The expectation service
      * @param filterService The filter service
      */
     @Inject
     public BlockPlaceListener(
             ConfigurationService configurationService,
             IActionRegistry actionRegistry,
+            ExpectationService expectationService,
             FilterService filterService) {
-        super(configurationService, actionRegistry, filterService);
+        super(configurationService, actionRegistry, expectationService, filterService);
     }
 
     /**

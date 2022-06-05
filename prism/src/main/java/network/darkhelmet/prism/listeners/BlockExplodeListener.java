@@ -22,13 +22,11 @@ package network.darkhelmet.prism.listeners;
 
 import com.google.inject.Inject;
 
-import java.util.List;
-
 import network.darkhelmet.prism.api.actions.IActionRegistry;
 import network.darkhelmet.prism.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.filters.FilterService;
 
-import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -40,14 +38,16 @@ public class BlockExplodeListener extends AbstractListener implements Listener {
      *
      * @param configurationService The configuration service
      * @param actionRegistry The action registry
+     * @param expectationService The expectation service
      * @param filterService The filter service
      */
     @Inject
     public BlockExplodeListener(
             ConfigurationService configurationService,
             IActionRegistry actionRegistry,
+            ExpectationService expectationService,
             FilterService filterService) {
-        super(configurationService, actionRegistry, filterService);
+        super(configurationService, actionRegistry, expectationService, filterService);
     }
 
     /**
@@ -62,9 +62,6 @@ public class BlockExplodeListener extends AbstractListener implements Listener {
             return;
         }
 
-        List<Block> affected = event.blockList();
-        for (Block block : affected) {
-            recordBlockBreakAction(block, "explosion");
-        }
+        processExplosion(event.blockList(), "explosion");
     }
 }

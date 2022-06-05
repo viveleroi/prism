@@ -109,7 +109,7 @@ public class RollbackCommand extends BaseCommand {
         }
 
         final ActivityQuery query = queryService.queryFromArguments(player.getLocation(), arguments)
-            .grouped(false).build();
+            .lookup(false).build();
         Prism.newChain().asyncFirst(() -> {
             try {
                 return storageAdapter.queryActivitiesAsModification(query);
