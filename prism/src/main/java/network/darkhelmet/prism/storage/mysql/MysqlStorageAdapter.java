@@ -287,11 +287,11 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Create the get-or-create Actions procedure
                 @Language("SQL") String actionsProcedure = "CREATE PROCEDURE getOrCreateAction "
-                    + "(IN `action` VARCHAR(25), OUT `actionId` TINYINT(3)) "
+                    + "(IN `actionKey` VARCHAR(25), OUT `actionId` TINYINT(3)) "
                     + "BEGIN "
-                    + "    SELECT action_id INTO `actionId` FROM " + prefix + "actions WHERE action = `action`; "
+                    + "    SELECT action_id INTO `actionId` FROM " + prefix + "actions WHERE action = `actionKey`; "
                     + "    IF `actionId` IS NULL THEN "
-                    + "        INSERT INTO " + prefix + "actions (`action`) VALUES (`action`); "
+                    + "        INSERT INTO " + prefix + "actions (`action`) VALUES (`actionKey`); "
                     + "        SET `actionId` = LAST_INSERT_ID(); "
                     + "    END IF; "
                     + "END";
@@ -303,17 +303,17 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Create the get-or-create Cause procedure
                 @Language("SQL") String causeProcedure = "CREATE PROCEDURE getOrCreateCause "
-                    + "(IN `cause` VARCHAR(25), IN `playerId` INT(11), OUT `causeId` INT(10)) "
+                    + "(IN `causeStr` VARCHAR(25), IN `playerId` INT(11), OUT `causeId` INT(10)) "
                     + "BEGIN "
                     + "    IF `playerId` IS NOT NULL THEN "
                     + "        SELECT cause_id INTO `causeId` FROM "
                     + prefix + "causes WHERE player_id = `playerId`; "
-                    + "    ELSEIF `cause` IS NOT NULL THEN "
-                    + "        SELECT cause_id INTO `causeId` FROM " + prefix + "causes WHERE cause = `cause`; "
+                    + "    ELSEIF `causeStr` IS NOT NULL THEN "
+                    + "        SELECT cause_id INTO `causeId` FROM " + prefix + "causes WHERE cause = `causeStr`; "
                     + "    END IF; "
                     + "    IF `causeId` IS NULL THEN "
                     + "        INSERT INTO "
-                    + prefix + "causes (`cause`, `player_id`) VALUES (`cause`, `playerId`); "
+                    + prefix + "causes (`cause`, `player_id`) VALUES (`causeStr`, `playerId`); "
                     + "        SET `causeId` = LAST_INSERT_ID(); "
                     + "    END IF; "
                     + "END";
@@ -342,18 +342,18 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Create the get-or-create Material type procedure
                 @Language("SQL") String materialProcedure = "CREATE PROCEDURE getOrCreateMaterial "
-                    + "(IN `material` VARCHAR(45), IN `blockData` VARCHAR(155), OUT `materialId` SMALLINT(6)) "
+                    + "(IN `materialKey` VARCHAR(45), IN `blockData` VARCHAR(155), OUT `materialId` SMALLINT(6)) "
                     + "BEGIN "
                     + "    IF blockData IS NOT NULL THEN "
                     + "        SELECT material_id INTO `materialId` FROM "
-                    + prefix + "material_data WHERE material = `material` AND data = `blockData`; "
+                    + prefix + "material_data WHERE material = `materialKey` AND data = `blockData`; "
                     + "    ELSE "
                     + "        SELECT material_id INTO `materialId` FROM "
-                    + prefix + "material_data WHERE material = `material` AND data IS NULL; "
+                    + prefix + "material_data WHERE material = `materialKey` AND data IS NULL; "
                     + "    END IF; "
                     + "    IF `materialId` IS NULL THEN "
                     + "        INSERT INTO " + prefix + "material_data (`material`, `data`) "
-                    + "        VALUES (`material`, `blockData`); "
+                    + "        VALUES (`materialKey`, `blockData`); "
                     + "        SET `materialId` = LAST_INSERT_ID(); "
                     + "    END IF; "
                     + "END";
@@ -365,13 +365,13 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Create the get-or-create Player type procedure
                 @Language("SQL") String playerProcedure = "CREATE PROCEDURE getOrCreatePlayer "
-                    + "(IN `player` VARCHAR(16), IN `uuid` VARCHAR(55), OUT `playerId` INT(10)) "
+                    + "(IN `playerName` VARCHAR(16), IN `uuid` VARCHAR(55), OUT `playerId` INT(10)) "
                     + "BEGIN "
                     + "    SELECT player_id INTO `playerId` FROM "
                     + prefix + "players WHERE player_uuid = UNHEX(`uuid`); "
                     + "    IF `playerId` IS NULL THEN "
                     + "        INSERT INTO " + prefix + "players (`player`, `player_uuid`) "
-                    + "        VALUES (`player`, UNHEX(`uuid`)); "
+                    + "        VALUES (`playerName`, UNHEX(`uuid`)); "
                     + "        SET `playerId` = LAST_INSERT_ID(); "
                     + "    END IF; "
                     + "END";
@@ -383,17 +383,69 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Create the get-or-create World procedure
                 @Language("SQL") String worldProcedure = "CREATE PROCEDURE getOrCreateWorld "
-                    + "(IN `world` VARCHAR(255), IN `uuid` VARCHAR(55), OUT `worldId` TINYINT(3)) "
+                    + "(IN `worldName` VARCHAR(255), IN `uuid` VARCHAR(55), OUT `worldId` TINYINT(3)) "
                     + "BEGIN "
                     + "    SELECT world_id INTO `worldId` FROM "
                     + prefix + "worlds WHERE world_uuid = UNHEX(`uuid`); "
                     + "    IF `worldId` IS NULL THEN "
                     + "        INSERT INTO " + prefix + "worlds (`world`, `world_uuid`) "
-                    + "             VALUES (`world`, UNHEX(`uuid`)); "
+                    + "             VALUES (`worldName`, UNHEX(`uuid`)); "
                     + "        SET `worldId` = LAST_INSERT_ID(); "
                     + "    END IF; "
                     + "END";
                 stmt.execute(worldProcedure);
+
+                // Activity procedure
+                @Language("SQL") String dropActivityProcedure = "DROP PROCEDURE IF EXISTS createActivity";
+                stmt.execute(dropActivityProcedure);
+
+                // Create the Activity procedure
+                @Language("SQL") String activityProcedure = "CREATE PROCEDURE createActivity("
+                    + "IN `timestamp` INT(10),"
+                    + "IN `x` INT(11),"
+                    + "IN `y` INT(11),"
+                    + "IN `z` INT(11),"
+                    + "IN `action` VARCHAR(25),"
+                    + "IN `cause` VARCHAR(25),"
+                    + "IN `player` VARCHAR(16),"
+                    + "IN `playerUuid` VARCHAR(55),"
+                    + "IN `entityType` VARCHAR(25),"
+                    + "IN `material` VARCHAR(45),"
+                    + "IN `blockData` VARCHAR(155),"
+                    + "IN `oldMaterial` VARCHAR(45),"
+                    + "IN `oldBlockData` VARCHAR(155),"
+                    + "IN `world` VARCHAR(255),"
+                    + "IN `worldUuid` VARCHAR(55),"
+                    + "IN `customDataVersion` SMALLINT(6),"
+                    + "IN `customData` TEXT,"
+                    + "OUT `activityId` INT(10)) "
+                    + "BEGIN "
+                    + "    CALL getOrCreateAction(`action`, @actionId);"
+                    + "    IF `playerUuid` IS NOT NULL THEN "
+                    + "        CALL getOrCreatePlayer(`player`, `playerUuid`, @playerId); "
+                    + "    END IF; "
+                    + "    CALL getOrCreateCause(`cause`, @playerId, @causeId); "
+                    + "    CALL getOrCreateMaterial(`material`, `blockData`, @materialId); "
+                    + "    CALL getOrCreateWorld(`world`, `worldUuid`, @worldId); "
+                    + "    IF `entityType` IS NOT NULL THEN "
+                    + "        CALL getOrCreateEntityType(entityType, @entityId); "
+                    + "    END IF; "
+                    + "    IF `oldMaterial` IS NOT NULL THEN "
+                    + "        CALL getOrCreateMaterial(oldMaterial, oldBlockData, @oldMaterialId); "
+                    + "    END IF; "
+                    + "    INSERT INTO `" + prefix + "activities` "
+                    + "    (`timestamp`, `world_id`, `x`, `y`, `z`, `action_id`, `material_id`, "
+                    + "    `old_material_id`, `entity_type_id`, `cause_id`) "
+                    + "    VALUES "
+                    + "    (`timestamp`, @worldId, `x`, `y`, `z`, @actionId, @materialId, "
+                    + "    @oldMaterialId, @entityId, @causeId); "
+                    + "    SET `activityId` = LAST_INSERT_ID(); "
+                    + "    IF `customData` IS NOT NULL THEN "
+                    + "        INSERT INTO `" + prefix + "activities_custom_data` (`activity_id`, `version`, `data`) "
+                    + "        VALUES (`activityId`, `customDataVersion`, `customData`); "
+                    + "    END IF; "
+                    + "END";
+                stmt.execute(activityProcedure);
             }
         }
     }
@@ -537,6 +589,10 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
     @Override
     public IActivityBatch createActivityBatch() {
+        if (configurationService.storageConfig().useStoredProcedures()) {
+            return new MysqlActivityProcedureBatch(configurationService.storageConfig());
+        }
+
         return new MysqlActivityBatch(configurationService.storageConfig());
     }
 
