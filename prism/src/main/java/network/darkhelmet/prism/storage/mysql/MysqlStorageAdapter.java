@@ -173,7 +173,10 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             + "`cause_id` int unsigned NOT NULL AUTO_INCREMENT,"
             + "`cause` varchar(25) NOT NULL,"
             + "`player_id` int NULL,"
-            + "PRIMARY KEY (`cause_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+            + "PRIMARY KEY (`cause_id`),"
+            + "UNIQUE KEY `cause` (`cause`),"
+            + "UNIQUE KEY `playerId` (`player_id`)"
+            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
         DB.executeUpdate(createCauses);
 
         // Look for existing tables first.
