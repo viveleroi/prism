@@ -88,7 +88,7 @@ public class MysqlActivityProcedureBatch implements IActivityBatch {
         if (activity.cause() instanceof Player player) {
             String uuidStr = TypeUtils.uuidToDbString(player.getUniqueId());
 
-            statement.setString(6, "unknown");
+            statement.setNull(6, Types.VARCHAR);
             statement.setString(7, player.getName());
             statement.setString(8, uuidStr);
         } else {

@@ -150,7 +150,7 @@ public class MysqlActivityBatch implements IActivityBatch {
 
         // Set the player relationship
         Long playerId = null;
-        String cause = "unknown";
+        String cause = null;
         if (activity.cause() instanceof Player player) {
             playerId = getOrCreatePlayerId(player.getUniqueId(), player.getName());
         } else if (activity.cause() instanceof Entity causeEntity) {
@@ -159,6 +159,8 @@ public class MysqlActivityBatch implements IActivityBatch {
             cause = causeBlock.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
         } else if (activity.cause() instanceof String causeStr) {
             cause = causeStr;
+        } else {
+            cause = "unknown";
         }
 
         // Set the cause relationship
