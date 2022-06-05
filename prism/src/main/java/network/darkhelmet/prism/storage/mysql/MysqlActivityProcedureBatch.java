@@ -26,6 +26,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Locale;
 
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.api.actions.IBlockAction;
@@ -38,6 +39,8 @@ import network.darkhelmet.prism.services.configuration.StorageConfiguration;
 import network.darkhelmet.prism.utils.TypeUtils;
 
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 public class MysqlActivityProcedureBatch implements IActivityBatch {
@@ -88,8 +91,17 @@ public class MysqlActivityProcedureBatch implements IActivityBatch {
             statement.setString(6, "unknown");
             statement.setString(7, player.getName());
             statement.setString(8, uuidStr);
-        } else if (activity.cause() instanceof String causeStr) {
-            statement.setString(6, causeStr);
+        } else {
+            String cause = "unknown";
+            if (activity.cause() instanceof Entity causeEntity) {
+                cause = causeEntity.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+            } else if (activity.cause() instanceof Block causeBlock) {
+                cause = causeBlock.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+            } else if (activity.cause() instanceof String causeStr) {
+                cause = causeStr;
+            }
+
+            statement.setString(6, cause);
             statement.setNull(7, Types.VARCHAR);
             statement.setNull(8, Types.VARCHAR);
         }

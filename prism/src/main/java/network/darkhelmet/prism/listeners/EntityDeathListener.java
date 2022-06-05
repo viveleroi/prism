@@ -32,10 +32,16 @@ import network.darkhelmet.prism.services.filters.FilterService;
 import network.darkhelmet.prism.services.recording.RecordingQueue;
 
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByBlockEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.projectiles.BlockProjectileSource;
+import org.bukkit.projectiles.ProjectileSource;
 
 public class EntityDeathListener implements Listener {
     /**
@@ -83,11 +89,33 @@ public class EntityDeathListener implements Listener {
         }
 
         final LivingEntity entity = event.getEntity();
+
+        // Resolve cause using last damage
+        Object cause = null;
+        EntityDamageEvent damageEvent = entity.getLastDamageCause();
+        if (damageEvent != null && !damageEvent.isCancelled()) {
+            if (damageEvent instanceof EntityDamageByEntityEvent) {
+                cause = ((EntityDamageByEntityEvent) damageEvent).getDamager();
+
+                if (cause instanceof Projectile) {
+                    ProjectileSource ps = ((Projectile) cause).getShooter();
+
+                    if (ps instanceof BlockProjectileSource) {
+                        cause = ((BlockProjectileSource) ps).getBlock();
+                    } else {
+                        cause = ps;
+                    }
+                }
+            } else if (damageEvent instanceof EntityDamageByBlockEvent) {
+                cause = ((EntityDamageByBlockEvent) damageEvent).getDamager();
+            }
+        }
+
         final IAction action = actionRegistry.createEntityAction(ActionRegistry.ENTITY_KILL, entity);
 
         // Build the block break by player activity
         final IActivity activity = Activity.builder()
-            .action(action).location(entity.getLocation()).cause("todo").build();
+            .action(action).location(entity.getLocation()).cause(cause).build();
 
         if (filterService.allows(activity)) {
             RecordingQueue.addToQueue(activity);
