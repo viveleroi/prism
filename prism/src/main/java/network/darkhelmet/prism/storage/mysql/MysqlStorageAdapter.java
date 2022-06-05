@@ -235,7 +235,8 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             + "`entity_type_id` smallint(6) NOT NULL AUTO_INCREMENT,"
             + "`entity_type` varchar(45) DEFAULT NULL,"
             + "PRIMARY KEY (`entity_type_id`),"
-            + "UNIQUE KEY `entity_type` (`entity_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+            + "UNIQUE KEY `entityType` (`entity_type`)"
+            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
         DB.executeUpdate(entityTypeQuery);
 
         // Create the material data table
