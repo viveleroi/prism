@@ -101,8 +101,6 @@ public class MysqlQueryBuilder {
             + "JOIN " + prefix + "actions AS actions ON `actions`.`action_id` = `activities`.`action_id` "
             + "JOIN " + prefix + "causes AS causes ON `causes`.`cause_id` = `activities`.`cause_id` "
             + "JOIN " + prefix + "worlds AS worlds ON `worlds`.`world_id` = `activities`.`world_id` "
-            + "LEFT JOIN " + prefix + "activities_custom_data AS custom_data "
-                + "ON `custom_data`.`activity_id` = `activities`.`activity_id`"
             + "LEFT JOIN " + prefix + "players AS players ON `players`.`player_id` = `causes`.`player_id` "
             + "LEFT JOIN " + prefix + "entity_types AS entity_types "
                 + "ON `entity_types`.`entity_type_id` = `activities`.`entity_type_id` "
@@ -110,6 +108,10 @@ public class MysqlQueryBuilder {
                 + "ON `materials`.`material_id` = `activities`.`material_id` ";
 
         if (!query.grouped()) {
+            @Language("SQL") String customData = "LEFT JOIN " + prefix + "activities_custom_data AS custom_data "
+                + "ON `custom_data`.`activity_id` = `activities`.`activity_id` ";
+            from += customData;
+
             @Language("SQL") String oldMats = "LEFT JOIN " + prefix + "materials AS oldMaterials "
                 + "ON `oldMaterials`.`material_id` = `activities`.`old_material_id` ";
             from += oldMats;
