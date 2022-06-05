@@ -98,21 +98,21 @@ public class HangingBreakListener implements Listener {
             return;
         }
 
-        // Ignore other causes. Entity cause already handled.
-        if (!event.getCause().equals(HangingBreakEvent.RemoveCause.PHYSICS)) {
-            return;
-        }
-
         final Hanging hanging = event.getEntity();
 
-        Optional<Object> expectation = expectationService.expectation(hanging);
-        expectation.ifPresent(o -> {
-            // Queue a recording
-            recordHangingBreak(hanging, o);
+        if (event.getCause().equals(HangingBreakEvent.RemoveCause.EXPLOSION)) {
+            recordHangingBreak(hanging, "explosion");
+        } else if (event.getCause().equals(HangingBreakEvent.RemoveCause.PHYSICS)) {
+            // Physics causes. Hopefully find the actual cause through an expectation
+            Optional<Object> expectation = expectationService.expectation(hanging);
+            expectation.ifPresent(o -> {
+                // Queue a recording
+                recordHangingBreak(hanging, o);
 
-            // Remove from cache
-            expectationService.metExpectation(hanging);
-        });
+                // Remove from cache
+                expectationService.metExpectation(hanging);
+            });
+        }
     }
 
     /**
