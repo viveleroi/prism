@@ -290,7 +290,10 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             + "`activity_id` int(10) unsigned NOT NULL,"
             + "`version` SMALLINT NULL,"
             + "`data` text,"
-            + "PRIMARY KEY (`extra_id`)"
+            + "PRIMARY KEY (`extra_id`),"
+            + "KEY `activityId_idx` (`activity_id`),"
+            + "CONSTRAINT `activityId` FOREIGN KEY (`activity_id`) REFERENCES `"
+                + prefix + "activities` (`activity_id`) ON DELETE CASCADE"
             + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
         DB.executeUpdate(extraQuery);
 
