@@ -169,15 +169,27 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         // Create all new tables. This is done here because:
         // 1. We need them for new installs anyway
         // 2. Updater logic needs them for 8->v4
-        @Language("SQL") String createCauses = "CREATE TABLE IF NOT EXISTS `" + prefix + "causes` ("
+        // Create the players table
+        @Language("SQL") String playersQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "players` ("
+            + "`player_id` int(10) unsigned NOT NULL AUTO_INCREMENT,"
+            + "`player` varchar(16) NOT NULL,"
+            + "`player_uuid` binary(16) NOT NULL,"
+            + "PRIMARY KEY (`player_id`),"
+            + "UNIQUE KEY `player_uuid` (`player_uuid`)"
+            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+        DB.executeUpdate(playersQuery);
+
+        @Language("SQL") String causesQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "causes` ("
             + "`cause_id` int unsigned NOT NULL AUTO_INCREMENT,"
             + "`cause` varchar(25) DEFAULT NULL,"
-            + "`player_id` int DEFAULT NULL,"
+            + "`player_id` int unsigned DEFAULT NULL,"
             + "PRIMARY KEY (`cause_id`),"
             + "UNIQUE KEY `cause` (`cause`),"
-            + "UNIQUE KEY `playerId` (`player_id`)"
+            + "KEY `playerId_idx` (`player_id`),"
+            + "CONSTRAINT `playerId` FOREIGN KEY (`player_id`) REFERENCES `"
+                + prefix + "players` (`player_id`)"
             + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-        DB.executeUpdate(createCauses);
+        DB.executeUpdate(causesQuery);
 
         // Create the entity types table
         @Language("SQL") String entityTypeQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "entity_types` ("
@@ -229,16 +241,6 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             + "PRIMARY KEY (`meta_id`),"
             + "UNIQUE KEY `k` (`k`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
         DB.executeUpdate(metaQuery);
-
-        // Create the players table
-        @Language("SQL") String playersQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "players` ("
-            + "`player_id` int(10) unsigned NOT NULL AUTO_INCREMENT,"
-            + "`player` varchar(16) NOT NULL,"
-            + "`player_uuid` binary(16) NOT NULL,"
-            + "PRIMARY KEY (`player_id`),"
-            + "UNIQUE KEY `player_uuid` (`player_uuid`)"
-            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-        DB.executeUpdate(playersQuery);
 
         // Create worlds table
         @Language("SQL") String worldsQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "worlds` ("
