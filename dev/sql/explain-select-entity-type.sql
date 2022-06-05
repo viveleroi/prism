@@ -1,0 +1,1 @@
+EXPLAIN SELECT entity_type_id FROM prism_entity_types WHERE entity_type = "cow";

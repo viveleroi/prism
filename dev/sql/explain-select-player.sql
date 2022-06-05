@@ -1,0 +1,1 @@
+EXPLAIN SELECT player_id FROM prism_players WHERE player_uuid = UNHEX("aed1fed698014790b1d0c1a809062880");

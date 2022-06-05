@@ -1,0 +1,1 @@
+EXPLAIN SELECT action_id FROM prism_actions WHERE action = "block-break";

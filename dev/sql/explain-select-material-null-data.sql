@@ -1,0 +1,1 @@
+EXPLAIN SELECT material_id FROM prism_material_data WHERE material = "air" AND data IS NULL;
