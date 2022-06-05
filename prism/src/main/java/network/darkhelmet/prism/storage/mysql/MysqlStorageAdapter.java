@@ -240,7 +240,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         DB.executeUpdate(entityTypeQuery);
 
         // Create the material data table
-        @Language("SQL") String matDataQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "material_data` ("
+        @Language("SQL") String matDataQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "materials` ("
             + "`material_id` smallint(6) NOT NULL AUTO_INCREMENT,"
             + "`material` varchar(45) DEFAULT NULL,"
             + "`data` varchar(155) DEFAULT NULL,"
@@ -350,13 +350,13 @@ public class MysqlStorageAdapter implements IStorageAdapter {
                     + "BEGIN "
                     + "    IF blockData IS NOT NULL THEN "
                     + "        SELECT material_id INTO `materialId` FROM "
-                    + prefix + "material_data WHERE material = `materialKey` AND data = `blockData`; "
+                    + prefix + "materials WHERE material = `materialKey` AND data = `blockData`; "
                     + "    ELSE "
                     + "        SELECT material_id INTO `materialId` FROM "
-                    + prefix + "material_data WHERE material = `materialKey` AND data IS NULL; "
+                    + prefix + "materials WHERE material = `materialKey` AND data IS NULL; "
                     + "    END IF; "
                     + "    IF `materialId` IS NULL THEN "
-                    + "        INSERT INTO " + prefix + "material_data (`material`, `data`) "
+                    + "        INSERT INTO " + prefix + "materials (`material`, `data`) "
                     + "        VALUES (`materialKey`, `blockData`); "
                     + "        SET `materialId` = LAST_INSERT_ID(); "
                     + "    END IF; "

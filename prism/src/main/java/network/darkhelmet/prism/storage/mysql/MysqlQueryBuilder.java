@@ -106,11 +106,11 @@ public class MysqlQueryBuilder {
             + "LEFT JOIN " + prefix + "players AS players ON `players`.`player_id` = `causes`.`player_id` "
             + "LEFT JOIN " + prefix + "entity_types AS entity_types "
                 + "ON `entity_types`.`entity_type_id` = `activities`.`entity_type_id` "
-            + "LEFT JOIN " + prefix + "material_data AS materials "
+            + "LEFT JOIN " + prefix + "materials AS materials "
                 + "ON `materials`.`material_id` = `activities`.`material_id` ";
 
         if (!query.grouped()) {
-            @Language("SQL") String oldMats = "LEFT JOIN " + prefix + "material_data AS oldMaterials "
+            @Language("SQL") String oldMats = "LEFT JOIN " + prefix + "materials AS oldMaterials "
                 + "ON `oldMaterials`.`material_id` = `activities`.`old_material_id` ";
             from += oldMats;
         }

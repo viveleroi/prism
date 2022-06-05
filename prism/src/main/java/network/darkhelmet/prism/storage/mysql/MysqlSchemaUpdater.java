@@ -123,11 +123,11 @@ public class MysqlSchemaUpdater {
 
         // Rename id map table
         @Language("SQL") String renameId = "ALTER TABLE `" + storageConfig.prefix() + "id_map` "
-            + "RENAME TO `" + storageConfig.prefix() + "material_data`";
+            + "RENAME TO `" + storageConfig.prefix() + "materials`";
         DB.executeUpdate(renameId);
 
         // Change material data schema
-        @Language("SQL") String materialSchema = "ALTER TABLE `" + storageConfig.prefix() + "material_data` "
+        @Language("SQL") String materialSchema = "ALTER TABLE `" + storageConfig.prefix() + "materials` "
             + "CHANGE COLUMN `block_id` `material_id` SMALLINT NOT NULL AUTO_INCREMENT FIRST,"
             + "CHANGE COLUMN `material` `material` VARCHAR(45) NULL,"
             + "CHANGE COLUMN `state` `data` VARCHAR(155) NULL,"

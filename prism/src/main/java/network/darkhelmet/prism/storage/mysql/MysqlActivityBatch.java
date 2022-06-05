@@ -298,7 +298,7 @@ public class MysqlActivityBatch implements IActivityBatch {
 
         // Select the existing material or material+data
         @Language("SQL") String select = "SELECT material_id FROM "
-            + storageConfig.prefix() + "material_data "
+            + storageConfig.prefix() + "materials "
             + "WHERE material = ? ";
 
         Integer intPk;
@@ -314,7 +314,7 @@ public class MysqlActivityBatch implements IActivityBatch {
             primaryKey = intPk;
         } else {
             // Attempt to create the record
-            @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "material_data "
+            @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "materials "
                 + "(`material`, `data`) VALUES (?, ?)";
 
             Long longPk = DB.executeInsert(insert, material, blockData);
