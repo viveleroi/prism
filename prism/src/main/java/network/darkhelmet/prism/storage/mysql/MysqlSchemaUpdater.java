@@ -134,7 +134,7 @@ public class MysqlSchemaUpdater {
             + "DROP PRIMARY KEY,"
             + "DROP INDEX `block_id`,"
             + "ADD PRIMARY KEY (`material_id`),"
-            + "ADD UNIQUE INDEX `materialdata` (`material` ASC, `data` ASC);";
+            + "ADD UNIQUE INDEX `materialData` (`material` ASC, `data` ASC);";
         DB.executeUpdate(materialSchema);
 
         // ----------

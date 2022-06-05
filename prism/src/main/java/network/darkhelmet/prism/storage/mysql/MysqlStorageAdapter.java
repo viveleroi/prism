@@ -245,7 +245,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             + "`material` varchar(45) DEFAULT NULL,"
             + "`data` varchar(155) DEFAULT NULL,"
             + "PRIMARY KEY (`material_id`),"
-            + "UNIQUE KEY `materialdata` (`material`,`data`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+            + "UNIQUE KEY `materialData` (`material`,`data`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
         DB.executeUpdate(matDataQuery);
 
         // Create the meta data table
