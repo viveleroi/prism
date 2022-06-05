@@ -171,18 +171,18 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         // 2. Updater logic needs them for 8->v4
         // Create the players table
         @Language("SQL") String playersQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "players` ("
-            + "`player_id` int(10) unsigned NOT NULL AUTO_INCREMENT,"
-            + "`player` varchar(16) NOT NULL,"
-            + "`player_uuid` binary(16) NOT NULL,"
+            + "`player_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,"
+            + "`player` VARCHAR(16) NOT NULL,"
+            + "`player_uuid` BINARY(16) NOT NULL,"
             + "PRIMARY KEY (`player_id`),"
             + "UNIQUE KEY `player_uuid` (`player_uuid`)"
             + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
         DB.executeUpdate(playersQuery);
 
         @Language("SQL") String causesQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "causes` ("
-            + "`cause_id` int unsigned NOT NULL AUTO_INCREMENT,"
-            + "`cause` varchar(25) DEFAULT NULL,"
-            + "`player_id` int unsigned DEFAULT NULL,"
+            + "`cause_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,"
+            + "`cause` VARCHAR(25) DEFAULT NULL,"
+            + "`player_id` INT UNSIGNED DEFAULT NULL,"
             + "PRIMARY KEY (`cause_id`),"
             + "UNIQUE KEY `cause` (`cause`),"
             + "KEY `playerId_idx` (`player_id`),"
@@ -193,8 +193,8 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
         // Create the entity types table
         @Language("SQL") String entityTypeQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "entity_types` ("
-            + "`entity_type_id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,"
-            + "`entity_type` varchar(45) DEFAULT NULL,"
+            + "`entity_type_id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,"
+            + "`entity_type` VARCHAR(45) DEFAULT NULL,"
             + "PRIMARY KEY (`entity_type_id`),"
             + "UNIQUE KEY `entityType` (`entity_type`)"
             + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
@@ -218,35 +218,35 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
         // Create actions table
         @Language("SQL") String actionsQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "actions` ("
-            + "`action_id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,"
-            + "`action` varchar(25) NOT NULL,"
+            + "`action_id` TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,"
+            + "`action` VARCHAR(25) NOT NULL,"
             + "PRIMARY KEY (`action_id`), UNIQUE KEY `action` (`action`)"
             + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
         DB.executeUpdate(actionsQuery);
 
         // Create the material data table
         @Language("SQL") String matDataQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "materials` ("
-            + "`material_id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,"
-            + "`material` varchar(45) DEFAULT NULL,"
-            + "`data` varchar(155) DEFAULT NULL,"
+            + "`material_id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,"
+            + "`material` VARCHAR(45) DEFAULT NULL,"
+            + "`data` VARCHAR(155) DEFAULT NULL,"
             + "PRIMARY KEY (`material_id`),"
             + "UNIQUE KEY `materialData` (`material`,`data`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
         DB.executeUpdate(matDataQuery);
 
         // Create the meta data table
         @Language("SQL") String metaQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "meta` ("
-            + "`meta_id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,"
-            + "`k` varchar(25) NOT NULL,"
-            + "`v` varchar(155) NOT NULL,"
+            + "`meta_id` TINYINT unsigned NOT NULL AUTO_INCREMENT,"
+            + "`k` VARCHAR(25) NOT NULL,"
+            + "`v` VARCHAR(155) NOT NULL,"
             + "PRIMARY KEY (`meta_id`),"
             + "UNIQUE KEY `k` (`k`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
         DB.executeUpdate(metaQuery);
 
         // Create worlds table
         @Language("SQL") String worldsQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "worlds` ("
-            + "`world_id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,"
-            + "`world` varchar(255) NOT NULL,"
-            + "`world_uuid` binary(16) NOT NULL,"
+            + "`world_id` TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,"
+            + "`world` VARCHAR(255) NOT NULL,"
+            + "`world_uuid` BINARY(16) NOT NULL,"
             + "PRIMARY KEY (`world_id`),"
             + "UNIQUE KEY `world_uuid` (`world_uuid`)"
             + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
@@ -254,17 +254,17 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
         // Create the activities table. This one's the fatso.
         @Language("SQL") String activitiesQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "activities` ("
-            + "`activity_id` int(10) unsigned NOT NULL AUTO_INCREMENT,"
-            + "`timestamp` int(10) unsigned NOT NULL,"
-            + "`world_id` tinyint(3) unsigned NOT NULL,"
-            + "`x` int(11) NOT NULL,"
-            + "`y` int(11) NOT NULL,"
-            + "`z` int(11) NOT NULL,"
-            + "`action_id` tinyint(3) unsigned NOT NULL,"
-            + "`material_id` smallint(6) unsigned DEFAULT NULL,"
-            + "`old_material_id` smallint(6) unsigned DEFAULT NULL,"
-            + "`entity_type_id` smallint(6) unsigned DEFAULT NULL,"
-            + "`cause_id` int(10) unsigned NOT NULL,"
+            + "`activity_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,"
+            + "`timestamp` INT UNSIGNED NOT NULL,"
+            + "`world_id` TINYINT UNSIGNED NOT NULL,"
+            + "`x` INT NOT NULL,"
+            + "`y` INT NOT NULL,"
+            + "`z` INT NOT NULL,"
+            + "`action_id` TINYINT UNSIGNED NOT NULL,"
+            + "`material_id` SMALLINT UNSIGNED DEFAULT NULL,"
+            + "`old_material_id` SMALLINT UNSIGNED DEFAULT NULL,"
+            + "`entity_type_id` SMALLINT UNSIGNED DEFAULT NULL,"
+            + "`cause_id` INT UNSIGNED NOT NULL,"
             + "PRIMARY KEY (`activity_id`),"
             + "KEY `actionId_idx` (`action_id`),"
             + "KEY `causeId_idx` (`cause_id`),"
@@ -288,10 +288,10 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
         // Create the custom data table
         @Language("SQL") String extraQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "activities_custom_data` ("
-            + "`extra_id` int(10) unsigned NOT NULL AUTO_INCREMENT,"
-            + "`activity_id` int(10) unsigned NOT NULL,"
+            + "`extra_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,"
+            + "`activity_id` INT UNSIGNED NOT NULL,"
             + "`version` SMALLINT NULL,"
-            + "`data` text,"
+            + "`data` TEXT,"
             + "PRIMARY KEY (`extra_id`),"
             + "KEY `activityId_idx` (`activity_id`),"
             + "CONSTRAINT `activityId` FOREIGN KEY (`activity_id`) REFERENCES `"
@@ -313,7 +313,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Create the get-or-create Actions procedure
                 @Language("SQL") String actionsProcedure = "CREATE PROCEDURE getOrCreateAction "
-                    + "(IN `actionKey` VARCHAR(25), OUT `actionId` TINYINT(3)) "
+                    + "(IN `actionKey` VARCHAR(25), OUT `actionId` TINYINT) "
                     + "BEGIN "
                     + "    SELECT action_id INTO `actionId` FROM " + prefix + "actions WHERE action = `actionKey`; "
                     + "    IF `actionId` IS NULL THEN "
@@ -329,7 +329,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Create the get-or-create Cause procedure
                 @Language("SQL") String causeProcedure = "CREATE PROCEDURE getOrCreateCause "
-                    + "(IN `causeStr` VARCHAR(25), IN `playerId` INT(11), OUT `causeId` INT(10)) "
+                    + "(IN `causeStr` VARCHAR(25), IN `playerId` INT, OUT `causeId` INT) "
                     + "BEGIN "
                     + "    IF `playerId` IS NOT NULL THEN "
                     + "        SELECT cause_id INTO `causeId` FROM "
@@ -351,7 +351,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Create the get-or-create Entity type procedure
                 @Language("SQL") String entityTypeProcedure = "CREATE PROCEDURE getOrCreateEntityType "
-                    + "(IN `entityType` VARCHAR(25), OUT `entityTypeId` SMALLINT(6)) "
+                    + "(IN `entityType` VARCHAR(25), OUT `entityTypeId` SMALLINT) "
                     + "BEGIN "
                     + "    SELECT entity_type_id INTO `entityTypeId` FROM "
                     + prefix + "entity_types WHERE entity_type = `entityType`; "
@@ -368,7 +368,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Create the get-or-create Material type procedure
                 @Language("SQL") String materialProcedure = "CREATE PROCEDURE getOrCreateMaterial "
-                    + "(IN `materialKey` VARCHAR(45), IN `blockData` VARCHAR(155), OUT `materialId` SMALLINT(6)) "
+                    + "(IN `materialKey` VARCHAR(45), IN `blockData` VARCHAR(155), OUT `materialId` SMALLINT) "
                     + "BEGIN "
                     + "    IF blockData IS NOT NULL THEN "
                     + "        SELECT material_id INTO `materialId` FROM "
@@ -391,7 +391,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Create the get-or-create Player type procedure
                 @Language("SQL") String playerProcedure = "CREATE PROCEDURE getOrCreatePlayer "
-                    + "(IN `playerName` VARCHAR(16), IN `uuid` VARCHAR(55), OUT `playerId` INT(10)) "
+                    + "(IN `playerName` VARCHAR(16), IN `uuid` VARCHAR(55), OUT `playerId` INT) "
                     + "BEGIN "
                     + "    SELECT player_id INTO `playerId` FROM "
                     + prefix + "players WHERE player_uuid = UNHEX(`uuid`); "
@@ -409,7 +409,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Create the get-or-create World procedure
                 @Language("SQL") String worldProcedure = "CREATE PROCEDURE getOrCreateWorld "
-                    + "(IN `worldName` VARCHAR(255), IN `uuid` VARCHAR(55), OUT `worldId` TINYINT(3)) "
+                    + "(IN `worldName` VARCHAR(255), IN `uuid` VARCHAR(55), OUT `worldId` TINYINT) "
                     + "BEGIN "
                     + "    SELECT world_id INTO `worldId` FROM "
                     + prefix + "worlds WHERE world_uuid = UNHEX(`uuid`); "
@@ -427,10 +427,10 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Create the Activity procedure
                 @Language("SQL") String activityProcedure = "CREATE PROCEDURE createActivity("
-                    + "IN `timestamp` INT(10),"
-                    + "IN `x` INT(11),"
-                    + "IN `y` INT(11),"
-                    + "IN `z` INT(11),"
+                    + "IN `timestamp` INT,"
+                    + "IN `x` INT,"
+                    + "IN `y` INT,"
+                    + "IN `z` INT,"
                     + "IN `action` VARCHAR(25),"
                     + "IN `cause` VARCHAR(25),"
                     + "IN `player` VARCHAR(16),"
@@ -442,9 +442,9 @@ public class MysqlStorageAdapter implements IStorageAdapter {
                     + "IN `oldBlockData` VARCHAR(155),"
                     + "IN `world` VARCHAR(255),"
                     + "IN `worldUuid` VARCHAR(55),"
-                    + "IN `customDataVersion` SMALLINT(6),"
+                    + "IN `customDataVersion` SMALLINT,"
                     + "IN `customData` TEXT,"
-                    + "OUT `activityId` INT(10)) "
+                    + "OUT `activityId` INT) "
                     + "BEGIN "
                     + "    SET @playerId = NULL;"
                     + "    SET @entityId = NULL;"
