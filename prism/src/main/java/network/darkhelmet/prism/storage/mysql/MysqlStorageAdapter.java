@@ -166,18 +166,27 @@ public class MysqlStorageAdapter implements IStorageAdapter {
     protected void prepareSchema() throws SQLException {
         String prefix = configurationService.storageConfig().prefix();
 
-        // Create causes table. This is done here because:
-        // 1. We need it for new installs anyway
-        // 2. Updater logic needs it for 8->v4
+        // Create all new tables. This is done here because:
+        // 1. We need them for new installs anyway
+        // 2. Updater logic needs them for 8->v4
         @Language("SQL") String createCauses = "CREATE TABLE IF NOT EXISTS `" + prefix + "causes` ("
             + "`cause_id` int unsigned NOT NULL AUTO_INCREMENT,"
-            + "`cause` varchar(25) NOT NULL,"
-            + "`player_id` int NULL,"
+            + "`cause` varchar(25) DEFAULT NULL,"
+            + "`player_id` int DEFAULT NULL,"
             + "PRIMARY KEY (`cause_id`),"
             + "UNIQUE KEY `cause` (`cause`),"
             + "UNIQUE KEY `playerId` (`player_id`)"
             + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
         DB.executeUpdate(createCauses);
+
+        // Create the entity types table
+        @Language("SQL") String entityTypeQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "entity_types` ("
+            + "`entity_type_id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,"
+            + "`entity_type` varchar(45) DEFAULT NULL,"
+            + "PRIMARY KEY (`entity_type_id`),"
+            + "UNIQUE KEY `entityType` (`entity_type`)"
+            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+        DB.executeUpdate(entityTypeQuery);
 
         // Look for existing tables first.
         List<String> tables = DB.getFirstColumnResults("SHOW TABLES LIKE ?",
@@ -203,45 +212,9 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
         DB.executeUpdate(actionsQuery);
 
-        // Create the activities table. This one's the fatso.
-        @Language("SQL") String activitiesQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "activities` ("
-            + "`activity_id` int(10) unsigned NOT NULL AUTO_INCREMENT,"
-            + "`timestamp` int(10) unsigned NOT NULL,"
-            + "`world_id` tinyint(3) unsigned NOT NULL,"
-            + "`x` int(11) NOT NULL,"
-            + "`y` int(11) NOT NULL,"
-            + "`z` int(11) NOT NULL,"
-            + "`action_id` tinyint(3) unsigned NOT NULL,"
-            + "`material_id` smallint(6) unsigned DEFAULT NULL,"
-            + "`old_material_id` smallint(6) unsigned DEFAULT NULL,"
-            + "`entity_type_id` smallint(6) unsigned NULL,"
-            + "`cause_id` int(11) NOT NULL,"
-            + "PRIMARY KEY (`activity_id`)"
-            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-        DB.executeUpdate(activitiesQuery);
-
-        // Create the custom data table
-        @Language("SQL") String extraQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "activities_custom_data` ("
-            + "`extra_id` int(10) unsigned NOT NULL AUTO_INCREMENT,"
-            + "`activity_id` int(10) unsigned NOT NULL,"
-            + "`version` SMALLINT NULL,"
-            + "`data` text,"
-            + "PRIMARY KEY (`extra_id`)"
-            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-        DB.executeUpdate(extraQuery);
-
-        // Create the entity types table
-        @Language("SQL") String entityTypeQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "entity_types` ("
-            + "`entity_type_id` smallint(6) NOT NULL AUTO_INCREMENT,"
-            + "`entity_type` varchar(45) DEFAULT NULL,"
-            + "PRIMARY KEY (`entity_type_id`),"
-            + "UNIQUE KEY `entityType` (`entity_type`)"
-            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-        DB.executeUpdate(entityTypeQuery);
-
         // Create the material data table
         @Language("SQL") String matDataQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "materials` ("
-            + "`material_id` smallint(6) NOT NULL AUTO_INCREMENT,"
+            + "`material_id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,"
             + "`material` varchar(45) DEFAULT NULL,"
             + "`data` varchar(155) DEFAULT NULL,"
             + "PRIMARY KEY (`material_id`),"
@@ -276,6 +249,50 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             + "UNIQUE KEY `world_uuid` (`world_uuid`)"
             + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
         DB.executeUpdate(worldsQuery);
+
+        // Create the activities table. This one's the fatso.
+        @Language("SQL") String activitiesQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "activities` ("
+            + "`activity_id` int(10) unsigned NOT NULL AUTO_INCREMENT,"
+            + "`timestamp` int(10) unsigned NOT NULL,"
+            + "`world_id` tinyint(3) unsigned NOT NULL,"
+            + "`x` int(11) NOT NULL,"
+            + "`y` int(11) NOT NULL,"
+            + "`z` int(11) NOT NULL,"
+            + "`action_id` tinyint(3) unsigned NOT NULL,"
+            + "`material_id` smallint(6) unsigned DEFAULT NULL,"
+            + "`old_material_id` smallint(6) unsigned DEFAULT NULL,"
+            + "`entity_type_id` smallint(6) unsigned DEFAULT NULL,"
+            + "`cause_id` int(10) unsigned NOT NULL,"
+            + "PRIMARY KEY (`activity_id`),"
+            + "KEY `actionId_idx` (`action_id`),"
+            + "KEY `causeId_idx` (`cause_id`),"
+            + "KEY `entityTypeId_idx` (`entity_type_id`),"
+            + "KEY `materialId_idx` (`material_id`),"
+            + "KEY `oldMaterialId_idx` (`old_material_id`),"
+            + "KEY `worldId_idx` (`world_id`),"
+            + "CONSTRAINT `actionId` FOREIGN KEY (`action_id`) REFERENCES `"
+                + prefix + "actions` (`action_id`),"
+            + "CONSTRAINT `causeId` FOREIGN KEY (`cause_id`) REFERENCES `"
+                + prefix + "causes` (`cause_id`),"
+            + "CONSTRAINT `entityTypeId` FOREIGN KEY (`entity_type_id`) REFERENCES `"
+                + prefix + "entity_types` (`entity_type_id`),"
+            + "CONSTRAINT `materialId` FOREIGN KEY (`material_id`) REFERENCES `"
+                + prefix + "materials` (`material_id`),"
+            + "CONSTRAINT `oldMaterialId` FOREIGN KEY (`old_material_id`) REFERENCES `"
+                + prefix + "materials` (`material_id`),"
+            + "CONSTRAINT `worldId` FOREIGN KEY (`world_id`) REFERENCES `" + prefix + "worlds` (`world_id`)"
+            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+        DB.executeUpdate(activitiesQuery);
+
+        // Create the custom data table
+        @Language("SQL") String extraQuery = "CREATE TABLE IF NOT EXISTS `" + prefix + "activities_custom_data` ("
+            + "`extra_id` int(10) unsigned NOT NULL AUTO_INCREMENT,"
+            + "`activity_id` int(10) unsigned NOT NULL,"
+            + "`version` SMALLINT NULL,"
+            + "`data` text,"
+            + "PRIMARY KEY (`extra_id`)"
+            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+        DB.executeUpdate(extraQuery);
 
         // Insert the schema version
         @Language("SQL") String setSchemaVer = "INSERT INTO `" + prefix + "meta` "

@@ -94,8 +94,8 @@ public class MysqlSchemaUpdater {
             + "CHANGE COLUMN `block_id` `material_id` SMALLINT UNSIGNED NULL,"
             + "CHANGE COLUMN `old_block_id` `old_material_id` SMALLINT UNSIGNED NULL DEFAULT NULL,"
             + "CHANGE COLUMN `player_id` `player_id` INT UNSIGNED NOT NULL AFTER `old_material_id`,"
-            + "ADD COLUMN `cause_id` INT NOT NULL AFTER `player_id`,"
-            + "ADD COLUMN `entity_type_id` SMALLINT NOT NULL AFTER `old_material_id`;";
+            + "ADD COLUMN `cause_id` INT UNSIGNED NOT NULL AFTER `player_id`,"
+            + "ADD COLUMN `entity_type_id` SMALLINT UNSIGNED NULL AFTER `old_material_id`;";
         DB.executeUpdate(updateData);
 
         // Rename data extra table
@@ -128,7 +128,7 @@ public class MysqlSchemaUpdater {
 
         // Change material data schema
         @Language("SQL") String materialSchema = "ALTER TABLE `" + storageConfig.prefix() + "materials` "
-            + "CHANGE COLUMN `block_id` `material_id` SMALLINT NOT NULL AUTO_INCREMENT FIRST,"
+            + "CHANGE COLUMN `block_id` `material_id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT FIRST,"
             + "CHANGE COLUMN `material` `material` VARCHAR(45) NULL,"
             + "CHANGE COLUMN `state` `data` VARCHAR(155) NULL,"
             + "DROP PRIMARY KEY,"
@@ -154,7 +154,7 @@ public class MysqlSchemaUpdater {
         // Populate the causes table. Prism <= v3 treated non-players as fake players and there's
         // sadly no way to separate them here. Clean databases on v4 will have them separated.
         @Language("SQL") String causesPopulator = "INSERT INTO `" + storageConfig.prefix() + "causes` "
-            + "(cause, player_id) SELECT \"player\", player_id FROM `" + storageConfig.prefix() + "players` ";
+            + "(cause, player_id) SELECT null, player_id FROM `" + storageConfig.prefix() + "players` ";
         DB.executeUpdate(causesPopulator);
 
         // Convert activities table player_ids into cause_ids
@@ -206,6 +206,31 @@ public class MysqlSchemaUpdater {
         @Language("SQL") String removeWorldNames = "ALTER TABLE `" + storageConfig.prefix() + "worlds`"
             + "CHANGE COLUMN `world_uuid` `world_uuid` BINARY(16) NOT NULL;";
         DB.executeUpdate(removeWorldNames);
+
+        // ------------
+        // FOREIGN KEYS
+        // ------------
+
+        @Language("SQL") String addActivityFk = "ALTER TABLE `" + storageConfig.prefix() + "activities`"
+            + "ADD INDEX `actionId_idx` (`action_id`),"
+            + "ADD INDEX `causeId_idx` (`cause_id`),"
+            + "ADD INDEX `entityTypeId_idx` (`entity_type_id`),"
+            + "ADD INDEX `materialId_idx` (`material_id`),"
+            + "ADD INDEX `oldMaterialId_idx` (`old_material_id`),"
+            + "ADD INDEX `worldId_idx` (`world_id`),"
+            + "ADD CONSTRAINT `actionId` FOREIGN KEY (`action_id`) REFERENCES `"
+                + storageConfig.prefix() + "actions` (`action_id`),"
+            + "ADD CONSTRAINT `causeId` FOREIGN KEY (`cause_id`) REFERENCES `"
+                + storageConfig.prefix() + "causes` (`cause_id`),"
+            + "ADD CONSTRAINT `entityTypeId` FOREIGN KEY (`entity_type_id`) REFERENCES `"
+                + storageConfig.prefix() + "entity_types` (`entity_type_id`),"
+            + "ADD CONSTRAINT `materialId` FOREIGN KEY (`material_id`) REFERENCES `"
+                + storageConfig.prefix() + "materials` (`material_id`),"
+            + "ADD CONSTRAINT `oldMaterialId` FOREIGN KEY (`old_material_id`) REFERENCES `"
+                + storageConfig.prefix() + "materials` (`material_id`),"
+            + "ADD CONSTRAINT `worldId` FOREIGN KEY (`world_id`) REFERENCES `"
+                + storageConfig.prefix() + "worlds` (`world_id`);";
+        DB.executeUpdate(addActivityFk);
 
         // --------------
         // SCHEMA VERSION
