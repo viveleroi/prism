@@ -30,7 +30,9 @@ import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 
+import network.darkhelmet.prism.utils.EntityUtils;
 import org.bukkit.Location;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
@@ -74,6 +76,12 @@ public class EntityAction extends Action implements IEntityAction {
         for (String reject : rejects) {
             nbtContainer.removeKey(reject);
         }
+
+        if (entity instanceof Boat boat) {
+            this.descriptor += EntityUtils.treeSpeciesToDescriptor(boat.getWoodType()) + " ";
+        }
+
+        this.descriptor += entityType.toString().toLowerCase(Locale.ENGLISH).replace("_", " ");
     }
 
     /**
@@ -82,9 +90,10 @@ public class EntityAction extends Action implements IEntityAction {
      * @param type The action type
      * @param entityType The entity type
      * @param container The nbt container
+     * @poram descriptor The descriptor
      */
-    public EntityAction(IActionType type, EntityType entityType, NBTContainer container) {
-        super(type);
+    public EntityAction(IActionType type, EntityType entityType, NBTContainer container, String descriptor) {
+        super(type, descriptor);
 
         this.entityType = entityType;
         this.nbtContainer = container;
@@ -93,11 +102,6 @@ public class EntityAction extends Action implements IEntityAction {
     @Override
     public String serializeEntityType() {
         return entityType.toString().toLowerCase(Locale.ENGLISH);
-    }
-
-    @Override
-    public String formatContent() {
-        return entityType.toString().toLowerCase(Locale.ENGLISH).replace("_", " ");
     }
 
     @Override
@@ -114,9 +118,8 @@ public class EntityAction extends Action implements IEntityAction {
     public ModificationResult applyRollback(IActivity activityContext, boolean isPreview) {
         Location loc = activityContext.location();
         if (loc.getWorld() != null && entityType.getEntityClass() != null) {
-            loc.getWorld().spawn(loc, entityType.getEntityClass(), entity -> {
-                new NBTEntity(entity).mergeCompound(nbtContainer);
-            });
+            loc.getWorld().spawn(loc, entityType.getEntityClass(), entity ->
+                new NBTEntity(entity).mergeCompound(nbtContainer));
 
             return ModificationResult.APPLIED;
         }

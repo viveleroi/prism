@@ -47,6 +47,6 @@ public class EntityActionType  extends ActionType {
             container = new NBTContainer(actionData.customData());
         }
 
-        return new EntityAction(this, actionData.entityType(), container);
+        return new EntityAction(this, actionData.entityType(), container, actionData.descriptor());
     }
 }

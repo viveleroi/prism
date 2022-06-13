@@ -40,9 +40,23 @@ public abstract class MaterialAction extends Action implements IMaterialAction {
      * @param material The material
      */
     public MaterialAction(IActionType type, Material material) {
-        super(type);
+        this(type, material, null);
+    }
+
+    /**
+     * Construct a new material action.
+     *
+     * @param type The action type
+     * @param material The material
+     */
+    public MaterialAction(IActionType type, Material material, String descriptor) {
+        super(type, descriptor);
 
         this.material = material;
+
+        if (this.descriptor == null) {
+            this.descriptor = material.toString().toLowerCase(Locale.ENGLISH).replace("_", " ");
+        }
     }
 
     /**
@@ -52,11 +66,6 @@ public abstract class MaterialAction extends Action implements IMaterialAction {
      */
     public Material material() {
         return material;
-    }
-
-    @Override
-    public String formatContent() {
-        return material.toString().toLowerCase(Locale.ENGLISH).replace("_", " ");
     }
 
     @Override

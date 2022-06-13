@@ -22,9 +22,11 @@ package network.darkhelmet.prism.utils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.bukkit.Location;
+import org.bukkit.TreeSpecies;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
@@ -61,5 +63,19 @@ public class EntityUtils {
         return entityType.equals(EntityType.ITEM_FRAME)
                 || entityType.equals(EntityType.GLOW_ITEM_FRAME)
                 || entityType.equals(EntityType.PAINTING);
+    }
+
+    /**
+     * Converts a tree species to a common term descriptor.
+     *
+     * @param treeSpecies Tree species
+     * @return Common term descriptor
+     */
+    public static String treeSpeciesToDescriptor(TreeSpecies treeSpecies) {
+        return switch (treeSpecies) {
+            case GENERIC -> "oak";
+            case REDWOOD -> "spruce";
+            default -> treeSpecies.name().toLowerCase(Locale.ENGLISH).replace("_", " ");
+        };
     }
 }

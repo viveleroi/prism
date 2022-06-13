@@ -106,8 +106,9 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
             BlockData blockData,
             NBTContainer teData,
             Material replacedMaterial,
-            BlockData replacedBlockData) {
-        super(type, material);
+            BlockData replacedBlockData,
+            String descriptor) {
+        super(type, material, descriptor);
 
         this.blockData = blockData;
         this.nbtContainer = teData;

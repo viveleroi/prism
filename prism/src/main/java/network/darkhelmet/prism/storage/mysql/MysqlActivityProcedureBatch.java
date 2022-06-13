@@ -73,7 +73,7 @@ public class MysqlActivityProcedureBatch implements IActivityBatch {
         connection = DB.getGlobalDatabase().getConnection();
 
         statement = connection.prepareCall(
-            "{ CALL createActivity(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
+            "{ CALL createActivity(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
     }
 
     @Override
@@ -153,6 +153,9 @@ public class MysqlActivityProcedureBatch implements IActivityBatch {
             statement.setNull(16, Types.SMALLINT);
             statement.setNull(17, Types.VARCHAR);
         }
+
+        // Descriptor
+        statement.setString(18, activity.action().descriptor());
 
         statement.addBatch();
     }

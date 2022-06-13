@@ -42,11 +42,20 @@ public interface IAction {
     ModificationResult applyRestore(IActivity activityContext, boolean isPreview);
 
     /**
-     * Format the content of this action for text tdisplay.
+     * Get the descriptor.
      *
-     * @return The content string
+     * A descriptor is a mix between an identifier and formatted/specific content.
+     *
+     * <p>For example we log the entity type of "BOAT" and custom nbt serialized data
+     * but custom data is too unique to group, yet pieces are important to users.
+     * A descriptor parses the key data for a *descriptive*, *group-able* name.
+     *
+     * Like "mangrove boat". The descriptor is stored in the DB so it a) works
+     * in grouping queries and b) is available to external sources like a web ui.</p>
+     *
+     * @return The descriptor
      */
-    String formatContent();
+    String descriptor();
 
     /**
      * Get the action type.

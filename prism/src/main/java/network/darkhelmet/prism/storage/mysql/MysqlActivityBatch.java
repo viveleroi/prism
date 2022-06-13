@@ -95,8 +95,8 @@ public class MysqlActivityBatch implements IActivityBatch {
         // Build the INSERT query
         @Language("SQL") String sql = "INSERT INTO " + storageConfig.prefix() + "activities "
             + "(`timestamp`, `x`, `y`, `z`, `action_id`, `entity_type_id`,"
-                + "`material_id`, `old_material_id`, `world_id`, `cause_id`) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + "`material_id`, `old_material_id`, `world_id`, `cause_id`, `descriptor`) "
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
     }
@@ -166,6 +166,9 @@ public class MysqlActivityBatch implements IActivityBatch {
         // Set the cause relationship
         long causeId = getOrCreateCauseId(cause, playerId);
         statement.setLong(10, causeId);
+
+        // Set the descriptor
+        statement.setString(11, activity.action().descriptor());
 
         if (activity.action() instanceof ICustomData customData) {
             if (customData.hasCustomData()) {

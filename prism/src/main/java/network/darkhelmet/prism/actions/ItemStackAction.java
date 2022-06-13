@@ -44,15 +44,25 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
 
     /**
      * Construct a new item stack action.
-     *
      * @param type The action type
      * @param itemStack The item stack
      */
     public ItemStackAction(IActionType type, ItemStack itemStack) {
-        super(type, itemStack.getType());
+        this(type, itemStack, null);
+    }
+
+    /**
+     * Construct a new item stack action.
+     *
+     * @param type The action type
+     * @param itemStack The item stack
+     * @param descriptor The descriptor
+     */
+    public ItemStackAction(IActionType type, ItemStack itemStack, String descriptor) {
+        super(type, itemStack.getType(), descriptor);
 
         this.itemStack = itemStack;
-        nbtContainer = NBTItem.convertItemtoNBT(itemStack);
+        this.nbtContainer = NBTItem.convertItemtoNBT(itemStack);
     }
 
     @Override

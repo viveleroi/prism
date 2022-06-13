@@ -72,6 +72,7 @@ public class MysqlQueryBuilder {
         fields.add("`materials`.`material`");
         fields.add("`entity_type`");
         fields.add("`cause`");
+        fields.add("`descriptor`");
         fields.add("HEX(`player_uuid`) AS playerUuid");
         fields.add("COUNT(*) OVER() AS totalRows");
 
@@ -225,7 +226,7 @@ public class MysqlQueryBuilder {
 
         if (query.grouped()) {
             @Language("SQL") String groupBy = "GROUP BY `world_uuid`, `activities`.`action_id`, "
-                + "`materials`.`material`, `entity_type`, `cause`, `player_uuid` ";
+                + "`materials`.`material`, `entity_type`, `cause`, `player_uuid`, `descriptor` ";
             sql += groupBy;
         }
 

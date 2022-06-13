@@ -53,6 +53,6 @@ public class ItemActionType extends ActionType {
             itemStack = new ItemStack(actionData.material());
         }
 
-        return new ItemStackAction(this, itemStack);
+        return new ItemStackAction(this, itemStack, actionData.descriptor());
     }
 }

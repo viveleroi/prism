@@ -30,5 +30,6 @@ public record ActionData(
     String replacedMaterialData,
     EntityType entityType,
     String customData,
+    String descriptor,
     short customDataVersion) {
 }

@@ -65,6 +65,7 @@ public class BlockActionType extends ActionType {
         }
 
         return new BlockStateAction(
-            this, actionData.material(), blockData, nbtContainer, actionData.replacedMaterial(), replacedBlockData);
+            this, actionData.material(), blockData, nbtContainer,
+            actionData.replacedMaterial(), replacedBlockData, actionData.descriptor());
     }
 }

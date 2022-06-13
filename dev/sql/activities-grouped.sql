@@ -1,6 +1,7 @@
 SELECT 
   HEX(`world_uuid`) AS worldUuid, 
   `action`, 
+  `descriptor`,
   `materials`.`material`, 
   `entity_type`, 
   `cause`, 
@@ -23,6 +24,7 @@ FROM
 GROUP BY 
   `world_uuid`, 
   `activities`.`action_id`, 
+  `descriptor`,
   `materials`.`material`, 
   `entity_type`, 
   `cause`, 

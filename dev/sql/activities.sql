@@ -1,6 +1,7 @@
 SELECT 
   HEX(`world_uuid`) AS worldUuid, 
-  `action`, 
+  `action`,
+  `descriptor`,
   `materials`.`material`, 
   `entity_type`, 
   `cause`, 
@@ -8,7 +9,9 @@ SELECT
   `x`, 
   `y`, 
   `z`, 
-  `timestamp` 
+  `timestamp`,
+  `custom_data`.`data`,
+  `custom_data`.`version`
 FROM 
   prism_activities AS activities 
   JOIN prism_actions AS actions ON `actions`.`action_id` = `activities`.`action_id` 

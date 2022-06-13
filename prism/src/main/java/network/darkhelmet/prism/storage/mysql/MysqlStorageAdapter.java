@@ -265,6 +265,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             + "`old_material_id` SMALLINT UNSIGNED DEFAULT NULL,"
             + "`entity_type_id` SMALLINT UNSIGNED DEFAULT NULL,"
             + "`cause_id` INT UNSIGNED NOT NULL,"
+            + "`descriptor` VARCHAR(255) NOT NULL,"
             + "PRIMARY KEY (`activity_id`),"
             + "KEY `actionId_idx` (`action_id`),"
             + "KEY `causeId_idx` (`cause_id`),"
@@ -444,6 +445,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
                     + "IN `worldUuid` VARCHAR(55),"
                     + "IN `customDataVersion` SMALLINT,"
                     + "IN `customData` TEXT,"
+                    + "IN `descriptor` VARCHAR(255),"
                     + "OUT `activityId` INT) "
                     + "BEGIN "
                     + "    SET @entityId = NULL;"
@@ -467,10 +469,10 @@ public class MysqlStorageAdapter implements IStorageAdapter {
                     + "    END IF; "
                     + "    INSERT INTO `" + prefix + "activities` "
                     + "    (`timestamp`, `world_id`, `x`, `y`, `z`, `action_id`, `material_id`, "
-                    + "    `old_material_id`, `entity_type_id`, `cause_id`) "
+                    + "    `old_material_id`, `entity_type_id`, `cause_id`, `descriptor`) "
                     + "    VALUES "
                     + "    (`timestamp`, @worldId, `x`, `y`, `z`, @actionId, @materialId, "
-                    + "    @oldMaterialId, @entityId, @causeId); "
+                    + "    @oldMaterialId, @entityId, @causeId, `descriptor`); "
                     + "    SET `activityId` = LAST_INSERT_ID(); "
                     + "    IF `customData` IS NOT NULL THEN "
                     + "        INSERT INTO `" + prefix + "activities_custom_data` (`activity_id`, `version`, `data`) "
@@ -571,6 +573,9 @@ public class MysqlStorageAdapter implements IStorageAdapter {
                 cause = Bukkit.getOfflinePlayer(playerUuid);
             }
 
+            // Descriptor
+            String descriptor = row.getString("descriptor");
+
             if (!query.grouped()) {
                 long timestamp = row.get("timestamp");
                 String materialData = row.getString("material_data");
@@ -589,7 +594,8 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Build the action data
                 ActionData actionData = new ActionData(
-                    material, materialData, replacedMaterial, replacedMaterialData, entityType, customData, version);
+                    material, materialData, replacedMaterial, replacedMaterialData,
+                    entityType, customData, descriptor, version);
 
                 // Build the activity
                 IActivity activity = new Activity(actionType.createAction(actionData), location, cause, timestamp);
@@ -599,7 +605,8 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             } else {
                 // Build the action data
                 ActionData actionData = new ActionData(
-                    material, null, null, null, entityType, null, (short) 0);
+                    material, null, null, null,
+                    entityType, null, descriptor, (short) 0);
 
                 // Count
                 int count = row.getInt("groupCount");

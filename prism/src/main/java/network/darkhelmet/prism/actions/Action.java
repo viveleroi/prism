@@ -25,6 +25,11 @@ import network.darkhelmet.prism.api.actions.types.IActionType;
 
 public abstract class Action implements IAction {
     /**
+     * The descriptor.
+     */
+    protected String descriptor = "";
+
+    /**
      * The type.
      */
     private IActionType type;
@@ -39,10 +44,22 @@ public abstract class Action implements IAction {
     }
 
     /**
-     * Get the action type.
+     * Construct a new action.
      *
-     * @return The action type
+     * @param type The action type
+     * @poram descriptor The descriptor
      */
+    public Action(IActionType type, String descriptor) {
+        this.type = type;
+        this.descriptor = descriptor;
+    }
+
+    @Override
+    public String descriptor() {
+        return descriptor;
+    }
+
+    @Override
     public IActionType type() {
         return type;
     }
