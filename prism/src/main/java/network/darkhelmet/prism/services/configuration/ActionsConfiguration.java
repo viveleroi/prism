@@ -43,6 +43,9 @@ public class ActionsConfiguration {
     @Comment("item-drop is when a player or block drops an item on the ground.")
     private boolean itemDrop = true;
 
+    @Comment("vehicle-enter is when an entity enters a boat or minecart.")
+    private boolean vehicleEnter = true;
+
     @Comment("vehicle-place is when a player places a boat or minecart.")
     private boolean vehiclePlace = true;
 
@@ -89,6 +92,15 @@ public class ActionsConfiguration {
      */
     public boolean itemDrop() {
         return itemDrop;
+    }
+
+    /**
+     * Get if vehicle-enter enabled.
+     *
+     * @return True if enabled
+     */
+    public boolean vehicleEnter() {
+        return vehicleEnter;
     }
 
     /**

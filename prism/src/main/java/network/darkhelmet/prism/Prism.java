@@ -59,7 +59,8 @@ import network.darkhelmet.prism.listeners.EntitySpawnListener;
 import network.darkhelmet.prism.listeners.HangingBreakListener;
 import network.darkhelmet.prism.listeners.PlayerDropItemListener;
 import network.darkhelmet.prism.listeners.PlayerInteractListener;
-import network.darkhelmet.prism.listeners.VehiclePlaceListener;
+import network.darkhelmet.prism.listeners.VehicleCreateListener;
+import network.darkhelmet.prism.listeners.VehicleEnterListener;
 import network.darkhelmet.prism.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.recording.RecordingService;
 
@@ -172,7 +173,8 @@ public class Prism extends JavaPlugin {
             getServer().getPluginManager().registerEvents(injector.getInstance(HangingBreakListener.class), this);
             getServer().getPluginManager().registerEvents(injector.getInstance(PlayerDropItemListener.class), this);
             getServer().getPluginManager().registerEvents(injector.getInstance(PlayerInteractListener.class), this);
-            getServer().getPluginManager().registerEvents(injector.getInstance(VehiclePlaceListener.class), this);
+            getServer().getPluginManager().registerEvents(injector.getInstance(VehicleCreateListener.class), this);
+            getServer().getPluginManager().registerEvents(injector.getInstance(VehicleEnterListener.class), this);
 
             // Register commands
             BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(this);

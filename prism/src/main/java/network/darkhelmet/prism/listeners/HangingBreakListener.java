@@ -125,7 +125,7 @@ public class HangingBreakListener implements Listener {
     protected void recordHangingBreak(Entity hanging, Object cause) {
         final IAction action = actionRegistry.createEntityAction(ActionRegistry.HANGING_BREAK, hanging);
 
-        // Build the block break by player activity
+        // Build the activity
         final IActivity activity = Activity.builder()
             .action(action).location(hanging.getLocation()).cause(cause).build();
 
