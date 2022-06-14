@@ -36,7 +36,6 @@ import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
-import network.darkhelmet.prism.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.query.QueryService;
 import network.darkhelmet.prism.services.translation.TranslationKey;
@@ -45,11 +44,6 @@ import org.bukkit.entity.Player;
 
 @Command(value = "prism", alias = {"pr"})
 public class RestoreCommand extends BaseCommand {
-    /**
-     * The configuration service.
-     */
-    private final ConfigurationService configurationService;
-
     /**
      * The storage adapter.
      */
@@ -71,19 +65,19 @@ public class RestoreCommand extends BaseCommand {
     private final QueryService queryService;
 
     /**
-     * Construct the near command.
+     * Construct the restore command.
      *
-     * @param configurationService The configuration service
      * @param storageAdapter The storage adapter
+     * @param messageService The message service
+     * @param modificationQueueService The modification queue service
+     * @param queryService The query service
      */
     @Inject
     public RestoreCommand(
-            ConfigurationService configurationService,
             IStorageAdapter storageAdapter,
             MessageService messageService,
             IModificationQueueService modificationQueueService,
             QueryService queryService) {
-        this.configurationService = configurationService;
         this.storageAdapter = storageAdapter;
         this.messageService = messageService;
         this.modificationQueueService = modificationQueueService;
