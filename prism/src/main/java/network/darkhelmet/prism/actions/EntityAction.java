@@ -29,9 +29,11 @@ import network.darkhelmet.prism.api.actions.IEntityAction;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
+import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
 import network.darkhelmet.prism.utils.EntityUtils;
 
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -115,20 +117,20 @@ public class EntityAction extends Action implements IEntityAction {
     }
 
     @Override
-    public ModificationResult applyRollback(IActivity activityContext, boolean isPreview) {
+    public ModificationResult applyRollback(CommandSender owner, IActivity activityContext, boolean isPreview) {
         Location loc = activityContext.location();
         if (loc.getWorld() != null && entityType.getEntityClass() != null) {
             loc.getWorld().spawn(loc, entityType.getEntityClass(), entity ->
                 new NBTEntity(entity).mergeCompound(nbtContainer));
 
-            return ModificationResult.APPLIED;
+            return new ModificationResult(ModificationResultStatus.APPLIED, null);
         }
 
-        return ModificationResult.SKIPPED;
+        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
     }
 
     @Override
-    public ModificationResult applyRestore(IActivity activityContext, boolean isPreview) {
-        return ModificationResult.SKIPPED;
+    public ModificationResult applyRestore(CommandSender owner, IActivity activityContext, boolean isPreview) {
+        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
     }
 }

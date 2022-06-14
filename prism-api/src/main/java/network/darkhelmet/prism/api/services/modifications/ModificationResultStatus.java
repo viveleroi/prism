@@ -20,5 +20,6 @@
 
 package network.darkhelmet.prism.api.services.modifications;
 
-public record ModificationResult(ModificationResultStatus status, BlockStateChange stateChange) {
+public enum ModificationResultStatus {
+    APPLIED, PLANNED, SKIPPED
 }

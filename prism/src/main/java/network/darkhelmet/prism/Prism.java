@@ -45,6 +45,7 @@ import network.darkhelmet.prism.commands.AboutCommand;
 import network.darkhelmet.prism.commands.LookupCommand;
 import network.darkhelmet.prism.commands.NearCommand;
 import network.darkhelmet.prism.commands.PageCommand;
+import network.darkhelmet.prism.commands.PreviewCommand;
 import network.darkhelmet.prism.commands.ReloadCommand;
 import network.darkhelmet.prism.commands.RestoreCommand;
 import network.darkhelmet.prism.commands.RollbackCommand;
@@ -221,6 +222,7 @@ public class Prism extends JavaPlugin {
             commandManager.registerCommand(injector.getInstance(LookupCommand.class));
             commandManager.registerCommand(injector.getInstance(NearCommand.class));
             commandManager.registerCommand(injector.getInstance(PageCommand.class));
+            commandManager.registerCommand(injector.getInstance(PreviewCommand.class));
             commandManager.registerCommand(injector.getInstance(ReloadCommand.class));
             commandManager.registerCommand(injector.getInstance(RestoreCommand.class));
             commandManager.registerCommand(injector.getInstance(RollbackCommand.class));

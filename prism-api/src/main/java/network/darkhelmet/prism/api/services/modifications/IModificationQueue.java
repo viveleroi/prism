@@ -20,14 +20,37 @@
 
 package network.darkhelmet.prism.api.services.modifications;
 
+import org.bukkit.command.CommandSender;
+
 public interface IModificationQueue {
+    /**
+     * Get the owner.
+     *
+     * @return The owner
+     */
+    CommandSender owner();
+
     /**
      * Preview the modifications.
      */
     void preview();
 
     /**
+     * Whether preview mode is enabled.
+     *
+     * @return True if preview mode
+     */
+    boolean isPreview();
+
+    /**
      * Apply the modifications.
      */
     void apply();
+
+    /**
+     * Cancel this modification queue.
+     *
+     * <p>If preview mode, will reset all fake blocks.</p>
+     */
+    void cancel();
 }

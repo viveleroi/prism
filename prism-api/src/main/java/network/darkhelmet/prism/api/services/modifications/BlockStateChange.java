@@ -20,5 +20,7 @@
 
 package network.darkhelmet.prism.api.services.modifications;
 
-public record ModificationResult(ModificationResultStatus status, BlockStateChange stateChange) {
+import org.bukkit.block.BlockState;
+
+public record BlockStateChange(BlockState oldState, BlockState newState) {
 }

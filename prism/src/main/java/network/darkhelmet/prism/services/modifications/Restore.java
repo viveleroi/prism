@@ -27,18 +27,26 @@ import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 
+import org.bukkit.command.CommandSender;
+
 public class Restore extends AbstractWorldModificationQueue {
     /**
      * Construct a new restore.
      *
+     * @param owner The owner
      * @param modifications A list of modifications
+     * @param onComplete The complete callback
      */
-    public Restore(final List<IActivity> modifications, Consumer<ModificationQueueResult> onComplete) {
-        super(modifications, onComplete);
+    public Restore(
+        CommandSender owner,
+        final List<IActivity> modifications,
+        Consumer<ModificationQueueResult> onComplete
+    ) {
+        super(owner, modifications, onComplete);
     }
 
     @Override
     protected ModificationResult applyModification(IActivity activity) {
-        return activity.action().applyRestore(activity, isPreview);
+        return activity.action().applyRestore(owner(), activity, isPreview());
     }
 }

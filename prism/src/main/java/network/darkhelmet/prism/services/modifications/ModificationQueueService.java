@@ -21,20 +21,17 @@
 package network.darkhelmet.prism.services.modifications;
 
 import java.util.List;
+import java.util.Optional;
 
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueState;
 
 import org.bukkit.command.CommandSender;
 
 public class ModificationQueueService implements IModificationQueueService {
-    /**
-     * Cache the owner of the current queue, if any.
-     */
-    private CommandSender owner = null;
-
     /**
      * Cache the current queue, if any.
      */
@@ -46,13 +43,26 @@ public class ModificationQueueService implements IModificationQueueService {
     }
 
     @Override
+    public IModificationQueue currentQueue() {
+        return currentQueue;
+    }
+
+    @Override
+    public Optional<IModificationQueue> currentQueueForOwner(CommandSender owner) {
+        if (currentQueue != null && currentQueue.owner().equals(owner)) {
+            return Optional.of(currentQueue);
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
     public IModificationQueue newRollbackQueue(CommandSender owner, List<IActivity> modifications) {
         if (!queueAvailable()) {
             throw new IllegalStateException("No queue available until current queue finished.");
         }
 
-        this.owner = owner;
-        this.currentQueue = new Rollback(modifications, this::onComplete);
+        this.currentQueue = new Rollback(owner, modifications, this::onComplete);
         return this.currentQueue;
     }
 
@@ -62,8 +72,7 @@ public class ModificationQueueService implements IModificationQueueService {
             throw new IllegalStateException("No queue available until current queue finished.");
         }
 
-        this.owner = owner;
-        this.currentQueue = new Restore(modifications, this::onComplete);
+        this.currentQueue = new Restore(owner, modifications, this::onComplete);
         return this.currentQueue;
     }
 
@@ -73,7 +82,8 @@ public class ModificationQueueService implements IModificationQueueService {
      * @param result Modification queue result
      */
     protected void onComplete(ModificationQueueResult result) {
-        this.owner = null;
-        this.currentQueue = null;
+        if (result.phase().equals(ModificationQueueState.COMPLETE)) {
+            this.currentQueue = null;
+        }
     }
 }

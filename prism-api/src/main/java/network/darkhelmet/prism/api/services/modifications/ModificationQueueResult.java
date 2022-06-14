@@ -20,5 +20,9 @@
 
 package network.darkhelmet.prism.api.services.modifications;
 
-public record ModificationQueueResult(int countSkipped, int countPlanned, int countApplied) {
+public record ModificationQueueResult(
+    ModificationQueueState phase,
+    int countSkipped,
+    int countPlanned,
+    int countApplied) {
 }

@@ -24,33 +24,37 @@ import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 
+import org.bukkit.command.CommandSender;
+
 public interface IAction {
     /**
      * Apply the rollback. If the action type is not reversible, this does nothing.
      *
+     * @param owner The owner of this modification
      * @param activityContext The activity as a context
      * @param isPreview If preview only
      */
-    ModificationResult applyRollback(IActivity activityContext, boolean isPreview);
+    ModificationResult applyRollback(CommandSender owner, IActivity activityContext, boolean isPreview);
 
     /**
      * Apply the restore. If the action type is not reversible, this does nothing.
      *
+     * @param owner The owner of this modification
      * @param activityContext The activity as a context
      * @param isPreview If preview only
      */
-    ModificationResult applyRestore(IActivity activityContext, boolean isPreview);
+    ModificationResult applyRestore(CommandSender owner, IActivity activityContext, boolean isPreview);
 
     /**
      * Get the descriptor.
      *
-     * A descriptor is a mix between an identifier and formatted/specific content.
+     * <p>A descriptor is a mix between an identifier and formatted/specific content.</p>
      *
      * <p>For example we log the entity type of "BOAT" and custom nbt serialized data
      * but custom data is too unique to group, yet pieces are important to users.
-     * A descriptor parses the key data for a *descriptive*, *group-able* name.
+     * A descriptor parses the key data for a *descriptive*, *group-able* name.</p>
      *
-     * Like "mangrove boat". The descriptor is stored in the DB so it a) works
+     * <p>Like "mangrove boat". The descriptor is stored in the DB so it a) works
      * in grouping queries and b) is available to external sources like a web ui.</p>
      *
      * @return The descriptor

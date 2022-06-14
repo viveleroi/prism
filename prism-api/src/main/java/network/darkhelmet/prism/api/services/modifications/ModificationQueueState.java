@@ -20,5 +20,14 @@
 
 package network.darkhelmet.prism.api.services.modifications;
 
-public record ModificationResult(ModificationResultStatus status, BlockStateChange stateChange) {
+public enum ModificationQueueState {
+    /**
+     * The modification phase is incomplete. Usually for previews.
+     */
+    INCOMPLETE,
+
+    /**
+     * The modification phase is complete.
+     */
+    COMPLETE
 }

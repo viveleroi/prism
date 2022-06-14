@@ -47,6 +47,12 @@ public interface MessageService {
     @Message("no-results")
     void noResults(CommandSender receiver);
 
+    @Message("preview-applied")
+    void previewApplied(CommandSender receiver);
+
+    @Message("preview-cancelled")
+    void previewCancelled(CommandSender receiver);
+
     @Message("reloaded-config")
     void reloadedConfig(CommandSender receiver);
 

@@ -20,6 +20,7 @@
 
 package network.darkhelmet.prism.services.modifications;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -28,11 +29,16 @@ import java.util.function.Consumer;
 
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.services.modifications.BlockStateChange;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueState;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
+import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public abstract class AbstractWorldModificationQueue implements IModificationQueue {
     /**
@@ -60,7 +66,12 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     /**
      * Toggle preview mode.
      */
-    protected boolean isPreview = false;
+    private boolean isPreview = false;
+
+    /**
+     * The owner.
+     */
+    private CommandSender owner;
 
     /**
      * Cache the bukkit task id.
@@ -88,13 +99,20 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     private int countSkipped = 0;
 
     /**
+     * A cache of resulting state changes.
+     */
+    private final List<BlockStateChange> stateChanges = new ArrayList<>();
+
+    /**
      * Construct a new world modification.
      *
      * @param modifications A list of all modifications
+     * @param onComplete The complete callback
      */
     public AbstractWorldModificationQueue(
-            final List<IActivity> modifications, Consumer<ModificationQueueResult> onComplete) {
+            CommandSender owner, final List<IActivity> modifications, Consumer<ModificationQueueResult> onComplete) {
         modificationsQueue.addAll(modifications);
+        this.owner = owner;
         this.onComplete = onComplete;
     }
 
@@ -105,7 +123,12 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
      * @return The modification result
      */
     protected ModificationResult applyModification(IActivity activity) {
-        return ModificationResult.SKIPPED;
+        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
+    }
+
+    @Override
+    public CommandSender owner() {
+        return owner;
     }
 
     /**
@@ -116,11 +139,21 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     @Override
     public void preview() {
         this.isPreview = true;
-        apply();
+        execute();
+    }
+
+    @Override
+    public boolean isPreview() {
+        return isPreview;
     }
 
     @Override
     public void apply() {
+        this.isPreview = false;
+        execute();
+    }
+
+    protected void execute() {
         String queueSizeMsg = "Modification queue beginning application. Queue size: %d";
         Prism.getInstance().debug(String.format(queueSizeMsg, modificationsQueue.size()));
 
@@ -149,9 +182,9 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
 
                         // Delegate the modifications to the actions
                         ModificationResult result = applyModification(activity);
-                        if (result.equals(ModificationResult.PLANNED)) {
+                        if (result.status().equals(ModificationResultStatus.PLANNED)) {
                             countPlanned++;
-                        } else if (result.equals(ModificationResult.APPLIED)) {
+                        } else if (result.status().equals(ModificationResultStatus.APPLIED)) {
                             countApplied++;
                         } else {
                             countSkipped++;
@@ -160,6 +193,10 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                         // Remove from the queue if we're not previewing
                         if (!isPreview) {
                             iterator.remove();
+                        }
+
+                        if (result.stateChange() != null) {
+                            stateChanges.add(result.stateChange());
                         }
                     }
                 }
@@ -171,7 +208,10 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                     // Cancel the repeating task
                     Bukkit.getServer().getScheduler().cancelTask(taskId);
 
-                    ModificationQueueResult result = new ModificationQueueResult(
+                    ModificationQueueState state = isPreview
+                        ? ModificationQueueState.INCOMPLETE : ModificationQueueState.COMPLETE;
+
+                    ModificationQueueResult result = new ModificationQueueResult(state,
                         countSkipped, countPlanned, countApplied);
 
                     // Execute the callback.
@@ -182,5 +222,24 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                 }
             }, 0, taskPeriod);
         }
+    }
+
+    @Override
+    public void cancel() {
+        for (final Iterator<BlockStateChange> iterator = stateChanges.listIterator(); iterator.hasNext();) {
+            final BlockStateChange stateChange = iterator.next();
+
+            ((Player) owner).sendBlockChange(
+                stateChange.oldState().getLocation(), stateChange.oldState().getBlockData());
+
+            iterator.remove();
+        }
+
+        stateChanges.clear();
+
+        ModificationQueueResult result = new ModificationQueueResult(ModificationQueueState.COMPLETE, 0, 0, 0);
+
+        // Execute the callback.
+        onComplete.accept(result);
     }
 }

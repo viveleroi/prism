@@ -30,7 +30,9 @@ import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.services.modifications.BlockStateChange;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
+import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -38,6 +40,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.TileState;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 public class BlockStateAction extends MaterialAction implements IBlockAction {
@@ -154,53 +158,78 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
     }
 
     @Override
-    public ModificationResult applyRollback(IActivity activityContext, boolean isPreview) {
+    public ModificationResult applyRollback(CommandSender owner, IActivity activityContext, boolean isPreview) {
         if (!type().reversible()) {
-            return ModificationResult.SKIPPED;
+            return new ModificationResult(ModificationResultStatus.SKIPPED, null);
         }
 
+        BlockStateChange stateChange = null;
         if (type().resultType().equals(ActionResultType.REMOVES)) {
             // If the action type removes a block, rollback means we re-set it
-            setBlock(activityContext.location(), material, blockData, nbtContainer);
+            stateChange = setBlock(activityContext.location(), material, blockData, nbtContainer, owner, isPreview);
         } else if (type().resultType().equals(ActionResultType.CREATES)) {
             // If the action type creates a block, rollback means we remove it
-            setBlock(activityContext.location(), replacedMaterial, replacedBlockData, null);
+            stateChange = setBlock(
+                activityContext.location(), replacedMaterial, replacedBlockData, null, owner, isPreview);
         }
 
-        return ModificationResult.APPLIED;
+        return new ModificationResult(ModificationResultStatus.APPLIED, stateChange);
     }
 
     @Override
-    public ModificationResult applyRestore(IActivity activityContext, boolean isPreview) {
+    public ModificationResult applyRestore(CommandSender owner, IActivity activityContext, boolean isPreview) {
         if (!type().reversible()) {
-            return ModificationResult.SKIPPED;
+            return new ModificationResult(ModificationResultStatus.SKIPPED, null);
         }
 
+        BlockStateChange stateChange = null;
         if (type().resultType().equals(ActionResultType.CREATES)) {
             // If the action type creates a block, restore means we re-set it
-            setBlock(activityContext.location(), material, blockData, nbtContainer);
+            stateChange = setBlock(activityContext.location(), material, blockData, nbtContainer, owner, isPreview);
         } else if (type().resultType().equals(ActionResultType.REMOVES)) {
             // If the action type removes a block, restore means we remove it again
-            setBlock(activityContext.location(), replacedMaterial, replacedBlockData, null);
+            stateChange = setBlock(
+                activityContext.location(), replacedMaterial, replacedBlockData, null, owner, isPreview);
         }
 
-        return ModificationResult.APPLIED;
+        return new ModificationResult(ModificationResultStatus.APPLIED, stateChange);
     }
 
     /**
      * Sets an in-world block to this block data.
      */
-    protected void setBlock(
-            Location location, Material newMaterial, BlockData newBlockData, NBTContainer newNbtContainer) {
+    protected BlockStateChange setBlock(
+        Location location,
+        Material newMaterial,
+        BlockData newBlockData,
+        NBTContainer newNbtContainer,
+        CommandSender owner,
+        boolean isPreview
+    ) {
         final Block block = location.getWorld().getBlockAt(location);
-        block.setType(newMaterial);
 
-        if (newBlockData != null) {
-            block.setBlockData(newBlockData, true);
+        // Capture existing state for reporting/reversing needs
+        final BlockState oldState = block.getState();
+
+        // Set the new material
+        if (!isPreview) {
+            block.setType(newMaterial);
         }
 
+        // Set the block data
+        if (newBlockData != null) {
+            if (isPreview && owner instanceof Player player) {
+                player.sendBlockChange(location, newBlockData);
+            } else {
+                block.setBlockData(newBlockData, true);
+            }
+        }
+
+        // Set NBT
         if (newNbtContainer != null) {
             new NBTTileEntity(block.getState()).mergeCompound(newNbtContainer);
         }
+
+        return new BlockStateChange(oldState, block.getState());
     }
 }

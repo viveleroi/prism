@@ -21,6 +21,7 @@
 package network.darkhelmet.prism.api.services.modifications;
 
 import java.util.List;
+import java.util.Optional;
 
 import network.darkhelmet.prism.api.activities.IActivity;
 
@@ -33,6 +34,21 @@ public interface IModificationQueueService {
      * @return True if a new queue can be made.
      */
     boolean queueAvailable();
+
+    /**
+     * The current modification queue.
+     *
+     * @return The queue
+     */
+    IModificationQueue currentQueue();
+
+    /**
+     * Get the current queue only if it's owned by a given owner.
+     *
+     * @param owner The owner
+     * @return The queue, if any
+     */
+    Optional<IModificationQueue> currentQueueForOwner(CommandSender owner);
 
     /**
      * Create a new rollback queue.

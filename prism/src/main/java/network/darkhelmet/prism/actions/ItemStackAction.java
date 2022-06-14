@@ -27,7 +27,9 @@ import network.darkhelmet.prism.api.actions.IItemAction;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
+import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,12 +78,12 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
     }
 
     @Override
-    public ModificationResult applyRollback(IActivity activityContext, boolean isPreview) {
-        return ModificationResult.SKIPPED;
+    public ModificationResult applyRollback(CommandSender owner, IActivity activityContext, boolean isPreview) {
+        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
     }
 
     @Override
-    public ModificationResult applyRestore(IActivity activityContext, boolean isPreview) {
-        return ModificationResult.SKIPPED;
+    public ModificationResult applyRestore(CommandSender owner, IActivity activityContext, boolean isPreview) {
+        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
     }
 }
