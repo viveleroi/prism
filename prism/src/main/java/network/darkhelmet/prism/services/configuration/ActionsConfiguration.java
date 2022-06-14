@@ -46,6 +46,9 @@ public class ActionsConfiguration {
     @Comment("vehicle-enter is when an entity enters a boat or minecart.")
     private boolean vehicleEnter = true;
 
+    @Comment("vehicle-exit is when an entity exits a boat or minecart.")
+    private boolean vehicleExit = true;
+
     @Comment("vehicle-place is when a player places a boat or minecart.")
     private boolean vehiclePlace = true;
 
@@ -101,6 +104,15 @@ public class ActionsConfiguration {
      */
     public boolean vehicleEnter() {
         return vehicleEnter;
+    }
+
+    /**
+     * Get if vehicle-exit enabled.
+     *
+     * @return True if enabled
+     */
+    public boolean vehicleExit() {
+        return vehicleExit;
     }
 
     /**

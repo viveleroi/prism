@@ -62,6 +62,8 @@ public class ActionRegistry implements IActionRegistry {
         new ItemActionType("item-drop", ActionResultType.REMOVES, true);
     public static final ActionType VEHICLE_ENTER =
         new EntityActionType("vehicle-enter", ActionResultType.NONE, false);
+    public static final ActionType VEHICLE_EXIT =
+        new EntityActionType("vehicle-exit", ActionResultType.NONE, false);
     public static final ActionType VEHICLE_PLACE =
         new EntityActionType("vehicle-place", ActionResultType.CREATES, false);
 
@@ -76,6 +78,7 @@ public class ActionRegistry implements IActionRegistry {
         registerAction(HANGING_BREAK);
         registerAction(ITEM_DROP);
         registerAction(VEHICLE_ENTER);
+        registerAction(VEHICLE_EXIT);
         registerAction(VEHICLE_PLACE);
     }
 
