@@ -29,8 +29,8 @@ import network.darkhelmet.prism.api.actions.IEntityAction;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
-
 import network.darkhelmet.prism.utils.EntityUtils;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;

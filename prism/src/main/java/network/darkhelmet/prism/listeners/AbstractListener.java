@@ -28,6 +28,7 @@ import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.IActionRegistry;
 import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.services.expectations.ExpectationType;
 import network.darkhelmet.prism.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.filters.FilterService;
@@ -52,7 +53,7 @@ public class AbstractListener {
     /**
      * The expectation service.
      */
-    private final ExpectationService expectationService;
+    protected final ExpectationService expectationService;
 
     /**
      * The filter service.
@@ -90,7 +91,7 @@ public class AbstractListener {
         // Find any hanging entities.
         if (configurationService.prismConfig().actions().hangingBreak()) {
             for (Entity hanging : EntityUtils.hangingEntities(block.getLocation(), 2)) {
-                expectationService.expect(hanging, cause);
+                expectationService.cacheFor(ExpectationType.DETACH).expect(hanging, cause);
             }
         }
 

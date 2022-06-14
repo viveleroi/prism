@@ -29,6 +29,7 @@ import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.IActionRegistry;
 import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.services.expectations.ExpectationType;
 import network.darkhelmet.prism.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.filters.FilterService;
@@ -104,13 +105,13 @@ public class HangingBreakListener implements Listener {
             recordHangingBreak(hanging, "explosion");
         } else if (event.getCause().equals(HangingBreakEvent.RemoveCause.PHYSICS)) {
             // Physics causes. Hopefully find the actual cause through an expectation
-            Optional<Object> expectation = expectationService.expectation(hanging);
+            Optional<Object> expectation = expectationService.cacheFor(ExpectationType.DETACH).expectation(hanging);
             expectation.ifPresent(o -> {
                 // Queue a recording
                 recordHangingBreak(hanging, o);
 
                 // Remove from cache
-                expectationService.metExpectation(hanging);
+                expectationService.cacheFor(ExpectationType.DETACH).metExpectation(hanging);
             });
         }
     }

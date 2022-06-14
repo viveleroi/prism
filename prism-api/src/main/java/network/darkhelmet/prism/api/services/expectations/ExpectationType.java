@@ -18,33 +18,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.services.expectations;
+package network.darkhelmet.prism.api.services.expectations;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import network.darkhelmet.prism.api.services.expectations.ExpectationType;
-
-public class ExpectationService {
+public enum ExpectationType {
     /**
-     * Cache of expectation types and their caches.
+     * Items will detach from a block face.
      */
-    Map<ExpectationType, ExpectationsCache> expectationsCaches = new HashMap<>();
+    DETACH,
 
     /**
-     * Get or create an expectations cache.
-     *
-     * @param type The expectation type
-     * @return The expectations cache
+     * A vehicle will be spawned.
      */
-    public ExpectationsCache cacheFor(ExpectationType type) {
-        if (expectationsCaches.containsKey(type)) {
-            return expectationsCaches.get(type);
-        }
-
-        ExpectationsCache cache = new ExpectationsCache();
-        expectationsCaches.put(type, cache);
-
-        return cache;
-    }
+    SPAWN_VEHICLE
 }
