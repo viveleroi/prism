@@ -2,6 +2,7 @@
 build
 run
 /.gradle/
+buildSrc/.gradle
 
 # idea
 /.idea/

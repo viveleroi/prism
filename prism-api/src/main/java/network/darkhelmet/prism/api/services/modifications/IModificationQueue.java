@@ -20,15 +20,13 @@
 
 package network.darkhelmet.prism.api.services.modifications;
 
-import org.bukkit.command.CommandSender;
-
 public interface IModificationQueue {
     /**
      * Get the owner.
      *
      * @return The owner
      */
-    CommandSender owner();
+    Object owner();
 
     /**
      * Preview the modifications.

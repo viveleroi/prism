@@ -25,29 +25,85 @@ import java.util.Collection;
 import java.util.UUID;
 
 import network.darkhelmet.prism.api.actions.types.IActionType;
+import network.darkhelmet.prism.api.util.Coordinate;
+import network.darkhelmet.prism.api.util.WorldCoordinate;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.entity.EntityType;
-import org.bukkit.util.Vector;
+public final class ActivityQuery {
+    /**
+     * The action types.
+     */
+    private final Collection<IActionType> actionTypes = new ArrayList<>();
 
-public record ActivityQuery(
-    boolean isLookup,
-    boolean grouped,
-    Collection<IActionType> actionTypes,
-    Location location,
-    UUID worldUuid,
-    Vector minVector,
-    Vector maxVector,
-    Collection<Material> materials,
-    Collection<EntityType> entityTypes,
-    Collection<String> playerNames,
-    Long since,
-    Long before,
-    int offset,
-    int limit,
-    ActivityQuery.Sort sort) {
+    /**
+     * The lower-bound timestamp.
+     */
+    private Long after;
+
+    /**
+     * The upper-bound timestamp.
+     */
+    private Long before;
+
+    /**
+     * The entity types.
+     */
+    private final Collection<String> entityTypes = new ArrayList<>();
+
+    /**
+     * Grouped.
+     */
+    private boolean grouped = true;
+
+    /**
+     * Limit the number of records.
+     */
+    private int limit;
+
+    /**
+     * The location.
+     */
+    private WorldCoordinate location;
+
+    /**
+     * Is lookup.
+     */
+    private boolean lookup = true;
+
+    /**
+     * The materials.
+     */
+    private final Collection<String> materials = new ArrayList<>();
+
+    /**
+     * The max x coordinate.
+     */
+    private Coordinate maxCoordinate;
+
+    /**
+     * The min z coordinate.
+     */
+    private Coordinate minCoordinate;
+
+    /**
+     * The record index offset.
+     */
+    private int offset = 0;
+
+    /**
+     * The player names.
+     */
+    private final Collection<String> playerNames = new ArrayList<>();
+
+    /**
+     * The sort direction.
+     */
+    private Sort sort = Sort.DESCENDING;
+
+    /**
+     * The world uuid.
+     */
+    private UUID worldUuid;
+
     /**
      * Describe the sort directions.
      */
@@ -56,365 +112,377 @@ public record ActivityQuery(
     }
 
     /**
-     * Get a new builder.
+     * Add an action type.
      *
-     * @return The activity query builder
+     * @param actionType The action type
+     * @return The query
      */
-    public static Builder builder() {
-        return new Builder();
+    public ActivityQuery actionType(IActionType actionType) {
+        this.actionTypes.add(actionType);
+        return this;
     }
 
     /**
-     * Make a new builder from a basic query.
+     * Get the action types.
      *
-     * @return A new builder
+     * @return The action types.
      */
-    public Builder toBuilder() {
-        Builder builder = new Builder()
-            .lookup(isLookup())
-            .grouped(grouped())
-            .actionTypes(actionTypes())
-            .maxVector(maxVector())
-            .materials(materials())
-            .entityTypes(entityTypes())
-            .playerNames(playerNames())
-            .offset(offset())
-            .limit(limit())
-            .sort(sort());
-
-        if (location() != null) {
-            builder.location(location());
-        }
-
-        if (worldUuid() != null) {
-            builder.world(worldUuid());
-        }
-
-        if (since() != null) {
-            builder.since(since());
-        }
-
-        if (since() != null) {
-            builder.since(since());
-        }
-
-        if (before() != null) {
-            builder.before(before());
-        }
-
-        return builder;
+    public Collection<IActionType> actionTypes() {
+        return this.actionTypes;
     }
 
-    public static class Builder {
-        /**
-         * The action types.
-         */
-        private Collection<IActionType> actionTypes = new ArrayList<>();
+    /**
+     * Add action types.
+     *
+     * @param actionTypes The action types
+     * @return The query
+     */
+    public ActivityQuery actionTypes(Collection<IActionType> actionTypes) {
+        this.actionTypes.addAll(actionTypes);
+        return this;
+    }
 
-        /**
-         * Indicate this is a lookup query.
-         */
-        private boolean isLookup = true;
+    /**
+     * Get the lower-bound timestamp.
+     *
+     * @return The lower-bound timestamp
+     */
+    public Long after() {
+        return after;
+    }
 
-        /**
-         * Indicate if results should be grouped.
-         */
-        private boolean grouped = true;
+    /**
+     * Set the lower-bound timestamp.
+     *
+     * @param after The timestamp
+     * @return The query
+     */
+    public ActivityQuery after(long after) {
+        this.after = after;
+        return this;
+    }
 
-        /**
-         * The location.
-         */
-        private Location location;
+    /**
+     * Get the upper-bound timestamp.
+     *
+     * @return The upper-bound timestamp.
+     */
+    public Long before() {
+        return before;
+    }
 
-        /**
-         * The world uuid.
-         */
-        private UUID worldUuid;
+    /**
+     * Set the upper-bound timestamp.
+     *
+     * @param before The timestamp
+     * @return The query
+     */
+    public ActivityQuery before(long before) {
+        this.before = before;
+        return this;
+    }
 
-        /**
-         * The minimum vector.
-         */
-        private Vector minVector;
+    /**
+     * Add an entity type.
+     *
+     * @param entityType The entity type
+     * @return The query
+     */
+    public ActivityQuery entityType(String entityType) {
+        this.entityTypes.add(entityType);
+        return this;
+    }
 
-        /**
-         * The maximum vector.
-         */
-        private Vector maxVector;
+    /**
+     * Get the entity types.
+     *
+     * @return The entity types
+     */
+    public Collection<String> entityTypes() {
+        return entityTypes;
+    }
 
-        /**
-         * A list of materials.
-         */
-        private final Collection<Material> materials = new ArrayList<>();
+    /**
+     * Add an entity type.
+     *
+     * @param entityTypes The entity types
+     * @return The query
+     */
+    public ActivityQuery entityTypes(Collection<String> entityTypes) {
+        this.entityTypes.addAll(entityTypes);
+        return this;
+    }
 
-        /**
-         * A list of entity types.
-         */
-        private final Collection<EntityType> entityTypes = new ArrayList<>();
+    /**
+     * Whether records should be grouped.
+     *
+     * @return True if grouped
+     */
+    public boolean grouped() {
+        return grouped;
+    }
 
-        /**
-         * A list of player names.
-         */
-        private final Collection<String> playerNames = new ArrayList<>();
+    /**
+     * Set whether results should be grouped.
+     *
+     * @param grouped If grouped
+     * @return The query
+     */
+    public ActivityQuery grouped(boolean grouped) {
+        this.grouped = grouped;
+        return this;
+    }
 
-        /**
-         * A lower-bound timestamp.
-         */
-        private Long since = null;
+    /**
+     * Get the limit.
+     *
+     * @return The limit
+     */
+    public int limit() {
+        return limit;
+    }
 
-        /**
-         * A upper-bound timestamp.
-         */
-        private Long before = null;
+    /**
+     * Set the limit.
+     *
+     * @param limit The limit
+     * @return The query
+     */
+    public ActivityQuery limit(int limit) {
+        this.limit = limit;
+        return this;
+    }
 
-        /**
-         * The offset.
-         */
-        private int offset = 0;
+    /**
+     * Get the location.
+     *
+     * @return The location
+     */
+    public WorldCoordinate location() {
+        return location;
+    }
 
-        /**
-         * The limit.
-         */
-        private int limit = 0;
+    /**
+     * Set the location.
+     *
+     * @return The query
+     */
+    public ActivityQuery location(WorldCoordinate worldCoordinate) {
+        this.location = worldCoordinate;
+        return this;
+    }
 
-        /**
-         * The sort direction.
-         */
-        private Sort sort = Sort.DESCENDING;
+    /**
+     * Whether query is a lookup.
+     *
+     * @return True if lookup
+     */
+    public boolean lookup() {
+        return lookup;
+    }
 
-        /**
-         * Add an action type.
-         *
-         * @param actionType The action type
-         * @return The builder
-         */
-        public Builder actionType(IActionType actionType) {
-            this.actionTypes.add(actionType);
-            return this;
+    /**
+     * Set whether this is a lookup. The query results can be grouped
+     * and the order by is different.
+     *
+     * @param lookup If lookup
+     * @return The query
+     */
+    public ActivityQuery lookup(boolean lookup) {
+        this.lookup = lookup;
+
+        if (!lookup) {
+            grouped(false);
         }
 
-        /**
-         * Add action types.
-         *
-         * @param actionTypes The action types
-         * @return The builder
-         */
-        public Builder actionTypes(Collection<IActionType> actionTypes) {
-            this.actionTypes.addAll(actionTypes);
-            return this;
-        }
+        return this;
+    }
 
-        /**
-         * Set whether results should be grouped.
-         *
-         * @param isGrouped If grouped
-         * @return The builder
-         */
-        public Builder grouped(boolean isGrouped) {
-            this.grouped = isGrouped;
-            return this;
-        }
+    /**
+     * Add a material.
+     *
+     * @param material The material
+     * @return The query
+     */
+    public ActivityQuery material(String material) {
+        this.materials.add(material);
+        return this;
+    }
 
-        /**
-         * Set whether this is a lookup. The query results can be grouped
-         * and the order by is different.
-         *
-         * @param isLookup If lookup
-         * @return The builder
-         */
-        public Builder lookup(boolean isLookup) {
-            this.isLookup = isLookup;
+    /**
+     * Get the materials.
+     *
+     * @return The materials
+     */
+    public Collection<String> materials() {
+        return materials;
+    }
 
-            if (!isLookup) {
-                grouped(false);
-            }
+    /**
+     * Add materials.
+     *
+     * @param materials The materials
+     * @return The query
+     */
+    public ActivityQuery materials(Collection<String> materials) {
+        this.materials.addAll(materials);
+        return this;
+    }
 
-            return this;
-        }
+    /**
+     * Get the max coordinate.
+     *
+     * @return The max coordinate.
+     */
+    public Coordinate maxCoordinate() {
+        return maxCoordinate;
+    }
 
-        /**
-         * Set a single location. Also sets the world.
-         *
-         * @param location The location
-         * @return The builder
-         */
-        public Builder location(Location location) {
-            this.location = location;
-            return world(location.getWorld().getUID());
-        }
+    /**
+     * Set the max coordinate - the max corner of a bounding box.
+     *
+     * @param x The x coordinate
+     * @param y The y coordinate
+     * @param z The z coordinate
+     * @return The query
+     */
+    public ActivityQuery maxCoordinate(double x, double y, double z) {
+        this.maxCoordinate = new Coordinate(x, y, z);
+        return this;
+    }
 
-        /**
-         * Set the world.
-         *
-         * @param world The world
-         * @return The builder
-         */
-        public Builder world(World world) {
-            return world(world.getUID());
-        }
+    /**
+     * Set the max coordinate - the max corner of a bounding box.
+     *
+     * @param coordinate The max coordinate
+     * @return The query
+     */
+    public ActivityQuery maxCoordinate(Coordinate coordinate) {
+        this.maxCoordinate = coordinate;
+        return this;
+    }
 
-        /**
-         * Set the world by uuid.
-         *
-         * @param worldUuid The world uuid
-         * @return The builder
-         */
-        public Builder world(UUID worldUuid) {
-            this.worldUuid = worldUuid;
-            return this;
-        }
+    /**
+     * Get the min coordinate.
+     *
+     * @return The min coordinate.
+     */
+    public Coordinate minCoordinate() {
+        return minCoordinate;
+    }
 
-        /**
-         * Set the min vector - the min corner of a bounding box.
-         *
-         * @param vector The vector
-         * @return The builder
-         */
-        public Builder minVector(Vector vector) {
-            this.minVector = vector;
-            return this;
-        }
+    /**
+     * Set the min coordinate - the min corner of a bounding box.
+     *
+     * @param x The x coordinate
+     * @param y The y coordinate
+     * @param z The z coordinate
+     * @return The query
+     */
+    public ActivityQuery minCoordinate(double x, double y, double z) {
+        this.minCoordinate = new Coordinate(x, y, z);
+        return this;
+    }
 
-        /**
-         * Set the max vector - the max corner of a bounding box.
-         *
-         * @param vector The vector
-         * @return The builder
-         */
-        public Builder maxVector(Vector vector) {
-            this.maxVector = vector;
-            return this;
-        }
+    /**
+     * Set the min coordinate - the min corner of a bounding box.
+     *
+     * @param coordinate The min coordinate
+     * @return The query
+     */
+    public ActivityQuery minCoordinate(Coordinate coordinate) {
+        this.minCoordinate = coordinate;
+        return this;
+    }
 
-        /**
-         * Add a material.
-         *
-         * @param material The material
-         * @return The builder
-         */
-        public Builder material(Material material) {
-            this.materials.add(material);
-            return this;
-        }
+    /**
+     * Get the offset.
+     *
+     * @return The offset
+     */
+    public int offset() {
+        return offset;
+    }
 
-        /**
-         * Add materials.
-         *
-         * @param materials The materials
-         * @return The builder
-         */
-        public Builder materials(Collection<Material> materials) {
-            this.materials.addAll(materials);
-            return this;
-        }
+    /**
+     * Set the offset.
+     *
+     * @param offset The offset
+     * @return The query
+     */
+    public ActivityQuery offset(int offset) {
+        this.offset = offset;
+        return this;
+    }
 
-        /**
-         * Add an entity type.
-         *
-         * @param entityType The entity type
-         * @return The builder
-         */
-        public Builder entityType(EntityType entityType) {
-            this.entityTypes.add(entityType);
-            return this;
-        }
+    /**
+     * Add a player by name.
+     *
+     * @param playerName The player name
+     * @return The query
+     */
+    public ActivityQuery playerByName(String playerName) {
+        this.playerNames.add(playerName);
+        return this;
+    }
 
-        /**
-         * Add an entity type.
-         *
-         * @param entityTypes The entity types
-         * @return The builder
-         */
-        public Builder entityTypes(Collection<EntityType> entityTypes) {
-            this.entityTypes.addAll(entityTypes);
-            return this;
-        }
+    /**
+     * Get the player names.
+     *
+     * @return The player names
+     */
+    public Collection<String> playerNames() {
+        return playerNames;
+    }
 
-        /**
-         * Add a player by name.
-         *
-         * @param playerName The player name
-         * @return The builder
-         */
-        public Builder playerByName(String playerName) {
-            this.playerNames.add(playerName);
-            return this;
-        }
+    /**
+     * Add a list of player names.
+     *
+     * @param playerNames The player names.
+     * @return The query
+     */
+    public ActivityQuery playerNames(Collection<String> playerNames) {
+        this.playerNames.addAll(playerNames);
+        return this;
+    }
 
-        /**
-         * Add a list of player names.
-         *
-         * @param playerNames The player names.
-         * @return The builder
-         */
-        public Builder playerNames(Collection<String> playerNames) {
-            this.playerNames.addAll(playerNames);
-            return this;
-        }
+    /**
+     * Get the sort.
+     *
+     * @return The sort
+     */
+    public Sort sort() {
+        return sort;
+    }
 
-        /**
-         * Set the lower-bound timestamp.
-         *
-         * @param since The timestamp
-         * @return The builder
-         */
-        public Builder since(long since) {
-            this.since = since;
-            return this;
-        }
+    /**
+     * Set the sort direction. Defaults to descending.
+     *
+     * @param sort The sort direction.
+     * @return The query
+     */
+    public ActivityQuery sort(Sort sort) {
+        this.sort = sort;
+        return this;
+    }
 
-        /**
-         * Set the upper-bound timestamp.
-         *
-         * @param before The timestamp
-         * @return The builder
-         */
-        public Builder before(long before) {
-            this.before = before;
-            return this;
-        }
+    /**
+     * Get the world uuid.
+     *
+     * @return The world uuid
+     */
+    public UUID worldUuid() {
+        return worldUuid;
+    }
 
-        /**
-         * Set the offset.
-         *
-         * @param offset The offset
-         * @return The builder
-         */
-        public Builder offset(int offset) {
-            this.offset = offset;
-            return this;
-        }
-
-        /**
-         * Set the limit.
-         *
-         * @param limit The limit
-         * @return The builder
-         */
-        public Builder limit(int limit) {
-            this.limit = limit;
-            return this;
-        }
-
-        /**
-         * Set the sort direction. Defaults to descending.
-         *
-         * @param sort The sort direction.
-         * @return The builder
-         */
-        public Builder sort(Sort sort) {
-            this.sort = sort;
-            return this;
-        }
-
-        /**
-         * Build the activity query.
-         *
-         * @return The activity query
-         */
-        public ActivityQuery build() {
-            return new ActivityQuery(
-                isLookup, grouped, actionTypes, location, worldUuid,
-                minVector, maxVector, materials, entityTypes, playerNames, since, before, offset, limit, sort);
-        }
+    /**
+     * Set the world by uuid.
+     *
+     * @param worldUuid The world uuid
+     * @return The query
+     */
+    public ActivityQuery worldUuid(UUID worldUuid) {
+        this.worldUuid = worldUuid;
+        return this;
     }
 }

@@ -20,8 +20,7 @@
 
 package network.darkhelmet.prism.api.services.wands;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
+import network.darkhelmet.prism.api.util.WorldCoordinate;
 
 public interface IWand {
     /**
@@ -36,12 +35,12 @@ public interface IWand {
      *
      * @param owner The player
      */
-    void setOwner(Player owner);
+    void setOwner(Object owner);
 
     /**
      * Use this wand on the given location.
      *
-     * @param location The location
+     * @param worldCoordinate The world coordinate
      */
-    void use(Location location);
+    void use(WorldCoordinate worldCoordinate);
 }

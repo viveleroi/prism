@@ -21,8 +21,8 @@
 package network.darkhelmet.prism.api.activities;
 
 import network.darkhelmet.prism.api.actions.IAction;
-
-import org.bukkit.Location;
+import network.darkhelmet.prism.api.util.NamedIdentity;
+import network.darkhelmet.prism.api.util.WorldCoordinate;
 
 public interface IActivity {
     /**
@@ -33,23 +33,23 @@ public interface IActivity {
     IAction action();
 
     /**
-     * Get the cause.
+     * Get the named cause.
      *
      * @return The cause
      */
-    Object cause();
+    String cause();
 
     /**
-     * Get the location.
+     * Get the causing player.
      *
-     * @return The location
+     * @return The causing player
      */
-    Location location();
+    NamedIdentity player();
 
     /**
-     * Get the timestamp.
+     * Get the world uuid.
      *
-     * @return The timestamp
+     * @return The world uuid
      */
-    long timestamp();
+    WorldCoordinate location();
 }

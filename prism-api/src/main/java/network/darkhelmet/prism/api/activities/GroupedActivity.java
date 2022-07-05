@@ -21,13 +21,27 @@
 package network.darkhelmet.prism.api.activities;
 
 import network.darkhelmet.prism.api.actions.IAction;
+import network.darkhelmet.prism.api.util.NamedIdentity;
+import network.darkhelmet.prism.api.util.WorldCoordinate;
 
-import org.bukkit.Location;
+public final class GroupedActivity extends AbstractActivity implements IGroupedActivity {
+    /**
+     * The count.
+     */
+    private final int count;
 
-public record GroupedActivity(
-    IAction action,
-    Location location,
-    Object cause,
-    long timestamp,
-    int count) implements IGroupedActivity {
+    public GroupedActivity(
+            IAction action,
+            WorldCoordinate worldCoordinate,
+            String cause,
+            NamedIdentity player,
+            int count) {
+        super(action, worldCoordinate, cause, player);
+        this.count = count;
+    }
+
+    @Override
+    public int count() {
+        return count;
+    }
 }

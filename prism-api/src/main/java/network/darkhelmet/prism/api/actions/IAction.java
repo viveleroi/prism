@@ -24,8 +24,6 @@ import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 
-import org.bukkit.command.CommandSender;
-
 public interface IAction {
     /**
      * Apply the rollback. If the action type is not reversible, this does nothing.
@@ -34,7 +32,7 @@ public interface IAction {
      * @param activityContext The activity as a context
      * @param isPreview If preview only
      */
-    ModificationResult applyRollback(CommandSender owner, IActivity activityContext, boolean isPreview);
+    ModificationResult applyRollback(Object owner, IActivity activityContext, boolean isPreview);
 
     /**
      * Apply the restore. If the action type is not reversible, this does nothing.
@@ -43,7 +41,7 @@ public interface IAction {
      * @param activityContext The activity as a context
      * @param isPreview If preview only
      */
-    ModificationResult applyRestore(CommandSender owner, IActivity activityContext, boolean isPreview);
+    ModificationResult applyRestore(Object owner, IActivity activityContext, boolean isPreview);
 
     /**
      * Get the descriptor.

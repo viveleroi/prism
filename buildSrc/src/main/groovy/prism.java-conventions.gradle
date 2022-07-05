@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+    id 'checkstyle'
+}
+
+group = project.property('group')
+version = project.property('version')
+description = project.property('description')
+
+repositories {
+    mavenCentral()
+
+    // Aikar
+    maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
+
+    // CodeMC (nbt-api)
+    maven { url = 'https://repo.codemc.org/repository/maven-public/' }
+
+    // Sonatype (kyori)
+    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots/' }
+
+    // Spigot
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+
+    // TeamTriumph
+    maven { url = 'https://repo.triumphteam.dev/snapshots' }
+}

@@ -20,16 +20,147 @@
 
 package network.darkhelmet.prism.api.actions;
 
-import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
+public final class ActionData {
+    /**
+     * The material.
+     */
+    private final String material;
 
-public record ActionData(
-    Material material,
-    String materialData,
-    Material replacedMaterial,
-    String replacedMaterialData,
-    EntityType entityType,
-    String customData,
-    String descriptor,
-    short customDataVersion) {
+    /**
+     * The material data.
+     */
+    private final String materialData;
+
+    /**
+     * The replaced material.
+     */
+    private final String replacedMaterial;
+
+    /**
+     * The replace material data.
+     */
+    private final String replacedMaterialData;
+
+    /**
+     * The entity type.
+     */
+    private final String entityType;
+
+    /**
+     * The custom data.
+     */
+    private final String customData;
+
+    /**
+     * The descriptor.
+     */
+    private final String descriptor;
+
+    /**
+     * The custom data version.
+     */
+    private final short customDataVersion;
+
+    /**
+     * Construct action data.
+     *
+     * @param material The material
+     * @param materialData The material data
+     * @param replacedMaterial The replaced material
+     * @param replacedMaterialData The replaced material data
+     * @param entityType The entity type
+     * @param customData The custom data
+     * @param descriptor The description
+     * @param customDataVersion The custom data version
+     */
+    public ActionData(
+            String material,
+            String materialData,
+            String replacedMaterial,
+            String replacedMaterialData,
+            String entityType,
+            String customData,
+            String descriptor,
+            short customDataVersion) {
+        this.material = material;
+        this.materialData = materialData;
+        this.replacedMaterial = replacedMaterial;
+        this.replacedMaterialData = replacedMaterialData;
+        this.entityType = entityType;
+        this.customData = customData;
+        this.descriptor = descriptor;
+        this.customDataVersion = customDataVersion;
+    }
+
+    /**
+     * Get the material.
+     *
+     * @return The material
+     */
+    public String material() {
+        return material;
+    }
+
+    /**
+     * Get the material data.
+     *
+     * @return The material data
+     */
+    public String materialData() {
+        return materialData;
+    }
+
+    /**
+     * Get the replaced material.
+     *
+     * @return The replaced material
+     */
+    public String replacedMaterial() {
+        return replacedMaterial;
+    }
+
+    /**
+     * Get the replaced material data.
+     *
+     * @return The replaced material data.
+     */
+    public String replacedMaterialData() {
+        return replacedMaterialData;
+    }
+
+    /**
+     * Get the entity type.
+     *
+     * @return The entity type
+     */
+    public String entityType() {
+        return entityType;
+    }
+
+    /**
+     * Get the custom data.
+     *
+     * @return The custom data
+     */
+    public String customData() {
+        return customData;
+    }
+
+    /**
+     * Get the descriptor.
+     *
+     * @return The descriptor
+     */
+    public String descriptor() {
+        return descriptor;
+    }
+
+    /**
+     * Get the custom data version.
+     *
+     * @return The custom data version
+     */
+    public short customDataVersion() {
+        return customDataVersion;
+    }
 }

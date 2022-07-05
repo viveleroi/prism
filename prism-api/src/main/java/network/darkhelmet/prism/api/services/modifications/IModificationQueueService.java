@@ -25,8 +25,6 @@ import java.util.Optional;
 
 import network.darkhelmet.prism.api.activities.IActivity;
 
-import org.bukkit.command.CommandSender;
-
 public interface IModificationQueueService {
     /**
      * Check if the queue is free. Nicer than trying and getting exceptions.
@@ -48,7 +46,7 @@ public interface IModificationQueueService {
      * @param owner The owner
      * @return The queue, if any
      */
-    Optional<IModificationQueue> currentQueueForOwner(CommandSender owner);
+    Optional<IModificationQueue> currentQueueForOwner(Object owner);
 
     /**
      * Create a new rollback queue.
@@ -58,7 +56,7 @@ public interface IModificationQueueService {
      * @return The rollback queue
      * @throws IllegalStateException If queue can't be created
      */
-    IModificationQueue newRollbackQueue(CommandSender owner, List<IActivity> modifications);
+    IModificationQueue newRollbackQueue(Object owner, List<IActivity> modifications);
 
     /**
      * Create a new restore queue.
@@ -68,5 +66,5 @@ public interface IModificationQueueService {
      * @return The restore queue
      * @throws IllegalStateException If queue can't be created
      */
-    IModificationQueue newRestoreQueue(CommandSender owner, List<IActivity> modifications);
+    IModificationQueue newRestoreQueue(Object owner, List<IActivity> modifications);
 }
