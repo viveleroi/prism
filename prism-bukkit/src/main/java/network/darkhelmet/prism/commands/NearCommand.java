@@ -27,7 +27,6 @@ import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.SubCommand;
 
 import network.darkhelmet.prism.api.activities.ActivityQuery;
-import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.api.util.Coordinate;
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.lookup.LookupService;
@@ -44,11 +43,6 @@ public class NearCommand extends BaseCommand {
     private final ConfigurationService configurationService;
 
     /**
-     * The storage adapter.
-     */
-    private final IStorageAdapter storageAdapter;
-
-    /**
      * The lookup service.
      */
     private final LookupService lookupService;
@@ -57,16 +51,13 @@ public class NearCommand extends BaseCommand {
      * Construct the near command.
      *
      * @param configurationService The configuration service
-     * @param storageAdapter The storage adapter
      * @param lookupService The lookup service
      */
     @Inject
     public NearCommand(
             ConfigurationService configurationService,
-            IStorageAdapter storageAdapter,
             LookupService lookupService) {
         this.configurationService = configurationService;
-        this.storageAdapter = storageAdapter;
         this.lookupService = lookupService;
     }
 
@@ -78,11 +69,12 @@ public class NearCommand extends BaseCommand {
     @SubCommand("near")
     public void onNear(final Player player) {
         Location loc = player.getLocation();
-        Coordinate minVector = LocationUtils.getMinCoordinate(loc, configurationService.prismConfig().nearRadius());
-        Coordinate maxVector = LocationUtils.getMaxCoordinate(loc, configurationService.prismConfig().nearRadius());
+        Coordinate minCoordinate = LocationUtils.getMinCoordinate(loc, configurationService.prismConfig().nearRadius());
+        Coordinate maxCoordinate = LocationUtils.getMaxCoordinate(loc, configurationService.prismConfig().nearRadius());
 
         final ActivityQuery query = new ActivityQuery().worldUuid(loc.getWorld().getUID())
-            .minCoordinate(minVector).maxCoordinate(maxVector).limit(configurationService.prismConfig().perPage());
+            .minCoordinate(minCoordinate).maxCoordinate(maxCoordinate)
+            .limit(configurationService.prismConfig().perPage());
         lookupService.lookup(player, query);
     }
 }
