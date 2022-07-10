@@ -62,6 +62,9 @@ public class ReloadCommand extends BaseCommand {
      * Construct the reload command.
      *
      * @param messageService The message service
+     * @param translationService The translation service
+     * @param configurationService The configuration service
+     * @param filterService The filter service
      */
     @Inject
     public ReloadCommand(
