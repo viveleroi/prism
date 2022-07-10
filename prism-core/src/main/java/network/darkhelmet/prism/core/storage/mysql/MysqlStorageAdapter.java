@@ -137,6 +137,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
                 configurationService.storageConfig().host() + ":"
                     + configurationService.storageConfig().port());
             builder.driverClassName(configurationService.storageConfig().driver());
+            builder.useOptimizations(configurationService.storageConfig().useHikariMysqlOptimizations());
             Database db = PooledDatabaseOptions.builder().options(builder.build()).createHikariDatabase();
             DB.setGlobalDatabase(db);
 

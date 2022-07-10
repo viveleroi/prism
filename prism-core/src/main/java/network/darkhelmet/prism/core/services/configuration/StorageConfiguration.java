@@ -53,6 +53,11 @@ public class StorageConfiguration {
     @Comment("Enter the username, if the selected datasource uses authentication.")
     private String username = "root";
 
+    @Comment("Toggle recommended Hikari MySQL datasource optimizations.\n"
+        + "You can read about these here: https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration\n"
+        + "Naturally, this setting is useless for non-MySQL storage.")
+    private boolean useHikariMysqlOptimizations = true;
+
     @Comment("Enable stored procedures. Stored procedures allow Prism to modify database records\n"
         + "more efficiently and with reduced network traffic.\n"
         + "However, your MySQL account must have privileges to `CREATE ROUTINE`.\n"
@@ -140,6 +145,15 @@ public class StorageConfiguration {
      */
     public String username() {
         return username;
+    }
+
+    /**
+     * Get whether to use default hikari mysql optimizations.
+     *
+     * @return Whether to use default hikari mysql optimizations
+     */
+    public boolean useHikariMysqlOptimizations() {
+        return useHikariMysqlOptimizations;
     }
 
     /**
