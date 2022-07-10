@@ -92,7 +92,7 @@ public class AbstractListener {
      * @return The cause descriptor
      */
     protected String causeDescriptor(Object cause) {
-        String finalCause = "unknown";
+        String finalCause = null;
         if (cause instanceof Entity causeEntity) {
             finalCause = causeEntity.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
         } else if (cause instanceof Block causeBlock) {

@@ -79,6 +79,7 @@ public class MysqlQueryBuilder {
         fields.add("`cause`");
         fields.add("`descriptor`");
         fields.add("HEX(`player_uuid`) AS playerUuid");
+        fields.add("`player`");
         fields.add("COUNT(*) OVER() AS totalRows");
 
         if (query.grouped()) {

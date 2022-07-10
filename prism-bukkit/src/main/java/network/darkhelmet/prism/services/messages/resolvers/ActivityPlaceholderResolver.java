@@ -37,9 +37,9 @@ import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.activities.IGroupedActivity;
 import network.darkhelmet.prism.api.activities.SingleActivity;
+import network.darkhelmet.prism.api.util.NamedIdentity;
 import network.darkhelmet.prism.services.translation.TranslationService;
 
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -74,7 +74,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
 
         Component actionPastTense = Component.text(pastTense);
         Component actionFamily = actionFamily(value.action().type().key());
-        Component cause = cause(receiver, value.cause());
+        Component cause = cause(receiver, value.cause(), value.player());
         Component content = Component.text(value.action().descriptor());
 
         Component since = Component.empty();
@@ -122,16 +122,13 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
      * @param cause The cause
      * @return The cause name/string
      */
-    protected Component cause(CommandSender receiver, Object cause) {
-        String causeName = null;
-        if (cause instanceof String) {
-            causeName = (String) cause;
-        } else if (cause instanceof OfflinePlayer offlinePlayer) {
-            causeName = offlinePlayer.getName();
+    protected Component cause(CommandSender receiver, String cause, NamedIdentity player) {
+        if (player != null) {
+            cause = player.name();
         }
 
-        if (causeName != null) {
-            return Component.text(causeName);
+        if (cause != null) {
+            return Component.text(cause);
         } else {
             return Component.text(translationService.messageOf(receiver, "unknown-cause"));
         }

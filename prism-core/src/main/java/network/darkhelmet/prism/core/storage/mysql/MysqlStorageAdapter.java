@@ -588,20 +588,20 @@ public class MysqlStorageAdapter implements IStorageAdapter {
                 material = materialName.toUpperCase(Locale.ENGLISH);
             }
 
-            // Cause/player
+            // Cause
             String cause = row.getString("cause");
-            String playerName = null;
-            UUID playerUuid = null;
+
+            // Player
+            NamedIdentity player = null;
             if (row.getString("playerUuid") != null) {
-                playerName = cause;
-                playerUuid = TypeUtils.uuidFromDbString(row.getString("playerUuid"));
+                String playerName = row.getString("player");
+                UUID playerUuid = TypeUtils.uuidFromDbString(row.getString("playerUuid"));
+
+                player = new NamedIdentity(playerUuid, playerName);
             }
 
             // Descriptor
             String descriptor = row.getString("descriptor");
-
-            // Player ID
-            NamedIdentity player = new NamedIdentity(playerUuid, playerName);
 
             if (!query.grouped()) {
                 long timestamp = row.get("timestamp");

@@ -45,7 +45,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.projectiles.BlockProjectileSource;
-import org.bukkit.projectiles.ProjectileSource;
 
 public class EntityDeathListener extends AbstractListener implements Listener {
     /**
@@ -87,12 +86,10 @@ public class EntityDeathListener extends AbstractListener implements Listener {
                 cause = ((EntityDamageByEntityEvent) damageEvent).getDamager();
 
                 if (cause instanceof Projectile) {
-                    ProjectileSource ps = ((Projectile) cause).getShooter();
+                    cause = ((Projectile) cause).getShooter();
 
-                    if (ps instanceof BlockProjectileSource) {
-                        cause = ((BlockProjectileSource) ps).getBlock();
-                    } else {
-                        cause = ps;
+                    if (cause instanceof BlockProjectileSource) {
+                        cause = ((BlockProjectileSource) cause).getBlock();
                     }
                 }
             } else if (damageEvent instanceof EntityDamageByBlockEvent) {

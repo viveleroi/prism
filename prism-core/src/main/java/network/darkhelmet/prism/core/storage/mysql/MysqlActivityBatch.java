@@ -154,7 +154,7 @@ public class MysqlActivityBatch implements IActivityBatch {
 
         // Set the player relationship
         Long playerId = null;
-        String cause = activity.cause() == null ? "unknown" : activity.cause();
+        String cause = activity.cause();
 
         // Set the cause relationship
         long causeId = getOrCreateCauseId(cause, playerId);

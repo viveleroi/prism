@@ -93,9 +93,12 @@ public class MysqlActivityProcedureBatch implements IActivityBatch {
             statement.setString(7, activity.player().name());
             statement.setString(8, uuidStr);
         } else {
-            String cause = activity.cause() == null ? "unknown" : activity.cause();
+            if (activity.cause() != null) {
+                statement.setString(6, activity.cause());
+            } else {
+                statement.setNull(6, Types.VARCHAR);
+            }
 
-            statement.setString(6, cause);
             statement.setNull(7, Types.VARCHAR);
             statement.setNull(8, Types.VARCHAR);
         }
