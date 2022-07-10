@@ -76,11 +76,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         Component actionFamily = actionFamily(value.action().type().key());
         Component cause = cause(receiver, value.cause(), value.player());
         Component content = Component.text(value.action().descriptor());
-
-        Component since = Component.empty();
-        if (value instanceof SingleActivity single) {
-            since = since(receiver, single.timestamp());
-        }
+        Component since = since(receiver, value.timestamp());
 
         Component count = Component.text("1");
         if (value instanceof IGroupedActivity grouped) {

@@ -30,13 +30,24 @@ public final class GroupedActivity extends AbstractActivity implements IGroupedA
      */
     private final int count;
 
+    /**
+     * Constructor.
+     *
+     * @param action The action
+     * @param worldCoordinate The world coordinate (or average)
+     * @param cause The cause
+     * @param player The player
+     * @param timestamp The timestamp
+     * @param count The count
+     */
     public GroupedActivity(
             IAction action,
             WorldCoordinate worldCoordinate,
             String cause,
             NamedIdentity player,
+            long timestamp,
             int count) {
-        super(action, worldCoordinate, cause, player);
+        super(action, worldCoordinate, cause, player, timestamp);
         this.count = count;
     }
 

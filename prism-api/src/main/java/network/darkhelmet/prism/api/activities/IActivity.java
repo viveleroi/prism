@@ -40,6 +40,13 @@ public interface IActivity {
     String cause();
 
     /**
+     * Get the world uuid.
+     *
+     * @return The world uuid
+     */
+    WorldCoordinate location();
+
+    /**
      * Get the causing player.
      *
      * @return The causing player
@@ -47,9 +54,9 @@ public interface IActivity {
     NamedIdentity player();
 
     /**
-     * Get the world uuid.
+     * Get the timestamp.
      *
-     * @return The world uuid
+     * @return The timestamp
      */
-    WorldCoordinate location();
+    long timestamp();
 }

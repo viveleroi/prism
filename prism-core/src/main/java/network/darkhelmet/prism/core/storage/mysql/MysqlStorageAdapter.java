@@ -29,6 +29,7 @@ import co.aikar.idb.PooledDatabaseOptions;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
+import java.math.BigDecimal;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -603,8 +604,10 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             // Descriptor
             String descriptor = row.getString("descriptor");
 
+            // Timestamp
+            BigDecimal timestamp = row.get("timestamp");
+
             if (!query.grouped()) {
-                long timestamp = row.get("timestamp");
                 String materialData = row.getString("material_data");
                 String customData = row.getString("custom_data");
                 Integer customDataVersion = row.getInt("data_version");
@@ -626,7 +629,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Build the activity
                 IActivity activity = new SingleActivity(
-                    actionType.createAction(actionData), coordinate, cause, player, timestamp);
+                    actionType.createAction(actionData), coordinate, cause, player, timestamp.longValue());
 
                 // Add to result list
                 activities.add(activity);
@@ -641,7 +644,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Build the grouped activity
                 IActivity activity = new GroupedActivity(
-                    actionType.createAction(actionData), coordinate, cause, player, count);
+                    actionType.createAction(actionData), coordinate, cause, player, timestamp.longValue(), count);
 
                 // Add to result list
                 activities.add(activity);

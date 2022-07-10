@@ -41,6 +41,11 @@ public abstract class AbstractActivity implements IActivity {
     private final NamedIdentity player;
 
     /**
+     * The timestamp.
+     */
+    private final long timestamp;
+
+    /**
      * The world coordinate, if any.
      */
     private final WorldCoordinate worldCoordinate;
@@ -52,13 +57,15 @@ public abstract class AbstractActivity implements IActivity {
      * @param worldCoordinate The world coordinate
      * @param cause The cause
      * @param player The player
+     * @param timestamp The timestamp (or average)
      */
     public AbstractActivity(
-            IAction action, WorldCoordinate worldCoordinate, String cause, NamedIdentity player) {
+            IAction action, WorldCoordinate worldCoordinate, String cause, NamedIdentity player, long timestamp) {
         this.action = action;
         this.cause = cause;
         this.worldCoordinate = worldCoordinate;
         this.player = player;
+        this.timestamp = timestamp;
     }
 
     @Override
@@ -79,5 +86,10 @@ public abstract class AbstractActivity implements IActivity {
     @Override
     public NamedIdentity player() {
         return player;
+    }
+
+    @Override
+    public long timestamp() {
+        return timestamp;
     }
 }

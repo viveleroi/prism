@@ -30,11 +30,6 @@ import org.jetbrains.annotations.NotNull;
 
 public final class SingleActivity extends AbstractActivity implements ISingleActivity {
     /**
-     * The timestamp.
-     */
-    private final long timestamp;
-
-    /**
      * Construct a new activity.
      *
      * @param action The action
@@ -48,14 +43,7 @@ public final class SingleActivity extends AbstractActivity implements ISingleAct
             String cause,
             NamedIdentity player,
             long timestamp) {
-        super(action, worldCoordinate, cause, player);
-
-        this.timestamp = timestamp;
-    }
-
-    @Override
-    public long timestamp() {
-        return timestamp;
+        super(action, worldCoordinate, cause, player, timestamp);
     }
 
     /**

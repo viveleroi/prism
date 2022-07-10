@@ -21,10 +21,5 @@
 package network.darkhelmet.prism.api.activities;
 
 public interface ISingleActivity extends IActivity {
-    /**
-     * Get the timestamp.
-     *
-     * @return The timestamp
-     */
-    long timestamp();
+
 }
