@@ -46,12 +46,12 @@ public class EntityAction extends Action implements IEntityAction {
     /**
      * The nbt container.
      */
-    private NBTContainer nbtContainer;
+    private final NBTContainer nbtContainer;
 
     /**
      * The entity type.
      */
-    private EntityType entityType;
+    private final EntityType entityType;
 
     /**
      * Construct a new entity action.

@@ -34,7 +34,7 @@ import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
 import network.darkhelmet.prism.api.services.modifications.StateChange;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
-import network.darkhelmet.prism.services.modifications.BlockStateChange;
+import network.darkhelmet.prism.services.modifications.state.BlockStateChange;
 import network.darkhelmet.prism.utils.LocationUtils;
 
 import org.bukkit.Location;

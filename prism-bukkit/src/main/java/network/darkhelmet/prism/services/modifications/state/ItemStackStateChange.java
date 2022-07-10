@@ -18,20 +18,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.services.modifications;
+package network.darkhelmet.prism.services.modifications.state;
 
 import network.darkhelmet.prism.api.services.modifications.StateChange;
 
-import org.bukkit.block.BlockState;
+import org.bukkit.inventory.ItemStack;
 
-public class BlockStateChange extends StateChange<BlockState> {
+public class ItemStackStateChange extends StateChange<ItemStack> {
     /**
-     * Construct a new block state change.
+     * Construct a new item stack state change.
      *
      * @param oldState The old state
      * @param newState The new state
      */
-    public BlockStateChange(BlockState oldState, BlockState newState) {
+    public ItemStackStateChange(ItemStack oldState, ItemStack newState) {
         super(oldState, newState);
     }
 }

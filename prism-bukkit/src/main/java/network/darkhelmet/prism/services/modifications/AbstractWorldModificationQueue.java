@@ -35,6 +35,7 @@ import network.darkhelmet.prism.api.services.modifications.ModificationQueueStat
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
 import network.darkhelmet.prism.api.services.modifications.StateChange;
+import network.darkhelmet.prism.services.modifications.state.BlockStateChange;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

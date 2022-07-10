@@ -24,11 +24,16 @@ import de.tr7zw.nbtapi.NBTContainer;
 import de.tr7zw.nbtapi.NBTItem;
 
 import network.darkhelmet.prism.api.actions.IItemAction;
+import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
+import network.darkhelmet.prism.services.modifications.state.ItemStackStateChange;
 
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,12 +41,12 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
     /**
      * The item stack.
      */
-    private ItemStack itemStack;
+    private final ItemStack itemStack;
 
     /**
      * The nbt container.
      */
-    private NBTContainer nbtContainer;
+    private final NBTContainer nbtContainer;
 
     /**
      * Construct a new item stack action.
@@ -78,6 +83,19 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
 
     @Override
     public ModificationResult applyRollback(Object owner, IActivity activityContext, boolean isPreview) {
+        activityContext.player();
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(activityContext.player().uuid());
+
+        // Give item back to player
+        if (offlinePlayer.isOnline() && activityContext.action().type().resultType().equals(ActionResultType.REMOVES)) {
+            Player player = (Player) offlinePlayer;
+            player.getInventory().addItem(itemStack.clone());
+
+            ItemStackStateChange stateChange = new ItemStackStateChange(itemStack.clone(), null);
+
+            return new ModificationResult(ModificationResultStatus.APPLIED, stateChange);
+        }
+
         return new ModificationResult(ModificationResultStatus.SKIPPED, null);
     }
 
