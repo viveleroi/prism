@@ -604,10 +604,9 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             // Descriptor
             String descriptor = row.getString("descriptor");
 
-            // Timestamp
-            BigDecimal timestamp = row.get("timestamp");
-
             if (!query.grouped()) {
+                long timestamp = row.getLong("timestamp");
+
                 String materialData = row.getString("material_data");
                 String customData = row.getString("custom_data");
                 Integer customDataVersion = row.getInt("data_version");
@@ -629,11 +628,14 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 // Build the activity
                 IActivity activity = new SingleActivity(
-                    actionType.createAction(actionData), coordinate, cause, player, timestamp.longValue());
+                    actionType.createAction(actionData), coordinate, cause, player, timestamp);
 
                 // Add to result list
                 activities.add(activity);
             } else {
+                // Timestamp
+                BigDecimal timestamp = row.get("timestamp");
+
                 // Build the action data
                 ActionData actionData = new ActionData(
                     material, null, null, null,

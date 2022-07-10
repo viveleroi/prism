@@ -27,7 +27,6 @@ import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
 
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.api.block.BlockState;
 
 public class BlockStateAction implements IBlockAction {
     public BlockStateAction(IActionType type) {}
@@ -58,13 +57,13 @@ public class BlockStateAction implements IBlockAction {
     }
 
     @Override
-    public ModificationResult<BlockState> applyRollback(Object owner, IActivity activityContext, boolean isPreview) {
-        return new ModificationResult<>(ModificationResultStatus.SKIPPED, null);
+    public ModificationResult applyRollback(Object owner, IActivity activityContext, boolean isPreview) {
+        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
     }
 
     @Override
-    public ModificationResult<BlockState> applyRestore(Object owner, IActivity activityContext, boolean isPreview) {
-        return new ModificationResult<>(ModificationResultStatus.SKIPPED, null);
+    public ModificationResult applyRestore(Object owner, IActivity activityContext, boolean isPreview) {
+        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
     }
 
     @Override

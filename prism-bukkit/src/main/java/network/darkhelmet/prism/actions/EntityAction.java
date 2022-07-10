@@ -120,7 +120,7 @@ public class EntityAction extends Action implements IEntityAction {
     }
 
     @Override
-    public ModificationResult<Entity> applyRollback(Object owner, IActivity activityContext, boolean isPreview) {
+    public ModificationResult applyRollback(Object owner, IActivity activityContext, boolean isPreview) {
         WorldCoordinate coordinate = activityContext.location();
         World world = Bukkit.getServer().getWorld(coordinate.world().uuid());
         if (world != null && entityType.getEntityClass() != null) {
@@ -129,14 +129,14 @@ public class EntityAction extends Action implements IEntityAction {
             world.spawn(loc, entityType.getEntityClass(), entity ->
                 new NBTEntity(entity).mergeCompound(nbtContainer));
 
-            return new ModificationResult<>(ModificationResultStatus.APPLIED, null);
+            return new ModificationResult(ModificationResultStatus.APPLIED, null);
         }
 
-        return new ModificationResult<>(ModificationResultStatus.SKIPPED, null);
+        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
     }
 
     @Override
-    public ModificationResult<Entity> applyRestore(Object owner, IActivity activityContext, boolean isPreview) {
-        return new ModificationResult<>(ModificationResultStatus.SKIPPED, null);
+    public ModificationResult applyRestore(Object owner, IActivity activityContext, boolean isPreview) {
+        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
     }
 }

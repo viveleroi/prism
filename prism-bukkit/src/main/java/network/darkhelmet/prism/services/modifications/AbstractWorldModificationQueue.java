@@ -37,7 +37,6 @@ import network.darkhelmet.prism.api.services.modifications.ModificationResultSta
 import network.darkhelmet.prism.api.services.modifications.StateChange;
 
 import org.bukkit.Bukkit;
-import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 
 public abstract class AbstractWorldModificationQueue implements IModificationQueue {
@@ -101,7 +100,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     /**
      * A cache of resulting state changes.
      */
-    private final List<StateChange<BlockState>> stateChanges = new ArrayList<>();
+    private final List<StateChange<?>> stateChanges = new ArrayList<>();
 
     /**
      * Construct a new world modification.
@@ -122,8 +121,8 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
      * @param activity The activity
      * @return The modification result
      */
-    protected ModificationResult<BlockState> applyModification(IActivity activity) {
-        return new ModificationResult<>(ModificationResultStatus.SKIPPED, null);
+    protected ModificationResult applyModification(IActivity activity) {
+        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
     }
 
     @Override
@@ -181,7 +180,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                         }
 
                         // Delegate the modifications to the actions
-                        ModificationResult<BlockState> result = applyModification(activity);
+                        ModificationResult result = applyModification(activity);
                         if (result.status().equals(ModificationResultStatus.PLANNED)) {
                             countPlanned++;
                         } else if (result.status().equals(ModificationResultStatus.APPLIED)) {
@@ -226,11 +225,13 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
 
     @Override
     public void cancel() {
-        for (final Iterator<StateChange<BlockState>> iterator = stateChanges.listIterator(); iterator.hasNext();) {
-            final StateChange<BlockState> stateChange = iterator.next();
+        for (final Iterator<StateChange<?>> iterator = stateChanges.listIterator(); iterator.hasNext();) {
+            final StateChange<?> stateChange = iterator.next();
 
-            ((Player) owner).sendBlockChange(
-                stateChange.oldState().getLocation(), stateChange.oldState().getBlockData());
+            if (stateChange instanceof BlockStateChange blockStateChange) {
+                ((Player) owner).sendBlockChange(
+                    blockStateChange.oldState().getLocation(), blockStateChange.oldState().getBlockData());
+            }
 
             iterator.remove();
         }

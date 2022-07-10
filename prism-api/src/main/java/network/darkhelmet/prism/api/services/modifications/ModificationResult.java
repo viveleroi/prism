@@ -22,7 +22,7 @@ package network.darkhelmet.prism.api.services.modifications;
 
 import org.jetbrains.annotations.Nullable;
 
-public final class ModificationResult<B> {
+public final class ModificationResult {
     /**
      * The modification result status.
      */
@@ -31,7 +31,7 @@ public final class ModificationResult<B> {
     /**
      * The state change.
      */
-    private final StateChange<B> stateChange;
+    private final StateChange<?> stateChange;
 
     /**
      * Constructor.
@@ -39,7 +39,7 @@ public final class ModificationResult<B> {
      * @param status The status
      * @param stateChange The state change or null
      */
-    public ModificationResult(ModificationResultStatus status, @Nullable StateChange<B> stateChange) {
+    public ModificationResult(ModificationResultStatus status, @Nullable StateChange<?> stateChange) {
         this.status = status;
         this.stateChange = stateChange;
     }
@@ -58,7 +58,7 @@ public final class ModificationResult<B> {
      *
      * @return The state change
      */
-    public @Nullable StateChange<B> stateChange() {
+    public @Nullable StateChange<?> stateChange() {
         return stateChange;
     }
 }

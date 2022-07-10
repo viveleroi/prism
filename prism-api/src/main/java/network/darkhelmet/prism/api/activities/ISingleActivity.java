@@ -20,6 +20,4 @@
 
 package network.darkhelmet.prism.api.activities;
 
-public interface ISingleActivity extends IActivity {
-
-}
+public interface ISingleActivity extends IActivity {}

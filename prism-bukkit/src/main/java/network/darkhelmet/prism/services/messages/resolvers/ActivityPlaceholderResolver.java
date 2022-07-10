@@ -36,7 +36,6 @@ import net.kyori.moonshine.util.Either;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.activities.IGroupedActivity;
-import network.darkhelmet.prism.api.activities.SingleActivity;
 import network.darkhelmet.prism.api.util.NamedIdentity;
 import network.darkhelmet.prism.services.translation.TranslationService;
 

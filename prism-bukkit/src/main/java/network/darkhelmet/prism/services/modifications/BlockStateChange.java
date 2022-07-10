@@ -18,45 +18,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.api.services.modifications;
+package network.darkhelmet.prism.services.modifications;
 
-public abstract class StateChange<B> {
-    /**
-     * The old state.
-     */
-    private final B oldState;
+import network.darkhelmet.prism.api.services.modifications.StateChange;
 
-    /**
-     * The new state.
-     */
-    private final B newState;
+import org.bukkit.block.BlockState;
 
+public class BlockStateChange extends StateChange<BlockState> {
     /**
-     * Construct a new state change.
+     * Construct a new block state change.
      *
      * @param oldState The old state
      * @param newState The new state
      */
-    public StateChange(B oldState, B newState) {
-        this.oldState = oldState;
-        this.newState = newState;
-    }
-
-    /**
-     * Get the old state.
-     *
-     * @return The old state
-     */
-    public B oldState() {
-        return oldState;
-    }
-
-    /**
-     * Get the new state.
-     *
-     * @return The new state
-     */
-    public B newState() {
-        return newState;
+    public BlockStateChange(BlockState oldState, BlockState newState) {
+        super(oldState, newState);
     }
 }

@@ -34,6 +34,7 @@ import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
 import network.darkhelmet.prism.api.services.modifications.StateChange;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
+import network.darkhelmet.prism.services.modifications.BlockStateChange;
 import network.darkhelmet.prism.utils.LocationUtils;
 
 import org.bukkit.Location;
@@ -159,9 +160,9 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
     }
 
     @Override
-    public ModificationResult<BlockState> applyRollback(Object owner, IActivity activityContext, boolean isPreview) {
+    public ModificationResult applyRollback(Object owner, IActivity activityContext, boolean isPreview) {
         if (!type().reversible()) {
-            return new ModificationResult<>(ModificationResultStatus.SKIPPED, null);
+            return new ModificationResult(ModificationResultStatus.SKIPPED, null);
         }
 
         StateChange<BlockState> stateChange = null;
@@ -174,13 +175,13 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
                 activityContext.location(), replacedMaterial, replacedBlockData, null, owner, isPreview);
         }
 
-        return new ModificationResult<>(ModificationResultStatus.APPLIED, stateChange);
+        return new ModificationResult(ModificationResultStatus.APPLIED, stateChange);
     }
 
     @Override
-    public ModificationResult<BlockState> applyRestore(Object owner, IActivity activityContext, boolean isPreview) {
+    public ModificationResult applyRestore(Object owner, IActivity activityContext, boolean isPreview) {
         if (!type().reversible()) {
-            return new ModificationResult<>(ModificationResultStatus.SKIPPED, null);
+            return new ModificationResult(ModificationResultStatus.SKIPPED, null);
         }
 
         StateChange<BlockState> stateChange = null;
@@ -193,7 +194,7 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
                 activityContext.location(), replacedMaterial, replacedBlockData, null, owner, isPreview);
         }
 
-        return new ModificationResult<>(ModificationResultStatus.APPLIED, stateChange);
+        return new ModificationResult(ModificationResultStatus.APPLIED, stateChange);
     }
 
     /**
@@ -232,6 +233,6 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
             new NBTTileEntity(block.getState()).mergeCompound(newNbtContainer);
         }
 
-        return new StateChange<>(oldState, block.getState());
+        return new BlockStateChange(oldState, block.getState());
     }
 }

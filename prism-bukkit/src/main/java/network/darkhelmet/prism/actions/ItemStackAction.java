@@ -77,12 +77,12 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
     }
 
     @Override
-    public ModificationResult<ItemStack> applyRollback(Object owner, IActivity activityContext, boolean isPreview) {
-        return new ModificationResult<>(ModificationResultStatus.SKIPPED, null);
+    public ModificationResult applyRollback(Object owner, IActivity activityContext, boolean isPreview) {
+        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
     }
 
     @Override
-    public ModificationResult<ItemStack> applyRestore(Object owner, IActivity activityContext, boolean isPreview) {
-        return new ModificationResult<>(ModificationResultStatus.SKIPPED, null);
+    public ModificationResult applyRestore(Object owner, IActivity activityContext, boolean isPreview) {
+        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
     }
 }
