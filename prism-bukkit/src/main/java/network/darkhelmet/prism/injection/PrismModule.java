@@ -78,8 +78,8 @@ import network.darkhelmet.prism.services.wands.RestoreWand;
 import network.darkhelmet.prism.services.wands.RollbackWand;
 import network.darkhelmet.prism.services.wands.WandService;
 
-import org.apache.logging.log4j.Logger;
 import org.bukkit.command.CommandSender;
+import org.slf4j.Logger;
 
 public class PrismModule extends AbstractModule {
     /**

@@ -42,7 +42,7 @@ import network.darkhelmet.prism.core.storage.mysql.MysqlSchemaUpdater;
 import network.darkhelmet.prism.core.storage.mysql.MysqlStorageAdapter;
 import network.darkhelmet.prism.providers.WorldIdentityProvider;
 
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 public class PrismModule extends AbstractModule {
     /**

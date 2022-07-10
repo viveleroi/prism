@@ -48,10 +48,10 @@ import net.kyori.moonshine.message.IMessageSource;
 
 import network.darkhelmet.prism.core.services.configuration.PrismConfiguration;
 
-import org.apache.logging.log4j.Logger;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 public class TranslationService implements IMessageSource<CommandSender, String> {
     /**

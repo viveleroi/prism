@@ -65,14 +65,14 @@ import network.darkhelmet.prism.listeners.VehicleEnterListener;
 import network.darkhelmet.prism.listeners.VehicleExitListener;
 import network.darkhelmet.prism.services.recording.RecordingService;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PrismBukkit extends JavaPlugin {
     /**
@@ -83,7 +83,7 @@ public class PrismBukkit extends JavaPlugin {
     /**
      * The logger.
      */
-    private final Logger logger = LogManager.getLogger("Prism");
+    private final Logger logger = LoggerFactory.getLogger("Prism");
 
     /**
      * The injector.

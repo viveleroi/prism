@@ -7,7 +7,6 @@ plugins {
 }
 
 dependencies {
-    compileOnly project.property('deps.log4j')
     compileOnly project.property('deps.spigot-api')
     implementation project.property('deps.adventure-api')
     implementation project.property('deps.adventure-bukkit')
@@ -18,6 +17,7 @@ dependencies {
     implementation project.property('deps.moonshine-core')
     implementation project.property('deps.moonshine-standard')
     implementation project.property('deps.nbt-api')
+    implementation project.property('deps.slf4j')
     implementation project.property('deps.taskchain')
     implementation project.property('deps.triumph-cmd-bukkit')
     implementation project(':prism-core')

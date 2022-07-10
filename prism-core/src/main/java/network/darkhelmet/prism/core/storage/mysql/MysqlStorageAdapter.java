@@ -55,9 +55,9 @@ import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.api.util.NamedIdentity;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.core.services.logging.LoggingService;
 import network.darkhelmet.prism.core.utils.TypeUtils;
 
-import org.apache.logging.log4j.Logger;
 import org.intellij.lang.annotations.Language;
 
 public class MysqlStorageAdapter implements IStorageAdapter {
@@ -67,9 +67,9 @@ public class MysqlStorageAdapter implements IStorageAdapter {
     private final short serializerVersion;
 
     /**
-     * The logger.
+     * The logging service.
      */
-    private final Logger logger;
+    private final LoggingService loggingService;
 
     /**
      * The configuration service.
@@ -99,7 +99,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
     /**
      * Constructor.
      *
-     * @param logger The logger
+     * @param loggingService The logging service
      * @param configurationService The configuration service
      * @param actionRegistry The action type registry
      * @param schemaUpdater The schema updater
@@ -108,13 +108,13 @@ public class MysqlStorageAdapter implements IStorageAdapter {
      */
     @Inject
     public MysqlStorageAdapter(
-            Logger logger,
+            LoggingService loggingService,
             ConfigurationService configurationService,
             IActionTypeRegistry actionRegistry,
             MysqlSchemaUpdater schemaUpdater,
             MysqlQueryBuilder queryBuilder,
             @Named("serializerVersion") short serializerVersion) {
-        this.logger = logger;
+        this.loggingService = loggingService;
         this.configurationService = configurationService;
         this.actionRegistry = actionRegistry;
         this.schemaUpdater = schemaUpdater;
@@ -123,10 +123,10 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
         Enumeration<Driver> drivers = DriverManager.getDrivers();
         if (!drivers.hasMoreElements()) {
-            logger.info("No database drivers detected!");
+            loggingService.logger().info("No database drivers detected!");
         }
         while (drivers.hasMoreElements()) {
-            logger.info(String.format("Database driver: %s", drivers.nextElement().getClass()));
+            loggingService.logger().info(String.format("Database driver: %s", drivers.nextElement().getClass()));
         }
 
         try {
@@ -136,6 +136,8 @@ public class MysqlStorageAdapter implements IStorageAdapter {
                 configurationService.storageConfig().database(),
                 configurationService.storageConfig().host() + ":"
                     + configurationService.storageConfig().port());
+            builder.onDatabaseConnectionFailure(loggingService::handleException);
+            builder.onFatalError(loggingService::handleException);
             builder.driverClassName(configurationService.storageConfig().driver());
             builder.useOptimizations(configurationService.storageConfig().useHikariMysqlOptimizations());
             Database db = PooledDatabaseOptions.builder().options(builder.build()).createHikariDatabase();
@@ -165,19 +167,22 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         String version = dbInfo.get("version");
         String versionComment = dbInfo.get("version_comment");
         String versionMsg = String.format("Database version: %s / %s", version, versionComment);
-        logger.info(versionMsg);
+        loggingService.logger().info(versionMsg);
 
         long innodbSizeMb = Long.parseLong(dbInfo.get("innodb_buffer_pool_size")) / 1024 / 1024;
-        logger.info(String.format("innodb_buffer_pool_size: %d", innodbSizeMb));
-        logger.info(String.format("sql_mode: %s", dbInfo.get("sql_mode")));
+        loggingService.logger().info(String.format("innodb_buffer_pool_size: %d", innodbSizeMb));
+        loggingService.logger().info(String.format("sql_mode: %s", dbInfo.get("sql_mode")));
 
         String grant = DB.getFirstColumn("SHOW GRANTS FOR CURRENT_USER();");
         boolean canCreateRoutines = grant.contains("CREATE ROUTINE");
-        logger.info(String.format("can create routines: %b", canCreateRoutines));
+        loggingService.logger().info(String.format("can create routines: %b", canCreateRoutines));
 
         if (configurationService.storageConfig().useStoredProcedures() && !canCreateRoutines) {
             configurationService.storageConfig().disallowStoredProcedures();
         }
+
+        boolean usrHikariMysqlOptimizations = configurationService.storageConfig().useHikariMysqlOptimizations();
+        loggingService.logger().info(String.format("use hikari mysql optimizations: %b", usrHikariMysqlOptimizations));
     }
 
     /**
@@ -233,7 +238,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             @Language("SQL") String sql = "SELECT v FROM " + prefix + "meta WHERE k = 'schema_ver'";
 
             String schemaVersion = DB.getFirstColumn(sql);
-            logger.info(String.format("Prism database version: %s", schemaVersion));
+            loggingService.logger().info(String.format("Prism database version: %s", schemaVersion));
 
             updateSchemas(schemaVersion);
         }
@@ -553,7 +558,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             Optional<IActionType> optionalActionType = actionRegistry.getActionType(actionKey);
             if (!optionalActionType.isPresent()) {
                 String msg = "Failed to find action type. Type: %s";
-                logger.warn(String.format(msg, actionKey));
+                loggingService.logger().warn(String.format(msg, actionKey));
                 continue;
             }
 

@@ -32,7 +32,7 @@ import network.darkhelmet.prism.core.utils.VersionUtils;
 import network.darkhelmet.prism.injection.PrismModule;
 import network.darkhelmet.prism.listeners.ChangeBlockListener;
 
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;

@@ -11,6 +11,7 @@ dependencies {
     compileOnly project.property('deps.sponge')
     implementation project.property('deps.guice')
     implementation project.property('deps.mysql')
+    implementation project.property('deps.slf4j')
     implementation project(':prism-core')
     implementation project(':prism-api')
 }

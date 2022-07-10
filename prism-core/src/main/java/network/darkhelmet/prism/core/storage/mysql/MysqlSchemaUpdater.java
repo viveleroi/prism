@@ -31,8 +31,8 @@ import network.darkhelmet.prism.api.util.NamedIdentity;
 import network.darkhelmet.prism.core.services.configuration.StorageConfiguration;
 import network.darkhelmet.prism.core.utils.TypeUtils;
 
-import org.apache.logging.log4j.Logger;
 import org.intellij.lang.annotations.Language;
+import org.slf4j.Logger;
 
 public class MysqlSchemaUpdater {
     /**

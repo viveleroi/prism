@@ -24,7 +24,7 @@ import com.google.inject.Inject;
 
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 public class LoggingService {
     /**
@@ -79,9 +79,18 @@ public class LoggingService {
     /**
      * Handle exceptions.
      *
-     * @param e The exception
+     * @param ex The exception
      */
-    public void handleException(Exception e) {
-        e.printStackTrace();
+    public void handleException(Exception ex) {
+        logger.error(ex.getMessage(), ex);
+    }
+
+    /**
+     * Get the logger.
+     *
+     * @return Logger
+     */
+    public Logger logger() {
+        return logger;
     }
 }

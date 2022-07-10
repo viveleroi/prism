@@ -33,10 +33,10 @@ import network.darkhelmet.prism.core.services.configuration.ConfigurationService
 import network.darkhelmet.prism.core.services.configuration.FilterConfiguartion;
 import network.darkhelmet.prism.utils.MaterialTag;
 
-import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.slf4j.Logger;
 
 public class FilterService implements IFilterService {
     /**
