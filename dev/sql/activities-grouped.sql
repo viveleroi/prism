@@ -6,6 +6,7 @@ SELECT
   `entity_type`, 
   `cause`, 
   HEX(`player_uuid`) AS playerUuid, 
+  `player`,
   COUNT(*) OVER() AS totalRows, 
   AVG(`x`) AS `x`, 
   AVG(`y`) AS `y`, 

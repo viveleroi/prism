@@ -55,6 +55,11 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
      */
     public ItemStackAction(IActionType type, ItemStack itemStack) {
         this(type, itemStack, null);
+
+        // Fix descriptors to include the item stack quantity
+        if (itemStack.getAmount() > 1) {
+            this.descriptor = itemStack.getAmount() + " " + this.descriptor;
+        }
     }
 
     /**

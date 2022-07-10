@@ -113,6 +113,7 @@ public class PrismModule extends AbstractModule {
         this.dataPath = prism.getDataFolder().toPath();
         this.version = prism.getDescription().getVersion();
         this.serializerVersion = prism.serializerVersion();
+        System.out.println("INJECTING: serializerVersion: " + serializerVersion);
     }
 
     @Provides

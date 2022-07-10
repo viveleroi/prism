@@ -128,6 +128,10 @@ public class PrismBukkit extends JavaPlugin {
 
     @Override
     public void onLoad() {
+        Short serializerVer = VersionUtils.minecraftVersion(Bukkit.getVersion());
+        serializerVersion = serializerVer != null ? serializerVer : -1;
+        logger.info("Serializer version: {}", serializerVersion);
+
         this.injector = Guice.createInjector(new PrismModule(this, logger));
 
         // Load the configuration service (and files)
@@ -148,10 +152,6 @@ public class PrismBukkit extends JavaPlugin {
         String pluginName = this.getDescription().getName();
         String pluginVersion = this.getDescription().getVersion();
         logger.info("Initializing {} {} by viveleroi", pluginName, pluginVersion);
-
-        Short serializerVer = VersionUtils.minecraftVersion(Bukkit.getVersion());
-        serializerVersion = serializerVer != null ? serializerVer : -1;
-        logger.info("Serializer version: {}", serializerVersion);
 
         if (isEnabled()) {
             // Initialize some classes
