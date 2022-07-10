@@ -339,26 +339,15 @@ public final class ActivityQuery {
     }
 
     /**
-     * Set the max coordinate - the max corner of a bounding box.
+     * Set the coordinate corners of a bounding box.
      *
-     * @param x The x coordinate
-     * @param y The y coordinate
-     * @param z The z coordinate
+     * @param minCoordinate The min coordinate
+     * @param maxCoordinate The max coordinate
      * @return The query
      */
-    public ActivityQuery maxCoordinate(double x, double y, double z) {
-        this.maxCoordinate = new Coordinate(x, y, z);
-        return this;
-    }
-
-    /**
-     * Set the max coordinate - the max corner of a bounding box.
-     *
-     * @param coordinate The max coordinate
-     * @return The query
-     */
-    public ActivityQuery maxCoordinate(Coordinate coordinate) {
-        this.maxCoordinate = coordinate;
+    public ActivityQuery boundingCoordinates(Coordinate minCoordinate, Coordinate maxCoordinate) {
+        this.minCoordinate = minCoordinate;
+        this.maxCoordinate = maxCoordinate;
         return this;
     }
 
@@ -369,30 +358,6 @@ public final class ActivityQuery {
      */
     public Coordinate minCoordinate() {
         return minCoordinate;
-    }
-
-    /**
-     * Set the min coordinate - the min corner of a bounding box.
-     *
-     * @param x The x coordinate
-     * @param y The y coordinate
-     * @param z The z coordinate
-     * @return The query
-     */
-    public ActivityQuery minCoordinate(double x, double y, double z) {
-        this.minCoordinate = new Coordinate(x, y, z);
-        return this;
-    }
-
-    /**
-     * Set the min coordinate - the min corner of a bounding box.
-     *
-     * @param coordinate The min coordinate
-     * @return The query
-     */
-    public ActivityQuery minCoordinate(Coordinate coordinate) {
-        this.minCoordinate = coordinate;
-        return this;
     }
 
     /**

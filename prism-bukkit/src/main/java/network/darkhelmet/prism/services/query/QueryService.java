@@ -255,7 +255,7 @@ public class QueryService {
             Coordinate chunkMin = LocationUtils.getChunkMinCoordinate(chunk);
             Coordinate chunkMax = LocationUtils.getChunkMaxCoordinate(chunk);
 
-            builder.minCoordinate(chunkMin).maxCoordinate(chunkMax).worldUuid(referenceLocation.getWorld().getUID());
+            builder.boundingCoordinates(chunkMin, chunkMax).worldUuid(referenceLocation.getWorld().getUID());
         } else if (in.equalsIgnoreCase("world")) {
             builder.worldUuid(referenceLocation.getWorld().getUID());
         }
@@ -295,7 +295,7 @@ public class QueryService {
         Coordinate minCoordinate = LocationUtils.getMinCoordinate(referenceLocation, radius);
         Coordinate maxCoordinate = LocationUtils.getMaxCoordinate(referenceLocation, radius);
 
-        builder.minCoordinate(minCoordinate).minCoordinate(maxCoordinate)
+        builder.boundingCoordinates(minCoordinate, maxCoordinate)
             .worldUuid(referenceLocation.getWorld().getUID());
     }
 
