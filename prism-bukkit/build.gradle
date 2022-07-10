@@ -26,6 +26,7 @@ dependencies {
 
 targetCompatibility = sourceCompatibility = JavaVersion.VERSION_17
 
+// "parameters" flag required for moonshine to work
 compileJava {
     options.compilerArgs += ["-parameters"]
     options.fork = true
