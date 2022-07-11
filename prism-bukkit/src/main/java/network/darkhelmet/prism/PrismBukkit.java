@@ -216,6 +216,7 @@ public class PrismBukkit extends JavaPlugin {
                 Argument.forString().name("in").suggestion(SuggestionKey.of("ins")).build(),
                 Argument.forString().name("since").build(),
                 Argument.forString().name("before").build(),
+                Argument.forString().name("cause").build(),
                 Argument.forString().name("world").suggestion(SuggestionKey.of("worlds")).build(),
                 Argument.listOf(String.class).name("a").suggestion(SuggestionKey.of("actions")).build(),
                 Argument.listOf(Material.class).name("m").build(),

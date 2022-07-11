@@ -45,6 +45,11 @@ public final class ActivityQuery {
     private Long before;
 
     /**
+     * The cause.
+     */
+    private String cause;
+
+    /**
      * The entity types.
      */
     private final Collection<String> entityTypes = new ArrayList<>();
@@ -179,6 +184,26 @@ public final class ActivityQuery {
      */
     public ActivityQuery before(long before) {
         this.before = before;
+        return this;
+    }
+
+    /**
+     * Get the cause.
+     *
+     * @return The cause
+     */
+    public String cause() {
+        return cause;
+    }
+
+    /**
+     * Set the cause.
+     *
+     * @param cause The cause
+     * @return The query
+     */
+    public ActivityQuery cause(String cause) {
+        this.cause = cause;
         return this;
     }
 

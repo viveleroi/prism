@@ -133,6 +133,11 @@ public class QueryService {
             parseSince(query, since);
         }
 
+        // cause: parameter
+        if (arguments.get("cause", String.class).isPresent()) {
+            query.cause(arguments.get("cause", String.class).get());
+        }
+
         // a: parameter
         if (arguments.getAsList("a", String.class).isPresent()) {
             List<String> actions = arguments.getAsList("a", String.class).get();

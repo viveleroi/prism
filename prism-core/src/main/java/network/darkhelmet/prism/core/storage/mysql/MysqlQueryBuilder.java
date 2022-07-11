@@ -200,6 +200,12 @@ public class MysqlQueryBuilder {
             conditions.add(String.format("`player` IN (%s)", String.join(",", placeholders)));
         }
 
+        // Cause
+        if (query.cause() != null) {
+            conditions.add("`cause` = ?");
+            parameters.add(query.cause());
+        }
+
         // Timestamps
         if (query.after() != null && query.before() != null) {
             conditions.add("`timestamp` BETWEEN ? AND ?");
