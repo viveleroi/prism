@@ -125,7 +125,7 @@ public class PreviewCommand extends BaseCommand {
      *
      * @param player The player
      */
-    @SubCommand(value = "preview-apply", alias = {"pa"})
+    @SubCommand(value = "preview-apply")
     public void onApply(final Player player) {
         Optional<IModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
         if (optionalQueue.isEmpty()) {
@@ -144,7 +144,7 @@ public class PreviewCommand extends BaseCommand {
      *
      * @param player The player
      */
-    @SubCommand(value = "preview-cancel", alias = {"pc"})
+    @SubCommand(value = "preview-cancel")
     public void onCancel(final Player player) {
         Optional<IModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
         if (optionalQueue.isEmpty()) {

@@ -67,6 +67,7 @@ import network.darkhelmet.prism.services.recording.RecordingService;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -195,6 +196,16 @@ public class PrismBukkit extends JavaPlugin {
                 return players;
             });
 
+            // Register world auto-suggest
+            commandManager.registerSuggestion(SuggestionKey.of("worlds"), (sender, context) -> {
+                List<String> worlds = new ArrayList<>();
+                for (World world : getServer().getWorlds()) {
+                    worlds.add(world.getName());
+                }
+
+                return worlds;
+            });
+
             // Register "in" parameter
             commandManager.registerSuggestion(SuggestionKey.of("ins"), (sender, context) ->
                 Arrays.asList("chunk", "world"));
@@ -205,6 +216,7 @@ public class PrismBukkit extends JavaPlugin {
                 Argument.forString().name("in").suggestion(SuggestionKey.of("ins")).build(),
                 Argument.forString().name("since").build(),
                 Argument.forString().name("before").build(),
+                Argument.forString().name("world").suggestion(SuggestionKey.of("worlds")).build(),
                 Argument.listOf(String.class).name("a").suggestion(SuggestionKey.of("actions")).build(),
                 Argument.listOf(Material.class).name("m").build(),
                 Argument.listOf(EntityType.class).name("e").build(),

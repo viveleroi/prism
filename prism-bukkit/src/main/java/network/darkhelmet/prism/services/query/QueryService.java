@@ -39,9 +39,11 @@ import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.util.Coordinate;
 import network.darkhelmet.prism.utils.LocationUtils;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 
 public class QueryService {
@@ -68,90 +70,12 @@ public class QueryService {
      * @return The activity query builder
      */
     public ActivityQuery queryFromArguments(Location referenceLocation, Arguments arguments) {
-        List<String> actions = null;
-        String in = null;
-        String at = null;
-        Integer radius = null;
-        List<String> materials = null;
-        List<String> entityTypes = null;
-        List<String> playerNames = null;
-        String before = null;
-        String since = null;
+        ActivityQuery query = new ActivityQuery();
 
-        if (arguments.get("r", Integer.class).isPresent()) {
-            radius = arguments.get("r", Integer.class).get();
-        }
-
-        if (arguments.get("in", String.class).isPresent()) {
-            in = arguments.get("in", String.class).get();
-        }
-
-        if (arguments.get("before", String.class).isPresent()) {
-            before = arguments.get("before", String.class).get();
-        }
-
-        if (arguments.get("since", String.class).isPresent()) {
-            since = arguments.get("since", String.class).get();
-        }
-
+        // at: parameter
         if (arguments.get("at", String.class).isPresent()) {
-            since = arguments.get("at", String.class).get();
-        }
+            String at = arguments.get("at", String.class).get();
 
-        if (arguments.getAsList("a", String.class).isPresent()) {
-            actions = arguments.getAsList("a", String.class).get();
-        }
-
-        if (arguments.getAsList("m", Material.class).isPresent()) {
-            List<String> finalMaterials = new ArrayList<>();
-            arguments.getAsList("m", Material.class).get().forEach(m -> {
-                finalMaterials.add(m.toString());
-            });
-
-            materials = finalMaterials;
-        }
-
-        if (arguments.getAsList("e", EntityType.class).isPresent()) {
-            List<String> finalEntityTypes = new ArrayList<>();
-            arguments.getAsList("e", EntityType.class).get().forEach(e -> {
-                finalEntityTypes.add(e.toString());
-            });
-
-            entityTypes = finalEntityTypes;
-        }
-
-        if (arguments.getAsList("p", String.class).isPresent()) {
-            playerNames = arguments.getAsList("p", String.class).get();
-        }
-
-        return queryFromParameters(
-            referenceLocation, actions, in, at, radius, materials, entityTypes, playerNames, before, since);
-    }
-
-    /**
-     * Start a query builder from parameters.
-     *
-     * @param referenceLocation The reference location
-     * @param actions The actions
-     * @param in The "in" parameter
-     * @param radius The radius parameter
-     * @return The activity query builder
-     */
-    public ActivityQuery queryFromParameters(
-            Location referenceLocation,
-            List<String> actions,
-            String in,
-            String at,
-            Integer radius,
-            List<String> materials,
-            List<String> entityTypes,
-            List<String> playerNames,
-            String before,
-            String since) {
-        ActivityQuery builder = new ActivityQuery();
-
-        // At. If set, use this as the reference location.
-        if (at != null) {
             String[] segments = at.split(",");
             if (segments.length == 3) {
                 int x = Integer.parseInt(segments[0]);
@@ -164,69 +88,104 @@ public class QueryService {
             }
         }
 
-        // Actions
-        if (actions != null) {
-            parseActions(builder, actions);
+        // in: parameter
+        String in = null;
+        if (arguments.get("in", String.class).isPresent()) {
+            in = arguments.get("in", String.class).get();
+
+            parseIn(query, referenceLocation, in);
         }
 
-        // Entity Type
-        if (entityTypes != null) {
-            parseEntityTypes(builder, entityTypes);
-        }
+        // r: parameter
+        if (arguments.get("r", Integer.class).isPresent()) {
+            Integer radius = arguments.get("r", Integer.class).get();
 
-        // In
-        if (in != null) {
-            parseIn(builder, referenceLocation, in);
-        }
-
-        // Materials
-        if (materials != null) {
-            parseMaterials(builder, materials);
-        }
-
-        // Players
-        if (playerNames != null) {
-            parsePlayers(builder, playerNames);
-        }
-
-        // Radius
-        if (radius != null) {
             if (in != null && in.equalsIgnoreCase("chunk")) {
                 throw new IllegalArgumentException("param-error-r-and-in-chunk");
             }
 
-            parseRadius(builder, referenceLocation, radius);
+            parseRadius(query, referenceLocation, radius);
         }
 
-        // Before
-        if (before != null) {
-            parseBefore(builder, before);
+        // world: parameter
+        if (arguments.get("world", String.class).isPresent()) {
+            String worldName = arguments.get("world", String.class).get();
+
+            World world = Bukkit.getServer().getWorld(worldName);
+            if (world == null) {
+                throw new IllegalArgumentException("param-error-invalid-world");
+            }
+
+            query.worldUuid(world.getUID());
         }
 
-        // Since
-        if (since != null) {
-            parseSince(builder, since);
+        // before: parameter
+        if (arguments.get("before", String.class).isPresent()) {
+            String before = arguments.get("before", String.class).get();
+
+            parseBefore(query, before);
         }
 
-        return builder;
+        // since: parameter
+        if (arguments.get("since", String.class).isPresent()) {
+            String since = arguments.get("since", String.class).get();
+
+            parseSince(query, since);
+        }
+
+        // a: parameter
+        if (arguments.getAsList("a", String.class).isPresent()) {
+            List<String> actions = arguments.getAsList("a", String.class).get();
+
+            parseActions(query, actions);
+        }
+
+        // m: parameter
+        if (arguments.getAsList("m", Material.class).isPresent()) {
+            List<String> finalMaterials = new ArrayList<>();
+            arguments.getAsList("m", Material.class).get().forEach(m -> {
+                finalMaterials.add(m.toString());
+            });
+
+            parseMaterials(query, finalMaterials);
+        }
+
+        // e: parameter
+        if (arguments.getAsList("e", EntityType.class).isPresent()) {
+            List<String> finalEntityTypes = new ArrayList<>();
+            arguments.getAsList("e", EntityType.class).get().forEach(e -> {
+                finalEntityTypes.add(e.toString());
+            });
+
+            parseEntityTypes(query, finalEntityTypes);
+        }
+
+        // p: parameter
+        if (arguments.getAsList("p", String.class).isPresent()) {
+            List<String> playerNames = arguments.getAsList("p", String.class).get();
+
+            parsePlayers(query, playerNames);
+        }
+
+        return query;
     }
 
     /**
      * Parse and apply the "action" parameter to a query builder.
      *
-     * @param builder The builder
+     * @param query The query
      * @param actions An action name, names, family, or families
      */
-    protected void parseActions(ActivityQuery builder, List<String> actions) {
+    protected void parseActions(ActivityQuery query, List<String> actions) {
         for (String actionTerm : actions) {
             if (actionTerm.contains("-")) {
                 Optional<IActionType> optionalIActionType = actionRegistry
                     .getActionType(actionTerm.toLowerCase(Locale.ENGLISH));
-                optionalIActionType.ifPresent(builder::actionType);
+                optionalIActionType.ifPresent(query::actionType);
             } else {
                 Collection<IActionType> actionTypes = actionRegistry
                     .actionTypesInFamily(actionTerm.toLowerCase(Locale.ENGLISH));
-                builder.actionTypes(actionTypes);
+                query.actionTypes(actionTypes);
             }
         }
     }
@@ -234,94 +193,94 @@ public class QueryService {
     /**
      * Parse and apply the entity types parameter to a query builder.
      *
-     * @param builder The builder
+     * @param query The query
      * @param entityTypes The entity types parameter
      */
-    protected void parseEntityTypes(ActivityQuery builder, List<String> entityTypes) {
-        builder.entityTypes(entityTypes);
+    protected void parseEntityTypes(ActivityQuery query, List<String> entityTypes) {
+        query.entityTypes(entityTypes);
     }
 
     /**
      * Parse and apply the "in" parameter to a query builder.
      *
-     * @param builder The builder
+     * @param query The query
      * @param referenceLocation The reference location
      * @param in The in param
      */
     protected void parseIn(
-            ActivityQuery builder, Location referenceLocation, String in) {
+            ActivityQuery query, Location referenceLocation, String in) {
         if (in.equalsIgnoreCase("chunk")) {
             Chunk chunk = referenceLocation.getChunk();
             Coordinate chunkMin = LocationUtils.getChunkMinCoordinate(chunk);
             Coordinate chunkMax = LocationUtils.getChunkMaxCoordinate(chunk);
 
-            builder.boundingCoordinates(chunkMin, chunkMax).worldUuid(referenceLocation.getWorld().getUID());
+            query.boundingCoordinates(chunkMin, chunkMax).worldUuid(referenceLocation.getWorld().getUID());
         } else if (in.equalsIgnoreCase("world")) {
-            builder.worldUuid(referenceLocation.getWorld().getUID());
+            query.worldUuid(referenceLocation.getWorld().getUID());
         }
     }
 
     /**
      * Parse and apply the "material" parameter to a query builder.
      *
-     * @param builder The builder
+     * @param query The query
      * @param materials The materials parameter
      */
-    protected void parseMaterials(ActivityQuery builder, List<String> materials) {
-        builder.materials(materials);
+    protected void parseMaterials(ActivityQuery query, List<String> materials) {
+        query.materials(materials);
     }
 
     /**
      * Parse and apply the "player" parameter to a query builder.
      *
-     * @param builder The builder
+     * @param query The query
      * @param playerNames The player names
      */
-    protected void parsePlayers(ActivityQuery builder, List<String> playerNames) {
+    protected void parsePlayers(ActivityQuery query, List<String> playerNames) {
         for (String playerName : playerNames) {
-            builder.playerByName(playerName);
+            query.playerByName(playerName);
         }
     }
 
     /**
      * Parse and apply the "radius" parameter to a query builder.
      *
-     * @param builder The builder
+     * @param query The query
      * @param referenceLocation The reference location
      * @param radius The radius
      */
     protected void parseRadius(
-            ActivityQuery builder, Location referenceLocation, Integer radius) {
+            ActivityQuery query, Location referenceLocation, Integer radius) {
         Coordinate minCoordinate = LocationUtils.getMinCoordinate(referenceLocation, radius);
         Coordinate maxCoordinate = LocationUtils.getMaxCoordinate(referenceLocation, radius);
 
-        builder.boundingCoordinates(minCoordinate, maxCoordinate)
+        query.boundingCoordinates(minCoordinate, maxCoordinate)
             .worldUuid(referenceLocation.getWorld().getUID());
     }
 
     /**
      * Parse and apply the "before" parameter.
      *
-     * @param builder The builder
+     * @param query The query
      * @param since The duration string
      */
-    protected void parseBefore(ActivityQuery builder, String since) {
+    protected void parseBefore(ActivityQuery query, String since) {
         Long parsedTimestamp = parseTimestamp(since);
         if (parsedTimestamp != null) {
-            builder.before(parsedTimestamp);
+            query.before(parsedTimestamp);
         }
     }
 
     /**
      * Parse and apply the "since" parameter.
      *
-     * @param builder The builder
+     * @param query The query
      * @param since The duration string
      */
-    protected void parseSince(ActivityQuery builder, String since) {
+    protected void parseSince(ActivityQuery query, String since) {
         Long parsedTimestamp = parseTimestamp(since);
         if (parsedTimestamp != null) {
-            builder.after(parsedTimestamp);
+            query.after(parsedTimestamp);
         }
     }
 
