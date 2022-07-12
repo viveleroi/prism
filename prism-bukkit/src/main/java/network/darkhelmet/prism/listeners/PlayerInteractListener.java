@@ -29,7 +29,7 @@ import network.darkhelmet.prism.api.services.expectations.ExpectationType;
 import network.darkhelmet.prism.api.services.wands.IWand;
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
-import network.darkhelmet.prism.services.filters.FilterService;
+import network.darkhelmet.prism.services.recording.RecordingService;
 import network.darkhelmet.prism.services.wands.WandService;
 import network.darkhelmet.prism.utils.LocationUtils;
 import network.darkhelmet.prism.utils.MaterialTag;
@@ -58,7 +58,7 @@ public class PlayerInteractListener extends AbstractListener implements Listener
      * @param configurationService The configuration service
      * @param actionFactory The action factory
      * @param expectationService The expectation service
-     * @param filterService The filter service
+     * @param recordingService The recording service
      * @param wandService The wand service
      */
     @Inject
@@ -66,9 +66,9 @@ public class PlayerInteractListener extends AbstractListener implements Listener
             ConfigurationService configurationService,
             ActionFactory actionFactory,
             ExpectationService expectationService,
-            FilterService filterService,
+            RecordingService recordingService,
             WandService wandService) {
-        super(configurationService, actionFactory, expectationService, filterService);
+        super(configurationService, actionFactory, expectationService, recordingService);
         this.wandService = wandService;
     }
 

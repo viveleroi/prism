@@ -33,8 +33,7 @@ import network.darkhelmet.prism.api.activities.SingleActivity;
 import network.darkhelmet.prism.api.services.expectations.ExpectationType;
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
-import network.darkhelmet.prism.services.filters.FilterService;
-import network.darkhelmet.prism.services.recording.RecordingQueue;
+import network.darkhelmet.prism.services.recording.RecordingService;
 import network.darkhelmet.prism.utils.BlockUtils;
 import network.darkhelmet.prism.utils.EntityUtils;
 import network.darkhelmet.prism.utils.LocationUtils;
@@ -62,9 +61,9 @@ public class AbstractListener {
     protected final ExpectationService expectationService;
 
     /**
-     * The filter service.
+     * The recording service.
      */
-    protected final FilterService filterService;
+    protected final RecordingService recordingService;
 
     /**
      * Construct the listener.
@@ -72,17 +71,17 @@ public class AbstractListener {
      * @param configurationService The configuration service
      * @param actionFactory The action factory
      * @param expectationService The expectation service
-     * @param filterService The filter service
+     * @param recordingService The recording service
      */
     public AbstractListener(
             ConfigurationService configurationService,
             ActionFactory actionFactory,
             ExpectationService expectationService,
-            FilterService filterService) {
+            RecordingService recordingService) {
         this.configurationService = configurationService;
         this.actionFactory = actionFactory;
         this.expectationService = expectationService;
-        this.filterService = filterService;
+        this.recordingService = recordingService;
     }
 
     /**
@@ -196,8 +195,6 @@ public class AbstractListener {
         }
 
         ISingleActivity activity = builder.build();
-        if (filterService.allows(activity)) {
-            RecordingQueue.addToQueue(activity);
-        }
+        recordingService.addToQueue(activity);
     }
 }

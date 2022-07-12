@@ -30,8 +30,7 @@ import network.darkhelmet.prism.api.activities.SingleActivity;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
-import network.darkhelmet.prism.services.filters.FilterService;
-import network.darkhelmet.prism.services.recording.RecordingQueue;
+import network.darkhelmet.prism.services.recording.RecordingService;
 import network.darkhelmet.prism.utils.LocationUtils;
 
 import org.bukkit.event.EventHandler;
@@ -46,15 +45,15 @@ public class PlayerDropItemListener extends AbstractListener implements Listener
      * @param configurationService The configuration service
      * @param actionFactory The action factory
      * @param expectationService The expectation service
-     * @param filterService The filter service
+     * @param recordingService The recording service
      */
     @Inject
     public PlayerDropItemListener(
             ConfigurationService configurationService,
             ActionFactory actionFactory,
             ExpectationService expectationService,
-            FilterService filterService) {
-        super(configurationService, actionFactory, expectationService, filterService);
+            RecordingService recordingService) {
+        super(configurationService, actionFactory, expectationService, recordingService);
     }
 
     /**
@@ -78,8 +77,6 @@ public class PlayerDropItemListener extends AbstractListener implements Listener
         final ISingleActivity activity = SingleActivity.builder()
             .action(action).player(event.getPlayer().getUniqueId(), event.getPlayer().getName()).location(at).build();
 
-        if (filterService.allows(activity)) {
-            RecordingQueue.addToQueue(activity);
-        }
+        recordingService.addToQueue(activity);
     }
 }

@@ -83,7 +83,7 @@ public class RecordingTask implements Runnable {
      * Saves anything in the queue, or as many as we can.
      */
     public void save() {
-        if (!RecordingQueue.getQueue().isEmpty()) {
+        if (!recordingService.queue().isEmpty()) {
             try {
                 int batchCount = 0;
                 int batchMax = storageConfig.batchMax();
@@ -91,15 +91,15 @@ public class RecordingTask implements Runnable {
                 IActivityBatch batch = storageAdapter.createActivityBatch();
                 batch.startBatch();
 
-                while (!RecordingQueue.getQueue().isEmpty()) {
+                while (!recordingService.queue().isEmpty()) {
                     batchCount++;
-                    final ISingleActivity activity = RecordingQueue.getQueue().poll();
+                    final ISingleActivity activity = recordingService.queue().poll();
                     batch.add(activity);
 
                     // Batch max exceeded, break
                     if (batchCount > batchMax) {
                         String msg = "Recorder: Batch max exceeded, running insert. Queue remaining: %d";
-                        loggingService.debug(String.format(msg, RecordingQueue.getQueue().size()));
+                        loggingService.debug(String.format(msg, recordingService.queue().size()));
 
                         break;
                     }

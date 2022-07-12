@@ -20,7 +20,26 @@
 
 package network.darkhelmet.prism.api.services.recording;
 
+import java.util.concurrent.LinkedBlockingQueue;
+
+import network.darkhelmet.prism.api.activities.ISingleActivity;
+
 public interface IRecordingService {
+    /**
+     * Add an activity to the recording queue.
+     *
+     * @param activity Activity
+     * @return True if added to queue
+     */
+    boolean addToQueue(final ISingleActivity activity);
+
+    /**
+     * Get the queue.
+     *
+     * @return the queue
+     */
+    LinkedBlockingQueue<ISingleActivity> queue();
+
     /**
      * Schedule the next recording task.
      *

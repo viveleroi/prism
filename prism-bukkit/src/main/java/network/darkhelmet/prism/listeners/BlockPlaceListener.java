@@ -30,8 +30,7 @@ import network.darkhelmet.prism.api.activities.SingleActivity;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
-import network.darkhelmet.prism.services.filters.FilterService;
-import network.darkhelmet.prism.services.recording.RecordingQueue;
+import network.darkhelmet.prism.services.recording.RecordingService;
 import network.darkhelmet.prism.utils.LocationUtils;
 
 import org.bukkit.block.Block;
@@ -49,15 +48,15 @@ public class BlockPlaceListener extends AbstractListener implements Listener {
      * @param configurationService The configuration service
      * @param actionFactory The action factory
      * @param expectationService The expectation service
-     * @param filterService The filter service
+     * @param recordingService The recording service
      */
     @Inject
     public BlockPlaceListener(
             ConfigurationService configurationService,
             ActionFactory actionFactory,
             ExpectationService expectationService,
-            FilterService filterService) {
-        super(configurationService, actionFactory, expectationService, filterService);
+            RecordingService recordingService) {
+        super(configurationService, actionFactory, expectationService, recordingService);
     }
 
     /**
@@ -87,8 +86,6 @@ public class BlockPlaceListener extends AbstractListener implements Listener {
         final ISingleActivity activity = SingleActivity.builder()
             .action(action).location(at).player(player.getUniqueId(), player.getName()).build();
 
-        if (filterService.allows(activity)) {
-            RecordingQueue.addToQueue(activity);
-        }
+        recordingService.addToQueue(activity);
     }
 }

@@ -25,7 +25,7 @@ import com.google.inject.Inject;
 import network.darkhelmet.prism.actions.ActionFactory;
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
-import network.darkhelmet.prism.services.filters.FilterService;
+import network.darkhelmet.prism.services.recording.RecordingService;
 
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.TNTPrimed;
@@ -41,15 +41,15 @@ public class EntityExplodeListener extends AbstractListener implements Listener 
      * @param configurationService The configuration service
      * @param actionFactory The action factory
      * @param expectationService The expectation service
-     * @param filterService The filter service
+     * @param recordingService The recording service
      */
     @Inject
     public EntityExplodeListener(
             ConfigurationService configurationService,
             ActionFactory actionFactory,
             ExpectationService expectationService,
-            FilterService filterService) {
-        super(configurationService, actionFactory, expectationService, filterService);
+            RecordingService recordingService) {
+        super(configurationService, actionFactory, expectationService, recordingService);
     }
 
     /**

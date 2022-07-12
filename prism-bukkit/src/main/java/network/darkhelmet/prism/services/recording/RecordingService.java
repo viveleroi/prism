@@ -22,13 +22,27 @@ package network.darkhelmet.prism.services.recording;
 
 import com.google.inject.Inject;
 
+import java.util.concurrent.LinkedBlockingQueue;
+
 import network.darkhelmet.prism.PrismBukkit;
+import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.services.recording.IRecordingService;
+import network.darkhelmet.prism.services.filters.FilterService;
 
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
 public class RecordingService implements IRecordingService {
+    /**
+     * The filter service.
+     */
+    protected final FilterService filterService;
+
+    /**
+     * Queue of activities.
+     */
+    private final LinkedBlockingQueue<ISingleActivity> queue = new LinkedBlockingQueue<>();
+
     /**
      * Cache the scheduled task.
      */
@@ -36,15 +50,39 @@ public class RecordingService implements IRecordingService {
 
     /**
      * Construct the recording manager.
+     *
+     * @param recordingTask The recording task
      */
     @Inject
-    public RecordingService(RecordingTask recordingTask) {
+    public RecordingService(
+            FilterService filterService,
+            RecordingTask recordingTask) {
+        this.filterService = filterService;
+
         queueNextRecording(recordingTask);
     }
 
-    /**
-     * Queue the next execution of this task.
-     */
+    @Override
+    public boolean addToQueue(final ISingleActivity activity) {
+        if (activity == null) {
+            return false;
+        }
+
+        if (!filterService.allows(activity)) {
+            return false;
+        }
+
+        queue.add(activity);
+
+        return true;
+    }
+
+    @Override
+    public LinkedBlockingQueue<ISingleActivity> queue() {
+        return queue;
+    }
+
+    @Override
     public void queueNextRecording(Runnable recordingTask) {
         task = Bukkit.getServer().getScheduler()
             .runTaskLaterAsynchronously(PrismBukkit.getInstance(), recordingTask, 10);
