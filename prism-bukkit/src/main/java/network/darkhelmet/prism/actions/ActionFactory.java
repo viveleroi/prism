@@ -62,8 +62,7 @@ public class ActionFactory implements IActionFactory<BlockState, Entity, ItemSta
     @Override
     public IBlockAction createBlockAction(IActionType type, BlockState blockState, BlockState replaced) {
         if (!(type instanceof BlockActionType)) {
-            throw new IllegalArgumentException(
-                    "Block change actions cannot be made from non-block change action types.");
+            throw new IllegalArgumentException("Block actions cannot be made from non-block action types.");
         }
 
         return new BlockStateAction(type, blockState, replaced);
