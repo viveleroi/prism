@@ -25,8 +25,8 @@ import com.google.inject.Inject;
 import network.darkhelmet.prism.actions.ActionFactory;
 import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.IAction;
+import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.api.activities.SingleActivity;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
@@ -74,7 +74,7 @@ public class PlayerDropItemListener extends AbstractListener implements Listener
 
         WorldCoordinate at = LocationUtils.locToWorldCoordinate(event.getPlayer().getLocation());
 
-        final ISingleActivity activity = SingleActivity.builder()
+        final ISingleActivity activity = Activity.builder()
             .action(action).player(event.getPlayer().getUniqueId(), event.getPlayer().getName()).location(at).build();
 
         recordingService.addToQueue(activity);

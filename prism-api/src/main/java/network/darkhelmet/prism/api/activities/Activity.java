@@ -28,7 +28,7 @@ import network.darkhelmet.prism.api.util.WorldCoordinate;
 
 import org.jetbrains.annotations.NotNull;
 
-public final class SingleActivity extends AbstractActivity implements ISingleActivity {
+public final class Activity extends AbstractActivity implements ISingleActivity {
     /**
      * Construct a new activity.
      *
@@ -37,7 +37,7 @@ public final class SingleActivity extends AbstractActivity implements ISingleAct
      * @param cause The cause
      * @param timestamp The timestamp
      */
-    public SingleActivity(
+    public Activity(
             IAction action,
             WorldCoordinate worldCoordinate,
             String cause,
@@ -115,6 +115,31 @@ public final class SingleActivity extends AbstractActivity implements ISingleAct
         }
 
         /**
+         * Set the location.
+         *
+         * @param worldUuid The world uuid
+         * @param worldName The world name
+         * @param x The x coordinate
+         * @param y The y coordinate
+         * @param z The z coordinate
+         * @return The builder
+         */
+        public Builder location(UUID worldUuid, String worldName, double x, double y, double z) {
+            return location(new WorldCoordinate(new NamedIdentity(worldUuid, worldName), x, y, z));
+        }
+
+        /**
+         * Set the player.
+         *
+         * @param namedIdentity The player identity
+         * @return The builder
+         */
+        public Builder player(NamedIdentity namedIdentity) {
+            this.player = namedIdentity;
+            return this;
+        }
+
+        /**
          * Set the player.
          *
          * @param playerUuid The player uuid
@@ -122,9 +147,7 @@ public final class SingleActivity extends AbstractActivity implements ISingleAct
          * @return The builder
          */
         public Builder player(UUID playerUuid, String playerName) {
-            this.player = new NamedIdentity(playerUuid, playerName);
-
-            return this;
+            return player(new NamedIdentity(playerUuid, playerName));
         }
 
         /**
@@ -144,7 +167,7 @@ public final class SingleActivity extends AbstractActivity implements ISingleAct
          * @return The activity
          */
         public ISingleActivity build() {
-            return new SingleActivity(action, worldCoordinate, cause, player, timestamp);
+            return new Activity(action, worldCoordinate, cause, player, timestamp);
         }
     }
 }

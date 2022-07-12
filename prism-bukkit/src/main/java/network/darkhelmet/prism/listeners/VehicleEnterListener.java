@@ -25,8 +25,8 @@ import com.google.inject.Inject;
 import network.darkhelmet.prism.actions.ActionFactory;
 import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.IAction;
+import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.api.activities.SingleActivity;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
@@ -78,7 +78,7 @@ public class VehicleEnterListener extends AbstractListener implements Listener {
         WorldCoordinate at = LocationUtils.locToWorldCoordinate(vehicle.getLocation());
 
         // Build the activity
-        final SingleActivity.Builder builder = SingleActivity.builder()
+        final Activity.Builder builder = Activity.builder()
             .action(action).location(at);
 
         if (entity instanceof Player player) {

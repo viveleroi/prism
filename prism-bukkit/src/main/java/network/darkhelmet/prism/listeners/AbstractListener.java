@@ -28,8 +28,8 @@ import network.darkhelmet.prism.actions.ActionFactory;
 import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.IActionFactory;
+import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.api.activities.SingleActivity;
 import network.darkhelmet.prism.api.services.expectations.ExpectationType;
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
@@ -185,7 +185,7 @@ public class AbstractListener {
         final IAction action = actionFactory.createBlockAction(ActionTypeRegistry.BLOCK_BREAK, block.getState());
 
         // Build the block break by player activity
-        final SingleActivity.Builder builder = SingleActivity.builder()
+        final Activity.Builder builder = Activity.builder()
             .action(action).location(LocationUtils.locToWorldCoordinate(block.getLocation()));
 
         if (cause instanceof String) {

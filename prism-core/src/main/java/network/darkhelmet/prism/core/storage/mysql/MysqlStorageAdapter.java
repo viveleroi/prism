@@ -50,7 +50,7 @@ import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.activities.GroupedActivity;
 import network.darkhelmet.prism.api.activities.IActivity;
-import network.darkhelmet.prism.api.activities.SingleActivity;
+import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.storage.IActivityBatch;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.api.util.NamedIdentity;
@@ -627,7 +627,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
                     entityType, customData, descriptor, version);
 
                 // Build the activity
-                IActivity activity = new SingleActivity(
+                IActivity activity = new Activity(
                     actionType.createAction(actionData), coordinate, cause, player, timestamp);
 
                 // Add to result list
