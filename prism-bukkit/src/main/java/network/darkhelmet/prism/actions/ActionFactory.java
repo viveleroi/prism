@@ -27,6 +27,7 @@ import java.util.Optional;
 import network.darkhelmet.prism.actions.types.BlockActionType;
 import network.darkhelmet.prism.actions.types.EntityActionType;
 import network.darkhelmet.prism.actions.types.ItemActionType;
+import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.IActionFactory;
 import network.darkhelmet.prism.api.actions.IBlockAction;
 import network.darkhelmet.prism.api.actions.IEntityAction;
@@ -100,6 +101,21 @@ public class ActionFactory implements IActionFactory<BlockState, Entity, ItemSta
         }
 
         return new EntityAction(actionTypeOptional.get(), entity);
+    }
+
+    @Override
+    public IAction createGenericAction(IActionType type, String descriptor) {
+        return new GenericAction(type, descriptor);
+    }
+
+    @Override
+    public IAction createGenericAction(String key, String descriptor) {
+        Optional<IActionType> actionTypeOptional = actionTypeRegistry.getActionType(key);
+        if (actionTypeOptional.isEmpty()) {
+            throw new IllegalArgumentException("Invalid action type key");
+        }
+
+        return new GenericAction(actionTypeOptional.get(), descriptor);
     }
 
     @Override

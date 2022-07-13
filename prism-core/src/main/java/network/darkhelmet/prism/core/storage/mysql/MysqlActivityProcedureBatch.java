@@ -152,7 +152,11 @@ public class MysqlActivityProcedureBatch implements IActivityBatch {
         }
 
         // Descriptor
-        statement.setString(18, activity.action().descriptor());
+        if (activity.action().descriptor() != null) {
+            statement.setString(18, activity.action().descriptor());
+        } else {
+            statement.setNull(18, Types.VARCHAR);
+        }
 
         statement.addBatch();
     }

@@ -20,37 +20,26 @@
 
 package network.darkhelmet.prism.actions.types;
 
-import de.tr7zw.nbtapi.NBTContainer;
-
-import network.darkhelmet.prism.actions.EntityAction;
+import network.darkhelmet.prism.actions.GenericAction;
 import network.darkhelmet.prism.api.actions.ActionData;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
 
-import org.bukkit.entity.EntityType;
-
-public class EntityActionType extends ActionType {
+public class GenericActionType extends ActionType {
     /**
-     * Construct a new entity action type.
+     * Construct a new generic action type.
      *
      * @param key The key
      * @param resultType The result type
      * @param reversible If action is reversible
      */
-    public EntityActionType(String key, ActionResultType resultType, boolean reversible) {
+    public GenericActionType(String key, ActionResultType resultType, boolean reversible) {
         super(key, resultType, reversible);
     }
 
     @Override
     public IAction createAction(ActionData actionData) {
-        NBTContainer container = new NBTContainer();
-        if (actionData.customData() != null && actionData.customDataVersion() > 0) {
-            container = new NBTContainer(actionData.customData());
-        }
-
-        EntityType type = EntityType.valueOf(actionData.entityType());
-
-        return new EntityAction(this, type, container, actionData.descriptor());
+        return new GenericAction(this, actionData.descriptor());
     }
 }

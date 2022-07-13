@@ -74,8 +74,12 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         Component actionPastTense = Component.text(pastTense);
         Component actionFamily = actionFamily(value.action().type().key());
         Component cause = cause(receiver, value.cause(), value.player());
-        Component content = Component.text(value.action().descriptor());
         Component since = since(receiver, value.timestamp());
+
+        Component content = Component.empty();
+        if (value.action().descriptor() != null) {
+            content = Component.text(value.action().descriptor());
+        }
 
         Component count = Component.text("1");
         if (value instanceof IGroupedActivity grouped) {

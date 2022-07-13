@@ -101,7 +101,7 @@ public class MysqlSchemaUpdater {
             + "CHANGE COLUMN `player_id` `player_id` INT UNSIGNED NOT NULL AFTER `old_material_id`,"
             + "ADD COLUMN `cause_id` INT UNSIGNED NOT NULL AFTER `player_id`,"
             + "ADD COLUMN `entity_type_id` SMALLINT UNSIGNED NULL AFTER `old_material_id`,"
-            + "ADD COLUMN `descriptor` VARCHAR(255) NOT NULL AFTER `cause_id`;";
+            + "ADD COLUMN `descriptor` VARCHAR(255) NULL AFTER `cause_id`;";
         DB.executeUpdate(updateData);
 
         // Rename data extra table

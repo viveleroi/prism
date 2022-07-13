@@ -41,6 +41,9 @@ public class ActionsConfiguration {
     @Comment("item-drop is when a player or block drops an item on the ground.")
     private boolean itemDrop = true;
 
+    @Comment("player-quit is when a player disconnects from the server.")
+    private boolean playerQuit = false;
+
     @Comment("vehicle-enter is when an entity enters a boat or minecart.")
     private boolean vehicleEnter = true;
 
@@ -93,6 +96,15 @@ public class ActionsConfiguration {
      */
     public boolean itemDrop() {
         return itemDrop;
+    }
+
+    /**
+     * Get if player-quit is enabled.
+     *
+     * @return True if enabled
+     */
+    public boolean playerQuit() {
+        return playerQuit;
     }
 
     /**

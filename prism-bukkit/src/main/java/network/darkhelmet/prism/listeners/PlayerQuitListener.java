@@ -23,12 +23,18 @@ package network.darkhelmet.prism.listeners;
 import com.google.inject.Inject;
 
 import network.darkhelmet.prism.actions.ActionFactory;
+import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.api.actions.IAction;
+import network.darkhelmet.prism.api.activities.Activity;
+import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.recording.RecordingService;
 import network.darkhelmet.prism.services.wands.WandService;
+import network.darkhelmet.prism.utils.LocationUtils;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -76,10 +82,29 @@ public class PlayerQuitListener extends AbstractListener implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerQuit(final PlayerQuitEvent event) {
+        final Player player = event.getPlayer();
+
         // Cancel any modification queues for this player
-        modificationQueueService.cancelQueueForOwner(event.getPlayer());
+        modificationQueueService.cancelQueueForOwner(player);
 
         // Deactivate any wands
-        wandService.deactivateWand(event.getPlayer());
+        wandService.deactivateWand(player);
+
+        // Ignore if this event is disabled
+        if (!configurationService.prismConfig().actions().playerQuit()) {
+            return;
+        }
+
+        // Build the action
+        final IAction action = actionFactory.createGenericAction(ActionTypeRegistry.PLAYER_QUIT, null);
+
+        // Build the activity
+        final ISingleActivity activity = Activity.builder()
+            .action(action)
+            .location(LocationUtils.locToWorldCoordinate(player.getLocation()))
+            .player(player.getUniqueId(), player.getName())
+            .build();
+
+        recordingService.addToQueue(activity);
     }
 }

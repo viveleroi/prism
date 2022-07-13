@@ -80,6 +80,24 @@ public interface IActionFactory<B, E, I> {
     IEntityAction createEntityAction(String key, E entity);
 
     /**
+     * Create a new generic action.
+     *
+     * @param type The action type
+     * @param descriptor The descriptor
+     * @return The action
+     */
+    IAction createGenericAction(IActionType type, String descriptor);
+
+    /**
+     * Create a new generic action.
+     *
+     * @param key The action type key
+     * @param descriptor The descriptor
+     * @return The action
+     */
+    IAction createGenericAction(String key, String descriptor);
+
+    /**
      * Create a new action for the given type/item stack.
      *
      * @param type The action type
