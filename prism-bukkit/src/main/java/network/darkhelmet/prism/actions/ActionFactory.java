@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import network.darkhelmet.prism.actions.types.BlockActionType;
 import network.darkhelmet.prism.actions.types.EntityActionType;
+import network.darkhelmet.prism.actions.types.GenericActionType;
 import network.darkhelmet.prism.actions.types.ItemActionType;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.IActionFactory;
@@ -53,6 +54,35 @@ public class ActionFactory implements IActionFactory<BlockState, Entity, ItemSta
     @Inject
     public ActionFactory(IActionTypeRegistry actionTypeRegistry) {
         this.actionTypeRegistry = actionTypeRegistry;
+    }
+
+    @Override
+    public IAction createAction(IActionType type) {
+        return createAction(type, null);
+    }
+
+    @Override
+    public IAction createAction(IActionType type, String descriptor) {
+        if (!(type instanceof GenericActionType)) {
+            throw new IllegalArgumentException("Generic actions cannot be made from non-generic action types.");
+        }
+
+        return new GenericAction(type, descriptor);
+    }
+
+    @Override
+    public IAction createAction(String key) {
+        return createAction(key, null);
+    }
+
+    @Override
+    public IAction createAction(String key, String descriptor) {
+        Optional<IActionType> actionTypeOptional = actionTypeRegistry.getActionType(key);
+        if (actionTypeOptional.isEmpty()) {
+            throw new IllegalArgumentException("Invalid action type key");
+        }
+
+        return createAction(actionTypeOptional.get(), descriptor);
     }
 
     @Override
@@ -101,21 +131,6 @@ public class ActionFactory implements IActionFactory<BlockState, Entity, ItemSta
         }
 
         return new EntityAction(actionTypeOptional.get(), entity);
-    }
-
-    @Override
-    public IAction createGenericAction(IActionType type, String descriptor) {
-        return new GenericAction(type, descriptor);
-    }
-
-    @Override
-    public IAction createGenericAction(String key, String descriptor) {
-        Optional<IActionType> actionTypeOptional = actionTypeRegistry.getActionType(key);
-        if (actionTypeOptional.isEmpty()) {
-            throw new IllegalArgumentException("Invalid action type key");
-        }
-
-        return new GenericAction(actionTypeOptional.get(), descriptor);
     }
 
     @Override

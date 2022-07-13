@@ -24,6 +24,40 @@ import network.darkhelmet.prism.api.actions.types.IActionType;
 
 public interface IActionFactory<B, E, I> {
     /**
+     * Create a new generic action.
+     *
+     * @param type The action type
+     * @return The action
+     */
+    IAction createAction(IActionType type);
+
+    /**
+     * Create a new generic action.
+     *
+     * @param type The action type
+     * @param descriptor The descriptor
+     * @return The action
+     */
+    IAction createAction(IActionType type, String descriptor);
+
+    /**
+     * Create a new generic action.
+     *
+     * @param key The action type key
+     * @return The action
+     */
+    IAction createAction(String key);
+
+    /**
+     * Create a new generic action.
+     *
+     * @param key The action type key
+     * @param descriptor The descriptor
+     * @return The action
+     */
+    IAction createAction(String key, String descriptor);
+
+    /**
      * Create a new action for the given type/block.
      *
      * @param type The action type
@@ -78,24 +112,6 @@ public interface IActionFactory<B, E, I> {
      * @return The entity action
      */
     IEntityAction createEntityAction(String key, E entity);
-
-    /**
-     * Create a new generic action.
-     *
-     * @param type The action type
-     * @param descriptor The descriptor
-     * @return The action
-     */
-    IAction createGenericAction(IActionType type, String descriptor);
-
-    /**
-     * Create a new generic action.
-     *
-     * @param key The action type key
-     * @param descriptor The descriptor
-     * @return The action
-     */
-    IAction createGenericAction(String key, String descriptor);
 
     /**
      * Create a new action for the given type/item stack.

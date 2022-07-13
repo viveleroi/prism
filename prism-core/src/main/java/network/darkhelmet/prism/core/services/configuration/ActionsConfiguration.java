@@ -41,6 +41,9 @@ public class ActionsConfiguration {
     @Comment("item-drop is when a player or block drops an item on the ground.")
     private boolean itemDrop = true;
 
+    @Comment("player-join is when a player connects to the server.")
+    private boolean playerJoin = false;
+
     @Comment("player-quit is when a player disconnects from the server.")
     private boolean playerQuit = false;
 
@@ -96,6 +99,15 @@ public class ActionsConfiguration {
      */
     public boolean itemDrop() {
         return itemDrop;
+    }
+
+    /**
+     * Get if player-join is enabled.
+     *
+     * @return True if enabled
+     */
+    public boolean playerJoin() {
+        return playerJoin;
     }
 
     /**

@@ -38,6 +38,8 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         new EntityActionType("hanging-break", ActionResultType.REMOVES, true);
     public static final ActionType ITEM_DROP =
         new ItemActionType("item-drop", ActionResultType.REMOVES, true);
+    public static final ActionType PLAYER_JOIN =
+        new GenericActionType("player-join", ActionResultType.NONE, false);
     public static final ActionType PLAYER_QUIT =
         new GenericActionType("player-quit", ActionResultType.NONE, false);
     public static final ActionType VEHICLE_ENTER =
@@ -57,6 +59,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(ENTITY_KILL);
         registerAction(HANGING_BREAK);
         registerAction(ITEM_DROP);
+        registerAction(PLAYER_JOIN);
         registerAction(PLAYER_QUIT);
         registerAction(VEHICLE_ENTER);
         registerAction(VEHICLE_EXIT);

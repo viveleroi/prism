@@ -27,30 +27,18 @@ import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.recording.RecordingService;
-import network.darkhelmet.prism.services.wands.WandService;
 import network.darkhelmet.prism.utils.LocationUtils;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
-public class PlayerQuitListener extends AbstractListener implements Listener {
-    /**
-     * The wand service.
-     */
-    private final WandService wandService;
-
-    /**
-     * The modification queue service.
-     */
-    private final IModificationQueueService modificationQueueService;
-
+public class PlayerJoinListener extends AbstractListener implements Listener {
     /**
      * Construct the listener.
      *
@@ -58,21 +46,14 @@ public class PlayerQuitListener extends AbstractListener implements Listener {
      * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
-     * @param wandService The wand service
-     * @param modificationQueueService The modification queue service
      */
     @Inject
-    public PlayerQuitListener(
+    public PlayerJoinListener(
             ConfigurationService configurationService,
             ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService,
-            WandService wandService,
-            IModificationQueueService modificationQueueService) {
+            RecordingService recordingService) {
         super(configurationService, actionFactory, expectationService, recordingService);
-
-        this.wandService = wandService;
-        this.modificationQueueService = modificationQueueService;
     }
 
     /**
@@ -81,22 +62,16 @@ public class PlayerQuitListener extends AbstractListener implements Listener {
      * @param event The event
      */
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onPlayerQuit(final PlayerQuitEvent event) {
+    public void onPlayerJoin(final PlayerJoinEvent event) {
         final Player player = event.getPlayer();
 
-        // Cancel any modification queues for this player
-        modificationQueueService.cancelQueueForOwner(player);
-
-        // Deactivate any wands
-        wandService.deactivateWand(player);
-
         // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().playerQuit()) {
+        if (!configurationService.prismConfig().actions().playerJoin()) {
             return;
         }
 
         // Build the action
-        final IAction action = actionFactory.createAction(ActionTypeRegistry.PLAYER_QUIT);
+        final IAction action = actionFactory.createAction(ActionTypeRegistry.PLAYER_JOIN);
 
         // Build the activity
         final ISingleActivity activity = Activity.builder()
