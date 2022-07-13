@@ -13,4 +13,4 @@ dependencies {
     implementation project(':prism-api')
 }
 
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = sourceCompatibility = JavaVersion.VERSION_17

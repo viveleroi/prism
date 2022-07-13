@@ -16,7 +16,7 @@ dependencies {
     implementation project(':prism-api')
 }
 
-targetCompatibility = sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = sourceCompatibility = JavaVersion.VERSION_17
 
 sponge {
     apiVersion('8.0.0')

@@ -7,4 +7,4 @@ dependencies {
     compileOnly project.property('deps.jetbrains-annotations')
 }
 
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = sourceCompatibility = JavaVersion.VERSION_17
