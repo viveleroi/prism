@@ -39,7 +39,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -47,6 +46,7 @@ import net.kyori.adventure.translation.Translator;
 import net.kyori.moonshine.message.IMessageSource;
 
 import network.darkhelmet.prism.core.services.configuration.PrismConfiguration;
+import network.darkhelmet.prism.utils.SortedProperties;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -77,7 +77,7 @@ public class TranslationService implements IMessageSource<CommandSender, String>
     /**
      * The translations bundles.
      */
-    private final Map<Locale, Properties> locales = new HashMap<>();
+    private final Map<Locale, SortedProperties> locales = new HashMap<>();
 
     /**
      * Construct the translation system.
@@ -116,7 +116,7 @@ public class TranslationService implements IMessageSource<CommandSender, String>
      */
     private String forPlayer(final String messageKey, final Player player) {
         Locale locale = getLocaleFromString(player.getLocale());
-        final Properties properties = this.locales.get(locale);
+        final SortedProperties properties = this.locales.get(locale);
 
         if (properties != null) {
             final var message = properties.getProperty(messageKey);
@@ -244,7 +244,7 @@ public class TranslationService implements IMessageSource<CommandSender, String>
 
                 this.logger.info("Found locale {} ({}) in: {}", locale.getDisplayName(), locale, localeFile);
 
-                final Properties properties = new Properties();
+                final SortedProperties properties = new SortedProperties();
 
                 try {
                     this.loadProperties(properties, localeDirectory, localeFile);
@@ -288,7 +288,7 @@ public class TranslationService implements IMessageSource<CommandSender, String>
      * @throws IOException IO Exception
      */
     private void loadProperties(
-        final Properties properties,
+        final SortedProperties properties,
         final Path localeDirectory,
         final Path localeFile
     ) throws IOException {
@@ -306,7 +306,7 @@ public class TranslationService implements IMessageSource<CommandSender, String>
 
         // Read the file in the jar and add missing entries
         try (final Reader reader = new InputStreamReader(Files.newInputStream(localeFile), StandardCharsets.UTF_8)) {
-            final Properties packaged = new Properties();
+            final SortedProperties packaged = new SortedProperties();
             packaged.load(reader);
 
             for (final Map.Entry<Object, Object> entry : packaged.entrySet()) {

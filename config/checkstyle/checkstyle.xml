@@ -51,6 +51,11 @@
         <property name="format" value="[\r]?\n\s*[\r]?\n\s*\}"/>
     </module>
 
+    <module name="SuppressionSingleFilter">
+        <property name="checks" value="Header"/>
+        <property name="files" value="SortedProperties.java"/>
+    </module>
+
     <module name="TreeWalker">
 	    <module name="NoWhitespaceAfter">
 	        <property name="tokens" value="DOT"/>
