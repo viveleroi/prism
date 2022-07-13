@@ -60,6 +60,7 @@ import network.darkhelmet.prism.listeners.EntitySpawnListener;
 import network.darkhelmet.prism.listeners.HangingBreakListener;
 import network.darkhelmet.prism.listeners.PlayerDropItemListener;
 import network.darkhelmet.prism.listeners.PlayerInteractListener;
+import network.darkhelmet.prism.listeners.PlayerQuitListener;
 import network.darkhelmet.prism.listeners.VehicleCreateListener;
 import network.darkhelmet.prism.listeners.VehicleEnterListener;
 import network.darkhelmet.prism.listeners.VehicleExitListener;
@@ -169,6 +170,7 @@ public class PrismBukkit extends JavaPlugin {
             getServer().getPluginManager().registerEvents(injector.getInstance(HangingBreakListener.class), this);
             getServer().getPluginManager().registerEvents(injector.getInstance(PlayerDropItemListener.class), this);
             getServer().getPluginManager().registerEvents(injector.getInstance(PlayerInteractListener.class), this);
+            getServer().getPluginManager().registerEvents(injector.getInstance(PlayerQuitListener.class), this);
             getServer().getPluginManager().registerEvents(injector.getInstance(VehicleCreateListener.class), this);
             getServer().getPluginManager().registerEvents(injector.getInstance(VehicleEnterListener.class), this);
             getServer().getPluginManager().registerEvents(injector.getInstance(VehicleExitListener.class), this);

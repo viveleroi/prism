@@ -41,6 +41,16 @@ public class ModificationQueueService implements IModificationQueueService {
     }
 
     @Override
+    public boolean cancelQueueForOwner(Object owner) {
+        if (currentQueue != null && currentQueue.owner().equals(owner)) {
+            currentQueue.cancel();
+            currentQueue = null;
+        }
+
+        return false;
+    }
+
+    @Override
     public IModificationQueue currentQueue() {
         return currentQueue;
     }
