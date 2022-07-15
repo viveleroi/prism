@@ -11,6 +11,7 @@ Please be patient as I work to get this project where I want, establish document
 
 - [**Discord**][discord] - Please visit discord for help before opening issues.
 - [Docs][docs]
+- [Dev Builds][ci]
 
 
 **Configs**
@@ -25,3 +26,4 @@ configurations so please ask in discord if you need help.
 
 [discord]: https://discord.gg/7FxZScH4EJ
 [docs]: https://prism.readthedocs.io/en/latest
+[ci]: https://ci.darkhelmet.network/job/Prism-v4/
