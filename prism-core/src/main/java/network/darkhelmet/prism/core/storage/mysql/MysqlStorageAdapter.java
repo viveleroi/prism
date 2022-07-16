@@ -23,7 +23,9 @@ package network.darkhelmet.prism.core.storage.mysql;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
+import java.io.File;
 import java.math.BigDecimal;
+import java.nio.file.Path;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -37,6 +39,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.zaxxer.hikari.HikariConfig;
 import network.darkhelmet.prism.api.PaginatedResults;
 import network.darkhelmet.prism.api.actions.ActionData;
 import network.darkhelmet.prism.api.actions.types.IActionType;
@@ -113,7 +116,8 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             IActionTypeRegistry actionRegistry,
             MysqlSchemaUpdater schemaUpdater,
             MysqlQueryBuilder queryBuilder,
-            @Named("serializerVersion") short serializerVersion) {
+            @Named("serializerVersion") short serializerVersion,
+            Path dataPath) {
         this.loggingService = loggingService;
         this.configurationService = configurationService;
         this.actionRegistry = actionRegistry;
@@ -130,25 +134,42 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         }
 
         try {
-            DatabaseOptions.DatabaseOptionsBuilder builder = DatabaseOptions.builder().mysql(
-                configurationService.storageConfig().username(),
-                configurationService.storageConfig().password(),
-                configurationService.storageConfig().database(),
-                configurationService.storageConfig().host() + ":"
-                    + configurationService.storageConfig().port());
-            builder.onDatabaseConnectionFailure(loggingService::handleException);
-            builder.onFatalError(loggingService::handleException);
-            builder.driverClassName(configurationService.storageConfig().driver());
-            builder.poolName("prism");
-            builder.logger(loggingService.logger());
-            builder.useOptimizations(configurationService.storageConfig().useHikariMysqlOptimizations());
-            Database db = PooledDatabaseOptions.builder().options(builder.build()).createHikariDatabase();
-            DB.setGlobalDatabase(db);
+            // First, try to use any hikari.properties
+            File hikariPropertiesFile = new File(dataPath.toFile(), "hikari.properties");
+            if (hikariPropertiesFile.exists()) {
+                loggingService.logger().info("Using hikari.properties over storage.conf");
 
-            describeDatabase();
-            prepareSchema();
+                HikariConfig config = new HikariConfig(hikariPropertiesFile.getPath());
+                Database db = PooledDatabaseOptions.builder().hikariConfig(config).createHikariDatabase();
+                DB.setGlobalDatabase(db);
 
-            ready = true;
+                describeDatabase(true);
+                prepareSchema();
+
+                ready = true;
+            } else {
+                loggingService.logger().info("Reading storage.conf. There is no hikari.properties file.");
+
+                DatabaseOptions.DatabaseOptionsBuilder builder = DatabaseOptions.builder().mysql(
+                    configurationService.storageConfig().username(),
+                    configurationService.storageConfig().password(),
+                    configurationService.storageConfig().database(),
+                    configurationService.storageConfig().host() + ":"
+                        + configurationService.storageConfig().port());
+                builder.onDatabaseConnectionFailure(loggingService::handleException);
+                builder.onFatalError(loggingService::handleException);
+                builder.driverClassName(configurationService.storageConfig().driver());
+                builder.poolName("prism");
+                builder.logger(loggingService.logger());
+                builder.useOptimizations(configurationService.storageConfig().useHikariMysqlOptimizations());
+                Database db = PooledDatabaseOptions.builder().options(builder.build()).createHikariDatabase();
+                DB.setGlobalDatabase(db);
+
+                describeDatabase(false);
+                prepareSchema();
+
+                ready = true;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -159,7 +180,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
      *
      * @throws SQLException The database exception
      */
-    protected void describeDatabase() throws SQLException {
+    protected void describeDatabase(boolean usingHikariProperties) throws SQLException {
         Map<String, String> dbInfo = new HashMap<>();
 
         for (DbRow row : DB.getResults("SHOW VARIABLES")) {
@@ -183,8 +204,11 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             configurationService.storageConfig().disallowStoredProcedures();
         }
 
-        boolean usrHikariMysqlOptimizations = configurationService.storageConfig().useHikariMysqlOptimizations();
-        loggingService.logger().info(String.format("use hikari mysql optimizations: %b", usrHikariMysqlOptimizations));
+        if (!usingHikariProperties) {
+            boolean usrHikariMysqlOptimizations = configurationService.storageConfig().useHikariMysqlOptimizations();
+            loggingService.logger().info(
+                String.format("use hikari mysql optimizations: %b", usrHikariMysqlOptimizations));
+        }
     }
 
     /**

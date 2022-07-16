@@ -24,6 +24,8 @@ public class PooledDatabaseOptions {
 
                 DatabaseOptions.DatabaseOptionsBuilder builder = DatabaseOptions.builder().dsn(dsn);
                 options = builder.build();
+
+                return new HikariPooledDatabase(this.build(), hikariConfig);
             }
 
             return new HikariPooledDatabase(this.build());

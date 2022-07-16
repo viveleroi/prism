@@ -6,11 +6,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.util.Map;
 
 public class HikariPooledDatabase extends BaseDatabase {
-    private final PooledDatabaseOptions poolOptions;
-
     public HikariPooledDatabase(PooledDatabaseOptions poolOptions) {
         super(poolOptions.options);
-        this.poolOptions = poolOptions;
         DatabaseOptions options = poolOptions.options;
 
         HikariConfig config = new HikariConfig();
@@ -53,7 +50,8 @@ public class HikariPooledDatabase extends BaseDatabase {
         dataSource = new HikariDataSource(config);
     }
 
-    public PooledDatabaseOptions getPoolOptions() {
-        return poolOptions;
+    public HikariPooledDatabase(PooledDatabaseOptions poolOptions, HikariConfig hikariConfig) {
+        super(poolOptions.options);
+        dataSource = new HikariDataSource(hikariConfig);
     }
 }

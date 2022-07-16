@@ -19,7 +19,7 @@ public class DatabaseOptions {
     /**
      * JDBC Classname of the Driver name to use
      */
-    @NonNull String driverClassName;
+    String driverClassName;
     /**
      * Class name of DataSource to use
      */
