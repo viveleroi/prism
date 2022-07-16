@@ -18,23 +18,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.core.utils;
+package network.darkhelmet.prism.loader.services.configuration.storage;
 
-import java.util.UUID;
-
-public class TypeUtils {
+public class PostgresDataSourceConfiguration extends SqlDataSourceConfiguration {
     /**
-     * Prevent instantiation.
+     * Constructor.
      */
-    private TypeUtils() {}
-
-    /**
-     * Converts UUID to a string ready for use against database.
-     *
-     * @param uuid A UUID
-     * @return The encoded UUID string
-     */
-    public static String uuidToDbString(UUID uuid) {
-        return uuid.toString().replace("-", "");
+    public PostgresDataSourceConfiguration() {
+        super("5432", "postgres");
     }
 }

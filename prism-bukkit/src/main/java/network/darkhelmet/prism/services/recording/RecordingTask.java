@@ -26,7 +26,7 @@ import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.services.recording.IRecordingService;
 import network.darkhelmet.prism.api.storage.IActivityBatch;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
-import network.darkhelmet.prism.loader.services.configuration.StorageConfiguration;
+import network.darkhelmet.prism.loader.services.configuration.storage.StorageConfiguration;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 public class RecordingTask implements Runnable {
@@ -86,7 +86,7 @@ public class RecordingTask implements Runnable {
         if (!recordingService.queue().isEmpty()) {
             try {
                 int batchCount = 0;
-                int batchMax = storageConfig.batchMax();
+                int batchMax = storageConfig.primaryDataSource().batchMax();
 
                 IActivityBatch batch = storageAdapter.createActivityBatch();
                 batch.startBatch();

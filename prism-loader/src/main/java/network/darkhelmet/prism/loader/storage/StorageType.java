@@ -21,5 +21,5 @@
 package network.darkhelmet.prism.loader.storage;
 
 public enum StorageType {
-    MYSQL
+    H2, MARIADB, MYSQL, POSTGRES
 }

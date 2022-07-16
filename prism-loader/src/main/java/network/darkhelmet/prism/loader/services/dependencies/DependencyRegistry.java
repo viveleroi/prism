@@ -43,7 +43,30 @@ public class DependencyRegistry {
      */
     private static final ListMultimap<StorageType, Dependency> STORAGE_DEPENDENCIES = ImmutableListMultimap
         .<StorageType, Dependency>builder()
-        .putAll(StorageType.MYSQL, Dependency.HIKARI, Dependency.MYSQL_DRIVER)
+        .putAll(StorageType.H2,
+            Dependency.HIKARI,
+            Dependency.JOOQ,
+            Dependency.R2DBC,
+            Dependency.REACTIVE_STREAMS,
+            Dependency.H2_DRIVER)
+        .putAll(StorageType.MARIADB,
+            Dependency.HIKARI,
+            Dependency.JOOQ,
+            Dependency.R2DBC,
+            Dependency.REACTIVE_STREAMS,
+            Dependency.MARIADB_DRIVER)
+        .putAll(StorageType.MYSQL,
+            Dependency.HIKARI,
+            Dependency.JOOQ,
+            Dependency.R2DBC,
+            Dependency.REACTIVE_STREAMS,
+            Dependency.MYSQL_DRIVER)
+        .putAll(StorageType.POSTGRES,
+            Dependency.HIKARI,
+            Dependency.JOOQ,
+            Dependency.R2DBC,
+            Dependency.REACTIVE_STREAMS,
+            Dependency.POSTGRES_DRIVER)
         .build();
 
     /**
@@ -87,8 +110,8 @@ public class DependencyRegistry {
      *
      * @return The storage dependencies
      */
-    public Set<Dependency> storageDependencies() {
-        return new LinkedHashSet<>(STORAGE_DEPENDENCIES.get(StorageType.MYSQL));
+    public Set<Dependency> storageDependencies(StorageType storageType) {
+        return new LinkedHashSet<>(STORAGE_DEPENDENCIES.get(storageType));
     }
 
     /**

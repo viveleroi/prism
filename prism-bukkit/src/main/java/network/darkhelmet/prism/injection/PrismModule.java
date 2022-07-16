@@ -22,7 +22,6 @@ package network.darkhelmet.prism.injection;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
@@ -32,7 +31,6 @@ import com.google.inject.name.Named;
 import io.leangen.geantyref.TypeToken;
 
 import java.nio.file.Path;
-import java.util.Map;
 
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.moonshine.Moonshine;
@@ -52,13 +50,18 @@ import network.darkhelmet.prism.api.services.modifications.IRollback;
 import network.darkhelmet.prism.api.services.recording.IRecordingService;
 import network.darkhelmet.prism.api.services.wands.IWand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
+import network.darkhelmet.prism.api.storage.ISqlActivityQueryBuilder;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
+import network.darkhelmet.prism.core.injection.factories.IRestoreFactory;
+import network.darkhelmet.prism.core.injection.factories.IRollbackFactory;
+import network.darkhelmet.prism.core.injection.factories.ISqlActivityQueryBuilderFactory;
 import network.darkhelmet.prism.core.services.cache.CacheService;
-import network.darkhelmet.prism.core.storage.mysql.MysqlQueryBuilder;
-import network.darkhelmet.prism.core.storage.mysql.MysqlSchemaUpdater;
-import network.darkhelmet.prism.core.storage.mysql.MysqlStorageAdapter;
-import network.darkhelmet.prism.injection.factories.IRestoreFactory;
-import network.darkhelmet.prism.injection.factories.IRollbackFactory;
+import network.darkhelmet.prism.core.storage.adapters.h2.H2StorageAdapter;
+import network.darkhelmet.prism.core.storage.adapters.mariadb.MariaDbStorageAdapter;
+import network.darkhelmet.prism.core.storage.adapters.mysql.MysqlStorageAdapter;
+import network.darkhelmet.prism.core.storage.adapters.postgres.PostgresStorageAdapter;
+import network.darkhelmet.prism.core.storage.adapters.sql.SqlActivityQueryBuilder;
+import network.darkhelmet.prism.core.storage.adapters.sql.SqlSchemaUpdater;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.loader.storage.StorageType;
@@ -149,22 +152,11 @@ public class PrismModule extends AbstractModule {
     @Provides
     @Singleton
     public BukkitAudiences getAudience() {
-        return BukkitAudiences.create(prism.loaderPlugin());
-    }
+        if (prism.loaderPlugin().isEnabled()) {
+            return BukkitAudiences.create(prism.loaderPlugin());
+        }
 
-    /**
-     * Get the configured storage adapter.
-     *
-     * @param configurationService The configuration service
-     * @param storageMap The storage binding map
-     * @return The storage adapter
-     */
-    @Provides
-    public IStorageAdapter getStorageAdapter(
-            ConfigurationService configurationService,
-            Map<StorageType, Provider<IStorageAdapter>> storageMap) {
-        StorageType datasource = configurationService.storageConfig().datasource();
-        return storageMap.get(datasource).get();
+        return null;
     }
 
     /**
@@ -274,11 +266,21 @@ public class PrismModule extends AbstractModule {
         wandBinder.addBinding(WandMode.RESTORE).to(RestoreWand.class);
 
         // Storage
-        bind(MysqlQueryBuilder.class);
-        bind(MysqlSchemaUpdater.class).in(Singleton.class);
+        bind(SqlSchemaUpdater.class).in(Singleton.class);
 
-        MapBinder<StorageType, IStorageAdapter> storageBinder = MapBinder.newMapBinder(
-            binder(), StorageType.class, IStorageAdapter.class);
-        storageBinder.addBinding(StorageType.MYSQL).to(MysqlStorageAdapter.class).in(Singleton.class);
+        install(new FactoryModuleBuilder()
+            .implement(ISqlActivityQueryBuilder.class, SqlActivityQueryBuilder.class)
+            .build(ISqlActivityQueryBuilderFactory.class));
+
+        StorageType storageType = prism.loader().configurationService().storageConfig().primaryStorageType();
+        switch (storageType) {
+            case H2 -> bind(IStorageAdapter.class).to(H2StorageAdapter.class).in(Singleton.class);
+            case MARIADB -> bind(IStorageAdapter.class).to(MariaDbStorageAdapter.class).in(Singleton.class);
+            case MYSQL -> bind(IStorageAdapter.class).to(MysqlStorageAdapter.class).in(Singleton.class);
+            case POSTGRES -> bind(IStorageAdapter.class).to(PostgresStorageAdapter.class).in(Singleton.class);
+            default -> {
+                // ignored
+            }
+        }
     }
 }

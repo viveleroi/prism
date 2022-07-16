@@ -18,23 +18,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.core.utils;
+package network.darkhelmet.prism.core.injection.factories;
 
-import java.util.UUID;
+import network.darkhelmet.prism.core.storage.adapters.sql.SqlActivityQueryBuilder;
 
-public class TypeUtils {
+import org.jooq.DSLContext;
+
+public interface ISqlActivityQueryBuilderFactory {
     /**
-     * Prevent instantiation.
-     */
-    private TypeUtils() {}
-
-    /**
-     * Converts UUID to a string ready for use against database.
+     * Create an sql activity query builder.
      *
-     * @param uuid A UUID
-     * @return The encoded UUID string
+     * @param create The dsl context
+     * @return The sql activity query builder
      */
-    public static String uuidToDbString(UUID uuid) {
-        return uuid.toString().replace("-", "");
-    }
+    SqlActivityQueryBuilder create(DSLContext create);
 }

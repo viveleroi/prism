@@ -34,9 +34,9 @@ import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
 import network.darkhelmet.prism.api.providers.IWorldIdentityProvider;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
-import network.darkhelmet.prism.core.storage.mysql.MysqlQueryBuilder;
-import network.darkhelmet.prism.core.storage.mysql.MysqlSchemaUpdater;
-import network.darkhelmet.prism.core.storage.mysql.MysqlStorageAdapter;
+import network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter;
+import network.darkhelmet.prism.core.storage.adapters.sql.SqlActivityQueryBuilder;
+import network.darkhelmet.prism.core.storage.adapters.sql.SqlSchemaUpdater;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.loader.storage.StorageType;
@@ -114,7 +114,7 @@ public class PrismModule extends AbstractModule {
     public IStorageAdapter getStorageAdapter(
             ConfigurationService configurationService,
             Map<StorageType, Provider<IStorageAdapter>> storageMap) {
-        StorageType datasource = configurationService.storageConfig().datasource();
+        StorageType datasource = configurationService.storageConfig().primaryStorageType();
         return storageMap.get(datasource).get();
     }
 
@@ -137,11 +137,11 @@ public class PrismModule extends AbstractModule {
         bind(LoggingService.class).in(Singleton.class);
 
         // Storage
-        bind(MysqlQueryBuilder.class);
-        bind(MysqlSchemaUpdater.class).in(Singleton.class);
+        bind(SqlActivityQueryBuilder.class);
+        bind(SqlSchemaUpdater.class).in(Singleton.class);
 
         MapBinder<StorageType, IStorageAdapter> storageBinder = MapBinder.newMapBinder(
             binder(), StorageType.class, IStorageAdapter.class);
-        storageBinder.addBinding(StorageType.MYSQL).to(MysqlStorageAdapter.class).in(Singleton.class);
+        storageBinder.addBinding(StorageType.MYSQL).to(AbstractSqlStorageAdapter.class).in(Singleton.class);
     }
 }

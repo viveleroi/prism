@@ -18,23 +18,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.core.utils;
+package network.darkhelmet.prism.loader.services.configuration.storage;
 
-import java.util.UUID;
+import lombok.Getter;
 
-public class TypeUtils {
-    /**
-     * Prevent instantiation.
-     */
-    private TypeUtils() {}
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
 
-    /**
-     * Converts UUID to a string ready for use against database.
-     *
-     * @param uuid A UUID
-     * @return The encoded UUID string
-     */
-    public static String uuidToDbString(UUID uuid) {
-        return uuid.toString().replace("-", "");
-    }
+@ConfigSerializable
+@Getter
+public class DataSourceConfiguration {
+    @Comment("Set the max number of records saved to storage per batch.")
+    private int batchMax = 500;
+
+    @Comment("Configure the database name.")
+    private String database = "prism";
+
+    @Comment("Enter the prefix prism should use for database table names. i.e. prism_activities.")
+    private String prefix = "prism_";
 }

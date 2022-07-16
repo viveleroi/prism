@@ -221,6 +221,13 @@ public enum Dependency {
         "b4dThU0xXaLrO5LhJKgmgtYpLNc63vEyndjsISUzPtM=",
         Relocation.of("inject", "com{}google{}inject")
     ),
+    H2_DRIVER(
+        "com.h2database",
+        "h2",
+        "2.1.214",
+        "1iPNwPYdIYz1SajQnxw5H/kQlhFrIuJHVHX85PvnK9A=",
+        Relocation.of("h2", "com{}h2database")
+    ),
     HIKARI(
         "com.zaxxer",
         "HikariCP",
@@ -234,6 +241,22 @@ public enum Dependency {
         "1.4.2",
         "AHbCSbQ4fYNpFGUo/V2ss++6CY3ALs+ayB3r38LhL9U=",
         Relocation.of("hocon", "com{}typesafe{}config")
+    ),
+    JOOQ(
+        "org.jooq",
+        "jooq",
+        "3.17.2",
+        "LjpF3/2ndgUP1XMiiWc6E866n769+n6wmkET4QpVuHg=",
+        Relocation.of("jooq", "org{}jooq"),
+        Relocation.of("reactivestreams", "org{}reactivestreams"),
+        Relocation.of("r2dbc", "org{}r2dbc")
+    ),
+    MARIADB_DRIVER(
+        "org.mariadb.jdbc",
+        "mariadb-java-client",
+        "3.0.6",
+        "l3ynmAt3e1qo0yZ4IEKWoQjz6svE8hCIfjmxmGn60NM=",
+        Relocation.of("mariadb", "org{}mariadb")
     ),
     MOONSHINE_CORE(
         "net{}kyori{}moonshine",
@@ -280,6 +303,29 @@ public enum Dependency {
         "3.9.1",
         "GXqmSmZ22leNrBCXgkrM2nqJ1ashwIKeBb/ekqF29KE=",
         Relocation.of("p6spy", "com{}p6spy{}engine")
+    ),
+    POSTGRES_DRIVER(
+        "org.postgresql",
+        "postgresql",
+        "42.4.0",
+        "/iW5wKLFlFhQTsiIYoU99SLuh/igJWSDXVN8Ka5MsSU=",
+        Relocation.of("postgresql", "org{}postgresql")
+    ),
+    // Jooq dep
+    R2DBC(
+        "io.r2dbc",
+        "r2dbc-spi",
+        "1.0.0.RELEASE",
+        "pYRsWf6jNkMaSucsoU7b9SmbeEhvowjq+zg/SuDqdOU=",
+        Relocation.of("r2dbc", "org{}r2dbc")
+    ),
+    // Jooq dep
+    REACTIVE_STREAMS(
+        "org.reactivestreams",
+        "reactive-streams",
+        "1.0.4",
+        "91yll3ibPaxY9hhXuawuEDSmj6Zy2zUFWo+0UJ4yXyg=",
+        Relocation.of("reactivestreams", "org{}reactivestreams")
     ),
     TASKCHAIN_BUKKIT(
         "co.aikar",

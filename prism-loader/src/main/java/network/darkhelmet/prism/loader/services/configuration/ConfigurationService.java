@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.util.Locale;
 
 import network.darkhelmet.prism.loader.services.configuration.serializers.LocaleSerializerConfigurate;
+import network.darkhelmet.prism.loader.services.configuration.storage.StorageConfiguration;
 
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;

@@ -23,9 +23,10 @@ package network.darkhelmet.prism.core.utils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class VersionUtils {
-    private VersionUtils() {}
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
+public class VersionUtils {
     /**
      * Parses the mc version as a short.
      *

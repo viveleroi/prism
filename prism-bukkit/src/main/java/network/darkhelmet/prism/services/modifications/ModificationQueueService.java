@@ -39,8 +39,8 @@ import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
-import network.darkhelmet.prism.injection.factories.IRestoreFactory;
-import network.darkhelmet.prism.injection.factories.IRollbackFactory;
+import network.darkhelmet.prism.core.injection.factories.IRestoreFactory;
+import network.darkhelmet.prism.core.injection.factories.IRollbackFactory;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.modifications.state.BlockStateChange;
 

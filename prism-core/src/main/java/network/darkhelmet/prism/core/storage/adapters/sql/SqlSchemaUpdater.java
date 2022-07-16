@@ -18,23 +18,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.core.utils;
+package network.darkhelmet.prism.core.storage.adapters.sql;
 
-import java.util.UUID;
+import com.google.inject.Inject;
 
-public class TypeUtils {
+import network.darkhelmet.prism.api.providers.IWorldIdentityProvider;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
+
+public class SqlSchemaUpdater {
     /**
-     * Prevent instantiation.
+     * The logger.
      */
-    private TypeUtils() {}
+    private final LoggingService loggingService;
 
     /**
-     * Converts UUID to a string ready for use against database.
+     * The world identity provider.
+     */
+    private final IWorldIdentityProvider worldIdentityProvider;
+
+    /**
+     * Construct the updater.
      *
-     * @param uuid A UUID
-     * @return The encoded UUID string
+     * @param loggingService The logging service
      */
-    public static String uuidToDbString(UUID uuid) {
-        return uuid.toString().replace("-", "");
+    @Inject
+    public SqlSchemaUpdater(LoggingService loggingService, IWorldIdentityProvider worldIdentityProvider) {
+        this.loggingService = loggingService;
+        this.worldIdentityProvider = worldIdentityProvider;
     }
 }

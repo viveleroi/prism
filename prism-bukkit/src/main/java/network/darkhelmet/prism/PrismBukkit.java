@@ -64,7 +64,6 @@ import network.darkhelmet.prism.listeners.PlayerQuitListener;
 import network.darkhelmet.prism.listeners.VehicleCreateListener;
 import network.darkhelmet.prism.listeners.VehicleEnterListener;
 import network.darkhelmet.prism.listeners.VehicleExitListener;
-import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.dependencies.Dependency;
 import network.darkhelmet.prism.loader.services.dependencies.DependencyService;
 import network.darkhelmet.prism.loader.services.dependencies.loader.PluginLoader;
@@ -103,11 +102,6 @@ public class PrismBukkit implements IPrism {
      */
     @Getter
     protected short serializerVersion;
-
-    /**
-     * The configuration service.
-     */
-    private ConfigurationService configurationService;
 
     /**
      * The storage adapter.
@@ -164,6 +158,7 @@ public class PrismBukkit implements IPrism {
     public void onEnable() {
         DependencyService dependencyService = new DependencyService(
             bootstrap.loggingService(),
+            bootstrap.loader().configurationService(),
             loaderPlugin().getDataFolder().toPath(),
             bootstrap.classPathAppender(),
             threadPoolScheduler
@@ -172,17 +167,22 @@ public class PrismBukkit implements IPrism {
 
         Short serializerVer = VersionUtils.minecraftVersion(Bukkit.getVersion());
         serializerVersion = serializerVer != null ? serializerVer : -1;
-        bootstrap.loggingService().logger().info(String.format("Serializer version: %o", serializerVersion));
+        bootstrap.loggingService().logger().info(String.format("Serializer version: %d", serializerVersion));
 
         injectorProvider = new InjectorProvider(this, bootstrap.loggingService());
 
-        // Load the configuration service (and files)
-        configurationService = injectorProvider.injector().getInstance(ConfigurationService.class);
-
         // Choose and initialize the datasource
-        storageAdapter = injectorProvider.injector().getInstance(IStorageAdapter.class);
-        if (!storageAdapter.ready()) {
+        try {
+            storageAdapter = injectorProvider.injector().getInstance(IStorageAdapter.class);
+            if (!storageAdapter.ready()) {
+                disable();
+
+                return;
+            }
+        } catch (Exception e) {
             disable();
+
+            return;
         }
 
         actionTypeRegistry = injectorProvider.injector().getInstance(IActionTypeRegistry.class);
@@ -328,6 +328,9 @@ public class PrismBukkit implements IPrism {
             storageAdapter.close();
         }
 
-        injectorProvider.injector().getInstance(BukkitAudiences.class).close();
+        BukkitAudiences audiences = injectorProvider.injector().getInstance(BukkitAudiences.class);
+        if (audiences != null) {
+            audiences.close();
+        }
     }
 }

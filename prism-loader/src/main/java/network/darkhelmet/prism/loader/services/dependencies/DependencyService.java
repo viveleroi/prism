@@ -44,6 +44,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.dependencies.classpath.ClassPathAppender;
 import network.darkhelmet.prism.loader.services.dependencies.loader.IsolatedClassLoader;
 import network.darkhelmet.prism.loader.services.dependencies.relocation.Relocation;
@@ -56,6 +57,11 @@ public class DependencyService {
      * The logging service.
      */
     private final LoggingService loggingService;
+
+    /**
+     * The configuration service.
+     */
+    private final ConfigurationService configurationService;
 
     /**
      * The dependency registry.
@@ -96,16 +102,19 @@ public class DependencyService {
      * Constructor.
      *
      * @param loggingService The logging service
+     * @param configurationService The configuration service
      * @param dataPath The plugin data path
      * @param classPathAppender The class path appender
      * @param threadPoolScheduler The scheduler adapter
      */
     public DependencyService(
             LoggingService loggingService,
+            ConfigurationService configurationService,
             Path dataPath,
             ClassPathAppender classPathAppender,
             ThreadPoolScheduler threadPoolScheduler) {
         this.loggingService = loggingService;
+        this.configurationService = configurationService;
         this.classPathAppender = classPathAppender;
         this.threadPoolScheduler = threadPoolScheduler;
         this.registry = new DependencyRegistry();
@@ -174,7 +183,7 @@ public class DependencyService {
         EnumSet<Dependency> all = EnumSet.copyOf(global);
 
         // Add storage dependencies
-        all.addAll(this.registry.storageDependencies());
+        all.addAll(this.registry.storageDependencies(configurationService.storageConfig().primaryStorageType()));
 
         // Add platform dependencies
         all.addAll(platformDependencies);

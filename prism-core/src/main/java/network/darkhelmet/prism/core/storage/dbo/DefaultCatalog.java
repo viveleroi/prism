@@ -18,23 +18,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.core.utils;
+package network.darkhelmet.prism.core.storage.dbo;
 
-import java.util.UUID;
+import java.io.Serial;
+import java.util.List;
 
-public class TypeUtils {
+import org.jetbrains.annotations.NotNull;
+import org.jooq.Schema;
+import org.jooq.impl.CatalogImpl;
+
+import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
+
+public class DefaultCatalog extends CatalogImpl {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     /**
-     * Prevent instantiation.
+     * The reference instance of <code>DEFAULT_CATALOG</code>.
      */
-    private TypeUtils() {}
+    public static final DefaultCatalog DEFAULT_CATALOG = new DefaultCatalog();
 
     /**
-     * Converts UUID to a string ready for use against database.
-     *
-     * @param uuid A UUID
-     * @return The encoded UUID string
+     * No further instances allowed.
      */
-    public static String uuidToDbString(UUID uuid) {
-        return uuid.toString().replace("-", "");
+    private DefaultCatalog() {
+        super("");
+    }
+
+    @Override
+    public final @NotNull List<Schema> getSchemas() {
+        return List.of(PRISM_DATABASE);
     }
 }

@@ -15,6 +15,7 @@ dependencies {
     compileOnly project.property('deps.guice')
     compileOnly project.property('deps.guice-assistedinject')
     compileOnly project.property('deps.jar-relocator')
+    compileOnly project.property('deps.jooq')
     compileOnly project.property('deps.log4j-api')
     compileOnly project.property('deps.log4j-core')
     compileOnly project.property('deps.moonshine-core')
@@ -42,6 +43,7 @@ shadowJar {
 
     relocate 'co.aikar.taskchain', 'network.darkhelmet.prism.libs.taskchain'
     relocate 'com.google.inject', 'network.darkhelmet.prism.libs.inject'
+    relocate 'com.h2database', 'network.darkhelmet.prism.libs.h2'
     relocate 'com.mysql', 'network.darkhelmet.prism.libs.mysql'
     relocate 'com.p6spy.engine', 'network.darkhelmet.prism.libs.p6spy'
     relocate 'com.typesafe.config', 'network.darkhelmet.prism.libs.hocon'
@@ -55,6 +57,9 @@ shadowJar {
     relocate 'net.kyori.moonshine', 'network.darkhelmet.prism.libs.moonshine'
     relocate 'org.aopalliance', 'network.darkhelmet.prism.libs.aopalliance'
     relocate 'org.apache.commons', 'network.darkhelmet.prism.libs.commons'
+    relocate 'org.jooq', 'network.darkhelmet.prism.libs.jooq'
+    relocate 'org.mariadb', 'network.darkhelmet.prism.libs.mariadb'
+    relocate 'org.postgresql', 'network.darkhelmet.prism.libs.postgresql'
     relocate 'org.spongepowered.configurate', 'network.darkhelmet.prism.libs.configurate'
     // org.jetbrains.annotations
     // org.checkerframework
