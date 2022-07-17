@@ -8,9 +8,9 @@ dependencies {
     implementation project.property('deps.configurate-hocon')
     implementation project.property('deps.guice')
     implementation project.property('deps.hikari')
-    implementation project.property('deps.idb')
     implementation project.property('deps.slf4j')
     implementation project(':prism-api')
+    implementation project(':prism-idb')
 }
 
 targetCompatibility = sourceCompatibility = JavaVersion.VERSION_17

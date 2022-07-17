@@ -43,7 +43,6 @@ bukkit {
 
 shadowJar {
     relocate 'com.google.inject', 'network.darkhelmet.prism.inject'
-    relocate 'co.aikar.idb', 'network.darkhelmet.prism.idb'
     relocate 'co.aikar.taskchain', 'network.darkhelmet.prism.taskchain'
     relocate 'com.zaxxer', 'network.darkhelmet.prism.zaxxer'
     relocate 'net.kyori', 'network.darkhelmet.prism.kyori'

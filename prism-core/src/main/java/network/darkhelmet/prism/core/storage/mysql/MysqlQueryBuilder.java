@@ -20,9 +20,6 @@
 
 package network.darkhelmet.prism.core.storage.mysql;
 
-import co.aikar.idb.DB;
-import co.aikar.idb.DbRow;
-
 import com.google.inject.Inject;
 
 import java.sql.SQLException;
@@ -35,6 +32,8 @@ import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.core.services.logging.LoggingService;
 import network.darkhelmet.prism.core.utils.TypeUtils;
+import network.darkhelmet.prism.idb.DB;
+import network.darkhelmet.prism.idb.DbRow;
 
 import org.intellij.lang.annotations.Language;
 

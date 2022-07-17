@@ -20,12 +20,6 @@
 
 package network.darkhelmet.prism.core.storage.mysql;
 
-import co.aikar.idb.DB;
-import co.aikar.idb.Database;
-import co.aikar.idb.DatabaseOptions;
-import co.aikar.idb.DbRow;
-import co.aikar.idb.PooledDatabaseOptions;
-
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
@@ -58,6 +52,11 @@ import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.core.services.logging.LoggingService;
 import network.darkhelmet.prism.core.utils.TypeUtils;
+import network.darkhelmet.prism.idb.DB;
+import network.darkhelmet.prism.idb.Database;
+import network.darkhelmet.prism.idb.DatabaseOptions;
+import network.darkhelmet.prism.idb.DbRow;
+import network.darkhelmet.prism.idb.PooledDatabaseOptions;
 
 import org.intellij.lang.annotations.Language;
 

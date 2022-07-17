@@ -20,8 +20,6 @@
 
 package network.darkhelmet.prism.core.storage.mysql;
 
-import co.aikar.idb.DB;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -36,6 +34,7 @@ import network.darkhelmet.prism.api.storage.IActivityBatch;
 import network.darkhelmet.prism.api.util.NamedIdentity;
 import network.darkhelmet.prism.core.services.configuration.StorageConfiguration;
 import network.darkhelmet.prism.core.utils.TypeUtils;
+import network.darkhelmet.prism.idb.DB;
 
 public class MysqlActivityProcedureBatch implements IActivityBatch {
     /**
