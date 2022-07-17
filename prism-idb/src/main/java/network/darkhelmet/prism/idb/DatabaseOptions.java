@@ -3,10 +3,10 @@ package network.darkhelmet.prism.idb;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
+import org.slf4j.Logger;
 
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 
 @SuppressWarnings("UnusedAssignment")
 @Builder(toBuilder = true) @Data

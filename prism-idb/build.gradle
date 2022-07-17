@@ -20,7 +20,8 @@ repositories {
 }
 
 dependencies {
-    compileOnly project.property('deps.jetbrains-annotations')
     compileOnly project.property('deps.hikari')
+    compileOnly project.property('deps.jetbrains-annotations')
+    compileOnly project.property('deps.slf4j')
 }
 

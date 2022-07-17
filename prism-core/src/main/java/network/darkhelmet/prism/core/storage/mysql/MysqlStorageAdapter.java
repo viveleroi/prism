@@ -140,6 +140,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             builder.onFatalError(loggingService::handleException);
             builder.driverClassName(configurationService.storageConfig().driver());
             builder.poolName("prism");
+            builder.logger(loggingService.logger());
             builder.useOptimizations(configurationService.storageConfig().useHikariMysqlOptimizations());
             Database db = PooledDatabaseOptions.builder().options(builder.build()).createHikariDatabase();
             DB.setGlobalDatabase(db);

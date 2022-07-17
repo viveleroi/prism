@@ -11,7 +11,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BaseDatabase implements Database {
     private TimingsProvider timingsProvider;
@@ -41,7 +43,7 @@ public class BaseDatabase implements Database {
         this.sqlTiming = timingsProvider.of("Database");
         this.logger = options.logger;
         if (this.logger == null) {
-            this.logger = Logger.getLogger(options.poolName);
+            this.logger = LoggerFactory.getLogger(options.poolName);
         }
         this.logger.info("Connecting to Database: " + options.dsn);
     }

@@ -31,8 +31,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
 
 public final class DB {
     private static final Pattern NEWLINE = Pattern.compile("\n");
@@ -210,13 +211,6 @@ public final class DB {
     }
 
     public static void logException(Logger logger, Level logLevel, String message, Exception e) {
-        logger.log(logLevel, message);
-
-        if (e != null) {
-            for (String line : NEWLINE.split(ApacheCommonsExceptionUtil.getFullStackTrace(e))) {
-                logger.log(logLevel, line);
-            }
-        }
+        logger.error(message, e);
     }
-
 }
