@@ -182,14 +182,16 @@ public class QueryService {
      * @param actions An action name, names, family, or families
      */
     protected void parseActions(ActivityQuery.ActivityQueryBuilder query, List<String> actions) {
-        for (String actionTerm : actions) {
-            if (actionTerm.contains("-")) {
+        for (String actionKey : actions) {
+            if (actionKey.contains("-")) {
                 Optional<IActionType> optionalIActionType = actionRegistry
-                    .actionType(actionTerm.toLowerCase(Locale.ENGLISH));
-                optionalIActionType.ifPresent(query::actionType);
+                    .actionType(actionKey.toLowerCase(Locale.ENGLISH));
+                if (optionalIActionType.isPresent()) {
+                    query.actionTypeKey(actionKey);
+                }
             } else {
                 Collection<IActionType> actionTypes = actionRegistry
-                    .actionTypesInFamily(actionTerm.toLowerCase(Locale.ENGLISH));
+                    .actionTypesInFamily(actionKey.toLowerCase(Locale.ENGLISH));
                 query.actionTypes(actionTypes);
             }
         }
@@ -243,7 +245,7 @@ public class QueryService {
      */
     protected void parsePlayers(ActivityQuery.ActivityQueryBuilder builder, List<String> playerNames) {
         for (String playerName : playerNames) {
-            builder.playerByName(playerName);
+            builder.playerName(playerName);
         }
     }
 

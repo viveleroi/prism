@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
@@ -153,8 +154,22 @@ public class MysqlQueryBuilder {
             parameters.add(TypeUtils.uuidToDbString(query.worldUuid()));
         }
 
-        // Actions
-        if (!query.actionTypes().isEmpty()) {
+        // Action Type Keys
+        if (!query.actionTypeKeys().isEmpty()) {
+            List<String> placeholders = new ArrayList<>();
+            for (String actionTypeKey : query.actionTypeKeys()) {
+                Optional<IActionType> actionTypeOptional = actionRegistry.actionType(actionTypeKey);
+                if (actionTypeOptional.isPresent() && (query.lookup() || actionTypeOptional.get().reversible())) {
+                    placeholders.add("?");
+                    parameters.add(actionTypeOptional.get().key());
+                }
+            }
+
+            conditions.add(String.format("`action` IN (%s)", String.join(",", placeholders)));
+        }
+
+        // Action Types
+        if (!query.actionTypeKeys().isEmpty()) {
             List<String> placeholders = new ArrayList<>();
             for (IActionType actionType : query.actionTypes()) {
                 if (query.lookup() || actionType.reversible()) {
@@ -218,7 +233,7 @@ public class MysqlQueryBuilder {
             parameters.add(query.before());
         }
 
-        if (!query.lookup() && query.actionTypes().isEmpty()) {
+        if (!query.lookup() && query.actionTypeKeys().isEmpty()) {
             // Include *only* reversible activities
             List<String> placeholders = new ArrayList<>();
             for (IActionType actionType : actionRegistry.actionTypes()) {

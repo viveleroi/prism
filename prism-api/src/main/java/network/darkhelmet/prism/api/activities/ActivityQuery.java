@@ -35,6 +35,12 @@ import network.darkhelmet.prism.api.util.WorldCoordinate;
 @Getter
 public final class ActivityQuery {
     /**
+     * The action type keys.
+     */
+    @Singular
+    private Collection<String> actionTypeKeys;
+
+    /**
      * The action types.
      */
     @Singular
@@ -157,17 +163,6 @@ public final class ActivityQuery {
         public ActivityQueryBuilder boundingCoordinates(Coordinate minCoordinate, Coordinate maxCoordinate) {
             this.minCoordinate = minCoordinate;
             this.maxCoordinate = maxCoordinate;
-            return this;
-        }
-
-        /**
-         * Add a player by name.
-         *
-         * @param playerName The player name
-         * @return The query
-         */
-        public ActivityQueryBuilder playerByName(String playerName) {
-            this.playerNames.add(playerName);
             return this;
         }
     }
