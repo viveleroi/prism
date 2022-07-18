@@ -89,7 +89,7 @@ public class PageCommand extends BaseCommand {
 
         int offset = configurationService.prismConfig().perPage() * (page - 1);
 
-        final ActivityQuery query = optionalQuery.get().offset(offset);
+        final ActivityQuery query = optionalQuery.get().toBuilder().offset(offset).build();
         lookupService.lookup(sender, query);
     }
 }

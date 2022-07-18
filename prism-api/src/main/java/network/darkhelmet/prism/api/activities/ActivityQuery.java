@@ -20,26 +20,25 @@
 
 package network.darkhelmet.prism.api.activities;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+import lombok.Singular;
 
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.util.Coordinate;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
 
-@Accessors(chain = true)
+@Builder(toBuilder = true)
 @Getter
-@Setter
 public final class ActivityQuery {
     /**
      * The action types.
      */
-    private Collection<IActionType> actionTypes = new ArrayList<>();
+    @Singular
+    private Collection<IActionType> actionTypes;
 
     /**
      * The lower-bound timestamp.
@@ -59,11 +58,13 @@ public final class ActivityQuery {
     /**
      * The entity types.
      */
-    private Collection<String> entityTypes = new ArrayList<>();
+    @Singular
+    private Collection<String> entityTypes;
 
     /**
      * Grouped.
      */
+    @Builder.Default
     private boolean grouped = true;
 
     /**
@@ -79,12 +80,14 @@ public final class ActivityQuery {
     /**
      * Is lookup.
      */
+    @Builder.Default
     private boolean lookup = true;
 
     /**
      * The materials.
      */
-    private Collection<String> materials = new ArrayList<>();
+    @Singular
+    private Collection<String> materials;
 
     /**
      * The max x coordinate.
@@ -99,16 +102,19 @@ public final class ActivityQuery {
     /**
      * The record index offset.
      */
+    @Builder.Default
     private int offset = 0;
 
     /**
      * The player names.
      */
-    private Collection<String> playerNames = new ArrayList<>();
+    @Singular
+    private Collection<String> playerNames;
 
     /**
      * The sort direction.
      */
+    @Builder.Default
     private Sort sort = Sort.DESCENDING;
 
     /**
@@ -123,55 +129,46 @@ public final class ActivityQuery {
         ASCENDING, DESCENDING
     }
 
-    /**
-     * Add a single action type.
-     *
-     * @param actionType The action type
-     * @return The query
-     */
-    public ActivityQuery actionType(IActionType actionType) {
-        actionTypes.add(actionType);
-        return this;
-    }
+    public static class ActivityQueryBuilder {
+        /**
+         * Set whether this is a lookup. The query results can be grouped
+         * and the order by is different.
+         *
+         * @param lookup If lookup
+         * @return The query
+         */
+        public ActivityQueryBuilder lookup(boolean lookup) {
+            this.lookup$set = lookup;
 
-    /**
-     * Set whether this is a lookup. The query results can be grouped
-     * and the order by is different.
-     *
-     * @param lookup If lookup
-     * @return The query
-     */
-    public ActivityQuery lookup(boolean lookup) {
-        this.lookup = lookup;
+            if (!lookup) {
+                grouped(false);
+            }
 
-        if (!lookup) {
-            grouped(false);
+            return this;
         }
 
-        return this;
-    }
+        /**
+         * Set the coordinate corners of a bounding box.
+         *
+         * @param minCoordinate The min coordinate
+         * @param maxCoordinate The max coordinate
+         * @return The query
+         */
+        public ActivityQueryBuilder boundingCoordinates(Coordinate minCoordinate, Coordinate maxCoordinate) {
+            this.minCoordinate = minCoordinate;
+            this.maxCoordinate = maxCoordinate;
+            return this;
+        }
 
-    /**
-     * Set the coordinate corners of a bounding box.
-     *
-     * @param minCoordinate The min coordinate
-     * @param maxCoordinate The max coordinate
-     * @return The query
-     */
-    public ActivityQuery boundingCoordinates(Coordinate minCoordinate, Coordinate maxCoordinate) {
-        this.minCoordinate = minCoordinate;
-        this.maxCoordinate = maxCoordinate;
-        return this;
-    }
-
-    /**
-     * Add a player by name.
-     *
-     * @param playerName The player name
-     * @return The query
-     */
-    public ActivityQuery playerByName(String playerName) {
-        this.playerNames.add(playerName);
-        return this;
+        /**
+         * Add a player by name.
+         *
+         * @param playerName The player name
+         * @return The query
+         */
+        public ActivityQueryBuilder playerByName(String playerName) {
+            this.playerNames.add(playerName);
+            return this;
+        }
     }
 }

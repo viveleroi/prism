@@ -95,7 +95,7 @@ public class RestoreWand implements IWand {
             return;
         }
 
-        final ActivityQuery query = new ActivityQuery().location(at).limit(1);
+        final ActivityQuery query = ActivityQuery.builder().location(at).limit(1).build();
 
         PrismBukkit.newChain().asyncFirst(() -> {
             try {

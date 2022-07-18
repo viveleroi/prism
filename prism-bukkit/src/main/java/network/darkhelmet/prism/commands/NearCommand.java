@@ -72,9 +72,9 @@ public class NearCommand extends BaseCommand {
         Coordinate minCoordinate = LocationUtils.getMinCoordinate(loc, configurationService.prismConfig().nearRadius());
         Coordinate maxCoordinate = LocationUtils.getMaxCoordinate(loc, configurationService.prismConfig().nearRadius());
 
-        final ActivityQuery query = new ActivityQuery().worldUuid(loc.getWorld().getUID())
+        final ActivityQuery query = ActivityQuery.builder().worldUuid(loc.getWorld().getUID())
             .boundingCoordinates(minCoordinate, maxCoordinate)
-            .limit(configurationService.prismConfig().perPage());
+            .limit(configurationService.prismConfig().perPage()).build();
         lookupService.lookup(player, query);
     }
 }

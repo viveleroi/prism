@@ -82,8 +82,8 @@ public class InspectionWand implements IWand {
 
     @Override
     public void use(WorldCoordinate at) {
-        final ActivityQuery query = new ActivityQuery()
-            .location(at).limit(configurationService.prismConfig().perPage());
+        final ActivityQuery query = ActivityQuery.builder()
+            .location(at).limit(configurationService.prismConfig().perPage()).build();
 
         lookupService.lookup((CommandSender) owner, query);
     }

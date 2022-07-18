@@ -99,7 +99,7 @@ public class LookupCommand extends BaseCommand {
     public void onLookup(final Player player, final Arguments arguments) {
         try {
             final ActivityQuery query = queryService.queryFromArguments(player.getLocation(), arguments)
-                .limit(configurationService.prismConfig().perPage());
+                .limit(configurationService.prismConfig().perPage()).build();
             lookupService.lookup(player, query);
         } catch (IllegalArgumentException ex) {
             messageService.error(player, new TranslationKey(ex.getMessage()));
