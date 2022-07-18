@@ -23,6 +23,7 @@ package network.darkhelmet.prism.api.activities;
 import java.util.UUID;
 
 import lombok.Builder;
+import lombok.experimental.Tolerate;
 
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.util.NamedIdentity;
@@ -68,17 +69,6 @@ public final class Activity extends AbstractActivity implements ISingleActivity 
         /**
          * Set the location.
          *
-         * @param location The world coordinate
-         * @return The builder
-         */
-        public ActivityBuilder location(WorldCoordinate location) {
-            this.location = location;
-            return this;
-        }
-
-        /**
-         * Set the location.
-         *
          * @param worldUuid The world uuid
          * @param worldName The world name
          * @param x The x coordinate
@@ -86,19 +76,9 @@ public final class Activity extends AbstractActivity implements ISingleActivity 
          * @param z The z coordinate
          * @return The builder
          */
+        @Tolerate
         public ActivityBuilder location(UUID worldUuid, String worldName, double x, double y, double z) {
             this.location = new WorldCoordinate(new NamedIdentity(worldUuid, worldName), x, y, z);
-            return this;
-        }
-
-        /**
-         * Set the player.
-         *
-         * @param playerIdentity The player identity
-         * @return The builder
-         */
-        public ActivityBuilder player(NamedIdentity playerIdentity) {
-            this.player = playerIdentity;
             return this;
         }
 
@@ -109,6 +89,7 @@ public final class Activity extends AbstractActivity implements ISingleActivity 
          * @param playerName The player name
          * @return The builder
          */
+        @Tolerate
         public ActivityBuilder player(UUID playerUuid, String playerName) {
             this.player = new NamedIdentity(playerUuid, playerName);
             return this;
