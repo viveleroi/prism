@@ -21,6 +21,7 @@
 package network.darkhelmet.prism.api;
 
 import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
+import network.darkhelmet.prism.api.storage.IStorageAdapter;
 
 public interface IPrism {
     /**
@@ -36,4 +37,11 @@ public interface IPrism {
      * @return The version
      */
     short serializerVersion();
+
+    /**
+     * Get the storage adapter.
+     *
+     * @return The storage adapter
+     */
+    IStorageAdapter storageAdapter();
 }
