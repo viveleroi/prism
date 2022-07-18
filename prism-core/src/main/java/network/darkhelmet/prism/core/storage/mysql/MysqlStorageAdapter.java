@@ -22,6 +22,7 @@ package network.darkhelmet.prism.core.storage.mysql;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.zaxxer.hikari.HikariConfig;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -39,7 +40,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.zaxxer.hikari.HikariConfig;
 import network.darkhelmet.prism.api.PaginatedResults;
 import network.darkhelmet.prism.api.actions.ActionData;
 import network.darkhelmet.prism.api.actions.types.IActionType;
@@ -550,7 +550,13 @@ public class MysqlStorageAdapter implements IStorageAdapter {
     }
 
     @Override
-    public PaginatedResults<IActivity> queryActivitiesAsInformation(ActivityQuery query) throws SQLException {
+    public List<IActivity> queryActivities(ActivityQuery query) throws SQLException {
+        List<DbRow> results = queryBuilder.queryActivities(query, configurationService.storageConfig().prefix());
+        return activityMapper(results, query);
+    }
+
+    @Override
+    public PaginatedResults<IActivity> queryActivitiesPaginated(ActivityQuery query) throws SQLException {
         List<DbRow> rows = queryBuilder.queryActivities(query, configurationService.storageConfig().prefix());
 
         int totalResults = 0;
@@ -561,12 +567,6 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         int currentPage = (query.offset() / query.limit()) + 1;
 
         return new PaginatedResults<>(activityMapper(rows, query), query.limit(), totalResults, currentPage);
-    }
-
-    @Override
-    public List<IActivity> queryActivitiesAsModification(ActivityQuery query) throws SQLException {
-        List<DbRow> results = queryBuilder.queryActivities(query, configurationService.storageConfig().prefix());
-        return activityMapper(results, query);
     }
 
     /**
@@ -581,7 +581,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
         for (DbRow row : results) {
             String actionKey = row.getString("action");
-            Optional<IActionType> optionalActionType = actionRegistry.getActionType(actionKey);
+            Optional<IActionType> optionalActionType = actionRegistry.actionType(actionKey);
             if (!optionalActionType.isPresent()) {
                 String msg = "Failed to find action type. Type: %s";
                 loggingService.logger().warn(String.format(msg, actionKey));

@@ -18,39 +18,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.api.actions.types;
+package network.darkhelmet.prism.api;
 
-import java.util.Collection;
-import java.util.Optional;
+import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
 
-public interface IActionTypeRegistry {
+public interface IPrism {
     /**
-     * Get all registered action types.
+     * Get the action type registry.
      *
-     * @return All registered action types
+     * @return The action type registry
      */
-    Collection<IActionType> actionTypes();
-
-    /**
-     * Get all action types that belong to a family.
-     *
-     * @param family The family
-     * @return All matching action types
-     */
-    Collection<IActionType> actionTypesInFamily(String family);
+    IActionTypeRegistry actionTypeRegistry();
 
     /**
-     * Get an action type by key.
+     * Get the serializer version.
      *
-     * @param key The key
-     * @return The action type, if any
+     * @return The version
      */
-    Optional<IActionType> actionType(String key);
-
-    /**
-     * Register a new action type.
-     *
-     * @param actionType The action type
-     */
-    void registerAction(IActionType actionType);
+    short serializerVersion();
 }

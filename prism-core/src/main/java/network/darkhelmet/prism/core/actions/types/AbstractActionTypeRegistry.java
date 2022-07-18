@@ -56,7 +56,7 @@ public class AbstractActionTypeRegistry implements IActionTypeRegistry {
     }
 
     @Override
-    public Optional<IActionType> getActionType(String key) {
+    public Optional<IActionType> actionType(String key) {
         if (actionsTypes.containsKey(key)) {
             return Optional.of(actionsTypes.get(key));
         }

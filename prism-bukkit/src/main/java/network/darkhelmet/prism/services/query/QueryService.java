@@ -185,7 +185,7 @@ public class QueryService {
         for (String actionTerm : actions) {
             if (actionTerm.contains("-")) {
                 Optional<IActionType> optionalIActionType = actionRegistry
-                    .getActionType(actionTerm.toLowerCase(Locale.ENGLISH));
+                    .actionType(actionTerm.toLowerCase(Locale.ENGLISH));
                 optionalIActionType.ifPresent(query::actionType);
             } else {
                 Collection<IActionType> actionTypes = actionRegistry

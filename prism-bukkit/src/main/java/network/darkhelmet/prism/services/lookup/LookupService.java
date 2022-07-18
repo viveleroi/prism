@@ -130,7 +130,7 @@ public class LookupService {
         final long expireAfter = configurationService.prismConfig().lookupExpiration();
         PrismBukkit.newChain().async(() -> {
             try {
-                show(sender, storageAdapter.queryActivitiesAsInformation(query));
+                show(sender, storageAdapter.queryActivitiesPaginated(query));
 
                 // Cache this senders most recent query
                 queries.put(sender, query);

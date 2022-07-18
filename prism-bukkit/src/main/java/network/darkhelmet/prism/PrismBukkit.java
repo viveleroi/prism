@@ -36,8 +36,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.Getter;
+
 import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.api.IPrism;
 import network.darkhelmet.prism.api.actions.types.IActionType;
+import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.commands.AboutCommand;
 import network.darkhelmet.prism.commands.LookupCommand;
@@ -77,7 +81,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PrismBukkit extends JavaPlugin {
+public class PrismBukkit extends JavaPlugin implements IPrism {
     /**
      * Cache static instance.
      */
@@ -96,6 +100,7 @@ public class PrismBukkit extends JavaPlugin {
     /**
      * Sets a numeric version we can use to handle differences between serialization formats.
      */
+    @Getter
     protected short serializerVersion;
 
     /**
@@ -111,7 +116,14 @@ public class PrismBukkit extends JavaPlugin {
     /**
      * The storage adapter.
      */
+    @Getter
     private IStorageAdapter storageAdapter;
+
+    /**
+     * The action type registry.
+     */
+    @Getter
+    private IActionTypeRegistry actionTypeRegistry;
 
     /**
      * Get this instance.
@@ -145,6 +157,8 @@ public class PrismBukkit extends JavaPlugin {
         if (!storageAdapter.ready()) {
             disable();
         }
+
+        actionTypeRegistry = injector.getInstance(IActionTypeRegistry.class);
     }
 
     /**
@@ -254,15 +268,6 @@ public class PrismBukkit extends JavaPlugin {
         if (storageAdapter != null) {
             storageAdapter.close();
         }
-    }
-
-    /**
-     * Get the serializer version.
-     *
-     * @return The version
-     */
-    public short serializerVersion() {
-        return serializerVersion;
     }
 
     /**

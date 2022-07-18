@@ -102,7 +102,7 @@ public class RestoreCommand extends BaseCommand {
         final ActivityQuery query = queryService.queryFromArguments(player.getLocation(), arguments).lookup(false);
         PrismBukkit.newChain().asyncFirst(() -> {
             try {
-                return storageAdapter.queryActivitiesAsModification(query);
+                return storageAdapter.queryActivities(query);
             } catch (Exception e) {
                 messageService.error(player, new TranslationKey("query-error"));
                 PrismBukkit.getInstance().handleException(e);

@@ -77,7 +77,7 @@ public class ActionFactory implements IActionFactory<BlockState, Entity, ItemSta
 
     @Override
     public IAction createAction(String key, String descriptor) {
-        Optional<IActionType> actionTypeOptional = actionTypeRegistry.getActionType(key);
+        Optional<IActionType> actionTypeOptional = actionTypeRegistry.actionType(key);
         if (actionTypeOptional.isEmpty()) {
             throw new IllegalArgumentException("Invalid action type key");
         }
@@ -106,7 +106,7 @@ public class ActionFactory implements IActionFactory<BlockState, Entity, ItemSta
 
     @Override
     public IBlockAction createBlockAction(String key, BlockState blockState, BlockState replaced) {
-        Optional<IActionType> actionTypeOptional = actionTypeRegistry.getActionType(key);
+        Optional<IActionType> actionTypeOptional = actionTypeRegistry.actionType(key);
         if (actionTypeOptional.isEmpty()) {
             throw new IllegalArgumentException("Invalid action type key");
         }
@@ -125,7 +125,7 @@ public class ActionFactory implements IActionFactory<BlockState, Entity, ItemSta
 
     @Override
     public IEntityAction createEntityAction(String key, Entity entity) {
-        Optional<IActionType> actionTypeOptional = actionTypeRegistry.getActionType(key);
+        Optional<IActionType> actionTypeOptional = actionTypeRegistry.actionType(key);
         if (actionTypeOptional.isEmpty()) {
             throw new IllegalArgumentException("Invalid action type key");
         }
@@ -144,7 +144,7 @@ public class ActionFactory implements IActionFactory<BlockState, Entity, ItemSta
 
     @Override
     public IItemAction createItemStackAction(String key, ItemStack itemStack) {
-        Optional<IActionType> actionTypeOptional = actionTypeRegistry.getActionType(key);
+        Optional<IActionType> actionTypeOptional = actionTypeRegistry.actionType(key);
         if (actionTypeOptional.isEmpty()) {
             throw new IllegalArgumentException("Invalid action type key");
         }

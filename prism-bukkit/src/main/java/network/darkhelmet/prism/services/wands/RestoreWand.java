@@ -99,7 +99,7 @@ public class RestoreWand implements IWand {
 
         PrismBukkit.newChain().asyncFirst(() -> {
             try {
-                return storageAdapter.queryActivitiesAsModification(query);
+                return storageAdapter.queryActivities(query);
             } catch (Exception e) {
                 messageService.error((CommandSender) owner, new TranslationKey("query-error"));
                 PrismBukkit.getInstance().handleException(e);
