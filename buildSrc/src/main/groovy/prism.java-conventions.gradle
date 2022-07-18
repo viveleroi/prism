@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'checkstyle'
+    id 'io.franzbecker.gradle-lombok'
 }
 
 group = project.property('group')
@@ -24,4 +25,9 @@ repositories {
 
     // TeamTriumph
     maven { url = 'https://repo.triumphteam.dev/snapshots' }
+}
+
+lombok {
+    version = '1.18.24'
+    sha256 = ''
 }

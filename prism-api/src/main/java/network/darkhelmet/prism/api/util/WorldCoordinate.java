@@ -20,10 +20,13 @@
 
 package network.darkhelmet.prism.api.util;
 
+import lombok.Getter;
+
 public class WorldCoordinate extends Coordinate {
     /**
      * The world.
      */
+    @Getter
     private final NamedIdentity world;
 
     /**
@@ -37,14 +40,5 @@ public class WorldCoordinate extends Coordinate {
     public WorldCoordinate(NamedIdentity world, double x, double y, double z) {
         super(x, y, z);
         this.world = world;
-    }
-
-    /**
-     * Get the world.
-     *
-     * @return The world
-     */
-    public NamedIdentity world() {
-        return world;
     }
 }

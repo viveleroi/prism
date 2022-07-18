@@ -20,6 +20,9 @@
 
 package network.darkhelmet.prism.api.services.modifications;
 
+import lombok.Getter;
+
+@Getter
 public abstract class StateChange<B> {
     /**
      * The old state.
@@ -40,23 +43,5 @@ public abstract class StateChange<B> {
     public StateChange(B oldState, B newState) {
         this.oldState = oldState;
         this.newState = newState;
-    }
-
-    /**
-     * Get the old state.
-     *
-     * @return The old state
-     */
-    public B oldState() {
-        return oldState;
-    }
-
-    /**
-     * Get the new state.
-     *
-     * @return The new state
-     */
-    public B newState() {
-        return newState;
     }
 }

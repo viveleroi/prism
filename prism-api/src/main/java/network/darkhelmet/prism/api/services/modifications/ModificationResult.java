@@ -20,45 +20,4 @@
 
 package network.darkhelmet.prism.api.services.modifications;
 
-import org.jetbrains.annotations.Nullable;
-
-public final class ModificationResult {
-    /**
-     * The modification result status.
-     */
-    private final ModificationResultStatus status;
-
-    /**
-     * The state change.
-     */
-    private final StateChange<?> stateChange;
-
-    /**
-     * Constructor.
-     *
-     * @param status The status
-     * @param stateChange The state change or null
-     */
-    public ModificationResult(ModificationResultStatus status, @Nullable StateChange<?> stateChange) {
-        this.status = status;
-        this.stateChange = stateChange;
-    }
-
-    /**
-     * Get the status.
-     *
-     * @return The status
-     */
-    public ModificationResultStatus status() {
-        return status;
-    }
-
-    /**
-     * Get the state change.
-     *
-     * @return The state change
-     */
-    public @Nullable StateChange<?> stateChange() {
-        return stateChange;
-    }
-}
+public record ModificationResult(ModificationResultStatus status, StateChange<?> stateChange) { }

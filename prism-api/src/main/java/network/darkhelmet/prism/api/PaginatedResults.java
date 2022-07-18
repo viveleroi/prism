@@ -22,42 +22,11 @@ package network.darkhelmet.prism.api;
 
 import java.util.List;
 
-public final class PaginatedResults<T> {
-    /**
-     * The current page's results.
-     */
-    private final List<T> results;
-
-    /**
-     * Count of results per page.
-     */
-    private final int perPage;
-
-    /**
-     * Count of total results.
-     */
-    private final int totalResults;
-
-    /**
-     * The current page number.
-     */
-    private final int currentPage;
-
-    /**
-     * Constructor.
-     *
-     * @param results The results
-     * @param perPage The per page count
-     * @param totalResults The total results count
-     * @param currentPage The current page number
-     */
-    public PaginatedResults(List<T> results, int perPage, int totalResults, int currentPage) {
-        this.results = results;
-        this.perPage = perPage;
-        this.totalResults = totalResults;
-        this.currentPage = currentPage;
-    }
-
+public record PaginatedResults<T>(
+    List<T> results,
+    int perPage,
+    int totalResults,
+    int currentPage) {
     /**
      * Check if these results have a next page.
      *
@@ -86,47 +55,11 @@ public final class PaginatedResults<T> {
     }
 
     /**
-     * Get the results.
-     *
-     * @return The results
-     */
-    public List<T> results() {
-        return results;
-    }
-
-    /**
      * Get the total number of pages.
      *
      * @return The total pages
      */
     public int totalPages() {
         return (int) Math.ceil(totalResults / (double) perPage);
-    }
-
-    /**
-     * Get the count of results per page.
-     *
-     * @return Count of results per page
-     */
-    public int perPage() {
-        return perPage;
-    }
-
-    /**
-     * Get the count of total results.
-     *
-     * @return Count of total results
-     */
-    public int totalResults() {
-        return totalResults;
-    }
-
-    /**
-     * Get the current page number.
-     *
-     * @return The current page number
-     */
-    public int currentPage() {
-        return currentPage;
     }
 }

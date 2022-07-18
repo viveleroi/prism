@@ -101,8 +101,8 @@ public class EntityDeathListener extends AbstractListener implements Listener {
         WorldCoordinate at = LocationUtils.locToWorldCoordinate(entity.getLocation());
 
         // Build the block break by player activity
-        final Activity.Builder builder = Activity.builder()
-            .action(action).location(at);
+        Activity.ActivityBuilder builder = Activity.builder();
+        builder.action(action).location(at);
 
         if (cause != null) {
             if (cause instanceof Player player) {

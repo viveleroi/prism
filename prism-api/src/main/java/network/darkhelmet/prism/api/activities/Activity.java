@@ -22,95 +22,57 @@ package network.darkhelmet.prism.api.activities;
 
 import java.util.UUID;
 
+import lombok.Builder;
+
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.util.NamedIdentity;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
-
-import org.jetbrains.annotations.NotNull;
 
 public final class Activity extends AbstractActivity implements ISingleActivity {
     /**
      * Construct a new activity.
      *
      * @param action The action
-     * @param worldCoordinate The world coordinate
+     * @param location The world coordinate
      * @param cause The cause
+     * @param player The player
+     */
+    @Builder()
+    public Activity(
+            IAction action,
+            WorldCoordinate location,
+            String cause,
+            NamedIdentity player) {
+        super(action, location, cause, player, System.currentTimeMillis());
+    }
+
+    /**
+     * Construct a new activity.
+     *
+     * @param action The action
+     * @param location The world coordinate
+     * @param cause The cause
+     * @param player The player
      * @param timestamp The timestamp
      */
     public Activity(
             IAction action,
-            WorldCoordinate worldCoordinate,
+            WorldCoordinate location,
             String cause,
             NamedIdentity player,
             long timestamp) {
-        super(action, worldCoordinate, cause, player, timestamp);
+        super(action, location, cause, player, timestamp);
     }
 
-    /**
-     * Get a new builder.
-     *
-     * @return The activity builder
-     */
-    public static @NotNull Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        /**
-         * The action.
-         */
-        private IAction action;
-
-        /**
-         * The cause name, if any.
-         */
-        private String cause;
-
-        /**
-         * The player.
-         */
-        private NamedIdentity player;
-
-        /**
-         * The timestamp.
-         */
-        private long timestamp = System.currentTimeMillis();
-
-        /**
-         * The world coordinate.
-         */
-        private WorldCoordinate worldCoordinate;
-
-        /**
-         * Set an action.
-         *
-         * @param action The action
-         * @return The builder
-         */
-        public Builder action(IAction action) {
-            this.action = action;
-            return this;
-        }
-
-        /**
-         * Set a cause.
-         *
-         * @param cause The cause
-         * @return The builder
-         */
-        public Builder cause(String cause) {
-            this.cause = cause;
-            return this;
-        }
-
+    public static class ActivityBuilder {
         /**
          * Set the location.
          *
-         * @param worldCoordinate The world coordinate
+         * @param location The world coordinate
          * @return The builder
          */
-        public Builder location(WorldCoordinate worldCoordinate) {
-            this.worldCoordinate = worldCoordinate;
+        public ActivityBuilder location(WorldCoordinate location) {
+            this.location = location;
             return this;
         }
 
@@ -124,18 +86,19 @@ public final class Activity extends AbstractActivity implements ISingleActivity 
          * @param z The z coordinate
          * @return The builder
          */
-        public Builder location(UUID worldUuid, String worldName, double x, double y, double z) {
-            return location(new WorldCoordinate(new NamedIdentity(worldUuid, worldName), x, y, z));
+        public ActivityBuilder location(UUID worldUuid, String worldName, double x, double y, double z) {
+            this.location = new WorldCoordinate(new NamedIdentity(worldUuid, worldName), x, y, z);
+            return this;
         }
 
         /**
          * Set the player.
          *
-         * @param namedIdentity The player identity
+         * @param playerIdentity The player identity
          * @return The builder
          */
-        public Builder player(NamedIdentity namedIdentity) {
-            this.player = namedIdentity;
+        public ActivityBuilder player(NamedIdentity playerIdentity) {
+            this.player = playerIdentity;
             return this;
         }
 
@@ -146,28 +109,9 @@ public final class Activity extends AbstractActivity implements ISingleActivity 
          * @param playerName The player name
          * @return The builder
          */
-        public Builder player(UUID playerUuid, String playerName) {
-            return player(new NamedIdentity(playerUuid, playerName));
-        }
-
-        /**
-         * Set a timestamp.
-         *
-         * @param timestamp The timestamp
-         * @return The builder
-         */
-        public Builder timestamp(long timestamp) {
-            this.timestamp = timestamp;
+        public ActivityBuilder player(UUID playerUuid, String playerName) {
+            this.player = new NamedIdentity(playerUuid, playerName);
             return this;
-        }
-
-        /**
-         * Build the final activity.
-         *
-         * @return The activity
-         */
-        public ISingleActivity build() {
-            return new Activity(action, worldCoordinate, cause, player, timestamp);
         }
     }
 }

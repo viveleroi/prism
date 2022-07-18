@@ -20,79 +20,9 @@
 
 package network.darkhelmet.prism.api.services.modifications;
 
-public final class ModificationQueueResult {
-    /**
-     * The modification queue state.
-     */
-    private final ModificationQueueState phase;
-
-    /**
-     * The count of skipped modifications.
-     */
-    private final int countSkipped;
-
-    /**
-     * The count of planned modifications.
-     */
-    private final int countPlanned;
-
-    /**
-     * The count of applied modifications.
-     */
-    private final int countApplied;
-
-    /**
-     * Constructor.
-     *
-     * @param phase The modification queue state
-     * @param countSkipped The count of skipped modifications
-     * @param countPlanned The count of planned modifications
-     * @param countApplied The count of applied modifications
-     */
-    public ModificationQueueResult(
-            ModificationQueueState phase,
-            int countSkipped,
-            int countPlanned,
-            int countApplied) {
-        this.phase = phase;
-        this.countSkipped = countSkipped;
-        this.countPlanned = countPlanned;
-        this.countApplied = countApplied;
-    }
-
-    /**
-     * Get the queue state.
-     *
-     * @return The queue state
-     */
-    public ModificationQueueState phase() {
-        return phase;
-    }
-
-    /**
-     * Get the count of skipped modifications.
-     *
-     * @return The count of skipped modifications
-     */
-    public int countSkipped() {
-        return countSkipped;
-    }
-
-    /**
-     * Get the count of planned modifications.
-     *
-     * @return The count of planned modifications
-     */
-    public int countPlanned() {
-        return countPlanned;
-    }
-
-    /**
-     * Get the count of applied modifications.
-     *
-     * @return The count of applied modifications
-     */
-    public int countApplied() {
-        return countApplied;
-    }
+public record ModificationQueueResult(
+    ModificationQueueState phase,
+    int countSkipped,
+    int countPlanned,
+    int countApplied) {
 }

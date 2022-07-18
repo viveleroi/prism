@@ -80,8 +80,8 @@ public class VehicleCreateListener extends AbstractListener implements Listener 
         WorldCoordinate at = LocationUtils.locToWorldCoordinate(event.getVehicle().getLocation());
 
         // Build the activity
-        final Activity.Builder builder = Activity.builder()
-            .action(action).location(at);
+        Activity.ActivityBuilder builder = Activity.builder();
+        builder.action(action).location(at);
 
         if (cause instanceof Player player) {
             builder.player(player.getUniqueId(), player.getName());

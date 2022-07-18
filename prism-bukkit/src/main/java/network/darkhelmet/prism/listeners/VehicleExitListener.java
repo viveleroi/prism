@@ -78,8 +78,8 @@ public class VehicleExitListener extends AbstractListener implements Listener {
         WorldCoordinate at = LocationUtils.locToWorldCoordinate(vehicle.getLocation());
 
         // Build the activity
-        final Activity.Builder builder = Activity.builder()
-            .action(action).location(at);
+        Activity.ActivityBuilder builder = Activity.builder();
+        builder.action(action).location(at);
 
         if (entity instanceof Player player) {
             builder.player(player.getUniqueId(), player.getName());

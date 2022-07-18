@@ -185,8 +185,8 @@ public class AbstractListener {
         final IAction action = actionFactory.createBlockAction(ActionTypeRegistry.BLOCK_BREAK, block.getState());
 
         // Build the block break by player activity
-        final Activity.Builder builder = Activity.builder()
-            .action(action).location(LocationUtils.locToWorldCoordinate(block.getLocation()));
+        Activity.ActivityBuilder builder = Activity.builder();
+        builder.action(action).location(LocationUtils.locToWorldCoordinate(block.getLocation()));
 
         if (cause instanceof String) {
             builder.cause((String) cause);

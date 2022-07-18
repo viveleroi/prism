@@ -24,15 +24,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.util.Coordinate;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
 
+@Accessors(chain = true)
+@Getter
+@Setter
 public final class ActivityQuery {
     /**
      * The action types.
      */
-    private final Collection<IActionType> actionTypes = new ArrayList<>();
+    private Collection<IActionType> actionTypes = new ArrayList<>();
 
     /**
      * The lower-bound timestamp.
@@ -52,7 +59,7 @@ public final class ActivityQuery {
     /**
      * The entity types.
      */
-    private final Collection<String> entityTypes = new ArrayList<>();
+    private Collection<String> entityTypes = new ArrayList<>();
 
     /**
      * Grouped.
@@ -77,7 +84,7 @@ public final class ActivityQuery {
     /**
      * The materials.
      */
-    private final Collection<String> materials = new ArrayList<>();
+    private Collection<String> materials = new ArrayList<>();
 
     /**
      * The max x coordinate.
@@ -97,7 +104,7 @@ public final class ActivityQuery {
     /**
      * The player names.
      */
-    private final Collection<String> playerNames = new ArrayList<>();
+    private Collection<String> playerNames = new ArrayList<>();
 
     /**
      * The sort direction.
@@ -117,193 +124,14 @@ public final class ActivityQuery {
     }
 
     /**
-     * Add an action type.
+     * Add a single action type.
      *
      * @param actionType The action type
      * @return The query
      */
     public ActivityQuery actionType(IActionType actionType) {
-        this.actionTypes.add(actionType);
+        actionTypes.add(actionType);
         return this;
-    }
-
-    /**
-     * Get the action types.
-     *
-     * @return The action types.
-     */
-    public Collection<IActionType> actionTypes() {
-        return this.actionTypes;
-    }
-
-    /**
-     * Add action types.
-     *
-     * @param actionTypes The action types
-     * @return The query
-     */
-    public ActivityQuery actionTypes(Collection<IActionType> actionTypes) {
-        this.actionTypes.addAll(actionTypes);
-        return this;
-    }
-
-    /**
-     * Get the lower-bound timestamp.
-     *
-     * @return The lower-bound timestamp
-     */
-    public Long after() {
-        return after;
-    }
-
-    /**
-     * Set the lower-bound timestamp.
-     *
-     * @param after The timestamp
-     * @return The query
-     */
-    public ActivityQuery after(long after) {
-        this.after = after;
-        return this;
-    }
-
-    /**
-     * Get the upper-bound timestamp.
-     *
-     * @return The upper-bound timestamp.
-     */
-    public Long before() {
-        return before;
-    }
-
-    /**
-     * Set the upper-bound timestamp.
-     *
-     * @param before The timestamp
-     * @return The query
-     */
-    public ActivityQuery before(long before) {
-        this.before = before;
-        return this;
-    }
-
-    /**
-     * Get the cause.
-     *
-     * @return The cause
-     */
-    public String cause() {
-        return cause;
-    }
-
-    /**
-     * Set the cause.
-     *
-     * @param cause The cause
-     * @return The query
-     */
-    public ActivityQuery cause(String cause) {
-        this.cause = cause;
-        return this;
-    }
-
-    /**
-     * Add an entity type.
-     *
-     * @param entityType The entity type
-     * @return The query
-     */
-    public ActivityQuery entityType(String entityType) {
-        this.entityTypes.add(entityType);
-        return this;
-    }
-
-    /**
-     * Get the entity types.
-     *
-     * @return The entity types
-     */
-    public Collection<String> entityTypes() {
-        return entityTypes;
-    }
-
-    /**
-     * Add an entity type.
-     *
-     * @param entityTypes The entity types
-     * @return The query
-     */
-    public ActivityQuery entityTypes(Collection<String> entityTypes) {
-        this.entityTypes.addAll(entityTypes);
-        return this;
-    }
-
-    /**
-     * Whether records should be grouped.
-     *
-     * @return True if grouped
-     */
-    public boolean grouped() {
-        return grouped;
-    }
-
-    /**
-     * Set whether results should be grouped.
-     *
-     * @param grouped If grouped
-     * @return The query
-     */
-    public ActivityQuery grouped(boolean grouped) {
-        this.grouped = grouped;
-        return this;
-    }
-
-    /**
-     * Get the limit.
-     *
-     * @return The limit
-     */
-    public int limit() {
-        return limit;
-    }
-
-    /**
-     * Set the limit.
-     *
-     * @param limit The limit
-     * @return The query
-     */
-    public ActivityQuery limit(int limit) {
-        this.limit = limit;
-        return this;
-    }
-
-    /**
-     * Get the location.
-     *
-     * @return The location
-     */
-    public WorldCoordinate location() {
-        return location;
-    }
-
-    /**
-     * Set the location.
-     *
-     * @return The query
-     */
-    public ActivityQuery location(WorldCoordinate worldCoordinate) {
-        this.location = worldCoordinate;
-        return this;
-    }
-
-    /**
-     * Whether query is a lookup.
-     *
-     * @return True if lookup
-     */
-    public boolean lookup() {
-        return lookup;
     }
 
     /**
@@ -324,46 +152,6 @@ public final class ActivityQuery {
     }
 
     /**
-     * Add a material.
-     *
-     * @param material The material
-     * @return The query
-     */
-    public ActivityQuery material(String material) {
-        this.materials.add(material);
-        return this;
-    }
-
-    /**
-     * Get the materials.
-     *
-     * @return The materials
-     */
-    public Collection<String> materials() {
-        return materials;
-    }
-
-    /**
-     * Add materials.
-     *
-     * @param materials The materials
-     * @return The query
-     */
-    public ActivityQuery materials(Collection<String> materials) {
-        this.materials.addAll(materials);
-        return this;
-    }
-
-    /**
-     * Get the max coordinate.
-     *
-     * @return The max coordinate.
-     */
-    public Coordinate maxCoordinate() {
-        return maxCoordinate;
-    }
-
-    /**
      * Set the coordinate corners of a bounding box.
      *
      * @param minCoordinate The min coordinate
@@ -377,35 +165,6 @@ public final class ActivityQuery {
     }
 
     /**
-     * Get the min coordinate.
-     *
-     * @return The min coordinate.
-     */
-    public Coordinate minCoordinate() {
-        return minCoordinate;
-    }
-
-    /**
-     * Get the offset.
-     *
-     * @return The offset
-     */
-    public int offset() {
-        return offset;
-    }
-
-    /**
-     * Set the offset.
-     *
-     * @param offset The offset
-     * @return The query
-     */
-    public ActivityQuery offset(int offset) {
-        this.offset = offset;
-        return this;
-    }
-
-    /**
      * Add a player by name.
      *
      * @param playerName The player name
@@ -413,66 +172,6 @@ public final class ActivityQuery {
      */
     public ActivityQuery playerByName(String playerName) {
         this.playerNames.add(playerName);
-        return this;
-    }
-
-    /**
-     * Get the player names.
-     *
-     * @return The player names
-     */
-    public Collection<String> playerNames() {
-        return playerNames;
-    }
-
-    /**
-     * Add a list of player names.
-     *
-     * @param playerNames The player names.
-     * @return The query
-     */
-    public ActivityQuery playerNames(Collection<String> playerNames) {
-        this.playerNames.addAll(playerNames);
-        return this;
-    }
-
-    /**
-     * Get the sort.
-     *
-     * @return The sort
-     */
-    public Sort sort() {
-        return sort;
-    }
-
-    /**
-     * Set the sort direction. Defaults to descending.
-     *
-     * @param sort The sort direction.
-     * @return The query
-     */
-    public ActivityQuery sort(Sort sort) {
-        this.sort = sort;
-        return this;
-    }
-
-    /**
-     * Get the world uuid.
-     *
-     * @return The world uuid
-     */
-    public UUID worldUuid() {
-        return worldUuid;
-    }
-
-    /**
-     * Set the world by uuid.
-     *
-     * @param worldUuid The world uuid
-     * @return The query
-     */
-    public ActivityQuery worldUuid(UUID worldUuid) {
-        this.worldUuid = worldUuid;
         return this;
     }
 }

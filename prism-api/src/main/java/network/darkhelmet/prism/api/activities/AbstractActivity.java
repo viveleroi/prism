@@ -20,6 +20,8 @@
 
 package network.darkhelmet.prism.api.activities;
 
+import lombok.Getter;
+
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.util.NamedIdentity;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
@@ -28,68 +30,48 @@ public abstract class AbstractActivity implements IActivity {
     /**
      * The action.
      */
-    private final IAction action;
+    @Getter
+    protected final IAction action;
 
     /**
      * The cause.
      */
-    private final String cause;
-
-    /**
-     * The causing player.
-     */
-    private final NamedIdentity player;
-
-    /**
-     * The timestamp.
-     */
-    private final long timestamp;
+    @Getter
+    protected final String cause;
 
     /**
      * The world coordinate, if any.
      */
-    private final WorldCoordinate worldCoordinate;
+    @Getter
+    protected final WorldCoordinate location;
+
+    /**
+     * The causing player.
+     */
+    @Getter
+    protected final NamedIdentity player;
+
+    /**
+     * The timestamp.
+     */
+    @Getter
+    protected final long timestamp;
 
     /**
      * Construct an activity.
      *
      * @param action The action
-     * @param worldCoordinate The world coordinate
+     * @param location The world coordinate
      * @param cause The cause
      * @param player The player
      * @param timestamp The timestamp (or average)
      */
     public AbstractActivity(
-            IAction action, WorldCoordinate worldCoordinate, String cause, NamedIdentity player, long timestamp) {
+            IAction action, WorldCoordinate location, String cause, NamedIdentity player, long timestamp) {
         this.action = action;
         this.cause = cause;
-        this.worldCoordinate = worldCoordinate;
+        this.location = location;
         this.player = player;
         this.timestamp = timestamp;
-    }
-
-    @Override
-    public IAction action() {
-        return action;
-    }
-
-    @Override
-    public String cause() {
-        return cause;
-    }
-
-    @Override
-    public WorldCoordinate location() {
-        return worldCoordinate;
-    }
-
-    @Override
-    public NamedIdentity player() {
-        return player;
-    }
-
-    @Override
-    public long timestamp() {
-        return timestamp;
     }
 }
