@@ -30,6 +30,7 @@ public class DatabaseOptions {
 
     @Builder.Default String poolName = "DB";
     @Builder.Default boolean useOptimizations = true;
+    @Builder.Default boolean useSpy = false;
 
     /**
      * For Async queries, minimum threads in the pool to use.
@@ -51,12 +52,13 @@ public class DatabaseOptions {
     ExecutorService executor;
 
     public static class DatabaseOptionsBuilder {
-        public DatabaseOptionsBuilder mysql(@NonNull String user, @NonNull String pass, @NonNull String db, @NonNull String hostAndPort) {
+        public DatabaseOptionsBuilder mysql(@NonNull String user, @NonNull String pass, @NonNull String db, @NonNull String hostAndPort, boolean useSpy) {
             if (hostAndPort == null) {
                 hostAndPort = "localhost:3306";
             }
             this.user = user;
             this.pass = pass;
+            this.useSpy(useSpy);
 
             if (defaultIsolationLevel == null) defaultIsolationLevel = "TRANSACTION_READ_COMMITTED";
 
@@ -68,7 +70,7 @@ public class DatabaseOptions {
             if (driverClassName == null) tryDriverClassName("com.mysql.cj.jdbc.Driver");
             if (driverClassName == null) tryDriverClassName("com.mysql.jdbc.Driver");
 
-            this.dsn = "mysql://" + hostAndPort + "/" + db;
+            this.dsn = (useSpy ? "p6spy:" : "") + "mysql://" + hostAndPort + "/" + db;
             return this;
         }
 

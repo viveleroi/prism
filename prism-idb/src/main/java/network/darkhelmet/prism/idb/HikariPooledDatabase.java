@@ -11,11 +11,16 @@ public class HikariPooledDatabase extends BaseDatabase {
         DatabaseOptions options = poolOptions.options;
 
         HikariConfig config = new HikariConfig();
-        config.setPoolName(options.poolName);
-        if (options.dataSourceClassName != null) {
-            config.setDataSourceClassName(options.dataSourceClassName);
+        if (poolOptions.options().useSpy()) {
+            config.setDriverClassName("com.p6spy.engine.spy.P6SpyDriver");
+        } else {
+            if (options.dataSourceClassName != null) {
+                config.setDataSourceClassName(options.dataSourceClassName);
+            }
         }
+        config.setPoolName(options.poolName);
         config.addDataSourceProperty("url", "jdbc:" + options.dsn);
+        config.setJdbcUrl("jdbc:" + options.dsn);
 
         if (options.user != null) {
             config.addDataSourceProperty("user", options.user);

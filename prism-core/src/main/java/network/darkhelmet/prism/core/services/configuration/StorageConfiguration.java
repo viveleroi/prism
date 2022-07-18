@@ -47,6 +47,10 @@ public class StorageConfiguration {
     @Comment("Enter the prefix prism should use for database table names. i.e. prism_activities.")
     private String prefix = "prism_";
 
+    @Comment("Enable query spy. This logs queries and helpful debug information.\n"
+        + "Used primarily for development and debugging. Use carefully.")
+    private boolean spy = false;
+
     @Comment("Enter the username, if the selected datasource uses authentication.")
     private String username = "root";
 
@@ -124,6 +128,15 @@ public class StorageConfiguration {
      */
     public String prefix() {
         return prefix;
+    }
+
+    /**
+     * Get whether to spy.
+     *
+     * @return True if spying
+     */
+    public boolean spy() {
+        return spy;
     }
 
     /**

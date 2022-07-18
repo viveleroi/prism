@@ -155,7 +155,8 @@ public class MysqlStorageAdapter implements IStorageAdapter {
                     configurationService.storageConfig().password(),
                     configurationService.storageConfig().database(),
                     configurationService.storageConfig().host() + ":"
-                        + configurationService.storageConfig().port());
+                        + configurationService.storageConfig().port(),
+                    configurationService.storageConfig().spy());
                 builder.onDatabaseConnectionFailure(loggingService::handleException);
                 builder.onFatalError(loggingService::handleException);
                 builder.poolName("prism");
