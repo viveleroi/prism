@@ -170,8 +170,8 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 ready = true;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            loggingService.handleException(e);
         }
     }
 
@@ -216,7 +216,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
      *
      * @throws SQLException The database exception
      */
-    protected void prepareSchema() throws SQLException {
+    protected void prepareSchema() throws Exception {
         String prefix = configurationService.storageConfig().prefix();
 
         // Create all new tables. This is done here because:
@@ -542,12 +542,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
      *
      * @throws SQLException The database exception
      */
-    protected void updateSchemas(String schemaVersion) throws SQLException {
-        // Update: 8 -> v4
-        if (schemaVersion.equalsIgnoreCase("8")) {
-            DB.createTransaction(stm -> schemaUpdater.update_8_to_v4(configurationService.storageConfig()));
-        }
-    }
+    protected void updateSchemas(String schemaVersion) throws Exception {}
 
     @Override
     public List<IActivity> queryActivities(ActivityQuery query) throws SQLException {
