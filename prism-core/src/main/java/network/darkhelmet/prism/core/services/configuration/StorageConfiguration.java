@@ -35,9 +35,6 @@ public class StorageConfiguration {
     @Comment("Configure the database name.")
     private String database = "prism";
 
-    @Comment("Set the jdbc driver class. If using Java 8/Connector/J 5.1 API, use `com.mysql.jdbc.Driver`.")
-    private String driver = "com.mysql.cj.jdbc.Driver";
-
     @Comment("Configure the hostname.")
     private String host = "localhost";
 
@@ -91,15 +88,6 @@ public class StorageConfiguration {
      */
     public String database() {
         return database;
-    }
-
-    /**
-     * Get the driver class.
-     *
-     * @return The driver class
-     */
-    public String driver() {
-        return driver;
     }
 
     /**
