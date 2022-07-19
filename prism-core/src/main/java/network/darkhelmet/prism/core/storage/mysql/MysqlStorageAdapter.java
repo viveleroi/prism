@@ -317,7 +317,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             + "`old_material_id` SMALLINT UNSIGNED DEFAULT NULL,"
             + "`entity_type_id` SMALLINT UNSIGNED DEFAULT NULL,"
             + "`cause_id` INT UNSIGNED NOT NULL,"
-            + "`descriptor` VARCHAR(255) NULL,"
+            + "`descriptor` VARCHAR(155) NULL,"
             + "PRIMARY KEY (`activity_id`),"
             + "KEY `actionId_idx` (`action_id`),"
             + "KEY `causeId_idx` (`cause_id`),"
