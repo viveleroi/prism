@@ -20,11 +20,7 @@
 
 package network.darkhelmet.prism.core.storage.mysql;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -115,14 +111,14 @@ public class MysqlActivityBatch implements IActivityBatch {
         statement.setByte(5, actionId);
 
         // Set the entity relationship
-        int entityTypeId = 0;
         if (activity.action() instanceof IEntityAction) {
-            entityTypeId = getOrCreateEntityTypeId(((IEntityAction) activity.action()).serializeEntityType());
+            int entityTypeId = getOrCreateEntityTypeId(((IEntityAction) activity.action()).serializeEntityType());
+            statement.setInt(6, entityTypeId);
+        } else {
+            statement.setNull(6, Types.INTEGER);
         }
-        statement.setInt(6, entityTypeId);
 
         // Set the material relationship
-        int materialId = 0;
         if (activity.action() instanceof IMaterialAction) {
             String material = ((IMaterialAction) activity.action()).serializeMaterial();
             String data = null;
@@ -131,20 +127,22 @@ public class MysqlActivityBatch implements IActivityBatch {
                 data = ((IBlockAction) activity.action()).serializeBlockData();
             }
 
-            materialId = getOrCreateMaterialId(material, data);
+            statement.setInt(7, getOrCreateMaterialId(material, data));
+        } else {
+            statement.setNull(7, Types.INTEGER);
         }
-        statement.setInt(7, materialId);
 
         // Set the replaced material relationship
-        int oldMaterialId = 0;
         if (activity.action() instanceof IBlockAction) {
             IBlockAction blockAction = (IBlockAction) activity.action();
             String replacedMaterial = blockAction.serializeReplacedMaterial();
             String replacedData = blockAction.serializeReplacedBlockData();
 
-            oldMaterialId = getOrCreateMaterialId(replacedMaterial, replacedData);
+            int oldMaterialId = getOrCreateMaterialId(replacedMaterial, replacedData);
+            statement.setInt(8, oldMaterialId);
+        } else {
+            statement.setNull(8, Types.INTEGER);
         }
-        statement.setInt(8, oldMaterialId);
 
         // Set the world relationship
         NamedIdentity world = activity.location().world();
@@ -153,10 +151,12 @@ public class MysqlActivityBatch implements IActivityBatch {
 
         // Set the player relationship
         Long playerId = null;
-        String cause = activity.cause();
+        if (activity.player() != null) {
+            playerId = getOrCreatePlayerId(activity.player().uuid(), activity.player().name());
+        }
 
         // Set the cause relationship
-        long causeId = getOrCreateCauseId(cause, playerId);
+        long causeId = getOrCreateCauseId(activity.cause(), playerId);
         statement.setLong(10, causeId);
 
         // Set the descriptor
@@ -268,15 +268,15 @@ public class MysqlActivityBatch implements IActivityBatch {
         @Language("SQL") String select = "SELECT entity_type_id FROM " + storageConfig.prefix() + "entity_types "
             + "WHERE entity_type = ? ";
 
-        Long longPk = DB.getFirstColumn(select, entityType);
-        if (longPk != null) {
-            primaryKey = longPk.intValue();
+        Integer intPk = DB.getFirstColumn(select, entityType);
+        if (intPk != null) {
+            primaryKey = intPk;
         } else {
             // Attempt to create the record
             @Language("SQL") String insert = "INSERT INTO " + storageConfig.prefix() + "entity_types "
                 + "(`entity_type`) VALUES (?)";
 
-            longPk = DB.executeInsert(insert, entityType);
+            Long longPk = DB.executeInsert(insert, entityType);
 
             if (longPk != null) {
                 primaryKey = longPk.intValue();
