@@ -326,6 +326,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             + "KEY `materialId_idx` (`material_id`),"
             + "KEY `oldMaterialId_idx` (`old_material_id`),"
             + "KEY `worldId_idx` (`world_id`),"
+            + "KEY `coordinate` (`x`,`z`,`y`),"
             + "CONSTRAINT `actionId` FOREIGN KEY (`action_id`) REFERENCES `"
                 + prefix + "actions` (`action_id`),"
             + "CONSTRAINT `causeId` FOREIGN KEY (`cause_id`) REFERENCES `"
