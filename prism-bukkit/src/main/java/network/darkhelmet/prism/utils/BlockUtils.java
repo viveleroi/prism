@@ -22,6 +22,8 @@ package network.darkhelmet.prism.utils;
 
 import java.util.List;
 
+import lombok.experimental.UtilityClass;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -31,12 +33,8 @@ import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.block.data.type.TrapDoor;
 
+@UtilityClass
 public class BlockUtils {
-    /**
-     * Prevent instantiation.
-     */
-    private BlockUtils() {}
-
     /**
      * List all *side* block faces.
      */

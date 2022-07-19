@@ -20,15 +20,13 @@
 
 package network.darkhelmet.prism.utils;
 
+import lombok.experimental.UtilityClass;
+
 import org.bukkit.Material;
 import org.bukkit.Tag;
 
+@UtilityClass
 public class TagLib {
-    /**
-     * Prevent instantiation.
-     */
-    private TagLib() {}
-
     /**
      * All plants that have a one-block structure.
      */

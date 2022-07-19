@@ -20,6 +20,8 @@
 
 package network.darkhelmet.prism.utils;
 
+import lombok.experimental.UtilityClass;
+
 import network.darkhelmet.prism.api.util.Coordinate;
 import network.darkhelmet.prism.api.util.NamedIdentity;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
@@ -29,12 +31,8 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 
+@UtilityClass
 public class LocationUtils {
-    /**
-     * Prevent instantiation.
-     */
-    private LocationUtils() {}
-
     /**
      * Returns the minimum coordinate for the chunk.
      *

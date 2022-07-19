@@ -25,17 +25,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import lombok.experimental.UtilityClass;
+
 import org.bukkit.Location;
 import org.bukkit.TreeSpecies;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
+@UtilityClass
 public class EntityUtils {
-    /**
-     * Prevent instantiation.
-     */
-    private EntityUtils() {}
-
     /**
      * Gets hanging entities within a given range of a starting location.
      *
