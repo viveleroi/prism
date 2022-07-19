@@ -137,6 +137,15 @@ public final class ActivityQuery {
         ASCENDING, DESCENDING
     }
 
+    /**
+     * Get whether this query is for a modifier.
+     *
+     * @return True if lookup and grouped are false
+     */
+    public boolean modification() {
+        return !lookup && !grouped;
+    }
+
     public static class ActivityQueryBuilder {
         /**
          * Set the coordinate corners of a bounding box.
