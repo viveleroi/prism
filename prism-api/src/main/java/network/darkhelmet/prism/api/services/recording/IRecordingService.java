@@ -34,6 +34,11 @@ public interface IRecordingService {
     boolean addToQueue(final ISingleActivity activity);
 
     /**
+     * Cancels and removes the current recording task.
+     */
+    void clearTask();
+
+    /**
      * Get the queue.
      *
      * @return the queue

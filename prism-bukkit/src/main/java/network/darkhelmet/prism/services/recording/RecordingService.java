@@ -78,13 +78,29 @@ public class RecordingService implements IRecordingService {
     }
 
     @Override
+    public void clearTask() {
+        if (task != null) {
+            task.cancel();
+            task = null;
+        }
+    }
+
+    @Override
     public LinkedBlockingQueue<ISingleActivity> queue() {
         return queue;
     }
 
     @Override
     public void queueNextRecording(Runnable recordingTask) {
+        queueNextRecording(recordingTask, 10);
+    }
+
+    public void queueNextRecording(Runnable recordingTask, long delay) {
+        if (task != null) {
+            throw new IllegalStateException("Recording tasks must be cleared before scheduling a new one.");
+        }
+
         task = Bukkit.getServer().getScheduler()
-            .runTaskLaterAsynchronously(PrismBukkit.getInstance(), recordingTask, 10);
+                .runTaskLaterAsynchronously(PrismBukkit.getInstance(), recordingTask, delay);
     }
 }

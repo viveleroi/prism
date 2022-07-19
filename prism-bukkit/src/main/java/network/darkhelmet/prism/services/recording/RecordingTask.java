@@ -110,5 +110,7 @@ public class RecordingTask implements Runnable {
                 loggingService.handleException(e);
             }
         }
+
+        recordingService.clearTask();
     }
 }
