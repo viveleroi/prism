@@ -51,6 +51,7 @@ import network.darkhelmet.prism.api.services.recording.IRecordingService;
 import network.darkhelmet.prism.api.services.wands.IWand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
+import network.darkhelmet.prism.core.services.cache.CacheService;
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.core.services.logging.LoggingService;
 import network.darkhelmet.prism.core.storage.mysql.MysqlQueryBuilder;
@@ -208,6 +209,9 @@ public class PrismModule extends AbstractModule {
 
         // Providers
         bind(IWorldIdentityProvider.class).to(WorldIdentityProvider.class).in(Singleton.class);
+
+        // Service - Cache
+        bind(CacheService.class).in(Singleton.class);
 
         // Service - Configuration
         ConfigurationService configurationService = new ConfigurationService(dataPath);

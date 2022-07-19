@@ -6,6 +6,7 @@ dependencies {
     implementation project.property('deps.adventure-api')
     implementation project.property('deps.adventure-configurate')
     implementation project.property('deps.configurate-hocon')
+    implementation project.property('deps.fastutil')
     implementation project.property('deps.guice')
     implementation project.property('deps.hikari')
     implementation project.property('deps.p6spy')

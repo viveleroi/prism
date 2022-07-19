@@ -13,6 +13,7 @@ dependencies {
     implementation project.property('deps.adventure-plain')
     implementation project.property('deps.apache-commons-collections')
     implementation project.property('deps.configurate-hocon')
+    implementation project.property('deps.fastutil')
     implementation project.property('deps.guice')
     implementation project.property('deps.moonshine-core')
     implementation project.property('deps.moonshine-standard')

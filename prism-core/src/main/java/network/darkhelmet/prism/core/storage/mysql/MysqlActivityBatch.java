@@ -20,7 +20,12 @@
 
 package network.darkhelmet.prism.core.storage.mysql;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -33,6 +38,7 @@ import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.storage.IActivityBatch;
 import network.darkhelmet.prism.api.util.NamedIdentity;
+import network.darkhelmet.prism.core.services.cache.CacheService;
 import network.darkhelmet.prism.core.services.configuration.StorageConfiguration;
 import network.darkhelmet.prism.core.utils.TypeUtils;
 import network.darkhelmet.prism.idb.DB;
@@ -50,6 +56,11 @@ public class MysqlActivityBatch implements IActivityBatch {
      * The storage configuration.
      */
     private final StorageConfiguration storageConfig;
+
+    /**
+     * The cache service.
+     */
+    private final CacheService cacheService;
 
     /**
      * The connection.
@@ -79,10 +90,15 @@ public class MysqlActivityBatch implements IActivityBatch {
      *
      * @param serializerVersion The serializer version
      * @param storageConfiguration The storage configuration
+     * @param cacheService The cache service
      */
-    public MysqlActivityBatch(short serializerVersion, StorageConfiguration storageConfiguration) {
+    public MysqlActivityBatch(
+            short serializerVersion,
+            StorageConfiguration storageConfiguration,
+            CacheService cacheService) {
         this.serializerVersion = serializerVersion;
         this.storageConfig = storageConfiguration;
+        this.cacheService = cacheService;
     }
 
     @Override
@@ -133,8 +149,7 @@ public class MysqlActivityBatch implements IActivityBatch {
         }
 
         // Set the replaced material relationship
-        if (activity.action() instanceof IBlockAction) {
-            IBlockAction blockAction = (IBlockAction) activity.action();
+        if (activity.action() instanceof IBlockAction blockAction) {
             String replacedMaterial = blockAction.serializeReplacedMaterial();
             String replacedData = blockAction.serializeReplacedBlockData();
 
@@ -181,6 +196,10 @@ public class MysqlActivityBatch implements IActivityBatch {
      * @throws SQLException The database exception
      */
     private byte getOrCreateActionId(String actionKey) throws SQLException {
+        if (cacheService.actionKeyPkMap().containsKey(actionKey)) {
+            return cacheService.actionKeyPkMap().getByte(actionKey);
+        }
+
         byte primaryKey;
 
         // Select any existing record
@@ -205,6 +224,8 @@ public class MysqlActivityBatch implements IActivityBatch {
             }
         }
 
+        cacheService.actionKeyPkMap().put(actionKey, primaryKey);
+
         return primaryKey;
     }
 
@@ -217,6 +238,14 @@ public class MysqlActivityBatch implements IActivityBatch {
      * @throws SQLException The database exception
      */
     private long getOrCreateCauseId(String cause, @Nullable Long playerId) throws SQLException {
+        if (playerId != null && cacheService.playerCausePkMap().containsKey(playerId.longValue())) {
+            return cacheService.playerCausePkMap().get(playerId.longValue());
+        }
+
+        if (cause != null && cacheService.namedCausePkMap().containsKey(cause)) {
+            return cacheService.namedCausePkMap().getLong(cause);
+        }
+
         long primaryKey;
 
         Long longPk;
@@ -251,6 +280,14 @@ public class MysqlActivityBatch implements IActivityBatch {
             }
         }
 
+        if (cause != null) {
+            cacheService.namedCausePkMap().put(cause, primaryKey);
+        }
+
+        if (playerId != null) {
+            cacheService.playerCausePkMap().put(playerId.longValue(), primaryKey);
+        }
+
         return primaryKey;
     }
 
@@ -262,6 +299,10 @@ public class MysqlActivityBatch implements IActivityBatch {
      * @throws SQLException The database exception
      */
     private int getOrCreateEntityTypeId(String entityType) throws SQLException {
+        if (cacheService.entityTypePkMap().containsKey(entityType)) {
+            return cacheService.entityTypePkMap().getInt(entityType);
+        }
+
         int primaryKey;
 
         // Select the existing record
@@ -286,6 +327,8 @@ public class MysqlActivityBatch implements IActivityBatch {
             }
         }
 
+        cacheService.entityTypePkMap().put(entityType, primaryKey);
+
         return primaryKey;
     }
 
@@ -298,6 +341,10 @@ public class MysqlActivityBatch implements IActivityBatch {
      * @throws SQLException The database exception
      */
     private int getOrCreateMaterialId(String material, String blockData) throws SQLException {
+        if (blockData == null && cacheService.materialPkMap().containsKey(material)) {
+            return cacheService.materialPkMap().getInt(material);
+        }
+
         int primaryKey;
 
         // Select the existing material or material+data
@@ -332,6 +379,10 @@ public class MysqlActivityBatch implements IActivityBatch {
             }
         }
 
+        if (blockData == null) {
+            cacheService.materialPkMap().put(material, primaryKey);
+        }
+
         return primaryKey;
     }
 
@@ -346,6 +397,10 @@ public class MysqlActivityBatch implements IActivityBatch {
      * @throws SQLException The database exception
      */
     private long getOrCreatePlayerId(UUID playerUuid, String playerName) throws SQLException {
+        if (cacheService.playerUuidPkMap().containsKey(playerUuid)) {
+            return cacheService.playerUuidPkMap().getLong(playerUuid);
+        }
+
         long primaryKey;
         String uuidStr = TypeUtils.uuidToDbString(playerUuid);
 
@@ -371,6 +426,8 @@ public class MysqlActivityBatch implements IActivityBatch {
             }
         }
 
+        cacheService.playerUuidPkMap().put(playerUuid, primaryKey);
+
         return primaryKey;
     }
 
@@ -385,6 +442,10 @@ public class MysqlActivityBatch implements IActivityBatch {
      * @throws SQLException The database exception
      */
     private byte getOrCreateWorldId(UUID worldUuid, String worldName) throws SQLException {
+        if (cacheService.worldUuidPkMap().containsKey(worldUuid)) {
+            return cacheService.worldUuidPkMap().getByte(worldUuid);
+        }
+
         byte primaryKey;
         String uuidStr = TypeUtils.uuidToDbString(worldUuid);
 
@@ -410,6 +471,8 @@ public class MysqlActivityBatch implements IActivityBatch {
                     String.format("Failed to get or create a world record. World: %s", worldUuid));
             }
         }
+
+        cacheService.worldUuidPkMap().put(worldUuid, primaryKey);
 
         return primaryKey;
     }

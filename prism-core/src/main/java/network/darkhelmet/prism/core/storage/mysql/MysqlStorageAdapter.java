@@ -52,6 +52,7 @@ import network.darkhelmet.prism.api.storage.IActivityBatch;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.api.util.NamedIdentity;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
+import network.darkhelmet.prism.core.services.cache.CacheService;
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.core.services.logging.LoggingService;
 import network.darkhelmet.prism.core.utils.TypeUtils;
@@ -95,6 +96,11 @@ public class MysqlStorageAdapter implements IStorageAdapter {
     private final MysqlQueryBuilder queryBuilder;
 
     /**
+     * The cache service.
+     */
+    private final CacheService cacheService;
+
+    /**
      * Toggle whether this storage system is enabled and ready.
      */
     protected boolean ready = false;
@@ -106,6 +112,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
      * @param configurationService The configuration service
      * @param actionRegistry The action type registry
      * @param schemaUpdater The schema updater
+     * @param cacheService The cache service
      * @param queryBuilder The query builder
      * @param serializerVersion The serializer version
      */
@@ -116,12 +123,14 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             IActionTypeRegistry actionRegistry,
             MysqlSchemaUpdater schemaUpdater,
             MysqlQueryBuilder queryBuilder,
+            CacheService cacheService,
             @Named("serializerVersion") short serializerVersion,
             Path dataPath) {
         this.loggingService = loggingService;
         this.configurationService = configurationService;
         this.actionRegistry = actionRegistry;
         this.schemaUpdater = schemaUpdater;
+        this.cacheService = cacheService;
         this.queryBuilder = queryBuilder;
         this.serializerVersion = serializerVersion;
 
@@ -145,6 +154,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 describeDatabase(true);
                 prepareSchema();
+                prepareCache();
 
                 ready = true;
             } else {
@@ -167,6 +177,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
                 describeDatabase(false);
                 prepareSchema();
+                prepareCache();
 
                 ready = true;
             }
@@ -539,6 +550,53 @@ public class MysqlStorageAdapter implements IStorageAdapter {
     }
 
     /**
+     * Caching often-used object->primary-key lookups greatly reduce the number of queries/network requests.
+     *
+     * <p>Note: Player UUIDs are cached as needed and removed on disconnect.</p>
+     *
+     * @throws SQLException The database exception
+     */
+    protected void prepareCache() throws SQLException {
+        // Currently, cache services are unused when using stored procedures.
+        if (configurationService.storageConfig().useStoredProcedures()) {
+            return;
+        }
+
+        String prefix = configurationService.storageConfig().prefix();
+
+        // Actions
+        @Language("SQL") String actions = "SELECT `action`, `action_id` FROM " + prefix + "actions";
+        for (DbRow row : DB.getResults(actions)) {
+            byte actionId = row.getInt("action_id").byteValue();
+            cacheService.actionKeyPkMap().put(row.getString("action"), actionId);
+        }
+
+        // Entity Types
+        @Language("SQL") String entityTypes = "SELECT `entity_type`, `entity_type_id` FROM " + prefix + "entity_types";
+        for (DbRow row : DB.getResults(entityTypes)) {
+            int entityTypeId = row.getInt("entity_type_id");
+            cacheService.entityTypePkMap().put(row.getString("entity_type"), entityTypeId);
+        }
+
+        // Materials (base, no data)
+        @Language("SQL") String materials = "SELECT `material`, `material_id` FROM " + prefix + "materials "
+            + "WHERE data IS NULL";
+        for (DbRow row : DB.getResults(materials)) {
+            int materialId = row.getInt("material_id");
+            cacheService.materialPkMap().put(row.getString("material"), materialId);
+        }
+
+        // World
+        @Language("SQL") String worldUuids = "SELECT HEX(`world_uuid`) AS `world_uuid`, `world_id` "
+            + "FROM " + prefix + "worlds";
+        for (DbRow row : DB.getResults(worldUuids)) {
+            byte worldId = row.getInt("world_id").byteValue();
+            UUID worldUuid = TypeUtils.uuidFromDbString(row.getString("world_uuid"));
+            cacheService.worldUuidPkMap().put(worldUuid, worldId);
+        }
+    }
+
+    /**
      * Update the schema as needed.
      *
      * @throws SQLException The database exception
@@ -682,7 +740,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             return new MysqlActivityProcedureBatch(serializerVersion, configurationService.storageConfig());
         }
 
-        return new MysqlActivityBatch(serializerVersion, configurationService.storageConfig());
+        return new MysqlActivityBatch(serializerVersion, configurationService.storageConfig(), cacheService);
     }
 
     @Override

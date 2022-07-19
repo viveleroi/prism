@@ -28,6 +28,7 @@ import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
+import network.darkhelmet.prism.core.services.cache.CacheService;
 import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.recording.RecordingService;
@@ -52,6 +53,11 @@ public class PlayerQuitListener extends AbstractListener implements Listener {
     private final IModificationQueueService modificationQueueService;
 
     /**
+     * The cache service.
+     */
+    private final CacheService cacheService;
+
+    /**
      * Construct the listener.
      *
      * @param configurationService The configuration service
@@ -68,11 +74,13 @@ public class PlayerQuitListener extends AbstractListener implements Listener {
             ExpectationService expectationService,
             RecordingService recordingService,
             WandService wandService,
-            IModificationQueueService modificationQueueService) {
+            IModificationQueueService modificationQueueService,
+            CacheService cacheService) {
         super(configurationService, actionFactory, expectationService, recordingService);
 
         this.wandService = wandService;
         this.modificationQueueService = modificationQueueService;
+        this.cacheService = cacheService;
     }
 
     /**
@@ -106,5 +114,15 @@ public class PlayerQuitListener extends AbstractListener implements Listener {
             .build();
 
         recordingService.addToQueue(activity);
+
+        // Remove cached player data
+        if (cacheService.playerUuidPkMap().containsKey(event.getPlayer().getUniqueId())) {
+            // Remove player's PK -> cause PK from the cache first
+            long playerId = cacheService.playerUuidPkMap().getLong(event.getPlayer().getUniqueId());
+            cacheService.playerCausePkMap().remove(playerId);
+
+            // Remove the player's UUID -> PK from the cache
+            cacheService.playerUuidPkMap().removeLong(event.getPlayer().getUniqueId());
+        }
     }
 }

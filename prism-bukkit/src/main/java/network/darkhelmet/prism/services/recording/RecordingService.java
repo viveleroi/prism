@@ -95,6 +95,12 @@ public class RecordingService implements IRecordingService {
         queueNextRecording(recordingTask, 10);
     }
 
+    /**
+     * Queue the next recording with a specific delay.
+     *
+     * @param recordingTask The recording task
+     * @param delay The delay
+     */
     public void queueNextRecording(Runnable recordingTask, long delay) {
         if (task != null) {
             throw new IllegalStateException("Recording tasks must be cleared before scheduling a new one.");
