@@ -62,7 +62,7 @@ public class MysqlQueryBuilder {
     }
 
     /**
-     * Query the activities table given an activity query object.
+     * Query the activities table with a given activity query.
      *
      * @param query The activity query
      * @param prefix The table prefix
@@ -70,17 +70,31 @@ public class MysqlQueryBuilder {
      * @throws SQLException Database exception
      */
     public List<DbRow> queryActivities(ActivityQuery query, String prefix) throws SQLException {
-        // Add all fields that are used in both grouping and non-grouping queries
+        boolean joinActions = query.lookup() || !query.actionTypes().isEmpty() || !query.actionTypeKeys().isEmpty();
+        boolean joinCauses = query.lookup() || query.cause() != null || !query.playerNames().isEmpty();
+
         List<String> fields = new ArrayList<>();
+
+        // Add fields useful for all query types
         fields.add("HEX(`world_uuid`) AS worldUuid");
-        fields.add("`action`");
         fields.add("`materials`.`material`");
         fields.add("`entity_type`");
-        fields.add("`cause`");
-        fields.add("`descriptor`");
-        fields.add("HEX(`player_uuid`) AS playerUuid");
-        fields.add("`player`");
-        fields.add("COUNT(*) OVER() AS totalRows");
+
+        if (joinActions) {
+            fields.add("`action`");
+        }
+
+        if (joinCauses) {
+            fields.add("`cause`");
+            fields.add("HEX(`player_uuid`) AS playerUuid");
+            fields.add("`player`");
+        }
+
+        // Add fields useful only for lookups
+        if (query.lookup()) {
+            fields.add("`descriptor`");
+            fields.add("COUNT(*) OVER() AS totalRows");
+        }
 
         if (query.grouped()) {
             // Add fields for grouped queries
@@ -95,6 +109,10 @@ public class MysqlQueryBuilder {
             fields.add("`x`");
             fields.add("`y`");
             fields.add("`z`");
+        }
+
+        // Add fields only needed for modifications
+        if (query.modification()) {
             fields.add("`materials`.`data` AS material_data");
             fields.add("`oldMaterials`.`material` AS old_material");
             fields.add("`oldMaterials`.`data` AS old_material_data");
@@ -105,16 +123,24 @@ public class MysqlQueryBuilder {
         @Language("SQL") String sql = "SELECT " + String.join(", ", fields) + " ";
 
         @Language("SQL") String from = "FROM " + prefix + "activities AS activities "
-            + "JOIN " + prefix + "actions AS actions ON `actions`.`action_id` = `activities`.`action_id` "
-            + "JOIN " + prefix + "causes AS causes ON `causes`.`cause_id` = `activities`.`cause_id` "
             + "JOIN " + prefix + "worlds AS worlds ON `worlds`.`world_id` = `activities`.`world_id` "
-            + "LEFT JOIN " + prefix + "players AS players ON `players`.`player_id` = `causes`.`player_id` "
             + "LEFT JOIN " + prefix + "entity_types AS entity_types "
-                + "ON `entity_types`.`entity_type_id` = `activities`.`entity_type_id` "
+            + "ON `entity_types`.`entity_type_id` = `activities`.`entity_type_id` "
             + "LEFT JOIN " + prefix + "materials AS materials "
-                + "ON `materials`.`material_id` = `activities`.`material_id` ";
+            + "ON `materials`.`material_id` = `activities`.`material_id` ";
 
-        if (!query.grouped()) {
+        // Modifications only need actions if we're querying them
+        if (joinActions) {
+            from += "JOIN " + prefix + "actions AS actions ON `actions`.`action_id` = `activities`.`action_id` ";
+        }
+
+        // Modifications only need causes if we're querying them
+        if (joinCauses) {
+            from += "JOIN " + prefix + "causes AS causes ON `causes`.`cause_id` = `activities`.`cause_id` ";
+            from += "LEFT JOIN " + prefix + "players AS players ON `players`.`player_id` = `causes`.`player_id` ";
+        }
+
+        if (query.modification()) {
             @Language("SQL") String customData = "LEFT JOIN " + prefix + "activities_custom_data AS custom_data "
                 + "ON `custom_data`.`activity_id` = `activities`.`activity_id` ";
             from += customData;
@@ -169,7 +195,7 @@ public class MysqlQueryBuilder {
         }
 
         // Action Types
-        if (!query.actionTypeKeys().isEmpty()) {
+        if (!query.actionTypes().isEmpty()) {
             List<String> placeholders = new ArrayList<>();
             for (IActionType actionType : query.actionTypes()) {
                 if (query.lookup() || actionType.reversible()) {
@@ -231,19 +257,6 @@ public class MysqlQueryBuilder {
         } else if (query.before() != null) {
             conditions.add("`timestamp` < ?");
             parameters.add(query.before());
-        }
-
-        if (!query.lookup() && query.actionTypeKeys().isEmpty()) {
-            // Include *only* reversible activities
-            List<String> placeholders = new ArrayList<>();
-            for (IActionType actionType : actionRegistry.actionTypes()) {
-                if (actionType.reversible()) {
-                    placeholders.add("?");
-                    parameters.add(actionType.key());
-                }
-            }
-
-            conditions.add(String.format("`action` IN (%s)", String.join(",", placeholders)));
         }
 
         if (conditions.size() > 0) {
