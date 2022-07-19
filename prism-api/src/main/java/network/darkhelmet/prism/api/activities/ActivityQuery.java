@@ -168,18 +168,15 @@ public final class ActivityQuery {
         }
 
         /**
-         * Set whether this is a lookup. The query results can be grouped
-         * and the order by is different.
+         * Indicate this query is for use with modifiers.
          *
-         * @param lookup If lookup
+         * <p>Sets lookup and grouped to false.</p>
+         *
          * @return The query
          */
-        public ActivityQueryBuilder lookup(boolean lookup) {
-            this.lookup$set = lookup;
-
-            if (!lookup) {
-                grouped(false);
-            }
+        public ActivityQueryBuilder modification() {
+            this.lookup(false);
+            this.grouped(false);
 
             return this;
         }
