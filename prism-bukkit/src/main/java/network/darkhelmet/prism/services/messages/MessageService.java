@@ -60,11 +60,11 @@ public interface MessageService {
     void reloadedLocales(CommandSender receiver);
 
     @Message("wand-activated")
-    void wandActivated(Player player, @Placeholder WandMode wandMode);
+    void wandActivated(Player player, @Placeholder WandMode wandmode);
 
     @Message("wand-switched")
-    void wandSwitched(Player player, @Placeholder WandMode wandMode);
+    void wandSwitched(Player player, @Placeholder WandMode wandmode);
 
     @Message("wand-deactivated")
-    void wandDeactivated(Player player, @Placeholder WandMode wandMode);
+    void wandDeactivated(Player player, @Placeholder WandMode wandmode);
 }
