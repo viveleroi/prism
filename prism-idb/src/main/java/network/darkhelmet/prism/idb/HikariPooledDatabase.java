@@ -13,6 +13,7 @@ public class HikariPooledDatabase extends BaseDatabase {
         HikariConfig config = new HikariConfig();
         if (poolOptions.options().useSpy()) {
             config.setDriverClassName("com.p6spy.engine.spy.P6SpyDriver");
+            config.setJdbcUrl("jdbc:" + options.dsn);
         } else {
             if (options.dataSourceClassName != null) {
                 config.setDataSourceClassName(options.dataSourceClassName);
@@ -20,7 +21,6 @@ public class HikariPooledDatabase extends BaseDatabase {
         }
         config.setPoolName(options.poolName);
         config.addDataSourceProperty("url", "jdbc:" + options.dsn);
-        config.setJdbcUrl("jdbc:" + options.dsn);
 
         if (options.user != null) {
             config.addDataSourceProperty("user", options.user);
