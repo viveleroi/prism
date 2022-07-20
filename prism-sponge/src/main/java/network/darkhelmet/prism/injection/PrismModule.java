@@ -28,21 +28,21 @@ import com.google.inject.multibindings.MapBinder;
 import com.google.inject.name.Named;
 
 import java.nio.file.Path;
-import java.util.Locale;
 import java.util.Map;
 
 import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
 import network.darkhelmet.prism.api.providers.IWorldIdentityProvider;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
-import network.darkhelmet.prism.core.services.logging.LoggingService;
 import network.darkhelmet.prism.core.storage.mysql.MysqlQueryBuilder;
 import network.darkhelmet.prism.core.storage.mysql.MysqlSchemaUpdater;
 import network.darkhelmet.prism.core.storage.mysql.MysqlStorageAdapter;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
+import network.darkhelmet.prism.loader.storage.StorageType;
 import network.darkhelmet.prism.providers.WorldIdentityProvider;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 public class PrismModule extends AbstractModule {
     /**
@@ -113,8 +113,8 @@ public class PrismModule extends AbstractModule {
     @Provides
     public IStorageAdapter getStorageAdapter(
             ConfigurationService configurationService,
-            Map<String, Provider<IStorageAdapter>> storageMap) {
-        String datasource = configurationService.storageConfig().datasource().toLowerCase(Locale.ENGLISH);
+            Map<StorageType, Provider<IStorageAdapter>> storageMap) {
+        StorageType datasource = configurationService.storageConfig().datasource();
         return storageMap.get(datasource).get();
     }
 
@@ -140,8 +140,8 @@ public class PrismModule extends AbstractModule {
         bind(MysqlQueryBuilder.class);
         bind(MysqlSchemaUpdater.class).in(Singleton.class);
 
-        MapBinder<String, IStorageAdapter> storageBinder = MapBinder.newMapBinder(
-            binder(), String.class, IStorageAdapter.class);
-        storageBinder.addBinding("mysql").to(MysqlStorageAdapter.class).in(Singleton.class);
+        MapBinder<StorageType, IStorageAdapter> storageBinder = MapBinder.newMapBinder(
+            binder(), StorageType.class, IStorageAdapter.class);
+        storageBinder.addBinding(StorageType.MYSQL).to(MysqlStorageAdapter.class).in(Singleton.class);
     }
 }

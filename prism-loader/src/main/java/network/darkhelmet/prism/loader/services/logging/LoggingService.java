@@ -18,13 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.core.services.logging;
+package network.darkhelmet.prism.loader.services.logging;
 
-import com.google.inject.Inject;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
-
-import org.slf4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 public class LoggingService {
     /**
@@ -43,7 +41,6 @@ public class LoggingService {
      * @param configurationService The configuration service
      * @param logger The logger
      */
-    @Inject
     public LoggingService(ConfigurationService configurationService, Logger logger) {
         this.configurationService = configurationService;
         this.logger = logger;

@@ -30,7 +30,7 @@ import dev.triumphteam.cmd.core.argument.named.Arguments;
 
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.lookup.LookupService;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.query.QueryService;

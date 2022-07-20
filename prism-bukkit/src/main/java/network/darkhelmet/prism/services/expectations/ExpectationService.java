@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import network.darkhelmet.prism.api.services.expectations.ExpectationType;
-import network.darkhelmet.prism.core.services.logging.LoggingService;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 public class ExpectationService {
     /**

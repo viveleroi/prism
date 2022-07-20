@@ -29,7 +29,7 @@ import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
 import network.darkhelmet.prism.core.services.cache.CacheService;
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.recording.RecordingService;
 import network.darkhelmet.prism.services.wands.WandService;

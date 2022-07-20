@@ -31,11 +31,11 @@ import java.util.Optional;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
-import network.darkhelmet.prism.core.services.logging.LoggingService;
 import network.darkhelmet.prism.core.utils.TypeUtils;
 import network.darkhelmet.prism.idb.DB;
 import network.darkhelmet.prism.idb.DbRow;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 import org.intellij.lang.annotations.Language;
 

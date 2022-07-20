@@ -36,9 +36,10 @@ import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
-import network.darkhelmet.prism.core.services.logging.LoggingService;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class AbstractWorldModificationQueue implements IModificationQueue {
     /**
@@ -162,7 +163,8 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
 
         if (!modificationsQueue.isEmpty()) {
             // Schedule a new sync task
-            taskId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(PrismBukkit.getInstance(), () -> {
+            JavaPlugin plugin = PrismBukkit.getInstance().loaderPlugin();
+            taskId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
                 loggingService.debug("New modification run beginning...");
 
                 int iterationCount = 0;

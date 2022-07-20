@@ -34,7 +34,7 @@ import network.darkhelmet.prism.api.services.modifications.ModificationQueueResu
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
-import network.darkhelmet.prism.core.services.logging.LoggingService;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 public class Rollback extends AbstractWorldModificationQueue implements IRollback {
     /**

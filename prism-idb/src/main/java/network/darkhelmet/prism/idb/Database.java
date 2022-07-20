@@ -1,7 +1,5 @@
 package network.darkhelmet.prism.idb;
 
-import org.intellij.lang.annotations.Language;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -11,7 +9,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.intellij.lang.annotations.Language;
 
 public interface Database {
 

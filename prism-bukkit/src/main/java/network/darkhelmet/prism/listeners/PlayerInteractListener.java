@@ -27,7 +27,7 @@ import java.util.Optional;
 import network.darkhelmet.prism.actions.ActionFactory;
 import network.darkhelmet.prism.api.services.expectations.ExpectationType;
 import network.darkhelmet.prism.api.services.wands.IWand;
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.recording.RecordingService;
 import network.darkhelmet.prism.services.wands.WandService;

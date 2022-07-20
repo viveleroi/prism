@@ -28,7 +28,7 @@ import dev.triumphteam.cmd.core.annotation.SubCommand;
 
 import java.io.IOException;
 
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.filters.FilterService;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.translation.TranslationKey;

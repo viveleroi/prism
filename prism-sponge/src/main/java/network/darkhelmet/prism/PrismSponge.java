@@ -27,12 +27,12 @@ import com.google.inject.Injector;
 import java.nio.file.Path;
 
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.core.utils.VersionUtils;
 import network.darkhelmet.prism.injection.PrismModule;
 import network.darkhelmet.prism.listeners.ChangeBlockListener;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
@@ -110,14 +110,14 @@ public class PrismSponge {
      */
     @Listener
     public void onConstructPlugin(final ConstructPluginEvent event) {
-        logger.info("Initializing {} {} by viveleroi",
-            container.metadata().name().get(), container.metadata().version());
+        logger.info(String.format("Initializing %s %s by viveleroi",
+            container.metadata().name().get(), container.metadata().version()));
 
         // Register event listeners
         Sponge.eventManager().registerListeners(container, injector.getInstance(ChangeBlockListener.class));
 
         Short serializerVer = VersionUtils.minecraftVersion(Sponge.platform().minecraftVersion().name());
         serializerVersion = serializerVer != null ? serializerVer : -1;
-        logger.info("Serializer version: {}", serializerVersion);
+        logger.info(String.format("Serializer version: %o", serializerVersion));
     }
 }

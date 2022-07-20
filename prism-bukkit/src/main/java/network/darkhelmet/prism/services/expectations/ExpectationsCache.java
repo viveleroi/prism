@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
 
-import network.darkhelmet.prism.core.services.logging.LoggingService;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 public class ExpectationsCache {
     /**

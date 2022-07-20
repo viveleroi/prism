@@ -18,13 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.core.services.configuration.serializers;
+package network.darkhelmet.prism.loader.services.configuration.serializers;
 
 import java.lang.reflect.Type;
 import java.util.Locale;
 import java.util.Objects;
-
-import net.kyori.adventure.translation.Translator;
 
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -40,7 +38,7 @@ public class LocaleSerializerConfigurate implements TypeSerializer<Locale> {
             return Locale.ENGLISH;
         }
 
-        return Objects.requireNonNull(Translator.parseLocale(value), "value locale cannot be null!");
+        return Objects.requireNonNull(parseLocale(value), "value locale cannot be null!");
     }
 
     @Override
@@ -51,5 +49,26 @@ public class LocaleSerializerConfigurate implements TypeSerializer<Locale> {
         } else {
             node.set(obj.toString());
         }
+    }
+
+    /**
+     * Return a Locale from a string.
+     *
+     * <p>Used under MIT from Kyori: https://tinyurl.com/4yvnh48u</p>
+     *
+     * @param string The locale string
+     * @return The locale
+     */
+    private static Locale parseLocale(final String string) {
+        final String[] segments = string.split("_", 3); // language_country_variant
+        final int length = segments.length;
+        if (length == 1) {
+            return new Locale(string); // language
+        } else if (length == 2) {
+            return new Locale(segments[0], segments[1]); // language + country
+        } else if (length == 3) {
+            return new Locale(segments[0], segments[1], segments[2]); // language + country + variant
+        }
+        return null;
     }
 }

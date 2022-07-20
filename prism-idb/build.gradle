@@ -21,7 +21,8 @@ repositories {
 dependencies {
     compileOnly project.property('deps.hikari')
     compileOnly project.property('deps.jetbrains-annotations')
-    compileOnly project.property('deps.slf4j')
+    compileOnly project.property('deps.log4j-api')
+    compileOnly project.property('deps.log4j-core')
     compileOnly project.property('deps.p6spy')
 }
 

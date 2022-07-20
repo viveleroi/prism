@@ -5,8 +5,9 @@ plugins {
 }
 
 group = project.property('group')
-version = project.property('version')
 description = project.property('description')
+
+targetCompatibility = sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
@@ -31,3 +32,20 @@ lombok {
     version = '1.18.24'
     sha256 = ''
 }
+
+def getBuildNumber = {
+    // get the name of the last tag
+    def tagInfo = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'describe', '--tags'
+        standardOutput = tagInfo
+    }
+    tagInfo = tagInfo.toString()
+
+    if (!tagInfo.contains('-')) {
+        return 0
+    }
+    return tagInfo.split("-")[1]
+}
+
+project.ext.fullVersion = version = project.property('version') + '-b' + getBuildNumber()

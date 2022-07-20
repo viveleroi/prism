@@ -27,7 +27,7 @@ import network.darkhelmet.prism.api.services.wands.IWand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.lookup.LookupService;
 
 import org.bukkit.command.CommandSender;

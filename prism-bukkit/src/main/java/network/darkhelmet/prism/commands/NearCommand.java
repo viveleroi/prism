@@ -28,7 +28,7 @@ import dev.triumphteam.cmd.core.annotation.SubCommand;
 
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.util.Coordinate;
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.lookup.LookupService;
 import network.darkhelmet.prism.utils.LocationUtils;
 

@@ -20,7 +20,7 @@
 
 package network.darkhelmet.prism.listeners;
 
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 public class AbstractListener {
     /**

@@ -18,15 +18,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.core.services.configuration;
+package network.darkhelmet.prism.loader.services.configuration;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Locale;
 
-import net.kyori.adventure.serializer.configurate4.ConfigurateComponentSerializer;
-
-import network.darkhelmet.prism.core.services.configuration.serializers.LocaleSerializerConfigurate;
+import network.darkhelmet.prism.loader.services.configuration.serializers.LocaleSerializerConfigurate;
 
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -97,18 +95,12 @@ public class ConfigurationService {
      * @return The config loader
      */
     public ConfigurationLoader<?> configurationLoader(final Path file) {
-        return HoconConfigurationLoader.builder()
-            .prettyPrinting(true)
-            .defaultOptions(opts -> {
-                final ConfigurateComponentSerializer serializer =
-                    ConfigurateComponentSerializer.configurate();
-
-                return opts.shouldCopyDefaults(true).serializers(serializerBuilder ->
-                    serializerBuilder.registerAll(serializer.serializers())
-                        .register(Locale.class, new LocaleSerializerConfigurate())
-                );
-            })
-            .path(file)
+        HoconConfigurationLoader.Builder builder = HoconConfigurationLoader.builder();
+        builder.prettyPrinting(true);
+        builder.defaultOptions(opts -> opts.shouldCopyDefaults(true).serializers(serializerBuilder ->
+            serializerBuilder.register(Locale.class, new LocaleSerializerConfigurate())));
+        builder.path(file);
+        return builder
             .build();
     }
 

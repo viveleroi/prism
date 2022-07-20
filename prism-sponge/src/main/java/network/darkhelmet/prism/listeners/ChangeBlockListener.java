@@ -22,7 +22,7 @@ package network.darkhelmet.prism.listeners;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.spongepowered.api.block.transaction.BlockTransactionReceipt;
 import org.spongepowered.api.event.Listener;

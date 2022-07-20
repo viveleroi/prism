@@ -3,16 +3,13 @@ plugins {
 }
 
 dependencies {
-    implementation project.property('deps.adventure-api')
-    implementation project.property('deps.adventure-configurate')
-    implementation project.property('deps.configurate-hocon')
-    implementation project.property('deps.fastutil')
-    implementation project.property('deps.guice')
-    implementation project.property('deps.hikari')
-    implementation project.property('deps.p6spy')
-    implementation project.property('deps.slf4j')
+    compileOnly project.property('deps.adventure-api')
+    compileOnly project.property('deps.fastutil')
+    compileOnly project.property('deps.guice')
+    compileOnly project.property('deps.hikari')
+    compileOnly project.property('deps.log4j-api')
+    compileOnly project.property('deps.p6spy')
     implementation project(':prism-api')
     implementation project(':prism-idb')
+    compileOnly project(':prism-loader')
 }
-
-targetCompatibility = sourceCompatibility = JavaVersion.VERSION_17

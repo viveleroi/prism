@@ -33,6 +33,7 @@ import network.darkhelmet.prism.api.services.wands.IWand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
+import network.darkhelmet.prism.providers.TaskChainProvider;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.translation.TranslationKey;
 
@@ -55,6 +56,11 @@ public class RestoreWand implements IWand {
     private final IModificationQueueService modificationQueueService;
 
     /**
+     * The task chain provider.
+     */
+    private final TaskChainProvider taskChainProvider;
+
+    /**
      * The owner.
      */
     private Object owner;
@@ -65,15 +71,18 @@ public class RestoreWand implements IWand {
      * @param storageAdapter The storage adapter
      * @param messageService The message service
      * @param modificationQueueService The modification queue service
+     * @param taskChainProvider The task chain provider
      */
     @Inject
     public RestoreWand(
             IStorageAdapter storageAdapter,
             MessageService messageService,
-            IModificationQueueService modificationQueueService) {
+            IModificationQueueService modificationQueueService,
+            TaskChainProvider taskChainProvider) {
         this.storageAdapter = storageAdapter;
         this.messageService = messageService;
         this.modificationQueueService = modificationQueueService;
+        this.taskChainProvider = taskChainProvider;
     }
 
     @Override
@@ -97,7 +106,7 @@ public class RestoreWand implements IWand {
 
         final ActivityQuery query = ActivityQuery.builder().location(at).limit(1).build();
 
-        PrismBukkit.newChain().asyncFirst(() -> {
+        taskChainProvider.newChain().asyncFirst(() -> {
             try {
                 return storageAdapter.queryActivities(query);
             } catch (Exception e) {

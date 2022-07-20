@@ -53,14 +53,14 @@ import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.api.util.NamedIdentity;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.core.services.cache.CacheService;
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
-import network.darkhelmet.prism.core.services.logging.LoggingService;
 import network.darkhelmet.prism.core.utils.TypeUtils;
 import network.darkhelmet.prism.idb.DB;
 import network.darkhelmet.prism.idb.Database;
 import network.darkhelmet.prism.idb.DatabaseOptions;
 import network.darkhelmet.prism.idb.DbRow;
 import network.darkhelmet.prism.idb.PooledDatabaseOptions;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 import org.intellij.lang.annotations.Language;
 

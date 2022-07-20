@@ -32,7 +32,6 @@ import com.google.inject.name.Named;
 import io.leangen.geantyref.TypeToken;
 
 import java.nio.file.Path;
-import java.util.Locale;
 import java.util.Map;
 
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -55,13 +54,15 @@ import network.darkhelmet.prism.api.services.wands.IWand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.core.services.cache.CacheService;
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
-import network.darkhelmet.prism.core.services.logging.LoggingService;
 import network.darkhelmet.prism.core.storage.mysql.MysqlQueryBuilder;
 import network.darkhelmet.prism.core.storage.mysql.MysqlSchemaUpdater;
 import network.darkhelmet.prism.core.storage.mysql.MysqlStorageAdapter;
 import network.darkhelmet.prism.injection.factories.IRestoreFactory;
 import network.darkhelmet.prism.injection.factories.IRollbackFactory;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
+import network.darkhelmet.prism.loader.storage.StorageType;
+import network.darkhelmet.prism.providers.TaskChainProvider;
 import network.darkhelmet.prism.providers.WorldIdentityProvider;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.filters.FilterService;
@@ -87,13 +88,17 @@ import network.darkhelmet.prism.services.wands.RollbackWand;
 import network.darkhelmet.prism.services.wands.WandService;
 
 import org.bukkit.command.CommandSender;
-import org.slf4j.Logger;
 
 public class PrismModule extends AbstractModule {
     /**
-     * The logger.
+     * The plugin.
      */
-    private final Logger logger;
+    private final PrismBukkit prism;
+
+    /**
+     * The logging service.
+     */
+    private final LoggingService loggingService;
 
     /**
      * The data path.
@@ -114,12 +119,13 @@ public class PrismModule extends AbstractModule {
      * Construct the module.
      *
      * @param prism Prism
-     * @param logger The logger
+     * @param loggingService The logging service
      */
-    public PrismModule(PrismBukkit prism, Logger logger) {
-        this.logger = logger;
-        this.dataPath = prism.getDataFolder().toPath();
-        this.version = prism.getDescription().getVersion();
+    public PrismModule(PrismBukkit prism, LoggingService loggingService) {
+        this.prism = prism;
+        this.loggingService = loggingService;
+        this.dataPath = prism.loaderPlugin().getDataFolder().toPath();
+        this.version = prism.loaderPlugin().getDescription().getVersion();
         this.serializerVersion = prism.serializerVersion();
     }
 
@@ -143,7 +149,7 @@ public class PrismModule extends AbstractModule {
     @Provides
     @Singleton
     public BukkitAudiences getAudience() {
-        return BukkitAudiences.create(PrismBukkit.getInstance());
+        return BukkitAudiences.create(prism.loaderPlugin());
     }
 
     /**
@@ -156,8 +162,8 @@ public class PrismModule extends AbstractModule {
     @Provides
     public IStorageAdapter getStorageAdapter(
             ConfigurationService configurationService,
-            Map<String, Provider<IStorageAdapter>> storageMap) {
-        String datasource = configurationService.storageConfig().datasource().toLowerCase(Locale.ENGLISH);
+            Map<StorageType, Provider<IStorageAdapter>> storageMap) {
+        StorageType datasource = configurationService.storageConfig().datasource();
         return storageMap.get(datasource).get();
     }
 
@@ -207,8 +213,10 @@ public class PrismModule extends AbstractModule {
     @Override
     public void configure() {
         // Base
-        bind(Logger.class).toInstance(this.logger);
         bind(Path.class).toInstance(dataPath);
+
+        // Taskchain
+        bind(TaskChainProvider.class).toInstance(new TaskChainProvider(prism.loader()));
 
         // Actions
         bind(ActionFactory.class).in(Singleton.class);
@@ -221,8 +229,7 @@ public class PrismModule extends AbstractModule {
         bind(CacheService.class).in(Singleton.class);
 
         // Service - Configuration
-        ConfigurationService configurationService = new ConfigurationService(dataPath);
-        bind(ConfigurationService.class).toInstance(configurationService);
+        bind(ConfigurationService.class).toInstance(prism.loader().configurationService());
 
         // Service - Expectations
         bind(ExpectationService.class).in(Singleton.class);
@@ -231,7 +238,7 @@ public class PrismModule extends AbstractModule {
         bind(FilterService.class).in(Singleton.class);
 
         // Service = Logging
-        bind(LoggingService.class).in(Singleton.class);
+        bind(LoggingService.class).toInstance(loggingService);
 
         // Service - Lookup
         bind(LookupService.class).in(Singleton.class);
@@ -270,8 +277,8 @@ public class PrismModule extends AbstractModule {
         bind(MysqlQueryBuilder.class);
         bind(MysqlSchemaUpdater.class).in(Singleton.class);
 
-        MapBinder<String, IStorageAdapter> storageBinder = MapBinder.newMapBinder(
-            binder(), String.class, IStorageAdapter.class);
-        storageBinder.addBinding("mysql").to(MysqlStorageAdapter.class).in(Singleton.class);
+        MapBinder<StorageType, IStorageAdapter> storageBinder = MapBinder.newMapBinder(
+            binder(), StorageType.class, IStorageAdapter.class);
+        storageBinder.addBinding(StorageType.MYSQL).to(MysqlStorageAdapter.class).in(Singleton.class);
     }
 }

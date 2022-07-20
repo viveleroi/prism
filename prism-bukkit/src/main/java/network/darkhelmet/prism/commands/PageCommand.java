@@ -29,7 +29,7 @@ import dev.triumphteam.cmd.core.annotation.SubCommand;
 import java.util.Optional;
 
 import network.darkhelmet.prism.api.activities.ActivityQuery;
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.lookup.LookupService;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.translation.TranslationKey;

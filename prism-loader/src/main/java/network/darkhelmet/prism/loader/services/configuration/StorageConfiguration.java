@@ -18,7 +18,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.core.services.configuration;
+package network.darkhelmet.prism.loader.services.configuration;
+
+import network.darkhelmet.prism.loader.storage.StorageType;
 
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
@@ -30,7 +32,7 @@ public class StorageConfiguration {
 
     @Comment("Set the datasource. This determines which storage system is used.\n"
         + "Available options: mysql")
-    private String datasource = "mysql";
+    private StorageType datasource = StorageType.MYSQL;
 
     @Comment("Configure the database name.")
     private String database = "prism";
@@ -86,7 +88,7 @@ public class StorageConfiguration {
      *
      * @return The datasource
      */
-    public String datasource() {
+    public StorageType datasource() {
         return datasource;
     }
 

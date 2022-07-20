@@ -26,8 +26,8 @@ import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.services.recording.IRecordingService;
 import network.darkhelmet.prism.api.storage.IActivityBatch;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
-import network.darkhelmet.prism.core.services.configuration.StorageConfiguration;
-import network.darkhelmet.prism.core.services.logging.LoggingService;
+import network.darkhelmet.prism.loader.services.configuration.StorageConfiguration;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 public class RecordingTask implements Runnable {
     /**

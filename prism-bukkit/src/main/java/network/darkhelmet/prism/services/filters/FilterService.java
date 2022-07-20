@@ -29,20 +29,20 @@ import java.util.UUID;
 
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.filters.IFilterService;
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
-import network.darkhelmet.prism.core.services.configuration.FilterConfiguartion;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.configuration.FilterConfiguartion;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.utils.MaterialTag;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.slf4j.Logger;
 
 public class FilterService implements IFilterService {
     /**
-     * The logger.
+     * The logging service.
      */
-    private final Logger logger;
+    private final LoggingService loggingService;
 
     /**
      * The configuration service.
@@ -57,12 +57,12 @@ public class FilterService implements IFilterService {
     /**
      * Construct a new filter service.
      *
-     * @param logger The logger
+     * @param loggingService The logging service
      * @param configurationService The configuration service
      */
     @Inject
-    public FilterService(Logger logger, ConfigurationService configurationService) {
-        this.logger = logger;
+    public FilterService(LoggingService loggingService, ConfigurationService configurationService) {
+        this.loggingService = loggingService;
         this.configurationService = configurationService;
 
         loadFilters();
@@ -78,7 +78,8 @@ public class FilterService implements IFilterService {
         for (FilterConfiguartion config : configurationService.prismConfig().filters()) {
             // Behavior
             if (config.behavior() == null) {
-                logger.warn("Filter error: No behavior defined. Behavior must be either IGNORE or ALLOW.");
+                loggingService.logger()
+                    .warn("Filter error: No behavior defined. Behavior must be either IGNORE or ALLOW.");
 
                 continue;
             }
@@ -88,7 +89,7 @@ public class FilterService implements IFilterService {
             for (String worldName : config.worlds()) {
                 World world = Bukkit.getServer().getWorld(worldName);
                 if (world == null) {
-                    logger.warn("Filter error: No world found by name {}.", worldName);
+                    loggingService.logger().warn("Filter error: No world found by name {}.", worldName);
 
                     continue;
                 }
@@ -103,7 +104,7 @@ public class FilterService implements IFilterService {
                     Material material = Material.valueOf(materialKey.toUpperCase(Locale.ENGLISH));
                     materialTag.append(material);
                 } catch (IllegalArgumentException e) {
-                    logger.warn("Filter error: No material matching {}", materialKey);
+                    loggingService.logger().warn("Filter error: No material matching {}", materialKey);
                 }
             }
 

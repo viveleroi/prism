@@ -23,7 +23,7 @@ package network.darkhelmet.prism.listeners;
 import com.google.inject.Inject;
 
 import network.darkhelmet.prism.actions.ActionFactory;
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.recording.RecordingService;
 

@@ -20,13 +20,6 @@
 
 package network.darkhelmet.prism;
 
-import co.aikar.taskchain.BukkitTaskChainFactory;
-import co.aikar.taskchain.TaskChain;
-import co.aikar.taskchain.TaskChainFactory;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import dev.triumphteam.cmd.core.argument.named.Argument;
 import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
@@ -34,7 +27,9 @@ import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import lombok.Getter;
 
@@ -52,9 +47,7 @@ import network.darkhelmet.prism.commands.ReloadCommand;
 import network.darkhelmet.prism.commands.RestoreCommand;
 import network.darkhelmet.prism.commands.RollbackCommand;
 import network.darkhelmet.prism.commands.WandCommand;
-import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.core.utils.VersionUtils;
-import network.darkhelmet.prism.injection.PrismModule;
 import network.darkhelmet.prism.listeners.BlockBreakListener;
 import network.darkhelmet.prism.listeners.BlockExplodeListener;
 import network.darkhelmet.prism.listeners.BlockPlaceListener;
@@ -69,6 +62,12 @@ import network.darkhelmet.prism.listeners.PlayerQuitListener;
 import network.darkhelmet.prism.listeners.VehicleCreateListener;
 import network.darkhelmet.prism.listeners.VehicleEnterListener;
 import network.darkhelmet.prism.listeners.VehicleExitListener;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.dependencies.Dependency;
+import network.darkhelmet.prism.loader.services.dependencies.DependencyService;
+import network.darkhelmet.prism.loader.services.dependencies.loader.PluginLoader;
+import network.darkhelmet.prism.loader.services.scheduler.ThreadPoolScheduler;
+import network.darkhelmet.prism.providers.InjectorProvider;
 import network.darkhelmet.prism.services.recording.RecordingService;
 
 import org.bukkit.Bukkit;
@@ -77,37 +76,31 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class PrismBukkit extends JavaPlugin implements IPrism {
+public class PrismBukkit implements IPrism {
     /**
      * Cache static instance.
      */
     private static PrismBukkit instance;
 
     /**
-     * The logger.
+     * The bootstrap.
      */
-    private final Logger logger = LoggerFactory.getLogger("Prism");
+    private final PrismBukkitBootstrap bootstrap;
 
     /**
-     * The injector.
+     * The injector provider.
      */
     @Getter
-    private Injector injector;
+    private InjectorProvider injectorProvider;
 
     /**
      * Sets a numeric version we can use to handle differences between serialization formats.
      */
     @Getter
     protected short serializerVersion;
-
-    /**
-     * The task chain factory.
-     */
-    private static TaskChainFactory taskChainFactory;
 
     /**
      * The configuration service.
@@ -127,6 +120,11 @@ public class PrismBukkit extends JavaPlugin implements IPrism {
     private IActionTypeRegistry actionTypeRegistry;
 
     /**
+     * The thread pool scheduler.
+     */
+    private final ThreadPoolScheduler threadPoolScheduler;
+
+    /**
      * Get this instance.
      *
      * @return The plugin instance
@@ -138,67 +136,88 @@ public class PrismBukkit extends JavaPlugin implements IPrism {
     /**
      * Constructor.
      */
-    public PrismBukkit() {
+    public PrismBukkit(PrismBukkitBootstrap bootstrap) {
+        this.bootstrap = bootstrap;
+        this.threadPoolScheduler = new ThreadPoolScheduler(loader());
         instance = this;
     }
 
-    @Override
-    public void onLoad() {
-        Short serializerVer = VersionUtils.minecraftVersion(Bukkit.getVersion());
-        serializerVersion = serializerVer != null ? serializerVer : -1;
-        logger.info("Serializer version: {}", serializerVersion);
-
-        this.injector = Guice.createInjector(new PrismModule(this, logger));
-
-        // Load the configuration service (and files)
-        configurationService = injector.getInstance(ConfigurationService.class);
-
-        // Choose and initialize the datasource
-        storageAdapter = injector.getInstance(IStorageAdapter.class);
-        if (!storageAdapter.ready()) {
-            disable();
-        }
-
-        actionTypeRegistry = injector.getInstance(IActionTypeRegistry.class);
+    /**
+     * Get all platform dependencies.
+     *
+     * @return The platform dependencies
+     */
+    protected Set<Dependency> platformDependencies() {
+        return EnumSet.of(
+            Dependency.ADVENTURE_PLATFORM_BUKKIT,
+            Dependency.NBT_API,
+            Dependency.TASKCHAIN_BUKKIT,
+            Dependency.TASKCHAIN_CORE
+        );
     }
 
     /**
      * On enable.
      */
-    @Override
     public void onEnable() {
-        String pluginName = this.getDescription().getName();
-        String pluginVersion = this.getDescription().getVersion();
-        logger.info("Initializing {} {} by viveleroi", pluginName, pluginVersion);
+        DependencyService dependencyService = new DependencyService(
+            bootstrap.loggingService(),
+            loaderPlugin().getDataFolder().toPath(),
+            bootstrap.classPathAppender(),
+            threadPoolScheduler
+        );
+        dependencyService.loadAllDependencies(platformDependencies());
 
-        if (isEnabled()) {
+        Short serializerVer = VersionUtils.minecraftVersion(Bukkit.getVersion());
+        serializerVersion = serializerVer != null ? serializerVer : -1;
+        bootstrap.loggingService().logger().info(String.format("Serializer version: %o", serializerVersion));
+
+        injectorProvider = new InjectorProvider(this, bootstrap.loggingService());
+
+        // Load the configuration service (and files)
+        configurationService = injectorProvider.injector().getInstance(ConfigurationService.class);
+
+        // Choose and initialize the datasource
+        storageAdapter = injectorProvider.injector().getInstance(IStorageAdapter.class);
+        if (!storageAdapter.ready()) {
+            disable();
+        }
+
+        actionTypeRegistry = injectorProvider.injector().getInstance(IActionTypeRegistry.class);
+
+        String pluginName = this.loaderPlugin().getDescription().getName();
+        String pluginVersion = this.loaderPlugin().getDescription().getVersion();
+        bootstrap.loggingService().logger().info(
+            String.format("Initializing %s %s by viveleroi", pluginName, pluginVersion));
+
+        if (loaderPlugin().isEnabled()) {
             // Initialize some classes
-            injector.getInstance(RecordingService.class);
-            taskChainFactory = BukkitTaskChainFactory.create(this);
+            injectorProvider.injector().getInstance(RecordingService.class);
 
-            // Register listeners
-            getServer().getPluginManager().registerEvents(injector.getInstance(BlockBreakListener.class), this);
-            getServer().getPluginManager().registerEvents(injector.getInstance(BlockExplodeListener.class), this);
-            getServer().getPluginManager().registerEvents(injector.getInstance(BlockPlaceListener.class), this);
-            getServer().getPluginManager().registerEvents(injector.getInstance(EntityDeathListener.class), this);
-            getServer().getPluginManager().registerEvents(injector.getInstance(EntityExplodeListener.class), this);
-            getServer().getPluginManager().registerEvents(injector.getInstance(EntitySpawnListener.class), this);
-            getServer().getPluginManager().registerEvents(injector.getInstance(HangingBreakListener.class), this);
-            getServer().getPluginManager().registerEvents(injector.getInstance(PlayerDropItemListener.class), this);
-            getServer().getPluginManager().registerEvents(injector.getInstance(PlayerInteractListener.class), this);
-            getServer().getPluginManager().registerEvents(injector.getInstance(PlayerJoinListener.class), this);
-            getServer().getPluginManager().registerEvents(injector.getInstance(PlayerQuitListener.class), this);
-            getServer().getPluginManager().registerEvents(injector.getInstance(VehicleCreateListener.class), this);
-            getServer().getPluginManager().registerEvents(injector.getInstance(VehicleEnterListener.class), this);
-            getServer().getPluginManager().registerEvents(injector.getInstance(VehicleExitListener.class), this);
+            // Register event listeners
+            registerEvent(BlockBreakListener.class);
+            registerEvent(BlockExplodeListener.class);
+            registerEvent(BlockPlaceListener.class);
+            registerEvent(EntityDeathListener.class);
+            registerEvent(EntityExplodeListener.class);
+            registerEvent(EntitySpawnListener.class);
+            registerEvent(HangingBreakListener.class);
+            registerEvent(PlayerDropItemListener.class);
+            registerEvent(PlayerInteractListener.class);
+            registerEvent(PlayerJoinListener.class);
+            registerEvent(PlayerQuitListener.class);
+            registerEvent(VehicleCreateListener.class);
+            registerEvent(VehicleEnterListener.class);
+            registerEvent(VehicleExitListener.class);
 
             // Register commands
-            BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(this);
+            BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(loaderPlugin());
 
             // Register action types auto-suggest
             commandManager.registerSuggestion(SuggestionKey.of("actions"), (sender, context) -> {
                 List<String> actionFamilies = new ArrayList<>();
-                for (IActionType actionType : injector.getInstance(ActionTypeRegistry.class).actionTypes()) {
+                for (IActionType actionType : injectorProvider.injector()
+                        .getInstance(ActionTypeRegistry.class).actionTypes()) {
                     actionFamilies.add(actionType.familyKey());
                 }
 
@@ -208,7 +227,7 @@ public class PrismBukkit extends JavaPlugin implements IPrism {
             // Register online player auto-suggest
             commandManager.registerSuggestion(SuggestionKey.of("players"), (sender, context) -> {
                 List<String> players = new ArrayList<>();
-                for (Player player : getServer().getOnlinePlayers()) {
+                for (Player player : loaderPlugin().getServer().getOnlinePlayers()) {
                     players.add(player.getName());
                 }
 
@@ -218,7 +237,7 @@ public class PrismBukkit extends JavaPlugin implements IPrism {
             // Register world auto-suggest
             commandManager.registerSuggestion(SuggestionKey.of("worlds"), (sender, context) -> {
                 List<String> worlds = new ArrayList<>();
-                for (World world : getServer().getWorlds()) {
+                for (World world : loaderPlugin().getServer().getWorlds()) {
                     worlds.add(world.getName());
                 }
 
@@ -227,59 +246,83 @@ public class PrismBukkit extends JavaPlugin implements IPrism {
 
             // Register "in" parameter
             commandManager.registerSuggestion(SuggestionKey.of("ins"), (sender, context) ->
-                Arrays.asList("chunk", "world"));
+                    Arrays.asList("chunk", "world"));
 
             commandManager.registerNamedArguments(
-                ArgumentKey.of("params"),
-                Argument.forBoolean().name("reversed").build(),
-                Argument.forInt().name("r").build(),
-                Argument.forString().name("in").suggestion(SuggestionKey.of("ins")).build(),
-                Argument.forString().name("since").build(),
-                Argument.forString().name("before").build(),
-                Argument.forString().name("cause").build(),
-                Argument.forString().name("world").suggestion(SuggestionKey.of("worlds")).build(),
-                Argument.listOf(String.class).name("a").suggestion(SuggestionKey.of("actions")).build(),
-                Argument.listOf(Material.class).name("m").build(),
-                Argument.listOf(EntityType.class).name("e").build(),
-                Argument.listOf(String.class).name("p").suggestion(SuggestionKey.of("players")).build()
+                    ArgumentKey.of("params"),
+                    Argument.forBoolean().name("reversed").build(),
+                    Argument.forInt().name("r").build(),
+                    Argument.forString().name("in").suggestion(SuggestionKey.of("ins")).build(),
+                    Argument.forString().name("since").build(),
+                    Argument.forString().name("before").build(),
+                    Argument.forString().name("cause").build(),
+                    Argument.forString().name("world").suggestion(SuggestionKey.of("worlds")).build(),
+                    Argument.listOf(String.class).name("a").suggestion(SuggestionKey.of("actions")).build(),
+                    Argument.listOf(Material.class).name("m").build(),
+                    Argument.listOf(EntityType.class).name("e").build(),
+                    Argument.listOf(String.class).name("p").suggestion(SuggestionKey.of("players")).build()
             );
 
-            commandManager.registerCommand(injector.getInstance(AboutCommand.class));
-            commandManager.registerCommand(injector.getInstance(LookupCommand.class));
-            commandManager.registerCommand(injector.getInstance(NearCommand.class));
-            commandManager.registerCommand(injector.getInstance(PageCommand.class));
-            commandManager.registerCommand(injector.getInstance(PreviewCommand.class));
-            commandManager.registerCommand(injector.getInstance(ReloadCommand.class));
-            commandManager.registerCommand(injector.getInstance(RestoreCommand.class));
-            commandManager.registerCommand(injector.getInstance(RollbackCommand.class));
-            commandManager.registerCommand(injector.getInstance(WandCommand.class));
+            commandManager.registerCommand(injectorProvider.injector().getInstance(AboutCommand.class));
+            commandManager.registerCommand(injectorProvider.injector().getInstance(LookupCommand.class));
+            commandManager.registerCommand(injectorProvider.injector().getInstance(NearCommand.class));
+            commandManager.registerCommand(injectorProvider.injector().getInstance(PageCommand.class));
+            commandManager.registerCommand(injectorProvider.injector().getInstance(PreviewCommand.class));
+            commandManager.registerCommand(injectorProvider.injector().getInstance(ReloadCommand.class));
+            commandManager.registerCommand(injectorProvider.injector().getInstance(RestoreCommand.class));
+            commandManager.registerCommand(injectorProvider.injector().getInstance(RollbackCommand.class));
+            commandManager.registerCommand(injectorProvider.injector().getInstance(WandCommand.class));
         }
+    }
+
+    /**
+     * Register an event.
+     *
+     * @param type The event class
+     * @param <T> The type
+     */
+    protected <T> void registerEvent(Class<? extends Listener> type) {
+        loaderPlugin().getServer().getPluginManager()
+            .registerEvents(injectorProvider.injector().getInstance(type), loaderPlugin());
+    }
+
+    /**
+     * Get the loader plugin.
+     *
+     * @return The loader
+     */
+    public PluginLoader loader() {
+        return bootstrap.loader();
+    }
+
+    /**
+     * Get the loader as a bukkit plugin.
+     *
+     * @return The loader as a bukkit plugin
+     */
+    public JavaPlugin loaderPlugin() {
+        return (JavaPlugin) bootstrap.loader();
     }
 
     /**
      * Disable the plugin.
      */
     protected void disable() {
-        Bukkit.getPluginManager().disablePlugin(PrismBukkit.getInstance());
+        Bukkit.getPluginManager().disablePlugin(loaderPlugin());
 
-        logger.error("Prism has to disable due to a fatal error.");
+        threadPoolScheduler.shutdownScheduler();
+        threadPoolScheduler.shutdownExecutor();
+
+        bootstrap.loggingService().logger().error("Prism has to disable due to a fatal error.");
     }
 
-    @Override
+    /**
+     * On disable.
+     */
     public void onDisable() {
         if (storageAdapter != null) {
             storageAdapter.close();
         }
-    }
-
-    /**
-     * Create a new task chain.
-     *
-     * @param <T> The type
-     * @return The chain
-     */
-    public static <T> TaskChain<T> newChain() {
-        return taskChainFactory.newChain();
     }
 
     /**
@@ -291,7 +334,7 @@ public class PrismBukkit extends JavaPlugin implements IPrism {
     @Deprecated
     public void debug(String message) {
         if (configurationService.prismConfig().debug()) {
-            logger.info(message);
+            bootstrap.loggingService().logger().info(message);
         }
     }
 
@@ -303,6 +346,6 @@ public class PrismBukkit extends JavaPlugin implements IPrism {
      */
     @Deprecated
     public void handleException(Exception e) {
-        e.printStackTrace();
+        bootstrap.loggingService().handleException(e);
     }
 }

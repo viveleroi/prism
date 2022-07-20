@@ -45,13 +45,13 @@ import java.util.stream.Stream;
 import net.kyori.adventure.translation.Translator;
 import net.kyori.moonshine.message.IMessageSource;
 
-import network.darkhelmet.prism.core.services.configuration.PrismConfiguration;
+import network.darkhelmet.prism.loader.services.configuration.PrismConfiguration;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.utils.SortedProperties;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 public class TranslationService implements IMessageSource<CommandSender, String> {
     /**
@@ -65,9 +65,9 @@ public class TranslationService implements IMessageSource<CommandSender, String>
     private final Path dataDirectory;
 
     /**
-     * The logger.
+     * The logging service.
      */
-    private final Logger logger;
+    private final LoggingService loggingService;
 
     /**
      * The plugin jar path.
@@ -82,15 +82,17 @@ public class TranslationService implements IMessageSource<CommandSender, String>
     /**
      * Construct the translation system.
      *
-     * @param logger The logger
+     * @param loggingService The logging service
      * @param dataDirectory The data directory
      * @param prismConfiguration The default locale
      * @throws IOException IO Exception
      */
     @Inject
     public TranslationService(
-        Logger logger, Path dataDirectory, PrismConfiguration prismConfiguration) throws IOException {
-        this.logger = logger;
+            LoggingService loggingService,
+            Path dataDirectory,
+            PrismConfiguration prismConfiguration) throws IOException {
+        this.loggingService = loggingService;
         this.dataDirectory = dataDirectory;
         this.defaultLocale = prismConfiguration.defaultLocale();
         this.pluginJar = pluginJar();
@@ -238,21 +240,22 @@ public class TranslationService implements IMessageSource<CommandSender, String>
                     .replace("nb_NO", "no_NO"));
 
                 if (locale == null) {
-                    this.logger.warn("Unknown locale '{}'?", localeString);
+                    this.loggingService.logger().warn("Unknown locale '{}'?", localeString);
                     return;
                 }
 
-                this.logger.info("Found locale {} ({}) in: {}", locale.getDisplayName(), locale, localeFile);
-
+                this.loggingService.logger().info("Found locale {} ({}) in: {}",
+                    locale.getDisplayName(), locale, localeFile);
                 final SortedProperties properties = new SortedProperties();
 
                 try {
                     this.loadProperties(properties, localeDirectory, localeFile);
                     this.locales.put(locale, properties);
 
-                    this.logger.info("Successfully loaded locale {} ({})", locale.getDisplayName(), locale);
+                    this.loggingService.logger().info("Successfully loaded locale {} ({})",
+                        locale.getDisplayName(), locale);
                 } catch (final IOException ex) {
-                    this.logger.warn("Unable to load locale {} ({}) from source: {}",
+                    this.loggingService.logger().warn("Unable to load locale {} ({}) from source: {}",
                         locale.getDisplayName(), locale, localeFile, ex);
                 }
             }));

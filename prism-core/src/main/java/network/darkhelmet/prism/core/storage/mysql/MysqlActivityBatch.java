@@ -39,9 +39,9 @@ import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.storage.IActivityBatch;
 import network.darkhelmet.prism.api.util.NamedIdentity;
 import network.darkhelmet.prism.core.services.cache.CacheService;
-import network.darkhelmet.prism.core.services.configuration.StorageConfiguration;
 import network.darkhelmet.prism.core.utils.TypeUtils;
 import network.darkhelmet.prism.idb.DB;
+import network.darkhelmet.prism.loader.services.configuration.StorageConfiguration;
 
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.Nullable;

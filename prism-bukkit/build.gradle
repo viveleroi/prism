@@ -1,34 +1,34 @@
 plugins {
     id 'prism.java-conventions'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id 'xyz.jpenilla.run-paper' version '1.0.6'
-    id 'net.minecrell.plugin-yml.bukkit' version '0.5.2'
 }
 
 dependencies {
+    compileOnly project.property('deps.adventure-api')
+    compileOnly project.property('deps.adventure-bukkit')
+    compileOnly project.property('deps.adventure-minimessage')
+    compileOnly project.property('deps.adventure-plain')
+    compileOnly project.property('deps.apache-commons-collections')
+    compileOnly project.property('deps.configurate-hocon')
+    compileOnly project.property('deps.expiringmap')
+    compileOnly project.property('deps.fastutil')
+    compileOnly project.property('deps.guice')
+    compileOnly project.property('deps.guice-assistedinject')
+    compileOnly project.property('deps.jar-relocator')
+    compileOnly project.property('deps.log4j-api')
+    compileOnly project.property('deps.log4j-core')
+    compileOnly project.property('deps.moonshine-core')
+    compileOnly project.property('deps.moonshine-standard')
+    compileOnly project.property('deps.nbt-api')
+    compileOnly project.property('deps.p6spy')
     compileOnly project.property('deps.spigot-api')
-    implementation project.property('deps.adventure-api')
-    implementation project.property('deps.adventure-bukkit')
-    implementation project.property('deps.adventure-minimessage')
-    implementation project.property('deps.adventure-plain')
-    implementation project.property('deps.apache-commons-collections')
-    implementation project.property('deps.configurate-hocon')
-    implementation project.property('deps.expiringmap')
-    implementation project.property('deps.fastutil')
-    implementation project.property('deps.guice')
-    implementation project.property('deps.guice-assistedinject')
-    implementation project.property('deps.moonshine-core')
-    implementation project.property('deps.moonshine-standard')
-    implementation project.property('deps.nbt-api')
-    implementation project.property('deps.p6spy')
-    implementation project.property('deps.slf4j')
-    implementation project.property('deps.taskchain')
+    compileOnly project.property('deps.taskchain')
+    // included here as I'm too lazy to add snapshot support to the dep loader
     implementation project.property('deps.triumph-cmd-bukkit')
     implementation project(':prism-core')
     implementation project(':prism-api')
+    compileOnly project(':prism-loader')
 }
-
-targetCompatibility = sourceCompatibility = JavaVersion.VERSION_17
 
 // "parameters" flag required for moonshine to work
 compileJava {
@@ -37,30 +37,29 @@ compileJava {
     options.forkOptions.executable = 'javac'
 }
 
-bukkit {
-    name = 'prism'
-    main = 'network.darkhelmet.prism.PrismBukkit'
-    apiVersion = '1.17'
-    authors = ['viveleroi']
-    website = project.property('website')
-}
-
 shadowJar {
-    relocate 'com.google.inject', 'network.darkhelmet.prism.inject'
-    relocate 'co.aikar.taskchain', 'network.darkhelmet.prism.taskchain'
-    relocate 'com.zaxxer', 'network.darkhelmet.prism.zaxxer'
-    relocate 'net.kyori', 'network.darkhelmet.prism.kyori'
-    relocate 'org.spongepowered', 'network.darkhelmet.prism.spongepowered'
-    relocate 'de.tr7zw', 'network.darkhelmet.prism.tr7zw'
+    archiveFileName = 'prism-bukkit.jarinjar'
 
-    minimize {
-        exclude(dependency('p6spy:.*:.*'))
-    }
+    relocate 'co.aikar.taskchain', 'network.darkhelmet.prism.libs.taskchain'
+    relocate 'com.google.inject', 'network.darkhelmet.prism.libs.inject'
+    relocate 'com.mysql', 'network.darkhelmet.prism.libs.mysql'
+    relocate 'com.p6spy.engine', 'network.darkhelmet.prism.libs.p6spy'
+    relocate 'com.typesafe.config', 'network.darkhelmet.prism.libs.hocon'
+    relocate 'com.zaxxer.hikari', 'network.darkhelmet.prism.libs.hikari'
+    relocate 'de.tr7zw.nbtapi', 'network.darkhelmet.prism.libs.nbtapi'
+    relocate 'dev.triumphteam', 'network.darkhelmet.prism.libs.triumphteam'
+    relocate 'io.leangen.geantyref', 'network.darkhelmet.prism.libs.geantyref'
+    relocate 'it.unimi.dsi.fastutil', 'network.darkhelmet.prism.libs.fastutil'
+    relocate 'net.jodah.expiringmap', 'network.darkhelmet.prism.libs.expiringmap'
+    relocate 'net.kyori.adventure', 'network.darkhelmet.prism.libs.adventure'
+    relocate 'net.kyori.moonshine', 'network.darkhelmet.prism.libs.moonshine'
+    relocate 'org.aopalliance', 'network.darkhelmet.prism.libs.aopalliance'
+    relocate 'org.apache.commons', 'network.darkhelmet.prism.libs.commons'
+    relocate 'org.spongepowered.configurate', 'network.darkhelmet.prism.libs.configurate'
+    // org.jetbrains.annotations
+    // org.checkerframework
 }
 
-runServer {
-    // Configure the Minecraft version for our task.
-    // This is the only required configuration besides applying the plugin.
-    // Your plugin's jar (or shadowJar if present) will be used automatically.
-    minecraftVersion('1.19')
+artifacts {
+    archives shadowJar
 }

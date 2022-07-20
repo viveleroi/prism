@@ -23,8 +23,6 @@
 
 package network.darkhelmet.prism.idb;
 
-import org.intellij.lang.annotations.Language;
-
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -33,7 +31,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.intellij.lang.annotations.Language;
 
 public final class DB {
     private static final Pattern NEWLINE = Pattern.compile("\n");

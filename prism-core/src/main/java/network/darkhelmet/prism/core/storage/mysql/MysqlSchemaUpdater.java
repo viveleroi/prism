@@ -23,14 +23,13 @@ package network.darkhelmet.prism.core.storage.mysql;
 import com.google.inject.Inject;
 
 import network.darkhelmet.prism.api.providers.IWorldIdentityProvider;
-
-import org.slf4j.Logger;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 public class MysqlSchemaUpdater {
     /**
      * The logger.
      */
-    private final Logger logger;
+    private final LoggingService loggingService;
 
     /**
      * The world identity provider.
@@ -40,11 +39,11 @@ public class MysqlSchemaUpdater {
     /**
      * Construct the updater.
      *
-     * @param logger The logger
+     * @param loggingService The logging service
      */
     @Inject
-    public MysqlSchemaUpdater(Logger logger, IWorldIdentityProvider worldIdentityProvider) {
-        this.logger = logger;
+    public MysqlSchemaUpdater(LoggingService loggingService, IWorldIdentityProvider worldIdentityProvider) {
+        this.loggingService = loggingService;
         this.worldIdentityProvider = worldIdentityProvider;
     }
 }

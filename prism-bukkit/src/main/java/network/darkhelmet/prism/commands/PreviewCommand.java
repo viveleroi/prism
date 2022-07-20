@@ -37,6 +37,7 @@ import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
+import network.darkhelmet.prism.providers.TaskChainProvider;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.query.QueryService;
 import network.darkhelmet.prism.services.translation.TranslationKey;
@@ -66,23 +67,31 @@ public class PreviewCommand extends BaseCommand {
     private final QueryService queryService;
 
     /**
+     * The task chain provider.
+     */
+    private final TaskChainProvider taskChainProvider;
+
+    /**
      * Construct the rollback command.
      *
      * @param storageAdapter The storage adapter
      * @param messageService The message service
      * @param modificationQueueService The modification queue service
      * @param queryService The query service
+     * @param taskChainProvider The taskchain provider
      */
     @Inject
     public PreviewCommand(
             IStorageAdapter storageAdapter,
             MessageService messageService,
             IModificationQueueService modificationQueueService,
-            QueryService queryService) {
+            QueryService queryService,
+            TaskChainProvider taskChainProvider) {
         this.storageAdapter = storageAdapter;
         this.messageService = messageService;
         this.modificationQueueService = modificationQueueService;
         this.queryService = queryService;
+        this.taskChainProvider = taskChainProvider;
     }
 
     /**
@@ -103,7 +112,7 @@ public class PreviewCommand extends BaseCommand {
 
         final ActivityQuery query = queryService
             .queryFromArguments(player.getLocation(), arguments).modification().build();
-        PrismBukkit.newChain().asyncFirst(() -> {
+        taskChainProvider.newChain().asyncFirst(() -> {
             try {
                 return storageAdapter.queryActivities(query);
             } catch (Exception e) {

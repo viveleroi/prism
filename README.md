@@ -13,7 +13,6 @@ Please be patient as I work to get this project where I want, establish document
 - [Docs][docs]
 - [Dev Builds][ci]
 
-
 **Configs**
 
 Prism 4 uses a different configuration format/structure. Options may not be 1:1 with new
@@ -23,6 +22,7 @@ configurations so please ask in discord if you need help.
 
 - Originally made, and made again, for the `play.darkhelmet.network` server.
 - Artwork by LegendarySoldier.
+- Special thanks to Luck & LuckPerms contributors for the dependency management code.
 
 [discord]: https://discord.gg/7FxZScH4EJ
 [docs]: https://prism.readthedocs.io/en/latest
