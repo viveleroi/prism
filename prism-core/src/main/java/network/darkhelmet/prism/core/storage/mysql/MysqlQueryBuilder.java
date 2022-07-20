@@ -260,6 +260,12 @@ public class MysqlQueryBuilder {
             parameters.add(query.before());
         }
 
+        // Reversed
+        if (query.reversed() != null) {
+            conditions.add("`reversed` = ?");
+            parameters.add(query.reversed() ? 1 : 0);
+        }
+
         if (conditions.size() > 0) {
             sql += "WHERE " + String.join(" AND ", conditions) + " ";
         }

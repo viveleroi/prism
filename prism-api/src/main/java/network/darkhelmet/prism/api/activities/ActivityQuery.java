@@ -120,6 +120,11 @@ public final class ActivityQuery {
     private Collection<String> playerNames;
 
     /**
+     * The reversed state.
+     */
+    private Boolean reversed;
+
+    /**
      * The sort direction.
      */
     @Builder.Default

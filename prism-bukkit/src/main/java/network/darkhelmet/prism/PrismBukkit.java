@@ -231,6 +231,7 @@ public class PrismBukkit extends JavaPlugin implements IPrism {
 
             commandManager.registerNamedArguments(
                 ArgumentKey.of("params"),
+                Argument.forBoolean().name("reversed").build(),
                 Argument.forInt().name("r").build(),
                 Argument.forString().name("in").suggestion(SuggestionKey.of("ins")).build(),
                 Argument.forString().name("since").build(),

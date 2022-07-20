@@ -172,6 +172,11 @@ public class QueryService {
             parsePlayers(builder, playerNames);
         }
 
+        // reversed: parameter
+        if (arguments.get("reversed", Boolean.class).isPresent()) {
+            builder.reversed(arguments.get("reversed", Boolean.class).get());
+        }
+
         return builder;
     }
 
