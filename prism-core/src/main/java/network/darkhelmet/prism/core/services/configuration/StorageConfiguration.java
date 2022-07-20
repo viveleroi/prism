@@ -38,7 +38,7 @@ public class StorageConfiguration {
     @Comment("Configure the hostname.")
     private String host = "localhost";
 
-    @Comment("We strongly recommend using MySQL 8+ or MariaDB 10.2+. Prism uses some newer features,.n\n"
+    @Comment("We strongly recommend using MySQL 8+ or MariaDB 10.2+. Prism uses some newer features,\n"
         + "but we realize you may be limited to older databases. If so, set this to true.\n"
         + "Please see our docs for details on what this does.")
     private boolean mysqlDeprecated = false;
