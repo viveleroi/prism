@@ -20,9 +20,42 @@
 
 package network.darkhelmet.prism.api.services.modifications;
 
-public record ModificationQueueResult(
-    ModificationQueueState phase,
-    int countSkipped,
-    int countPlanned,
-    int countApplied) {
+import java.util.List;
+
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NonNull;
+
+@Builder
+@Getter
+public final class ModificationQueueResult {
+    /**
+     * The modification results.
+     */
+    @NonNull
+    private List<ModificationResult> results;
+
+    /**
+     * The modification state.
+     */
+    @NonNull
+    private ModificationQueueMode state;
+
+    /**
+     * The count of activities skipped.
+     */
+    @Builder.Default
+    private int skipped = 0;
+
+    /**
+     * The count of activities planned.
+     */
+    @Builder.Default
+    private int planned = 0;
+
+    /**
+     * The count of activities applied.
+     */
+    @Builder.Default
+    private int applied = 0;
 }

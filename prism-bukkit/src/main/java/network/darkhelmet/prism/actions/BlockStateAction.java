@@ -30,8 +30,8 @@ import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
-import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
 import network.darkhelmet.prism.api.services.modifications.StateChange;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.services.modifications.state.BlockStateChange;
@@ -160,41 +160,41 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
     }
 
     @Override
-    public ModificationResult applyRollback(Object owner, IActivity activityContext, boolean isPreview) {
+    public ModificationResult applyRollback(Object owner, IActivity activityContext, ModificationQueueMode mode) {
         if (!type().reversible()) {
-            return new ModificationResult(ModificationResultStatus.SKIPPED, null);
+            return ModificationResult.builder().activity(activityContext).build();
         }
 
         StateChange<BlockState> stateChange = null;
         if (type().resultType().equals(ActionResultType.REMOVES)) {
             // If the action type removes a block, rollback means we re-set it
-            stateChange = setBlock(activityContext.location(), material, blockData, nbtContainer, owner, isPreview);
+            stateChange = setBlock(activityContext.location(), material, blockData, nbtContainer, owner, mode);
         } else if (type().resultType().equals(ActionResultType.CREATES)) {
             // If the action type creates a block, rollback means we remove it
             stateChange = setBlock(
-                activityContext.location(), replacedMaterial, replacedBlockData, null, owner, isPreview);
+                activityContext.location(), replacedMaterial, replacedBlockData, null, owner, mode);
         }
 
-        return new ModificationResult(ModificationResultStatus.APPLIED, stateChange);
+        return ModificationResult.builder().activity(activityContext).applied().stateChange(stateChange).build();
     }
 
     @Override
-    public ModificationResult applyRestore(Object owner, IActivity activityContext, boolean isPreview) {
+    public ModificationResult applyRestore(Object owner, IActivity activityContext, ModificationQueueMode mode) {
         if (!type().reversible()) {
-            return new ModificationResult(ModificationResultStatus.SKIPPED, null);
+            return ModificationResult.builder().activity(activityContext).build();
         }
 
         StateChange<BlockState> stateChange = null;
         if (type().resultType().equals(ActionResultType.CREATES)) {
             // If the action type creates a block, restore means we re-set it
-            stateChange = setBlock(activityContext.location(), material, blockData, nbtContainer, owner, isPreview);
+            stateChange = setBlock(activityContext.location(), material, blockData, nbtContainer, owner, mode);
         } else if (type().resultType().equals(ActionResultType.REMOVES)) {
             // If the action type removes a block, restore means we remove it again
             stateChange = setBlock(
-                activityContext.location(), replacedMaterial, replacedBlockData, null, owner, isPreview);
+                activityContext.location(), replacedMaterial, replacedBlockData, null, owner, mode);
         }
 
-        return new ModificationResult(ModificationResultStatus.APPLIED, stateChange);
+        return ModificationResult.builder().activity(activityContext).applied().stateChange(stateChange).build();
     }
 
     /**
@@ -206,7 +206,7 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
         BlockData newBlockData,
         NBTContainer newNbtContainer,
         Object owner,
-        boolean isPreview
+        ModificationQueueMode mode
     ) {
         Location loc = LocationUtils.worldCoordToLocation(coordinate);
         final Block block = loc.getWorld().getBlockAt(loc);
@@ -215,21 +215,21 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
         final BlockState oldState = block.getState();
 
         // Set the new material
-        if (!isPreview) {
+        if (mode.equals(ModificationQueueMode.COMPLETING)) {
             block.setType(newMaterial);
         }
 
         // Set the block data
         if (newBlockData != null) {
-            if (isPreview && owner instanceof Player player) {
+            if (mode.equals(ModificationQueueMode.PLANNING) && owner instanceof Player player) {
                 player.sendBlockChange(loc, newBlockData);
-            } else {
+            } else if (mode.equals(ModificationQueueMode.COMPLETING)) {
                 block.setBlockData(newBlockData, true);
             }
         }
 
         // Set NBT
-        if (newNbtContainer != null) {
+        if (mode.equals(ModificationQueueMode.COMPLETING) && newNbtContainer != null) {
             new NBTTileEntity(block.getState()).mergeCompound(newNbtContainer);
         }
 

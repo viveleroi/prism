@@ -20,4 +20,61 @@
 
 package network.darkhelmet.prism.api.services.modifications;
 
-public record ModificationResult(ModificationResultStatus status, StateChange<?> stateChange) { }
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NonNull;
+
+import network.darkhelmet.prism.api.activities.IActivity;
+
+@Builder
+@Getter
+public final class ModificationResult {
+    /**
+     * The original activity.
+     */
+    @NonNull private final IActivity activity;
+
+    /**
+     * The state changes.
+     */
+    private final StateChange<?> stateChange;
+
+    /**
+     * The modification result status.
+     */
+    @NonNull
+    @Builder.Default
+    private final ModificationResultStatus status = ModificationResultStatus.SKIPPED;
+
+    public static class ModificationResultBuilder {
+        /**
+         * Set the status to APPLIED.
+         *
+         * @return The builder
+         */
+        public ModificationResultBuilder applied() {
+            status(ModificationResultStatus.APPLIED);
+            return this;
+        }
+
+        /**
+         * Set the status to PLANNED.
+         *
+         * @return The builder
+         */
+        public ModificationResultBuilder planned() {
+            status(ModificationResultStatus.PLANNED);
+            return this;
+        }
+
+        /**
+         * Set the status to SKIPPED.
+         *
+         * @return The builder
+         */
+        public ModificationResultBuilder skipped() {
+            status(ModificationResultStatus.SKIPPED);
+            return this;
+        }
+    }
+}

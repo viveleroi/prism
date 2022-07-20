@@ -20,20 +20,51 @@
 
 package network.darkhelmet.prism.services.modifications;
 
+import com.google.inject.Inject;
+
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
+import net.jodah.expiringmap.ExpiringMap;
 
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
-import network.darkhelmet.prism.api.services.modifications.ModificationQueueState;
+import network.darkhelmet.prism.api.services.modifications.ModificationResult;
+import network.darkhelmet.prism.core.services.logging.LoggingService;
+import network.darkhelmet.prism.services.modifications.state.BlockStateChange;
+
+import org.bukkit.entity.Player;
 
 public class ModificationQueueService implements IModificationQueueService {
     /**
      * Cache the current queue, if any.
      */
     private IModificationQueue currentQueue = null;
+
+    /**
+     * A cache of recently used queues.
+     */
+    Map<Object, ModificationQueueResult> usedQueues = ExpiringMap.builder()
+        .maxSize(4)
+        .expiration(5, TimeUnit.MINUTES)
+        .expirationListener((owner, result) -> cancelQueueForOwner(owner))
+        .build();
+
+    /**
+     * Logging service.
+     */
+    private LoggingService loggingService;
+
+    @Inject
+    public ModificationQueueService(LoggingService loggingService) {
+        this.loggingService = loggingService;
+    }
 
     @Override
     public boolean queueAvailable() {
@@ -43,11 +74,47 @@ public class ModificationQueueService implements IModificationQueueService {
     @Override
     public boolean cancelQueueForOwner(Object owner) {
         if (currentQueue != null && currentQueue.owner().equals(owner)) {
-            currentQueue.cancel();
-            currentQueue = null;
+            this.currentQueue.destroy();
+            this.currentQueue = null;
+
+            return true;
+        }
+
+        if (usedQueues.containsKey(owner)) {
+            cancelPreview(owner, usedQueues.get(owner));
+
+            usedQueues.remove(owner);
+
+            return true;
         }
 
         return false;
+    }
+
+    /**
+     * Re-send live blocks for ones we faked.
+     *
+     * @param owner The owner
+     * @param queueResult The queue result
+     */
+    protected void cancelPreview(Object owner, ModificationQueueResult queueResult) {
+        if (!queueResult.state().equals(ModificationQueueMode.PLANNING)) {
+            return;
+        }
+
+        if (owner instanceof Player player) {
+            for (final Iterator<ModificationResult> iterator = queueResult.results().listIterator();
+                 iterator.hasNext(); ) {
+                final ModificationResult result = iterator.next();
+
+                if (result.stateChange() instanceof BlockStateChange blockStateChange) {
+                    player.sendBlockChange(
+                        blockStateChange.oldState().getLocation(), blockStateChange.oldState().getBlockData());
+                }
+
+                iterator.remove();
+            }
+        }
     }
 
     @Override
@@ -70,7 +137,10 @@ public class ModificationQueueService implements IModificationQueueService {
             throw new IllegalStateException("No queue available until current queue finished.");
         }
 
-        this.currentQueue = new Rollback(owner, modifications, this::onComplete);
+        // Cancel any cached queues
+        cancelQueueForOwner(owner);
+
+        this.currentQueue = new Rollback(loggingService, owner, modifications, this::onEnd);
         return this.currentQueue;
     }
 
@@ -80,18 +150,21 @@ public class ModificationQueueService implements IModificationQueueService {
             throw new IllegalStateException("No queue available until current queue finished.");
         }
 
-        this.currentQueue = new Restore(owner, modifications, this::onComplete);
+        // Cancel any cached queues
+        cancelQueueForOwner(owner);
+
+        this.currentQueue = new Restore(loggingService, owner, modifications, this::onEnd);
         return this.currentQueue;
     }
 
     /**
-     * On queue completion, handle some cleanup.
+     * On queue end, handle some cleanup.
      *
      * @param result Modification queue result
      */
-    protected void onComplete(ModificationQueueResult result) {
-        if (result.phase().equals(ModificationQueueState.COMPLETE)) {
-            this.currentQueue = null;
-        }
+    protected void onEnd(ModificationQueueResult result) {
+        usedQueues.put(currentQueue.owner(), result);
+        this.currentQueue.destroy();
+        this.currentQueue = null;
     }
 }

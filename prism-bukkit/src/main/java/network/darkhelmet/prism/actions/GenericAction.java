@@ -23,8 +23,8 @@ package network.darkhelmet.prism.actions;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
-import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
 
 public class GenericAction extends Action implements IAction {
     /**
@@ -40,12 +40,12 @@ public class GenericAction extends Action implements IAction {
     }
 
     @Override
-    public ModificationResult applyRollback(Object owner, IActivity activityContext, boolean isPreview) {
-        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
+    public ModificationResult applyRollback(Object owner, IActivity activityContext, ModificationQueueMode mode) {
+        return ModificationResult.builder().activity(activityContext).build();
     }
 
     @Override
-    public ModificationResult applyRestore(Object owner, IActivity activityContext, boolean isPreview) {
-        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
+    public ModificationResult applyRestore(Object owner, IActivity activityContext, ModificationQueueMode mode) {
+        return ModificationResult.builder().activity(activityContext).build();
     }
 }

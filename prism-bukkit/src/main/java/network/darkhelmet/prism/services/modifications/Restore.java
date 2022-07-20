@@ -26,25 +26,28 @@ import java.util.function.Consumer;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
+import network.darkhelmet.prism.core.services.logging.LoggingService;
 
 public class Restore extends AbstractWorldModificationQueue {
     /**
      * Construct a new restore.
      *
+     * @param loggingService The logging service
      * @param owner The owner
      * @param modifications A list of modifications
      * @param onComplete The complete callback
      */
     public Restore(
+        LoggingService loggingService,
         Object owner,
         final List<IActivity> modifications,
         Consumer<ModificationQueueResult> onComplete
     ) {
-        super(owner, modifications, onComplete);
+        super(loggingService, owner, modifications, onComplete);
     }
 
     @Override
     protected ModificationResult applyModification(IActivity activity) {
-        return activity.action().applyRestore(owner(), activity, isPreview());
+        return activity.action().applyRestore(owner(), activity, mode);
     }
 }

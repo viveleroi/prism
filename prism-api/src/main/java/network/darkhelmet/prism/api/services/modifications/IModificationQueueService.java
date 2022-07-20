@@ -34,7 +34,9 @@ public interface IModificationQueueService {
     boolean queueAvailable();
 
     /**
-     * Cancel and clear the queue for a given owner.
+     * Cancel a live or recent queue for a given owner.
+     *
+     * <p>If a preview</p>
      *
      * @param owner The owner
      * @return True if the queue was cleared

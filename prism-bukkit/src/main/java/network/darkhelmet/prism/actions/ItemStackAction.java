@@ -27,8 +27,8 @@ import network.darkhelmet.prism.api.actions.IItemAction;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
-import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
 import network.darkhelmet.prism.services.modifications.state.ItemStackStateChange;
 
 import org.bukkit.Bukkit;
@@ -87,7 +87,7 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
     }
 
     @Override
-    public ModificationResult applyRollback(Object owner, IActivity activityContext, boolean isPreview) {
+    public ModificationResult applyRollback(Object owner, IActivity activityContext, ModificationQueueMode mode) {
         activityContext.player();
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(activityContext.player().uuid());
 
@@ -98,14 +98,14 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
 
             ItemStackStateChange stateChange = new ItemStackStateChange(itemStack.clone(), null);
 
-            return new ModificationResult(ModificationResultStatus.APPLIED, stateChange);
+            return ModificationResult.builder().activity(activityContext).applied().stateChange(stateChange).build();
         }
 
-        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
+        return ModificationResult.builder().activity(activityContext).build();
     }
 
     @Override
-    public ModificationResult applyRestore(Object owner, IActivity activityContext, boolean isPreview) {
-        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
+    public ModificationResult applyRestore(Object owner, IActivity activityContext, ModificationQueueMode mode) {
+        return ModificationResult.builder().activity(activityContext).build();
     }
 }

@@ -146,14 +146,11 @@ public class PreviewCommand extends BaseCommand {
      */
     @SubCommand(value = "preview-cancel")
     public void onCancel(final Player player) {
-        Optional<IModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
-        if (optionalQueue.isEmpty()) {
+        if (!modificationQueueService.cancelQueueForOwner(player)) {
             messageService.error(player, new TranslationKey("queue-missing-for-owner"));
 
             return;
         }
-
-        optionalQueue.get().cancel();
 
         messageService.previewCancelled(player);
     }

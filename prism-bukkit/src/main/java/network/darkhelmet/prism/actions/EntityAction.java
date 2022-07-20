@@ -28,8 +28,8 @@ import java.util.Locale;
 import network.darkhelmet.prism.api.actions.IEntityAction;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
-import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.utils.EntityUtils;
 import network.darkhelmet.prism.utils.LocationUtils;
@@ -120,7 +120,7 @@ public class EntityAction extends Action implements IEntityAction {
     }
 
     @Override
-    public ModificationResult applyRollback(Object owner, IActivity activityContext, boolean isPreview) {
+    public ModificationResult applyRollback(Object owner, IActivity activityContext, ModificationQueueMode mode) {
         WorldCoordinate coordinate = activityContext.location();
         World world = Bukkit.getServer().getWorld(coordinate.world().uuid());
         if (world != null && entityType.getEntityClass() != null) {
@@ -129,14 +129,14 @@ public class EntityAction extends Action implements IEntityAction {
             world.spawn(loc, entityType.getEntityClass(), entity ->
                 new NBTEntity(entity).mergeCompound(nbtContainer));
 
-            return new ModificationResult(ModificationResultStatus.APPLIED, null);
+            return ModificationResult.builder().activity(activityContext).applied().build();
         }
 
-        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
+        return ModificationResult.builder().activity(activityContext).build();
     }
 
     @Override
-    public ModificationResult applyRestore(Object owner, IActivity activityContext, boolean isPreview) {
-        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
+    public ModificationResult applyRestore(Object owner, IActivity activityContext, ModificationQueueMode mode) {
+        return ModificationResult.builder().activity(activityContext).build();
     }
 }

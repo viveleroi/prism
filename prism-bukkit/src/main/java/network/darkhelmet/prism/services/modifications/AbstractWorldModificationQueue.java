@@ -27,29 +27,34 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import lombok.Getter;
+
 import network.darkhelmet.prism.PrismBukkit;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
-import network.darkhelmet.prism.api.services.modifications.ModificationQueueState;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
-import network.darkhelmet.prism.api.services.modifications.StateChange;
-import network.darkhelmet.prism.services.modifications.state.BlockStateChange;
+import network.darkhelmet.prism.core.services.logging.LoggingService;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 public abstract class AbstractWorldModificationQueue implements IModificationQueue {
+    /**
+     * The logging service.
+     */
+    private LoggingService loggingService;
+
     /**
      * Manage a queue of pending modifications.
      */
     private final List<IActivity> modificationsQueue = Collections.synchronizedList(new LinkedList<>());
 
     /**
-     * The onComplete handler.
+     * The onEnd handler.
      */
-    private final Consumer<ModificationQueueResult> onComplete;
+    private final Consumer<ModificationQueueResult> onEnd;
 
     /**
      * The period duration between executions of tasks.
@@ -64,14 +69,16 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     private final int maxPerTask = 1000;
 
     /**
-     * Toggle preview mode.
-     */
-    private boolean isPreview = false;
-
-    /**
      * The owner.
      */
+    @Getter
     private Object owner;
+
+    /**
+     * The state.
+     */
+    @Getter
+    protected ModificationQueueMode mode = ModificationQueueMode.UNDECIDED;
 
     /**
      * Cache the bukkit task id.
@@ -99,21 +106,27 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     private int countSkipped = 0;
 
     /**
-     * A cache of resulting state changes.
+     * A list of all modification results.
      */
-    private final List<StateChange<?>> stateChanges = new ArrayList<>();
+    private final List<ModificationResult> results = new ArrayList<>();
 
     /**
      * Construct a new world modification.
      *
+     * @param loggingService The logging service
+     * @param owner The owner
      * @param modifications A list of all modifications
-     * @param onComplete The complete callback
+     * @param onEnd The ended callback
      */
     public AbstractWorldModificationQueue(
-            Object owner, final List<IActivity> modifications, Consumer<ModificationQueueResult> onComplete) {
+            LoggingService loggingService,
+            Object owner,
+            final List<IActivity> modifications,
+            Consumer<ModificationQueueResult> onEnd) {
         modificationsQueue.addAll(modifications);
+        this.loggingService = loggingService;
         this.owner = owner;
-        this.onComplete = onComplete;
+        this.onEnd = onEnd;
     }
 
     /**
@@ -123,12 +136,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
      * @return The modification result
      */
     protected ModificationResult applyModification(IActivity activity) {
-        return new ModificationResult(ModificationResultStatus.SKIPPED, null);
-    }
-
-    @Override
-    public Object owner() {
-        return owner;
+        return ModificationResult.builder().status(ModificationResultStatus.SKIPPED).build();
     }
 
     /**
@@ -138,29 +146,24 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
 
     @Override
     public void preview() {
-        this.isPreview = true;
+        this.mode = ModificationQueueMode.PLANNING;
         execute();
     }
 
     @Override
-    public boolean isPreview() {
-        return isPreview;
-    }
-
-    @Override
     public void apply() {
-        this.isPreview = false;
+        this.mode = ModificationQueueMode.COMPLETING;
         execute();
     }
 
     protected void execute() {
         String queueSizeMsg = "Modification queue beginning application. Queue size: %d";
-        PrismBukkit.getInstance().debug(String.format(queueSizeMsg, modificationsQueue.size()));
+        loggingService.debug(String.format(queueSizeMsg, modificationsQueue.size()));
 
         if (!modificationsQueue.isEmpty()) {
             // Schedule a new sync task
             taskId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(PrismBukkit.getInstance(), () -> {
-                PrismBukkit.getInstance().debug("New modification run beginning...");
+                loggingService.debug("New modification run beginning...");
 
                 int iterationCount = 0;
                 final int currentQueueOffset = countModificationsRead;
@@ -171,7 +174,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                         final IActivity activity = iterator.next();
 
                         // Simulate queue pointer advancement for previews
-                        if (isPreview) {
+                        if (mode.equals(ModificationQueueMode.PLANNING)) {
                             countModificationsRead++;
                         }
 
@@ -182,6 +185,8 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
 
                         // Delegate the modifications to the actions
                         ModificationResult result = applyModification(activity);
+                        results.add(result);
+
                         if (result.status().equals(ModificationResultStatus.PLANNED)) {
                             countPlanned++;
                         } else if (result.status().equals(ModificationResultStatus.APPLIED)) {
@@ -191,31 +196,29 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                         }
 
                         // Remove from the queue if we're not previewing
-                        if (!isPreview) {
+                        if (mode.equals(ModificationQueueMode.COMPLETING)) {
                             iterator.remove();
-                        }
-
-                        if (result.stateChange() != null) {
-                            stateChanges.add(result.stateChange());
                         }
                     }
                 }
 
                 // The task for this action is done being used
                 if (modificationsQueue.isEmpty() || countModificationsRead >= modificationsQueue.size()) {
-                    PrismBukkit.getInstance().debug("Modification queue now empty, finishing up.");
+                    loggingService.debug("Modification queue now empty, finishing up.");
 
                     // Cancel the repeating task
                     Bukkit.getServer().getScheduler().cancelTask(taskId);
 
-                    ModificationQueueState state = isPreview
-                        ? ModificationQueueState.INCOMPLETE : ModificationQueueState.COMPLETE;
-
-                    ModificationQueueResult result = new ModificationQueueResult(state,
-                        countSkipped, countPlanned, countApplied);
+                    ModificationQueueResult result = ModificationQueueResult.builder()
+                        .state(mode)
+                        .results(results)
+                        .applied(countApplied)
+                        .planned(countPlanned)
+                        .skipped(countSkipped)
+                        .build();
 
                     // Execute the callback.
-                    onComplete.accept(result);
+                    onEnd.accept(result);
 
                     // Post process
                     postProcess();
@@ -225,23 +228,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     }
 
     @Override
-    public void cancel() {
-        for (final Iterator<StateChange<?>> iterator = stateChanges.listIterator(); iterator.hasNext();) {
-            final StateChange<?> stateChange = iterator.next();
-
-            if (stateChange instanceof BlockStateChange blockStateChange) {
-                ((Player) owner).sendBlockChange(
-                    blockStateChange.oldState().getLocation(), blockStateChange.oldState().getBlockData());
-            }
-
-            iterator.remove();
-        }
-
-        stateChanges.clear();
-
-        ModificationQueueResult result = new ModificationQueueResult(ModificationQueueState.COMPLETE, 0, 0, 0);
-
-        // Execute the callback.
-        onComplete.accept(result);
+    public void destroy() {
+        Bukkit.getServer().getScheduler().cancelTask(taskId);
     }
 }

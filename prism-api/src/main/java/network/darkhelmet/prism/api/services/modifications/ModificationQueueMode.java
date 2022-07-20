@@ -20,14 +20,6 @@
 
 package network.darkhelmet.prism.api.services.modifications;
 
-public enum ModificationQueueState {
-    /**
-     * The modification phase is incomplete. Usually for previews.
-     */
-    INCOMPLETE,
-
-    /**
-     * The modification phase is complete.
-     */
-    COMPLETE
+public enum ModificationQueueMode {
+    UNDECIDED, PLANNING, COMPLETING
 }
