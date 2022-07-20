@@ -23,6 +23,7 @@ package network.darkhelmet.prism.api.activities;
 import java.util.UUID;
 
 import lombok.Builder;
+import lombok.Getter;
 import lombok.experimental.Tolerate;
 
 import network.darkhelmet.prism.api.actions.IAction;
@@ -30,6 +31,12 @@ import network.darkhelmet.prism.api.util.NamedIdentity;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
 
 public final class Activity extends AbstractActivity implements ISingleActivity {
+    /**
+     * The storage engine primary key.
+     */
+    @Getter
+    private Object primaryKey;
+
     /**
      * Construct a new activity.
      *
@@ -50,6 +57,7 @@ public final class Activity extends AbstractActivity implements ISingleActivity 
     /**
      * Construct a new activity.
      *
+     * @param primaryKey The storage engine primary key
      * @param action The action
      * @param location The world coordinate
      * @param cause The cause
@@ -57,12 +65,15 @@ public final class Activity extends AbstractActivity implements ISingleActivity 
      * @param timestamp The timestamp
      */
     public Activity(
+            Object primaryKey,
             IAction action,
             WorldCoordinate location,
             String cause,
             NamedIdentity player,
             long timestamp) {
         super(action, location, cause, player, timestamp);
+
+        this.primaryKey = primaryKey;
     }
 
     public static class ActivityBuilder {

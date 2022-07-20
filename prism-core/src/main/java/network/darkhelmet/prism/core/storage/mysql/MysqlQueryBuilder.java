@@ -76,6 +76,7 @@ public class MysqlQueryBuilder {
         List<String> fields = new ArrayList<>();
 
         // Add fields useful for all query types
+        fields.add("`activities`.`activity_id`");
         fields.add("HEX(`world_uuid`) AS worldUuid");
         fields.add("`materials`.`material`");
         fields.add("`entity_type`");

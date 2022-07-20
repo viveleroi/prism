@@ -40,6 +40,15 @@ public interface IStorageAdapter {
     IActivityBatch createActivityBatch();
 
     /**
+     * Set the reversed bit for activites.
+     *
+     * @param activityIds The activity ids
+     * @param reversed Whether the activity was reversed
+     * @throws Exception Storage layer exception
+     */
+    void markReversed(List<Long> activityIds, boolean reversed) throws Exception;
+
+    /**
      * Query activities in a non-paginated format (needed for world modification).
      *
      * @param query The activity query

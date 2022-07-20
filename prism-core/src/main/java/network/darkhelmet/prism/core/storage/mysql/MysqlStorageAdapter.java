@@ -330,6 +330,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             + "`entity_type_id` SMALLINT UNSIGNED DEFAULT NULL,"
             + "`cause_id` INT UNSIGNED NOT NULL,"
             + "`descriptor` VARCHAR(155) NULL,"
+            + "`reversed` BIT NOT NULL DEFAULT 0,"
             + "PRIMARY KEY (`activity_id`),"
             + "KEY `actionId_idx` (`action_id`),"
             + "KEY `causeId_idx` (`cause_id`),"
@@ -636,7 +637,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         for (DbRow row : results) {
             String actionKey = row.getString("action");
             Optional<IActionType> optionalActionType = actionRegistry.actionType(actionKey);
-            if (!optionalActionType.isPresent()) {
+            if (optionalActionType.isEmpty()) {
                 String msg = "Failed to find action type. Type: %s";
                 loggingService.logger().warn(String.format(msg, actionKey));
                 continue;
@@ -683,6 +684,7 @@ public class MysqlStorageAdapter implements IStorageAdapter {
             String descriptor = row.getString("descriptor");
 
             if (!query.grouped()) {
+                long activityId = row.getLong("activity_id");
                 long timestamp = row.getLong("timestamp");
 
                 String materialData = row.getString("material_data");
@@ -705,8 +707,8 @@ public class MysqlStorageAdapter implements IStorageAdapter {
                     entityType, customData, descriptor, version);
 
                 // Build the activity
-                IActivity activity = new Activity(
-                    actionType.createAction(actionData), coordinate, cause, player, timestamp);
+                IActivity activity = new Activity(activityId, actionType.createAction(actionData),
+                    coordinate, cause, player, timestamp);
 
                 // Add to result list
                 activities.add(activity);
@@ -741,6 +743,22 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         }
 
         return new MysqlActivityBatch(serializerVersion, configurationService.storageConfig(), cacheService);
+    }
+
+    @Override
+    public void markReversed(List<Long> activityIds, boolean reversed) throws Exception {
+        String prefix = configurationService.storageConfig().prefix();
+        @Language("SQL") String query = "UPDATE " + prefix + "activities SET reversed = ? WHERE activity_id IN(%s)";
+        List<Object> parameters = new ArrayList<>();
+        parameters.add(reversed ? 1 : 0);
+
+        List<String> placeholders = new ArrayList<>();
+        for (Long activityId : activityIds) {
+            parameters.add(activityId);
+            placeholders.add("?");
+        }
+
+        DB.executeUpdate(String.format(query, String.join(", ", placeholders)), parameters.toArray());
     }
 
     @Override

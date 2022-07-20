@@ -36,7 +36,8 @@ import network.darkhelmet.prism.api.services.modifications.IModificationQueueSer
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
-import network.darkhelmet.prism.core.services.logging.LoggingService;
+import network.darkhelmet.prism.injection.factories.IRestoreFactory;
+import network.darkhelmet.prism.injection.factories.IRollbackFactory;
 import network.darkhelmet.prism.services.modifications.state.BlockStateChange;
 
 import org.bukkit.entity.Player;
@@ -48,6 +49,16 @@ public class ModificationQueueService implements IModificationQueueService {
     private IModificationQueue currentQueue = null;
 
     /**
+     * The restore factory.
+     */
+    private final IRestoreFactory restoreFactory;
+
+    /**
+     * The rollback factory.
+     */
+    private final IRollbackFactory rollbackFactory;
+
+    /**
      * A cache of recently used queues.
      */
     Map<Object, ModificationQueueResult> usedQueues = ExpiringMap.builder()
@@ -57,13 +68,17 @@ public class ModificationQueueService implements IModificationQueueService {
         .build();
 
     /**
-     * Logging service.
+     * Constructor.
+     *
+     * @param restoreFactory The restore factory
+     * @param rollbackFactory The rollback factory.
      */
-    private LoggingService loggingService;
-
     @Inject
-    public ModificationQueueService(LoggingService loggingService) {
-        this.loggingService = loggingService;
+    public ModificationQueueService(
+        IRestoreFactory restoreFactory,
+        IRollbackFactory rollbackFactory) {
+        this.restoreFactory = restoreFactory;
+        this.rollbackFactory = rollbackFactory;
     }
 
     @Override
@@ -98,7 +113,7 @@ public class ModificationQueueService implements IModificationQueueService {
      * @param queueResult The queue result
      */
     protected void cancelPreview(Object owner, ModificationQueueResult queueResult) {
-        if (!queueResult.state().equals(ModificationQueueMode.PLANNING)) {
+        if (!queueResult.mode().equals(ModificationQueueMode.PLANNING)) {
             return;
         }
 
@@ -140,7 +155,8 @@ public class ModificationQueueService implements IModificationQueueService {
         // Cancel any cached queues
         cancelQueueForOwner(owner);
 
-        this.currentQueue = new Rollback(loggingService, owner, modifications, this::onEnd);
+        this.currentQueue = rollbackFactory.create(owner, modifications, this::onEnd);
+
         return this.currentQueue;
     }
 
@@ -153,7 +169,8 @@ public class ModificationQueueService implements IModificationQueueService {
         // Cancel any cached queues
         cancelQueueForOwner(owner);
 
-        this.currentQueue = new Restore(loggingService, owner, modifications, this::onEnd);
+        this.currentQueue = restoreFactory.create(owner, modifications, this::onEnd);
+
         return this.currentQueue;
     }
 

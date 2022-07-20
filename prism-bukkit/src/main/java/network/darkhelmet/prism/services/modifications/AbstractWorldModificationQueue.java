@@ -44,7 +44,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     /**
      * The logging service.
      */
-    private LoggingService loggingService;
+    protected LoggingService loggingService;
 
     /**
      * Manage a queue of pending modifications.
@@ -54,7 +54,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     /**
      * The onEnd handler.
      */
-    private final Consumer<ModificationQueueResult> onEnd;
+    private final Consumer<ModificationQueueResult> onEndCallback;
 
     /**
      * The period duration between executions of tasks.
@@ -116,17 +116,17 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
      * @param loggingService The logging service
      * @param owner The owner
      * @param modifications A list of all modifications
-     * @param onEnd The ended callback
+     * @param onEndCallback The ended callback
      */
     public AbstractWorldModificationQueue(
             LoggingService loggingService,
             Object owner,
             final List<IActivity> modifications,
-            Consumer<ModificationQueueResult> onEnd) {
+            Consumer<ModificationQueueResult> onEndCallback) {
         modificationsQueue.addAll(modifications);
         this.loggingService = loggingService;
         this.owner = owner;
-        this.onEnd = onEnd;
+        this.onEndCallback = onEndCallback;
     }
 
     /**
@@ -210,15 +210,14 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                     Bukkit.getServer().getScheduler().cancelTask(taskId);
 
                     ModificationQueueResult result = ModificationQueueResult.builder()
-                        .state(mode)
+                        .mode(mode)
                         .results(results)
                         .applied(countApplied)
                         .planned(countPlanned)
                         .skipped(countSkipped)
                         .build();
 
-                    // Execute the callback.
-                    onEnd.accept(result);
+                    onEnd(result);
 
                     // Post process
                     postProcess();
@@ -230,5 +229,15 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     @Override
     public void destroy() {
         Bukkit.getServer().getScheduler().cancelTask(taskId);
+    }
+
+    /**
+     * Called when the modification queue has ended.
+     *
+     * @param result The result
+     */
+    protected void onEnd(ModificationQueueResult result) {
+        // Execute the callback, letting the caller know we've ended
+        onEndCallback.accept(result);
     }
 }

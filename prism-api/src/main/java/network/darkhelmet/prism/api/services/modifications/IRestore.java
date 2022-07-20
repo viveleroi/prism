@@ -20,43 +20,4 @@
 
 package network.darkhelmet.prism.api.services.modifications;
 
-import java.util.List;
-
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NonNull;
-
-@Builder
-@Getter
-public final class ModificationQueueResult {
-    /**
-     * The count of activities applied.
-     */
-    @Builder.Default
-    private int applied = 0;
-
-    /**
-     * The modification mode.
-     */
-    @NonNull
-    private ModificationQueueMode mode;
-
-    /**
-     * The count of activities planned.
-     */
-    @Builder.Default
-    private int planned = 0;
-
-    /**
-     * The modification results.
-     */
-    @NonNull
-    private List<ModificationResult> results;
-
-
-    /**
-     * The count of activities skipped.
-     */
-    @Builder.Default
-    private int skipped = 0;
-}
+public interface IRestore extends IModificationQueue {}

@@ -18,45 +18,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.api.services.modifications;
+package network.darkhelmet.prism.injection.factories;
 
 import java.util.List;
+import java.util.function.Consumer;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NonNull;
+import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
+import network.darkhelmet.prism.services.modifications.Rollback;
 
-@Builder
-@Getter
-public final class ModificationQueueResult {
+public interface IRollbackFactory {
     /**
-     * The count of activities applied.
+     * Create the rollback instance.
+     *
+     * @param owner The owner
+     * @param modifications The modifications
+     * @param onEnd The on end callback
+     * @return A rollback instance
      */
-    @Builder.Default
-    private int applied = 0;
-
-    /**
-     * The modification mode.
-     */
-    @NonNull
-    private ModificationQueueMode mode;
-
-    /**
-     * The count of activities planned.
-     */
-    @Builder.Default
-    private int planned = 0;
-
-    /**
-     * The modification results.
-     */
-    @NonNull
-    private List<ModificationResult> results;
-
-
-    /**
-     * The count of activities skipped.
-     */
-    @Builder.Default
-    private int skipped = 0;
+    Rollback create(Object owner, List<IActivity> modifications, Consumer<ModificationQueueResult> onEnd);
 }

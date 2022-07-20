@@ -112,6 +112,12 @@ public class RollbackCommand extends BaseCommand {
 
             return null;
         }).abortIfNull().<List<IAction>>sync(results -> {
+            if (results.isEmpty()) {
+                messageService.noResults(player);
+
+                return null;
+            }
+
             IModificationQueue queue = modificationQueueService.newRollbackQueue(player, results);
             queue.apply();
 

@@ -111,6 +111,12 @@ public class RestoreCommand extends BaseCommand {
 
             return null;
         }).abortIfNull().<List<IAction>>sync(results -> {
+            if (results.isEmpty()) {
+                messageService.noResults(player);
+
+                return null;
+            }
+
             IModificationQueue queue = modificationQueueService.newRestoreQueue(player, results);
             queue.apply();
 

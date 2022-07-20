@@ -16,6 +16,7 @@ dependencies {
     implementation project.property('deps.expiringmap')
     implementation project.property('deps.fastutil')
     implementation project.property('deps.guice')
+    implementation project.property('deps.guice-assistedinject')
     implementation project.property('deps.moonshine-core')
     implementation project.property('deps.moonshine-standard')
     implementation project.property('deps.nbt-api')

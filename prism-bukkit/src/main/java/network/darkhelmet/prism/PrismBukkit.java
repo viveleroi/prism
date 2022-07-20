@@ -95,6 +95,7 @@ public class PrismBukkit extends JavaPlugin implements IPrism {
     /**
      * The injector.
      */
+    @Getter
     private Injector injector;
 
     /**

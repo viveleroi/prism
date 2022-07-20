@@ -25,6 +25,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.name.Named;
 
@@ -47,6 +48,8 @@ import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.providers.IWorldIdentityProvider;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
+import network.darkhelmet.prism.api.services.modifications.IRestore;
+import network.darkhelmet.prism.api.services.modifications.IRollback;
 import network.darkhelmet.prism.api.services.recording.IRecordingService;
 import network.darkhelmet.prism.api.services.wands.IWand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
@@ -57,6 +60,8 @@ import network.darkhelmet.prism.core.services.logging.LoggingService;
 import network.darkhelmet.prism.core.storage.mysql.MysqlQueryBuilder;
 import network.darkhelmet.prism.core.storage.mysql.MysqlSchemaUpdater;
 import network.darkhelmet.prism.core.storage.mysql.MysqlStorageAdapter;
+import network.darkhelmet.prism.injection.factories.IRestoreFactory;
+import network.darkhelmet.prism.injection.factories.IRollbackFactory;
 import network.darkhelmet.prism.providers.WorldIdentityProvider;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.filters.FilterService;
@@ -71,6 +76,8 @@ import network.darkhelmet.prism.services.messages.resolvers.StringPlaceholderRes
 import network.darkhelmet.prism.services.messages.resolvers.TranslatableStringPlaceholderResolver;
 import network.darkhelmet.prism.services.messages.resolvers.WandModePlaceholderResolver;
 import network.darkhelmet.prism.services.modifications.ModificationQueueService;
+import network.darkhelmet.prism.services.modifications.Restore;
+import network.darkhelmet.prism.services.modifications.Rollback;
 import network.darkhelmet.prism.services.recording.RecordingService;
 import network.darkhelmet.prism.services.translation.TranslationKey;
 import network.darkhelmet.prism.services.translation.TranslationService;
@@ -231,6 +238,14 @@ public class PrismModule extends AbstractModule {
 
         // Service - Modifications
         bind(IModificationQueueService.class).to(ModificationQueueService.class).in(Singleton.class);
+
+        install(new FactoryModuleBuilder()
+            .implement(IRestore.class, Restore.class)
+            .build(IRestoreFactory.class));
+
+        install(new FactoryModuleBuilder()
+            .implement(IRollback.class, Rollback.class)
+            .build(IRollbackFactory.class));
 
         // Service - Recording
         bind(IRecordingService.class).to(RecordingService.class).in(Singleton.class);
