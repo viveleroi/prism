@@ -616,7 +616,12 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
         int totalResults = 0;
         if (!rows.isEmpty()) {
-            totalResults = rows.get(0).getInt("totalRows");
+            if (configurationService.storageConfig().mysqlDeprecated()) {
+                Long foundRows = DB.getFirstColumn("SELECT FOUND_ROWS();");
+                totalResults = foundRows.intValue();
+            } else {
+                totalResults = rows.get(0).getInt("totalRows");
+            }
         }
 
         int currentPage = (query.offset() / query.limit()) + 1;

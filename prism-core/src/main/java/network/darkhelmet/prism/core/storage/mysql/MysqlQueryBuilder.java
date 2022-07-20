@@ -31,6 +31,7 @@ import java.util.Optional;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
+import network.darkhelmet.prism.core.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.core.services.logging.LoggingService;
 import network.darkhelmet.prism.core.utils.TypeUtils;
 import network.darkhelmet.prism.idb.DB;
@@ -39,6 +40,11 @@ import network.darkhelmet.prism.idb.DbRow;
 import org.intellij.lang.annotations.Language;
 
 public class MysqlQueryBuilder {
+    /**
+     * The configuration service.
+     */
+    private final ConfigurationService configurationService;
+
     /**
      * The action registry.
      */
@@ -52,11 +58,16 @@ public class MysqlQueryBuilder {
     /**
      * Construct a new query builder.
      *
+     * @param configurationService The configuration service
      * @param actionRegistry The action registry
      * @param loggingService The logging service
      */
     @Inject
-    public MysqlQueryBuilder(IActionTypeRegistry actionRegistry, LoggingService loggingService) {
+    public MysqlQueryBuilder(
+            ConfigurationService configurationService,
+            IActionTypeRegistry actionRegistry,
+            LoggingService loggingService) {
+        this.configurationService = configurationService;
         this.actionRegistry = actionRegistry;
         this.loggingService = loggingService;
     }
@@ -94,7 +105,10 @@ public class MysqlQueryBuilder {
         // Add fields useful only for lookups
         if (query.lookup()) {
             fields.add("`descriptor`");
-            fields.add("COUNT(*) OVER() AS totalRows");
+
+            if (!configurationService.storageConfig().mysqlDeprecated()) {
+                fields.add("COUNT(*) OVER() AS totalRows");
+            }
         }
 
         if (query.grouped()) {
@@ -121,7 +135,9 @@ public class MysqlQueryBuilder {
             fields.add("COALESCE(`custom_data`.`version`, 0) AS `data_version`");
         }
 
-        @Language("SQL") String sql = "SELECT " + String.join(", ", fields) + " ";
+        String calc = configurationService.storageConfig().mysqlDeprecated() ? "SQL_CALC_FOUND_ROWS " : "";
+
+        @Language("SQL") String sql = "SELECT " + calc + String.join(", ", fields) + " ";
 
         @Language("SQL") String from = "FROM " + prefix + "activities AS activities "
             + "JOIN " + prefix + "worlds AS worlds ON `worlds`.`world_id` = `activities`.`world_id` "
