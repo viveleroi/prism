@@ -20,31 +20,40 @@
 
 package network.darkhelmet.prism.services.expectations;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalListener;
-
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import network.darkhelmet.prism.PrismBukkit;
+import net.jodah.expiringmap.ExpirationPolicy;
+import net.jodah.expiringmap.ExpiringMap;
+
+import network.darkhelmet.prism.core.services.logging.LoggingService;
 
 public class ExpectationsCache {
     /**
-     * Listen for removals.
+     * The logging service.
      */
-    private final RemovalListener<Object, Object> removalListener = removal -> {
-        PrismBukkit.getInstance().debug("Removing object from expectations cache: " + removal.getKey());
-    };
+    private LoggingService loggingService;
 
     /**
      * Cache expectations and wipe them if our expectations aren't met.
      */
-    private final Cache<Object, Object> expectations = CacheBuilder
-        .newBuilder()
-        .expireAfterWrite(10, TimeUnit.SECONDS)
-        .removalListener(removalListener)
+    Map<Object, Object> expectations = ExpiringMap.builder()
+        .expiration(10, TimeUnit.SECONDS)
+        .expirationPolicy(ExpirationPolicy.CREATED)
+        .expirationListener((key, value) -> {
+            loggingService.debug("Removing object from expectations cache: " + key);
+        })
         .build();
+
+    /**
+     * Constructor.
+     *
+     * @param loggingService The logging service
+     */
+    public ExpectationsCache(LoggingService loggingService) {
+        this.loggingService = loggingService;
+    }
 
     /**
      * Add a target object and a cause we expect an event will "claim".
@@ -63,7 +72,7 @@ public class ExpectationsCache {
      * @return The cause, if target present
      */
     public Optional<Object> expectation(Object target) {
-        return Optional.ofNullable(expectations.getIfPresent(target));
+        return Optional.ofNullable(expectations.get(target));
     }
 
     /**
@@ -74,7 +83,7 @@ public class ExpectationsCache {
      * @param target The target
      */
     public void metExpectation(Object target) {
-        expectations.invalidate(target);
+        expectations.remove(target);
     }
 }
 

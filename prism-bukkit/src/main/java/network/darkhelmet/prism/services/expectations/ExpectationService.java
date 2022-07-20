@@ -20,16 +20,34 @@
 
 package network.darkhelmet.prism.services.expectations;
 
+import com.google.inject.Inject;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import network.darkhelmet.prism.api.services.expectations.ExpectationType;
+import network.darkhelmet.prism.core.services.logging.LoggingService;
 
 public class ExpectationService {
     /**
      * Cache of expectation types and their caches.
      */
     Map<ExpectationType, ExpectationsCache> expectationsCaches = new HashMap<>();
+
+    /**
+     * The logging service.
+     */
+    private LoggingService loggingService;
+
+    /**
+     * Constructor.
+     *
+     * @param loggingService The logging service
+     */
+    @Inject
+    public ExpectationService(LoggingService loggingService) {
+        this.loggingService = loggingService;
+    }
 
     /**
      * Get or create an expectations cache.
@@ -42,7 +60,7 @@ public class ExpectationService {
             return expectationsCaches.get(type);
         }
 
-        ExpectationsCache cache = new ExpectationsCache();
+        ExpectationsCache cache = new ExpectationsCache(loggingService);
         expectationsCaches.put(type, cache);
 
         return cache;
