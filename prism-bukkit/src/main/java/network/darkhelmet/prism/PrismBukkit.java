@@ -328,17 +328,4 @@ public class PrismBukkit implements IPrism {
 
         injectorProvider.injector().getInstance(BukkitAudiences.class).close();
     }
-
-    /**
-     * Log a debug message to console.
-     *
-     * @param message String
-     * @deprecated Use LoggingService
-     */
-    @Deprecated
-    public void debug(String message) {
-        if (configurationService.prismConfig().debug()) {
-            bootstrap.loggingService().logger().info(message);
-        }
-    }
 }
