@@ -8,8 +8,6 @@ dependencies {
     compileOnly project.property('deps.jetbrains-annotations')
 }
 
-targetCompatibility = sourceCompatibility = JavaVersion.VERSION_17
-
 publishing {
     publications {
         maven(MavenPublication) {
