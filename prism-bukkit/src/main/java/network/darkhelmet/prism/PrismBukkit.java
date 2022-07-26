@@ -251,18 +251,18 @@ public class PrismBukkit implements IPrism {
                     Arrays.asList("chunk", "world"));
 
             commandManager.registerNamedArguments(
-                    ArgumentKey.of("params"),
-                    Argument.forBoolean().name("reversed").build(),
-                    Argument.forInt().name("r").build(),
-                    Argument.forString().name("in").suggestion(SuggestionKey.of("ins")).build(),
-                    Argument.forString().name("since").build(),
-                    Argument.forString().name("before").build(),
-                    Argument.forString().name("cause").build(),
-                    Argument.forString().name("world").suggestion(SuggestionKey.of("worlds")).build(),
-                    Argument.listOf(String.class).name("a").suggestion(SuggestionKey.of("actions")).build(),
-                    Argument.listOf(Material.class).name("m").build(),
-                    Argument.listOf(EntityType.class).name("e").build(),
-                    Argument.listOf(String.class).name("p").suggestion(SuggestionKey.of("players")).build()
+                ArgumentKey.of("params"),
+                Argument.forBoolean().name("reversed").build(),
+                Argument.forInt().name("r").build(),
+                Argument.forString().name("in").suggestion(SuggestionKey.of("ins")).build(),
+                Argument.forString().name("since").build(),
+                Argument.forString().name("before").build(),
+                Argument.forString().name("cause").build(),
+                Argument.forString().name("world").suggestion(SuggestionKey.of("worlds")).build(),
+                Argument.listOf(String.class).name("a").suggestion(SuggestionKey.of("actions")).build(),
+                Argument.listOf(Material.class).name("m").build(),
+                Argument.listOf(EntityType.class).name("e").build(),
+                Argument.listOf(String.class).name("p").suggestion(SuggestionKey.of("players")).build()
             );
 
             commandManager.registerCommand(injectorProvider.injector().getInstance(AboutCommand.class));
