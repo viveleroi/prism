@@ -1,21 +1,5 @@
 plugins {
-    id 'java'
-    id 'io.franzbecker.gradle-lombok'
-}
-
-group 'network.darkhelmet.prism'
-version '1.0.0-SNAPSHOT'
-
-targetCompatibility = sourceCompatibility = JavaVersion.VERSION_17
-
-lombok {
-    version = '1.18.24'
-    sha256 = ''
-}
-
-repositories {
-    mavenLocal()
-    mavenCentral()
+    id 'prism.java-conventions'
 }
 
 dependencies {
