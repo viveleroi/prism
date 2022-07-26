@@ -24,7 +24,6 @@ import com.google.inject.Inject;
 
 import java.util.List;
 
-import network.darkhelmet.prism.PrismBukkit;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
@@ -33,6 +32,7 @@ import network.darkhelmet.prism.api.services.wands.IWand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.providers.TaskChainProvider;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.translation.TranslationKey;
@@ -61,6 +61,11 @@ public class RollbackWand implements IWand {
     private final TaskChainProvider taskChainProvider;
 
     /**
+     * The logging service.
+     */
+    private final LoggingService loggingService;
+
+    /**
      * The owner.
      */
     private Object owner;
@@ -72,17 +77,20 @@ public class RollbackWand implements IWand {
      * @param messageService The message service
      * @param modificationQueueService The modification queue service
      * @param taskChainProvider The task chain provider
+     * @param loggingService The logging service
      */
     @Inject
     public RollbackWand(
             IStorageAdapter storageAdapter,
             MessageService messageService,
             IModificationQueueService modificationQueueService,
-            TaskChainProvider taskChainProvider) {
+            TaskChainProvider taskChainProvider,
+            LoggingService loggingService) {
         this.storageAdapter = storageAdapter;
         this.messageService = messageService;
         this.modificationQueueService = modificationQueueService;
         this.taskChainProvider = taskChainProvider;
+        this.loggingService = loggingService;
     }
 
     @Override
@@ -111,7 +119,7 @@ public class RollbackWand implements IWand {
                 return storageAdapter.queryActivities(query);
             } catch (Exception e) {
                 messageService.error((CommandSender) owner, new TranslationKey("query-error"));
-                PrismBukkit.getInstance().handleException(e);
+                loggingService.handleException(e);
             }
 
             return null;

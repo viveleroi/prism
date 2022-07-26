@@ -341,15 +341,4 @@ public class PrismBukkit implements IPrism {
             bootstrap.loggingService().logger().info(message);
         }
     }
-
-    /**
-     * Handle exceptions.
-     *
-     * @param e The exception
-     * @deprecated Use LoggingService
-     */
-    @Deprecated
-    public void handleException(Exception e) {
-        bootstrap.loggingService().handleException(e);
-    }
 }

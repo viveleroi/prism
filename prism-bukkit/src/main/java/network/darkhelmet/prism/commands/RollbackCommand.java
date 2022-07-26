@@ -30,12 +30,12 @@ import dev.triumphteam.cmd.core.argument.named.Arguments;
 
 import java.util.List;
 
-import network.darkhelmet.prism.PrismBukkit;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.providers.TaskChainProvider;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.query.QueryService;
@@ -71,6 +71,11 @@ public class RollbackCommand extends BaseCommand {
     private final TaskChainProvider taskChainProvider;
 
     /**
+     * The logging service.
+     */
+    private final LoggingService loggingService;
+
+    /**
      * Construct the rollback command.
      *
      * @param storageAdapter The storage adapter
@@ -78,6 +83,7 @@ public class RollbackCommand extends BaseCommand {
      * @param modificationQueueService The modification queue service
      * @param queryService The query service
      * @param taskChainProvider The task chain provider
+     * @param loggingService The logging service
      */
     @Inject
     public RollbackCommand(
@@ -85,12 +91,14 @@ public class RollbackCommand extends BaseCommand {
             MessageService messageService,
             IModificationQueueService modificationQueueService,
             QueryService queryService,
-            TaskChainProvider taskChainProvider) {
+            TaskChainProvider taskChainProvider,
+            LoggingService loggingService) {
         this.storageAdapter = storageAdapter;
         this.messageService = messageService;
         this.modificationQueueService = modificationQueueService;
         this.queryService = queryService;
         this.taskChainProvider = taskChainProvider;
+        this.loggingService = loggingService;
     }
 
     /**
@@ -116,7 +124,7 @@ public class RollbackCommand extends BaseCommand {
                 return storageAdapter.queryActivities(query);
             } catch (Exception e) {
                 messageService.error(player, new TranslationKey("query-error"));
-                PrismBukkit.getInstance().handleException(e);
+                loggingService.handleException(e);
             }
 
             return null;

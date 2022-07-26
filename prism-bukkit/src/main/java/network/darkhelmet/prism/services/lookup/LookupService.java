@@ -38,6 +38,7 @@ import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.providers.TaskChainProvider;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.translation.TranslationKey;
@@ -79,6 +80,11 @@ public class LookupService {
     private final TaskChainProvider taskChainProvider;
 
     /**
+     * The logging service.
+     */
+    private final LoggingService loggingService;
+
+    /**
      * Cache recent queries.
      */
     private final Map<CommandSender, ActivityQuery> queries = new HashMap<>();
@@ -97,6 +103,7 @@ public class LookupService {
      * @param translationService The transation service
      * @param audiences The audiences
      * @param taskChainProvider The task chain provider
+     * @param loggingService The logging service
      */
     @Inject
     public LookupService(
@@ -105,13 +112,15 @@ public class LookupService {
             IStorageAdapter storageAdapter,
             TranslationService translationService,
             BukkitAudiences audiences,
-            TaskChainProvider taskChainProvider) {
+            TaskChainProvider taskChainProvider,
+            LoggingService loggingService) {
         this.configurationService = configurationService;
         this.messageService = messageService;
         this.storageAdapter = storageAdapter;
         this.translationService = translationService;
         this.audiences = audiences;
         this.taskChainProvider = taskChainProvider;
+        this.loggingService = loggingService;
     }
 
     /**
@@ -154,7 +163,7 @@ public class LookupService {
                 tasks.put(sender, task);
             } catch (Exception ex) {
                 messageService.error(sender, new TranslationKey("query-error"));
-                PrismBukkit.getInstance().handleException(ex);
+                loggingService.handleException(ex);
             }
         }).execute();
     }
