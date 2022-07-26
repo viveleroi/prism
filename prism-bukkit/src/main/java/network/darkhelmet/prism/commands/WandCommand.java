@@ -22,6 +22,7 @@ package network.darkhelmet.prism.commands;
 
 import com.google.inject.Inject;
 
+import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Optional;
@@ -57,6 +58,7 @@ public class WandCommand extends BaseCommand {
      * @param wandMode The wand mode
      */
     @SubCommand("wand")
+    @Permission("prism.admin")
     public void onWand(final Player player, @Optional WandMode wandMode) {
         // If no wand mode selected, yet player has an active wand, toggle it off
         if (wandMode == null && wandService.hasActiveWand(player)) {

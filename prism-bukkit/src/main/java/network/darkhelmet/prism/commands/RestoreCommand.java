@@ -22,6 +22,7 @@ package network.darkhelmet.prism.commands;
 
 import com.google.inject.Inject;
 
+import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.NamedArguments;
@@ -108,6 +109,7 @@ public class RestoreCommand extends BaseCommand {
      */
     @NamedArguments("params")
     @SubCommand(value = "restore", alias = {"rs"})
+    @Permission("prism.admin")
     public void onRestore(final Player player, final Arguments arguments) {
         // Ensure a queue is free
         if (!modificationQueueService.queueAvailable()) {

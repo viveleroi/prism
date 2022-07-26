@@ -22,6 +22,7 @@ package network.darkhelmet.prism.commands;
 
 import com.google.inject.Inject;
 
+import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.NamedArguments;
@@ -96,6 +97,7 @@ public class LookupCommand extends BaseCommand {
      */
     @NamedArguments("params")
     @SubCommand(value = "lookup", alias = {"l"})
+    @Permission("prism.admin")
     public void onLookup(final Player player, final Arguments arguments) {
         try {
             final ActivityQuery query = queryService.queryFromArguments(player.getLocation(), arguments)

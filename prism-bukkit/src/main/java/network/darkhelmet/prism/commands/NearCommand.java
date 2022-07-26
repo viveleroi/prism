@@ -22,6 +22,7 @@ package network.darkhelmet.prism.commands;
 
 import com.google.inject.Inject;
 
+import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.SubCommand;
@@ -67,6 +68,7 @@ public class NearCommand extends BaseCommand {
      * @param player The player
      */
     @SubCommand("near")
+    @Permission("prism.admin")
     public void onNear(final Player player) {
         Location loc = player.getLocation();
         Coordinate minCoordinate = LocationUtils.getMinCoordinate(loc, configurationService.prismConfig().nearRadius());

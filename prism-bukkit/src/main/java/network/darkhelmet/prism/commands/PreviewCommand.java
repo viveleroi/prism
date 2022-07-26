@@ -22,6 +22,7 @@ package network.darkhelmet.prism.commands;
 
 import com.google.inject.Inject;
 
+import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.NamedArguments;
@@ -110,6 +111,7 @@ public class PreviewCommand extends BaseCommand {
      */
     @NamedArguments("params")
     @SubCommand(value = "preview-rollback", alias = {"prb"})
+    @Permission("prism.admin")
     public void onPreview(final Player player, final Arguments arguments) {
         // Ensure a queue is free
         if (!modificationQueueService.queueAvailable()) {

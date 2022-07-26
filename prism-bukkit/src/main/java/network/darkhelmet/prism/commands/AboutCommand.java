@@ -23,6 +23,7 @@ package network.darkhelmet.prism.commands;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
+import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Default;
@@ -63,6 +64,7 @@ public class AboutCommand extends BaseCommand {
      */
     @Default
     @SubCommand("about")
+    @Permission("prism.admin")
     public void onAbout(final CommandSender sender) {
         messageService.about(sender, version);
     }

@@ -22,6 +22,7 @@ package network.darkhelmet.prism.commands;
 
 import com.google.inject.Inject;
 
+import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.SubCommand;
@@ -75,6 +76,7 @@ public class PageCommand extends BaseCommand {
      * @param page The new page
      */
     @SubCommand(value = "page")
+    @Permission("prism.admin")
     public void onPage(CommandSender sender, Integer page) {
         Optional<ActivityQuery> optionalQuery = lookupService.lastQuery(sender);
         if (optionalQuery.isEmpty()) {
