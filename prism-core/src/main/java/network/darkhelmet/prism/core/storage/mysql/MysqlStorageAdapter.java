@@ -203,6 +203,22 @@ public class MysqlStorageAdapter implements IStorageAdapter {
         String versionMsg = String.format("Database version: %s / %s", version, versionComment);
         loggingService.logger().info(versionMsg);
 
+        String[] segments = version.split("\\.");
+        if (versionComment.contains("MySQL")) {
+            int major = Integer.parseInt(segments[0]);
+            configurationService.storageConfig().mysqlDeprecated(major < 8);
+        } else if (versionComment.contains("Maria")) {
+            int major = Integer.parseInt(segments[0]);
+            int minor = Integer.parseInt(segments[1]);
+            configurationService.storageConfig().mysqlDeprecated(major < 10 || minor < 2);
+        }
+
+        if (configurationService.storageConfig().mysqlDeprecated()) {
+            String updateMsg = "Using older/deprecated database features. We strongly recommend using"
+                + " MySQL 8+ or MariaDB 10.2+";
+            loggingService.logger().info(updateMsg);
+        }
+
         long innodbSizeMb = Long.parseLong(dbInfo.get("innodb_buffer_pool_size")) / 1024 / 1024;
         loggingService.logger().info(String.format("innodb_buffer_pool_size: %d", innodbSizeMb));
         loggingService.logger().info(String.format("sql_mode: %s", dbInfo.get("sql_mode")));

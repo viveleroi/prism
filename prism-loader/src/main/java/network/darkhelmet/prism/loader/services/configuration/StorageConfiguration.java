@@ -40,10 +40,8 @@ public class StorageConfiguration {
     @Comment("Configure the hostname.")
     private String host = "localhost";
 
-    @Comment("We strongly recommend using MySQL 8+ or MariaDB 10.2+. Prism uses some newer features,\n"
-        + "but we realize you may be limited to older databases. If so, set this to true.\n"
-        + "Please see our docs for details on what this does.")
-    private boolean mysqlDeprecated = false;
+    // Configuration is now managed automatically.
+    private transient boolean mysqlDeprecated = false;
 
     @Comment("Enter the password, if the selected datasource uses authentication.")
     private String password = "";
@@ -117,6 +115,15 @@ public class StorageConfiguration {
      */
     public boolean mysqlDeprecated() {
         return mysqlDeprecated;
+    }
+
+    /**
+     * Set whether to use older mysql/deprecated features.
+     *
+     * @param mysqlDeprecated True if using old mysql features
+     */
+    public void mysqlDeprecated(boolean mysqlDeprecated) {
+        this.mysqlDeprecated = mysqlDeprecated;
     }
 
     /**
