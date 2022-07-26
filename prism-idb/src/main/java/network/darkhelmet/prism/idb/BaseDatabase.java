@@ -1,6 +1,32 @@
+/*
+ * This file is a part of prism-idb.
+ *
+ * MIT License
+ *
+ * Copyright (c) 2014-2018 Daniel Ennis
+ * Copyright 2022 viveleroi
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package network.darkhelmet.prism.idb;
 
-import javax.sql.DataSource;
 import java.io.Closeable;
 import java.io.IOException;
 import java.sql.Connection;
@@ -11,6 +37,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import javax.sql.DataSource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,6 +51,11 @@ public class BaseDatabase implements Database {
     private ExecutorService threadPool;
     DataSource dataSource;
 
+    /**
+     * Constructor.
+     *
+     * @param options The options
+     */
     public BaseDatabase(DatabaseOptions options) {
         this.options = options;
         if (!options.favorDataSourceOverDriver) {
@@ -32,11 +65,11 @@ public class BaseDatabase implements Database {
         this.threadPool = options.executor;
         if (this.threadPool == null) {
             this.threadPool = new ThreadPoolExecutor(
-                    options.minAsyncThreads,
-                    options.maxAsyncThreads,
-                    options.asyncThreadTimeout,
-                    TimeUnit.SECONDS,
-                    new LinkedBlockingQueue<>()
+                options.minAsyncThreads,
+                options.maxAsyncThreads,
+                options.asyncThreadTimeout,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>()
             );
             ((ThreadPoolExecutor) threadPool).allowCoreThreadTimeOut(true);
         }
@@ -48,6 +81,12 @@ public class BaseDatabase implements Database {
         this.logger.info("Connecting to Database: " + options.dsn);
     }
 
+    /**
+     * Close the connection.
+     *
+     * @param timeout The timeout
+     * @param unit The timeout time unit
+     */
     public void close(long timeout, TimeUnit unit) {
         threadPool.shutdown();
         try {
@@ -65,7 +104,6 @@ public class BaseDatabase implements Database {
             }
         }
     }
-
 
     @Override
     public synchronized <T> CompletableFuture<T> dispatchAsync(Callable<T> task) {
@@ -89,7 +127,6 @@ public class BaseDatabase implements Database {
     public DatabaseTiming timings(String name) {
         return timingsProvider.of(options.poolName + " - " + name, sqlTiming);
     }
-
 
     @Override
     public DatabaseOptions getOptions() {

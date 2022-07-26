@@ -1,6 +1,31 @@
-package network.darkhelmet.prism.idb;
+/*
+ * This file is a part of prism-idb.
+ *
+ * MIT License
+ *
+ * Copyright (c) 2014-2018 Daniel Ennis
+ * Copyright 2022 viveleroi
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
-import org.intellij.lang.annotations.Language;
+package network.darkhelmet.prism.idb;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,6 +36,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+
+import org.intellij.lang.annotations.Language;
 
 public class DbStatement implements AutoCloseable {
     private Database db;
@@ -24,9 +51,12 @@ public class DbStatement implements AutoCloseable {
     private final List<Consumer<DbStatement>> onCommit = new ArrayList<>(0);
     private final List<Consumer<DbStatement>> onRollback = new ArrayList<>(0);
 
-    public DbStatement() throws SQLException {
-        this(DB.getGlobalDatabase());
-    }
+    /**
+     * Constructor.
+     *
+     * @param db The database
+     * @throws SQLException Exception
+     */
     public DbStatement(Database db) throws SQLException {
         this.db = db;
         dbConn = db.getConnection();
@@ -36,7 +66,7 @@ public class DbStatement implements AutoCloseable {
     }
 
     /**
-     * Starts a transaction on this connection
+     * Starts a transaction on this connection.
      */
     public void startTransaction() throws SQLException {
         try (DatabaseTiming ignored = db.timings("startTransaction")) {
@@ -46,7 +76,7 @@ public class DbStatement implements AutoCloseable {
     }
 
     /**
-     * Commits a pending transaction on this connection
+     * Commits a pending transaction on this connection.
      */
     public void commit() throws SQLException {
         if (!isDirty) {
@@ -134,16 +164,17 @@ public class DbStatement implements AutoCloseable {
     }
 
     /**
-     * Helper method to query, execute and getResults
+     * Helper method to query, execute and getResults.
      */
-    public ArrayList<DbRow> executeQueryGetResults(@Language("SQL") String query, Object... params) throws SQLException {
+    public ArrayList<DbRow> executeQueryGetResults(
+            @Language("SQL") String query, Object... params) throws SQLException {
         this.query(query);
         this.execute(params);
         return getResults();
     }
 
     /**
-     * Helper method to query and execute update
+     * Helper method to query and execute update.
      */
     public int executeUpdateQuery(@Language("SQL") String query, Object... params) throws SQLException {
         this.query(query);
@@ -151,7 +182,7 @@ public class DbStatement implements AutoCloseable {
     }
 
     /**
-     * Helper method to query, execute and get first row
+     * Helper method to query, execute and get first row.
      */
     public DbRow executeQueryGetFirstRow(@Language("SQL") String query, Object... params) throws SQLException {
         this.query(query);
@@ -160,7 +191,7 @@ public class DbStatement implements AutoCloseable {
     }
 
     /**
-     * Helper to query, execute and get first column
+     * Helper to query, execute and get first column.
      */
     public <T> T executeQueryGetFirstColumn(@Language("SQL") String query, Object... params) throws SQLException {
         this.query(query);
@@ -169,9 +200,10 @@ public class DbStatement implements AutoCloseable {
     }
 
     /**
-     * Helper to query, execute and get first column of all results
+     * Helper to query, execute and get first column of all results.
      */
-    public <T> List<T> executeQueryGetFirstColumnResults(@Language("SQL") String query, Object... params) throws SQLException {
+    public <T> List<T> executeQueryGetFirstColumnResults(
+            @Language("SQL") String query, Object... params) throws SQLException {
         this.query(query);
         this.execute(params);
         List<T> dbRows = new ArrayList<>();
@@ -201,7 +233,7 @@ public class DbStatement implements AutoCloseable {
     }
 
     /**
-     * Execute an update query with the supplied parameters
+     * Execute an update query with the supplied parameters.
      */
     public int executeUpdate(Object... params) throws SQLException {
         try (DatabaseTiming ignored = db.timings("executeUpdate: " + query)) {
@@ -247,7 +279,7 @@ public class DbStatement implements AutoCloseable {
     }
 
     /**
-     * Gets the Id of last insert
+     * Gets the Id of last insert.
      *
      * @return Long
      */
@@ -267,7 +299,7 @@ public class DbStatement implements AutoCloseable {
     }
 
     /**
-     * Gets all results as an array of DbRow
+     * Gets all results as an array of DbRow.
      */
     public ArrayList<DbRow> getResults() throws SQLException {
         if (resultSet == null) {
@@ -304,6 +336,13 @@ public class DbStatement implements AutoCloseable {
         return null;
     }
 
+    /**
+     * Get the first column.
+     *
+     * @param <T> The type
+     * @return The first column
+     * @throws SQLException Exception
+     */
     public <T> T getFirstColumn() throws SQLException {
         ResultSet resultSet = getNextResultSet();
         if (resultSet != null) {
@@ -312,6 +351,7 @@ public class DbStatement implements AutoCloseable {
         }
         return null;
     }
+
     /**
      * Util method to get the next result set and close it when done.
      */
@@ -323,12 +363,14 @@ public class DbStatement implements AutoCloseable {
             return null;
         }
     }
+
     private void closeResult() throws SQLException {
         if (resultSet != null) {
             resultSet.close();
             resultSet = null;
         }
     }
+
     private void closeStatement() throws SQLException {
         closeResult();
         if (preparedStatement != null) {
@@ -342,7 +384,6 @@ public class DbStatement implements AutoCloseable {
      */
     public void close() {
         try (DatabaseTiming ignored = db.timings("close")) {
-
             try {
                 closeStatement();
                 if (dbConn != null) {

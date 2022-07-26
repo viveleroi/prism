@@ -1,24 +1,28 @@
 /*
- * Copyright (c) 2016-2017 Daniel Ennis (Aikar) - MIT License
+ * This file is a part of prism-idb.
  *
- *  Permission is hereby granted, free of charge, to any person obtaining
- *  a copy of this software and associated documentation files (the
- *  "Software"), to deal in the Software without restriction, including
- *  without limitation the rights to use, copy, modify, merge, publish,
- *  distribute, sublicense, and/or sell copies of the Software, and to
- *  permit persons to whom the Software is furnished to do so, subject to
- *  the following conditions:
+ * MIT License
  *
- *  The above copyright notice and this permission notice shall be
- *  included in all copies or substantial portions of the Software.
+ * Copyright (c) 2014-2018 Daniel Ennis
+ * Copyright 2022 viveleroi
  *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- *  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- *  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- *  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- *  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- *  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- *  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 package network.darkhelmet.prism.idb;
@@ -29,32 +33,37 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
 import org.intellij.lang.annotations.Language;
 
 public final class DB {
-    private static final Pattern NEWLINE = Pattern.compile("\n");
     private DB() {}
 
     private static Database globalDatabase;
 
-    public synchronized static Database getGlobalDatabase() {
+    public static synchronized Database getGlobalDatabase() {
         return globalDatabase;
     }
-    public synchronized static void setGlobalDatabase(Database database) {
+
+    public static synchronized void setGlobalDatabase(Database database) {
         globalDatabase = database;
     }
 
     /**
      * Called in onDisable, destroys the Data source and nulls out references.
      */
-    public synchronized static void close() {
+    public static synchronized void close() {
         close(120, TimeUnit.SECONDS);
     }
 
-    public synchronized static void close(long timeout, TimeUnit unit) {
+    /**
+     * Close the connection.
+     *
+     * @param timeout The timeout
+     * @param unit The time unit
+     */
+    public static synchronized void close(long timeout, TimeUnit unit) {
         if (globalDatabase != null) {
             globalDatabase.close(timeout, unit);
             globalDatabase = null;
@@ -72,6 +81,7 @@ public final class DB {
     public static DbRow getFirstRow(@Language("SQL") String query, Object... params) throws SQLException {
         return globalDatabase.getFirstRow(query, params);
     }
+
     /**
      * Utility method to execute a query and retrieve the first row, then close statement.
      * You should ensure result will only return 1 row for maximum performance.
@@ -95,6 +105,7 @@ public final class DB {
     public static <T> T getFirstColumn(@Language("SQL") String query, Object... params) throws SQLException {
         return globalDatabase.getFirstColumn(query, params);
     }
+
     /**
      * Utility method to execute a query and retrieve the first column of the first row, then close statement.
      * You should ensure result will only return 1 row for maximum performance.
@@ -110,24 +121,27 @@ public final class DB {
     /**
      * Utility method to execute a query and retrieve first column of all results, then close statement.
      *
-     * Meant for single queries that will not use the statement multiple times.
+     * <p>Meant for single queries that will not use the statement multiple times.</p>
      */
-    public static <T> List<T> getFirstColumnResults(@Language("SQL") String query, Object... params) throws SQLException {
+    public static <T> List<T> getFirstColumnResults(
+            @Language("SQL") String query, Object... params) throws SQLException {
         return globalDatabase.getFirstColumnResults(query, params);
     }
+
     /**
      * Utility method to execute a query and retrieve first column of all results, then close statement.
      *
-     * Meant for single queries that will not use the statement multiple times.
+     * <p>Meant for single queries that will not use the statement multiple times.</p>
      */
-    public static <T> CompletableFuture<List<T>> getFirstColumnResultsAsync(@Language("SQL") String query, Object... params) {
+    public static <T> CompletableFuture<List<T>> getFirstColumnResultsAsync(
+            @Language("SQL") String query, Object... params) {
         return globalDatabase.getFirstColumnResultsAsync(query, params);
     }
 
     /**
      * Utility method to execute a query and retrieve all results, then close statement.
      *
-     * Meant for single queries that will not use the statement multiple times.
+     * <p>Meant for single queries that will not use the statement multiple times.</p>
      *
      * @param query  The query to run
      * @param params The parameters to execute the statement with
@@ -140,7 +154,7 @@ public final class DB {
     /**
      * Utility method to execute a query and retrieve all results, then close statement.
      *
-     * Meant for single queries that will not use the statement multiple times.
+     * <p>Meant for single queries that will not use the statement multiple times.</p>
      *
      * @param query  The query to run
      * @param params The parameters to execute the statement with
@@ -161,6 +175,7 @@ public final class DB {
     public static Long executeInsert(@Language("SQL") String query, Object... params) throws SQLException {
         return globalDatabase.executeInsert(query, params);
     }
+
     /**
      * Utility method for executing an update synchronously, and then close the statement.
      *
@@ -182,7 +197,7 @@ public final class DB {
         return globalDatabase.executeUpdateAsync(query, params);
     }
 
-    private synchronized static <T> CompletableFuture<T> dispatchAsync(Callable<T> task) {
+    private static synchronized <T> CompletableFuture<T> dispatchAsync(Callable<T> task) {
         return globalDatabase.dispatchAsync(task);
     }
 
@@ -201,15 +216,16 @@ public final class DB {
     public static void logException(Exception e) {
         globalDatabase.logException(e.getMessage(), e);
     }
+
     public static void logException(String message, Exception e) {
         globalDatabase.logException(message, e);
     }
 
-    public static void fatalError(Exception e) {
-        globalDatabase.fatalError(e);
-    }
-
     public static void logException(Logger logger, Level logLevel, String message, Exception e) {
         logger.error(message, e);
+    }
+
+    public static void fatalError(Exception e) {
+        globalDatabase.fatalError(e);
     }
 }

@@ -1,3 +1,30 @@
+/*
+ * This file is a part of prism-idb.
+ *
+ * MIT License
+ *
+ * Copyright (c) 2014-2018 Daniel Ennis
+ * Copyright 2022 viveleroi
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package network.darkhelmet.prism.idb;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -6,6 +33,11 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.util.Map;
 
 public class HikariPooledDatabase extends BaseDatabase {
+    /**
+     * Constructor.
+     *
+     * @param poolOptions The pool options
+     */
     public HikariPooledDatabase(PooledDatabaseOptions poolOptions) {
         super(poolOptions.options);
         DatabaseOptions options = poolOptions.options;
@@ -55,6 +87,12 @@ public class HikariPooledDatabase extends BaseDatabase {
         dataSource = new HikariDataSource(config);
     }
 
+    /**
+     * Constructor.
+     *
+     * @param poolOptions The pool options
+     * @param hikariConfig The hikari config
+     */
     public HikariPooledDatabase(PooledDatabaseOptions poolOptions, HikariConfig hikariConfig) {
         super(poolOptions.options);
         dataSource = new HikariDataSource(hikariConfig);

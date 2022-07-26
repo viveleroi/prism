@@ -1,24 +1,28 @@
 /*
- * Copyright (c) 2016-2017 Daniel Ennis (Aikar) - MIT License
+ * This file is a part of prism-idb.
  *
- *  Permission is hereby granted, free of charge, to any person obtaining
- *  a copy of this software and associated documentation files (the
- *  "Software"), to deal in the Software without restriction, including
- *  without limitation the rights to use, copy, modify, merge, publish,
- *  distribute, sublicense, and/or sell copies of the Software, and to
- *  permit persons to whom the Software is furnished to do so, subject to
- *  the following conditions:
+ * MIT License
  *
- *  The above copyright notice and this permission notice shall be
- *  included in all copies or substantial portions of the Software.
+ * Copyright (c) 2014-2018 Daniel Ennis
+ * Copyright 2022 viveleroi
  *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- *  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- *  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- *  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- *  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- *  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- *  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 package network.darkhelmet.prism.idb;
@@ -36,21 +40,22 @@ public class DbRow extends HashMap<String, Object> {
      * VALID: Long myLong = row.get("someUnsignedIntColumn");
      * INVALID: String myString = row.get("someUnsignedIntColumn");
      *
-     * @param <T>
-     * @param column
+     * @param <T> The type
+     * @param column The column
      * @return Object of the matching type of the result.
      */
     public <T> T get(String column) {
         return (T) super.get(column);
     }
+
     /**
      * Get the result as proper type., returning default if not found.
      * <p/>
      * VALID: Long myLong = row.get("someUnsignedIntColumn");
      * INVALID: String myString = row.get("someUnsignedIntColumn");
      *
-     * @param <T>
-     * @param column
+     * @param <T> The type
+     * @param column The column
      * @return Object of the matching type of the result.
      */
     public <T> T get(String column, T def) {
@@ -85,7 +90,6 @@ public class DbRow extends HashMap<String, Object> {
         return get(column, def).floatValue();
     }
 
-
     public Double getDbl(String column) {
         return ((Number) get(column)).doubleValue();
     }
@@ -108,8 +112,8 @@ public class DbRow extends HashMap<String, Object> {
      * VALID: Long myLong = row.remove("someUnsignedIntColumn");
      * INVALID: String myString = row.remove("someUnsignedIntColumn");
      *
-     * @param <T>
-     * @param column
+     * @param <T> The type
+     * @param column The column
      * @return Object of the matching type of the result.
      */
     public <T> T remove(String column) {
@@ -122,8 +126,8 @@ public class DbRow extends HashMap<String, Object> {
      * VALID: Long myLong = row.get("someUnsignedIntColumn");
      * INVALID: String myString = row.get("someUnsignedIntColumn");
      *
-     * @param <T>
-     * @param column
+     * @param <T> The type
+     * @param column The column
      * @return Object of the matching type of the result.
      */
     public <T> T remove(String column, T def) {
@@ -134,6 +138,11 @@ public class DbRow extends HashMap<String, Object> {
         return res;
     }
 
+    /**
+     * Clone the row.
+     *
+     * @return The cloned row
+     */
     public DbRow clone() {
         DbRow row = new DbRow();
         row.putAll(this);
