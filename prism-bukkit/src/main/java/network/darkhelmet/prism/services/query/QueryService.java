@@ -107,6 +107,38 @@ public class QueryService {
             parseRadius(builder, referenceLocation, radius);
         }
 
+        // bounds: parameter
+        if (arguments.get("bounds", String.class).isPresent()) {
+            String at = arguments.get("bounds", String.class).get();
+            String[] segments = at.split("-");
+            if (segments.length != 2) {
+                throw new IllegalArgumentException("param-error-bounds-invalid-format");
+            }
+
+            String[] minSegments = segments[0].split(",");
+            if (minSegments.length != 3) {
+                throw new IllegalArgumentException("param-error-bounds-invalid-format");
+            }
+
+            String[] maxSegments = segments[1].split(",");
+            if (maxSegments.length != 3) {
+                throw new IllegalArgumentException("param-error-bounds-invalid-format");
+            }
+
+            int minX = Integer.parseInt(minSegments[0]);
+            int minY = Integer.parseInt(minSegments[1]);
+            int minZ = Integer.parseInt(minSegments[2]);
+
+            int maxX = Integer.parseInt(maxSegments[0]);
+            int maxY = Integer.parseInt(maxSegments[1]);
+            int maxZ = Integer.parseInt(maxSegments[2]);
+
+            builder.worldUuid(referenceLocation.getWorld().getUID());
+            Coordinate min = new Coordinate(minX, minY, minZ);
+            Coordinate max = new Coordinate(maxX, maxY, maxZ);
+            builder.boundingCoordinates(min, max);
+        }
+
         // world: parameter
         if (arguments.get("world", String.class).isPresent()) {
             String worldName = arguments.get("world", String.class).get();

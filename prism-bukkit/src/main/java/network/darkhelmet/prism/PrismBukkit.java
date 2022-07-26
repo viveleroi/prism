@@ -260,6 +260,7 @@ public class PrismBukkit implements IPrism {
                 Argument.forString().name("cause").build(),
                 Argument.forString().name("world").suggestion(SuggestionKey.of("worlds")).build(),
                 Argument.forString().name("at").build(),
+                Argument.forString().name("bounds").build(),
                 Argument.listOf(String.class).name("a").suggestion(SuggestionKey.of("actions")).build(),
                 Argument.listOf(Material.class).name("m").build(),
                 Argument.listOf(EntityType.class).name("e").build(),
