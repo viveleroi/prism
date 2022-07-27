@@ -23,9 +23,9 @@ package network.darkhelmet.prism.actions;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
-import network.darkhelmet.prism.api.services.configuration.IModificationConfiguration;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
+import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 
 public class GenericAction extends Action implements IAction {
     /**
@@ -42,7 +42,7 @@ public class GenericAction extends Action implements IAction {
 
     @Override
     public ModificationResult applyRollback(
-            IModificationConfiguration modificationConfiguration,
+            ModificationRuleset modificationRuleset,
             Object owner,
             IActivity activityContext,
             ModificationQueueMode mode) {
@@ -51,7 +51,7 @@ public class GenericAction extends Action implements IAction {
 
     @Override
     public ModificationResult applyRestore(
-            IModificationConfiguration modificationConfiguration,
+            ModificationRuleset modificationRuleset,
             Object owner,
             IActivity activityContext,
             ModificationQueueMode mode) {

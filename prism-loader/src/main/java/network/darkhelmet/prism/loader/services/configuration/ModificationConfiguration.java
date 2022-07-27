@@ -21,19 +21,18 @@
 package network.darkhelmet.prism.loader.services.configuration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import lombok.Getter;
 
-import network.darkhelmet.prism.api.services.configuration.IModificationConfiguration;
+import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
-public class ModificationConfiguration implements IModificationConfiguration {
+public class ModificationConfiguration {
     @Comment("List materials that should be excluded from modifications.")
     private List<String> blockBlacklist = new ArrayList<>();
 
@@ -57,9 +56,16 @@ public class ModificationConfiguration implements IModificationConfiguration {
         blockBlacklist.add("tnt");
     }
 
-    @Override
-    public boolean blockBlacklistContainsAny(String... values) {
-        return blockBlacklist.stream().anyMatch(str ->
-            Arrays.stream(values).anyMatch(v -> v.equalsIgnoreCase(str)));
+    /**
+     * Create a modification ruleset builder based on this configuration.
+     *
+     * @return The builder
+     */
+    public ModificationRuleset.ModificationRulesetBuilder toRulesetBuilder() {
+        return ModificationRuleset.builder()
+            .blockBlacklist(blockBlacklist)
+            .maxPerTask(maxPerTask)
+            .removeDrops(removeDrops)
+            .taskDelay(taskDelay);
     }
 }

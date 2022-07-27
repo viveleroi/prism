@@ -37,7 +37,9 @@ import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
 import network.darkhelmet.prism.api.services.modifications.IPreviewable;
+import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.providers.TaskChainProvider;
 import network.darkhelmet.prism.services.messages.MessageService;
@@ -50,6 +52,11 @@ import org.bukkit.entity.Player;
 
 @Command(value = "prism", alias = {"pr"})
 public class PreviewCommand extends BaseCommand {
+    /**
+     * The configuration service.
+     */
+    private final ConfigurationService configurationService;
+
     /**
      * The storage adapter.
      */
@@ -83,6 +90,7 @@ public class PreviewCommand extends BaseCommand {
     /**
      * Construct the rollback command.
      *
+     * @param configurationService The configuration service
      * @param storageAdapter The storage adapter
      * @param messageService The message service
      * @param modificationQueueService The modification queue service
@@ -92,12 +100,14 @@ public class PreviewCommand extends BaseCommand {
      */
     @Inject
     public PreviewCommand(
+            ConfigurationService configurationService,
             IStorageAdapter storageAdapter,
             MessageService messageService,
             IModificationQueueService modificationQueueService,
             QueryService queryService,
             TaskChainProvider taskChainProvider,
             LoggingService loggingService) {
+        this.configurationService = configurationService;
         this.storageAdapter = storageAdapter;
         this.messageService = messageService;
         this.modificationQueueService = modificationQueueService;
@@ -207,7 +217,11 @@ public class PreviewCommand extends BaseCommand {
                 return null;
             }
 
-            IModificationQueue queue = modificationQueueService.newQueue(clazz, player, query, results);
+            ModificationRuleset modificationRuleset = configurationService
+                .prismConfig().modifications().toRulesetBuilder().build();
+
+            IModificationQueue queue = modificationQueueService
+                .newQueue(clazz, modificationRuleset, player, query, results);
             if (queue instanceof IPreviewable previewable) {
                 previewable.preview();
             } else {

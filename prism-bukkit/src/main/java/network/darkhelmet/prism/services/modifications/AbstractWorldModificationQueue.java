@@ -37,8 +37,7 @@ import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
-import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
-import network.darkhelmet.prism.loader.services.configuration.ModificationConfiguration;
+import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.utils.EntityUtils;
 
@@ -49,14 +48,14 @@ import org.bukkit.util.BoundingBox;
 
 public abstract class AbstractWorldModificationQueue implements IModificationQueue {
     /**
-     * The configuration service.
-     */
-    protected ConfigurationService configurationService;
-
-    /**
      * The logging service.
      */
     protected LoggingService loggingService;
+
+    /**
+     * The modification ruleset.
+     */
+    protected ModificationRuleset modificationRuleset;
 
     /**
      * Manage a queue of pending modifications.
@@ -67,16 +66,6 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
      * The onEnd handler.
      */
     protected final Consumer<ModificationQueueResult> onEndCallback;
-
-    /**
-     * The period duration between executions of tasks.
-     */
-    protected final long taskDelay;
-
-    /**
-     * The maximum number of queue activities read per task run.
-     */
-    protected final int maxPerTask;
 
     /**
      * The owner.
@@ -126,7 +115,6 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     /**
      * Construct a new world modification.
      *
-     * @param configurationService The configuration service
      * @param loggingService The logging service
      * @param owner The owner
      * @param query The query
@@ -134,32 +122,27 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
      * @param onEndCallback The ended callback
      */
     public AbstractWorldModificationQueue(
-            ConfigurationService configurationService,
             LoggingService loggingService,
+            ModificationRuleset modificationRuleset,
             Object owner,
             ActivityQuery query,
             final List<IActivity> modifications,
             Consumer<ModificationQueueResult> onEndCallback) {
         modificationsQueue.addAll(modifications);
-        this.configurationService = configurationService;
         this.loggingService = loggingService;
+        this.modificationRuleset = modificationRuleset;
         this.owner = owner;
         this.query = query;
         this.onEndCallback = onEndCallback;
-
-        this.maxPerTask = configurationService.prismConfig().modifications().maxPerTask();
-        this.taskDelay = configurationService.prismConfig().modifications().taskDelay();
     }
 
     /**
      * Apply a modification.
      *
-     * @param modificationConfiguration The modification configuration
      * @param activity The activity
      * @return The modification result
      */
-    protected ModificationResult applyModification(
-            ModificationConfiguration modificationConfiguration, IActivity activity) {
+    protected ModificationResult applyModification(IActivity activity) {
         return ModificationResult.builder().status(ModificationResultStatus.SKIPPED).build();
     }
 
@@ -168,7 +151,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
      */
     protected void preProcess(ModificationQueueResult.ModificationQueueResultBuilder builder) {
         if (mode.equals(ModificationQueueMode.COMPLETING)) {
-            if (configurationService.prismConfig().modifications().removeDrops()
+            if (modificationRuleset.removeDrops()
                     && query.worldUuid() != null
                     && query.minCoordinate() != null
                     && query.maxCoordinate() != null) {
@@ -231,7 +214,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                         }
 
                         // Limit the absolute max number of steps per execution of this task
-                        if (++iterationCount >= maxPerTask) {
+                        if (++iterationCount >= modificationRuleset.maxPerTask()) {
                             break;
                         }
 
@@ -239,7 +222,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
 
                         // Delegate reversible modifications to the actions
                         if (activity.action().type().reversible()) {
-                            result = applyModification(configurationService.prismConfig().modifications(), activity);
+                            result = applyModification(activity);
                         }
 
                         results.add(result);
@@ -278,7 +261,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
 
                     onEnd(result);
                 }
-            }, 0, taskDelay);
+            }, 0, modificationRuleset.taskDelay());
         }
     }
 

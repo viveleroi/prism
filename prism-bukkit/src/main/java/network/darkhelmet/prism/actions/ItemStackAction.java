@@ -27,9 +27,9 @@ import network.darkhelmet.prism.api.actions.IItemAction;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
-import network.darkhelmet.prism.api.services.configuration.IModificationConfiguration;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
+import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.services.modifications.state.ItemStackStateChange;
 
 import org.bukkit.Bukkit;
@@ -89,7 +89,7 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
 
     @Override
     public ModificationResult applyRollback(
-            IModificationConfiguration modificationConfiguration,
+            ModificationRuleset modificationRuleset,
             Object owner,
             IActivity activityContext,
             ModificationQueueMode mode) {
@@ -111,7 +111,7 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
 
     @Override
     public ModificationResult applyRestore(
-            IModificationConfiguration modificationConfiguration,
+            ModificationRuleset modificationRuleset,
             Object owner,
             IActivity activityContext,
             ModificationQueueMode mode) {

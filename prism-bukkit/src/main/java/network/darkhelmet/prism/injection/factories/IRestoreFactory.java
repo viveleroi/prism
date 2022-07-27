@@ -26,12 +26,14 @@ import java.util.function.Consumer;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
+import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.services.modifications.Restore;
 
 public interface IRestoreFactory {
     /**
      * Create the restore instance.
      *
+     * @param modificationRuleset The ruleset
      * @param owner The owner
      * @param query The query
      * @param modifications The modifications
@@ -39,6 +41,7 @@ public interface IRestoreFactory {
      * @return A rollback instance
      */
     Restore create(
+        ModificationRuleset modificationRuleset,
         Object owner,
         ActivityQuery query,
         List<IActivity> modifications,

@@ -70,7 +70,11 @@ public interface IModificationQueueService {
      * @throws IllegalStateException If queue can't be created
      */
     IModificationQueue newQueue(
-        Class<? extends IModificationQueue> clazz, Object owner, ActivityQuery query, List<IActivity> modifications);
+        Class<? extends IModificationQueue> clazz,
+        ModificationRuleset modificationRuleset,
+        Object owner,
+        ActivityQuery query,
+        List<IActivity> modifications);
 
     /**
      * Create a new rollback queue.
@@ -81,7 +85,11 @@ public interface IModificationQueueService {
      * @return The rollback queue
      * @throws IllegalStateException If queue can't be created
      */
-    IModificationQueue newRollbackQueue(Object owner, ActivityQuery query,  List<IActivity> modifications);
+    IModificationQueue newRollbackQueue(
+        ModificationRuleset modificationRuleset,
+        Object owner,
+        ActivityQuery query,
+        List<IActivity> modifications);
 
     /**
      * Create a new restore queue.
@@ -92,7 +100,11 @@ public interface IModificationQueueService {
      * @return The restore queue
      * @throws IllegalStateException If queue can't be created
      */
-    IModificationQueue newRestoreQueue(Object owner, ActivityQuery query, List<IActivity> modifications);
+    IModificationQueue newRestoreQueue(
+        ModificationRuleset modificationRuleset,
+        Object owner,
+        ActivityQuery query,
+        List<IActivity> modifications);
 
     /**
      * Get a queue result for a given owner.

@@ -27,10 +27,12 @@ import java.util.List;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
+import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.api.services.wands.IWand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.providers.TaskChainProvider;
 import network.darkhelmet.prism.services.messages.MessageService;
@@ -40,6 +42,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class RollbackWand implements IWand {
+    /**
+     * The configuration service.
+     */
+    private final ConfigurationService configurationService;
+
     /**
      * The storage adapter.
      */
@@ -73,6 +80,7 @@ public class RollbackWand implements IWand {
     /**
      * Construct a new inspection wand.
      *
+     * @param configurationService The configuration service
      * @param storageAdapter The storage adapter
      * @param messageService The message service
      * @param modificationQueueService The modification queue service
@@ -81,11 +89,13 @@ public class RollbackWand implements IWand {
      */
     @Inject
     public RollbackWand(
+            ConfigurationService configurationService,
             IStorageAdapter storageAdapter,
             MessageService messageService,
             IModificationQueueService modificationQueueService,
             TaskChainProvider taskChainProvider,
             LoggingService loggingService) {
+        this.configurationService = configurationService;
         this.storageAdapter = storageAdapter;
         this.messageService = messageService;
         this.modificationQueueService = modificationQueueService;
@@ -112,7 +122,7 @@ public class RollbackWand implements IWand {
             return;
         }
 
-        final ActivityQuery query = ActivityQuery.builder().location(at).limit(1).build();
+        final ActivityQuery query = ActivityQuery.builder().location(at).limit(1).reversed(false).build();
 
         taskChainProvider.newChain().asyncFirst(() -> {
             try {
@@ -130,7 +140,10 @@ public class RollbackWand implements IWand {
                 return null;
             }
 
-            modificationQueueService.newRollbackQueue(owner, query, modifications).apply();
+            ModificationRuleset modificationRuleset = configurationService
+                .prismConfig().modifications().toRulesetBuilder().build();
+
+            modificationQueueService.newRollbackQueue(modificationRuleset, owner, query, modifications).apply();
 
             return null;
         }).execute();

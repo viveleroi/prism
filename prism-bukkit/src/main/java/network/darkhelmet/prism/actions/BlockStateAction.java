@@ -30,9 +30,9 @@ import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
-import network.darkhelmet.prism.api.services.configuration.IModificationConfiguration;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
+import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.api.services.modifications.StateChange;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.services.modifications.state.BlockStateChange;
@@ -162,12 +162,12 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
 
     @Override
     public ModificationResult applyRollback(
-            IModificationConfiguration modificationConfiguration,
+            ModificationRuleset modificationRuleset,
             Object owner,
             IActivity activityContext,
             ModificationQueueMode mode) {
         // Skip if either material is in the blacklist
-        if (modificationConfiguration.blockBlacklistContainsAny(material.toString(), replacedMaterial.toString())) {
+        if (modificationRuleset.blockBlacklistContainsAny(material.toString(), replacedMaterial.toString())) {
             return ModificationResult.builder().activity(activityContext).build();
         }
 
@@ -186,12 +186,12 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
 
     @Override
     public ModificationResult applyRestore(
-            IModificationConfiguration modificationConfiguration,
+            ModificationRuleset modificationRuleset,
             Object owner,
             IActivity activityContext,
             ModificationQueueMode mode) {
         // Skip if either material is in the blacklist
-        if (modificationConfiguration.blockBlacklistContainsAny(material.toString(), replacedMaterial.toString())) {
+        if (modificationRuleset.blockBlacklistContainsAny(material.toString(), replacedMaterial.toString())) {
             return ModificationResult.builder().activity(activityContext).build();
         }
 

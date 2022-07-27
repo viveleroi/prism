@@ -23,9 +23,9 @@ package network.darkhelmet.prism.actions;
 import network.darkhelmet.prism.api.actions.IBlockAction;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
-import network.darkhelmet.prism.api.services.configuration.IModificationConfiguration;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
+import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -59,7 +59,7 @@ public class BlockStateAction implements IBlockAction {
 
     @Override
     public ModificationResult applyRollback(
-            IModificationConfiguration modificationConfiguration,
+            ModificationRuleset modificationRuleset,
             Object owner,
             IActivity activityContext,
             ModificationQueueMode mode) {
@@ -68,7 +68,7 @@ public class BlockStateAction implements IBlockAction {
 
     @Override
     public ModificationResult applyRestore(
-            IModificationConfiguration modificationConfiguration,
+            ModificationRuleset modificationRuleset,
             Object owner,
             IActivity activityContext,
             ModificationQueueMode mode) {

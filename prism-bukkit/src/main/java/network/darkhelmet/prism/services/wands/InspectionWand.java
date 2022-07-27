@@ -25,7 +25,6 @@ import com.google.inject.Inject;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.services.wands.IWand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
-import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.lookup.LookupService;
@@ -37,11 +36,6 @@ public class InspectionWand implements IWand {
      * The configuration service.
      */
     private final ConfigurationService configurationService;
-
-    /**
-     * The storage adapter.
-     */
-    private final IStorageAdapter storageAdapter;
 
     /**
      * The lookup service.
@@ -57,16 +51,13 @@ public class InspectionWand implements IWand {
      * Construct a new inspection wand.
      *
      * @param configurationService The configuration service
-     * @param storageAdapter The storage adapter
      * @param lookupService The lookup server
      */
     @Inject
     public InspectionWand(
             ConfigurationService configurationService,
-            IStorageAdapter storageAdapter,
             LookupService lookupService) {
         this.configurationService = configurationService;
-        this.storageAdapter = storageAdapter;
         this.lookupService = lookupService;
     }
 
