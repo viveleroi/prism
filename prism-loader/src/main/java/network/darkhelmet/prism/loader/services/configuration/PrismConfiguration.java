@@ -45,6 +45,9 @@ public class PrismConfiguration {
         + "See the wiki for documentation.")
     private List<FilterConfiguartion> filters = new ArrayList<>();
 
+    @Comment("Configure modification (rollbacks/restores) rules.")
+    private ModificationConfiguration modifications = new ModificationConfiguration();
+
     @Comment("Sets the default radius to use when searching for nearby activity.")
     private int nearRadius = 5;
 
@@ -88,6 +91,15 @@ public class PrismConfiguration {
      */
     public Locale defaultLocale() {
         return defaultLocale;
+    }
+
+    /**
+     * Get the modification configuration.
+     *
+     * @return The modification configuration
+     */
+    public ModificationConfiguration modifications() {
+        return modifications;
     }
 
     /**

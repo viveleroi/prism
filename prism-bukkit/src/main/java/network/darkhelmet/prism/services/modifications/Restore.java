@@ -34,6 +34,8 @@ import network.darkhelmet.prism.api.services.modifications.ModificationQueueResu
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.configuration.ModificationConfiguration;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 public class Restore extends AbstractWorldModificationQueue implements IRestore {
@@ -45,6 +47,7 @@ public class Restore extends AbstractWorldModificationQueue implements IRestore 
     /**
      * Construct a new restore.
      *
+     * @param configurationService The configuration service
      * @param loggingService The logging service
      * @param storageAdapter The storage adapter
      * @param owner The owner
@@ -53,20 +56,22 @@ public class Restore extends AbstractWorldModificationQueue implements IRestore 
      */
     @Inject
     public Restore(
+        ConfigurationService configurationService,
         LoggingService loggingService,
         IStorageAdapter storageAdapter,
         @Assisted Object owner,
         @Assisted final List<IActivity> modifications,
         @Assisted Consumer<ModificationQueueResult> onEnd
     ) {
-        super(loggingService, owner, modifications, onEnd);
+        super(configurationService, loggingService, owner, modifications, onEnd);
 
         this.storageAdapter = storageAdapter;
     }
 
     @Override
-    protected ModificationResult applyModification(IActivity activity) {
-        return activity.action().applyRestore(owner(), activity, mode);
+    protected ModificationResult applyModification(
+            ModificationConfiguration modificationConfiguration, IActivity activity) {
+        return activity.action().applyRestore(modificationConfiguration, owner(), activity, mode);
     }
 
     @Override

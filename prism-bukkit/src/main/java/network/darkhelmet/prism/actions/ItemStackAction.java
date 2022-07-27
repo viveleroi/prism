@@ -27,6 +27,7 @@ import network.darkhelmet.prism.api.actions.IItemAction;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.services.configuration.IModificationConfiguration;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.services.modifications.state.ItemStackStateChange;
@@ -87,7 +88,11 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
     }
 
     @Override
-    public ModificationResult applyRollback(Object owner, IActivity activityContext, ModificationQueueMode mode) {
+    public ModificationResult applyRollback(
+            IModificationConfiguration modificationConfiguration,
+            Object owner,
+            IActivity activityContext,
+            ModificationQueueMode mode) {
         activityContext.player();
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(activityContext.player().uuid());
 
@@ -105,7 +110,11 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
     }
 
     @Override
-    public ModificationResult applyRestore(Object owner, IActivity activityContext, ModificationQueueMode mode) {
+    public ModificationResult applyRestore(
+            IModificationConfiguration modificationConfiguration,
+            Object owner,
+            IActivity activityContext,
+            ModificationQueueMode mode) {
         return ModificationResult.builder().activity(activityContext).build();
     }
 }

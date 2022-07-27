@@ -22,6 +22,7 @@ package network.darkhelmet.prism.api.actions;
 
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.services.configuration.IModificationConfiguration;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 
@@ -29,20 +30,30 @@ public interface IAction {
     /**
      * Apply the rollback. If the action type is not reversible, this does nothing.
      *
+     * @param modificationConfiguration The modification configuration
      * @param owner The owner of this modification
      * @param activityContext The activity as a context
      * @param mode Modification mode
      */
-    ModificationResult applyRollback(Object owner, IActivity activityContext, ModificationQueueMode mode);
+    ModificationResult applyRollback(
+        IModificationConfiguration modificationConfiguration,
+        Object owner,
+        IActivity activityContext,
+        ModificationQueueMode mode);
 
     /**
      * Apply the restore. If the action type is not reversible, this does nothing.
      *
+     * @param modificationConfiguration The modification configuration
      * @param owner The owner of this modification
      * @param activityContext The activity as a context
      * @param mode Modification mode
      */
-    ModificationResult applyRestore(Object owner, IActivity activityContext, ModificationQueueMode mode);
+    ModificationResult applyRestore(
+        IModificationConfiguration modificationConfiguration,
+        Object owner,
+        IActivity activityContext,
+        ModificationQueueMode mode);
 
     /**
      * Get the descriptor.

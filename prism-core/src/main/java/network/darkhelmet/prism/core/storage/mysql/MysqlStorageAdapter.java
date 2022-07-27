@@ -768,6 +768,10 @@ public class MysqlStorageAdapter implements IStorageAdapter {
 
     @Override
     public void markReversed(List<Long> activityIds, boolean reversed) throws Exception {
+        if (activityIds.isEmpty()) {
+            return;
+        }
+
         String prefix = configurationService.storageConfig().prefix();
         @Language("SQL") String query = "UPDATE " + prefix + "activities SET reversed = ? WHERE activity_id IN(%s)";
         List<Object> parameters = new ArrayList<>();

@@ -9,7 +9,7 @@ dependencies {
     compileOnly project.property('deps.hikari')
     compileOnly project.property('deps.log4j-api')
     compileOnly project.property('deps.p6spy')
-    implementation project(':prism-api')
-    implementation project(':prism-idb')
+    compileOnly project(':prism-api')
     compileOnly project(':prism-loader')
+    implementation project(':prism-idb')
 }

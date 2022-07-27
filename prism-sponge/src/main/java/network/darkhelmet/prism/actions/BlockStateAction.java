@@ -23,6 +23,7 @@ package network.darkhelmet.prism.actions;
 import network.darkhelmet.prism.api.actions.IBlockAction;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.services.configuration.IModificationConfiguration;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 
@@ -57,12 +58,20 @@ public class BlockStateAction implements IBlockAction {
     }
 
     @Override
-    public ModificationResult applyRollback(Object owner, IActivity activityContext, ModificationQueueMode mode) {
+    public ModificationResult applyRollback(
+            IModificationConfiguration modificationConfiguration,
+            Object owner,
+            IActivity activityContext,
+            ModificationQueueMode mode) {
         return ModificationResult.builder().activity(activityContext).build();
     }
 
     @Override
-    public ModificationResult applyRestore(Object owner, IActivity activityContext, ModificationQueueMode mode) {
+    public ModificationResult applyRestore(
+            IModificationConfiguration modificationConfiguration,
+            Object owner,
+            IActivity activityContext,
+            ModificationQueueMode mode) {
         return ModificationResult.builder().activity(activityContext).build();
     }
 

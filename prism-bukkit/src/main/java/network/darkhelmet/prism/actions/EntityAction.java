@@ -28,6 +28,7 @@ import java.util.Locale;
 import network.darkhelmet.prism.api.actions.IEntityAction;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.services.configuration.IModificationConfiguration;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
@@ -120,7 +121,11 @@ public class EntityAction extends Action implements IEntityAction {
     }
 
     @Override
-    public ModificationResult applyRollback(Object owner, IActivity activityContext, ModificationQueueMode mode) {
+    public ModificationResult applyRollback(
+            IModificationConfiguration modificationConfiguration,
+            Object owner,
+            IActivity activityContext,
+            ModificationQueueMode mode) {
         WorldCoordinate coordinate = activityContext.location();
         World world = Bukkit.getServer().getWorld(coordinate.world().uuid());
         if (world != null && entityType.getEntityClass() != null) {
@@ -136,7 +141,11 @@ public class EntityAction extends Action implements IEntityAction {
     }
 
     @Override
-    public ModificationResult applyRestore(Object owner, IActivity activityContext, ModificationQueueMode mode) {
+    public ModificationResult applyRestore(
+            IModificationConfiguration modificationConfiguration,
+            Object owner,
+            IActivity activityContext,
+            ModificationQueueMode mode) {
         return ModificationResult.builder().activity(activityContext).build();
     }
 }

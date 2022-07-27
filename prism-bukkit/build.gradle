@@ -26,7 +26,7 @@ dependencies {
     // included here as I'm too lazy to add snapshot support to the dep loader
     implementation project.property('deps.triumph-cmd-bukkit')
     implementation project(':prism-core')
-    implementation project(':prism-api')
+    compileOnly project(':prism-api')
     compileOnly project(':prism-loader')
 }
 

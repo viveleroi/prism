@@ -36,12 +36,19 @@ import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.configuration.ModificationConfiguration;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class AbstractWorldModificationQueue implements IModificationQueue {
+    /**
+     * The configuration service.
+     */
+    protected ConfigurationService configurationService;
+
     /**
      * The logging service.
      */
@@ -114,17 +121,20 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     /**
      * Construct a new world modification.
      *
+     * @param configurationService The configuration service
      * @param loggingService The logging service
      * @param owner The owner
      * @param modifications A list of all modifications
      * @param onEndCallback The ended callback
      */
     public AbstractWorldModificationQueue(
+            ConfigurationService configurationService,
             LoggingService loggingService,
             Object owner,
             final List<IActivity> modifications,
             Consumer<ModificationQueueResult> onEndCallback) {
         modificationsQueue.addAll(modifications);
+        this.configurationService = configurationService;
         this.loggingService = loggingService;
         this.owner = owner;
         this.onEndCallback = onEndCallback;
@@ -133,10 +143,12 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     /**
      * Apply a modification.
      *
+     * @param modificationConfiguration The modification configuration
      * @param activity The activity
      * @return The modification result
      */
-    protected ModificationResult applyModification(IActivity activity) {
+    protected ModificationResult applyModification(
+            ModificationConfiguration modificationConfiguration, IActivity activity) {
         return ModificationResult.builder().status(ModificationResultStatus.SKIPPED).build();
     }
 
@@ -181,7 +193,8 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                         }
 
                         // Delegate the modifications to the actions
-                        ModificationResult result = applyModification(activity);
+                        ModificationResult result = applyModification(
+                            configurationService.prismConfig().modifications(), activity);
                         results.add(result);
 
                         if (result.status().equals(ModificationResultStatus.PLANNED)) {

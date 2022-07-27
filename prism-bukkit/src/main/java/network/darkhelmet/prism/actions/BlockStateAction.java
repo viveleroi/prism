@@ -30,6 +30,7 @@ import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.services.configuration.IModificationConfiguration;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.StateChange;
@@ -160,8 +161,18 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
     }
 
     @Override
-    public ModificationResult applyRollback(Object owner, IActivity activityContext, ModificationQueueMode mode) {
+    public ModificationResult applyRollback(
+            IModificationConfiguration modificationConfiguration,
+            Object owner,
+            IActivity activityContext,
+            ModificationQueueMode mode) {
+        // Skip if this type is not reversible
         if (!type().reversible()) {
+            return ModificationResult.builder().activity(activityContext).build();
+        }
+
+        // Skip if either material is in the blacklist
+        if (modificationConfiguration.blockBlacklistContainsAny(material.toString(), replacedMaterial.toString())) {
             return ModificationResult.builder().activity(activityContext).build();
         }
 
@@ -179,8 +190,18 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
     }
 
     @Override
-    public ModificationResult applyRestore(Object owner, IActivity activityContext, ModificationQueueMode mode) {
+    public ModificationResult applyRestore(
+            IModificationConfiguration modificationConfiguration,
+            Object owner,
+            IActivity activityContext,
+            ModificationQueueMode mode) {
+        // Skip if this type is not reversible
         if (!type().reversible()) {
+            return ModificationResult.builder().activity(activityContext).build();
+        }
+
+        // Skip if either material is in the blacklist
+        if (modificationConfiguration.blockBlacklistContainsAny(material.toString(), replacedMaterial.toString())) {
             return ModificationResult.builder().activity(activityContext).build();
         }
 
