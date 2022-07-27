@@ -66,21 +66,19 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
 
     /**
      * The period duration between executions of tasks.
-     * @todo Move this to config
      */
-    private final long taskPeriod = 5;
+    private final long taskDelay;
 
     /**
      * The maximum number of queue activities read per task run.
-     * @todo Move this to config
      */
-    private final int maxPerTask = 1000;
+    private final int maxPerTask;
 
     /**
      * The owner.
      */
     @Getter
-    private Object owner;
+    private final Object owner;
 
     /**
      * The state.
@@ -138,6 +136,9 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
         this.loggingService = loggingService;
         this.owner = owner;
         this.onEndCallback = onEndCallback;
+
+        this.maxPerTask = configurationService.prismConfig().modifications().maxPerTask();
+        this.taskDelay = configurationService.prismConfig().modifications().taskDelay();
     }
 
     /**
@@ -237,7 +238,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                     // Post process
                     postProcess();
                 }
-            }, 0, taskPeriod);
+            }, 0, taskDelay);
         }
     }
 

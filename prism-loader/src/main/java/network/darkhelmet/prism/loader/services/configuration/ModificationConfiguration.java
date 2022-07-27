@@ -37,6 +37,15 @@ public class ModificationConfiguration implements IModificationConfiguration {
     @Comment("List materials that should be excluded from modifications.")
     private List<String> blockBlacklist = new ArrayList<>();
 
+    @Comment("""
+            Set a maximum number of modifications per task. Breaking world changes
+            up can help avoid overloading individual ticks and causing lag.
+            This can also reduce client lag as fewer changes are sent to clients at once.""")
+    private int maxPerTask = 1000;
+
+    @Comment("The delay in ticks between modification tasks.")
+    private long taskDelay = 5;
+
     /**
      * Constructor.
      */
