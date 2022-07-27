@@ -20,10 +20,13 @@
 
 package network.darkhelmet.prism.loader.services.configuration;
 
+import lombok.Getter;
+
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
+@Getter
 public class ActionsConfiguration {
     @Comment("block-break is when a player or entity destroys a block (except from burn/explode).")
     private boolean blockBreak = true;
@@ -55,94 +58,4 @@ public class ActionsConfiguration {
 
     @Comment("vehicle-place is when a player places a boat or minecart.")
     private boolean vehiclePlace = true;
-
-    /**
-     * Get if block-break enabled.
-     *
-     * @return True if enabled
-     */
-    public boolean blockBreak() {
-        return blockBreak;
-    }
-
-    /**
-     * Get if block-place enabled.
-     *
-     * @return True if enabled
-     */
-    public boolean blockPlace() {
-        return blockPlace;
-    }
-
-    /**
-     * Get if entity-kill enabled.
-     *
-     * @return True if enabled
-     */
-    public boolean entityKill() {
-        return entityKill;
-    }
-
-    /**
-     * Get if hanging-break enabled.
-     *
-     * @return True if enabled
-     */
-    public boolean hangingBreak() {
-        return hangingBreak;
-    }
-
-    /**
-     * Get if item-drop enabled.
-     *
-     * @return True if enabled
-     */
-    public boolean itemDrop() {
-        return itemDrop;
-    }
-
-    /**
-     * Get if player-join is enabled.
-     *
-     * @return True if enabled
-     */
-    public boolean playerJoin() {
-        return playerJoin;
-    }
-
-    /**
-     * Get if player-quit is enabled.
-     *
-     * @return True if enabled
-     */
-    public boolean playerQuit() {
-        return playerQuit;
-    }
-
-    /**
-     * Get if vehicle-enter enabled.
-     *
-     * @return True if enabled
-     */
-    public boolean vehicleEnter() {
-        return vehicleEnter;
-    }
-
-    /**
-     * Get if vehicle-exit enabled.
-     *
-     * @return True if enabled
-     */
-    public boolean vehicleExit() {
-        return vehicleExit;
-    }
-
-    /**
-     * Get if vehicle-place enabled.
-     *
-     * @return True if enabled
-     */
-    public boolean vehiclePlace() {
-        return vehiclePlace;
-    }
 }

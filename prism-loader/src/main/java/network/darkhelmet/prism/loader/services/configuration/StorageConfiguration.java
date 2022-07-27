@@ -20,12 +20,16 @@
 
 package network.darkhelmet.prism.loader.services.configuration;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import network.darkhelmet.prism.loader.storage.StorageType;
 
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
+@Getter
 public class StorageConfiguration {
     @Comment("Set the max number of records saved to storage per batch.")
     private int batchMax = 500;
@@ -41,6 +45,7 @@ public class StorageConfiguration {
     private String host = "localhost";
 
     // Configuration is now managed automatically.
+    @Setter
     private transient boolean mysqlDeprecated = false;
 
     @Comment("Enter the password, if the selected datasource uses authentication.")
@@ -88,105 +93,6 @@ public class StorageConfiguration {
      */
     public StorageType datasource() {
         return datasource;
-    }
-
-    /**
-     * Get the database name.
-     *
-     * @return The database name
-     */
-    public String database() {
-        return database;
-    }
-
-    /**
-     * Get the host.
-     *
-     * @return The host
-     */
-    public String host() {
-        return host;
-    }
-
-    /**
-     * Get whether to use older mysql/deprecated features.
-     *
-     * @return True if using older features
-     */
-    public boolean mysqlDeprecated() {
-        return mysqlDeprecated;
-    }
-
-    /**
-     * Set whether to use older mysql/deprecated features.
-     *
-     * @param mysqlDeprecated True if using old mysql features
-     */
-    public void mysqlDeprecated(boolean mysqlDeprecated) {
-        this.mysqlDeprecated = mysqlDeprecated;
-    }
-
-    /**
-     * Get the password.
-     *
-     * @return The password
-     */
-    public String password() {
-        return password;
-    }
-
-    /**
-     * Get the port.
-     *
-     * @return The port
-     */
-    public String port() {
-        return port;
-    }
-
-    /**
-     * Get the prefix.
-     *
-     * @return The prefix
-     */
-    public String prefix() {
-        return prefix;
-    }
-
-    /**
-     * Get whether to spy.
-     *
-     * @return True if spying
-     */
-    public boolean spy() {
-        return spy;
-    }
-
-    /**
-     * Get the username.
-     *
-     * @return The username
-     */
-    public String username() {
-        return username;
-    }
-
-    /**
-     * Get whether to use default hikari mysql optimizations.
-     *
-     * @return Whether to use default hikari mysql optimizations
-     */
-    public boolean useHikariMysqlOptimizations() {
-        return useHikariMysqlOptimizations;
-    }
-
-    /**
-     * Get whether to use stored procedures.
-     *
-     * @return Whether to use stored procedures
-     */
-    public boolean useStoredProcedures() {
-        return useStoredProcedures;
     }
 
     /**

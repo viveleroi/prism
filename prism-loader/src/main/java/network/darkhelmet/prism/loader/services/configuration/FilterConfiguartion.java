@@ -23,11 +23,14 @@ package network.darkhelmet.prism.loader.services.configuration;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+
 import network.darkhelmet.prism.api.services.filters.FilterBehavior;
 
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
+@Getter
 public class FilterConfiguartion {
     /**
      * Actions.
@@ -48,40 +51,4 @@ public class FilterConfiguartion {
      * The filter behavior.
      */
     private FilterBehavior behavior;
-
-    /**
-     * Get the behavior.
-     *
-     * @return The behavior
-     */
-    public FilterBehavior behavior() {
-        return behavior;
-    }
-
-    /**
-     * Get the actions.
-     *
-     * @return The actions.
-     */
-    public List<String> actions() {
-        return actions;
-    }
-
-    /**
-     * Get the worlds.
-     *
-     * @return The worlds.
-     */
-    public List<String> worlds() {
-        return worlds;
-    }
-
-    /**
-     * Get the materials.
-     *
-     * @return The materials
-     */
-    public List<String> materials() {
-        return materials;
-    }
 }

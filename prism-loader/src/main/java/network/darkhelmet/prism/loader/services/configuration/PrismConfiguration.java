@@ -24,10 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import lombok.Getter;
+
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
+@Getter
 public class PrismConfiguration {
     @Comment("Actions are in-game events/changes that Prism can record data for.\n"
         + "Some are purely informational, some can be reversed/restored.\n"
@@ -58,74 +61,4 @@ public class PrismConfiguration {
         + "This value (duration in ticks, default = 5 minutes) determines how\n"
         + "long they're held in memory before being discarded.")
     private long lookupExpiration = 5 * 60 * 20;
-
-    /**
-     * Get the actions config.
-     *
-     * @return The actions config
-     */
-    public ActionsConfiguration actions() {
-        return actions;
-    }
-
-    /**
-     * Get the filters config.
-     *
-     * @return The filters config
-     */
-    public List<FilterConfiguartion> filters() {
-        return filters;
-    }
-
-    /**
-     * Get the debug setting.
-     *
-     * @return True if debug enabled.
-     */
-    public boolean debug() {
-        return debug;
-    }
-
-    /**
-     * Get the default locale.
-     */
-    public Locale defaultLocale() {
-        return defaultLocale;
-    }
-
-    /**
-     * Get the modification configuration.
-     *
-     * @return The modification configuration
-     */
-    public ModificationConfiguration modifications() {
-        return modifications;
-    }
-
-    /**
-     * Get the near radius.
-     *
-     * @return The near radius
-     */
-    public int nearRadius() {
-        return nearRadius;
-    }
-
-    /**
-     * Get the per page limit.
-     *
-     * @return The per page limit
-     */
-    public int perPage() {
-        return perPage;
-    }
-
-    /**
-     * Get the lookup expiration.
-     *
-     * @return The lookup expiration
-     */
-    public long lookupExpiration() {
-        return lookupExpiration;
-    }
 }
