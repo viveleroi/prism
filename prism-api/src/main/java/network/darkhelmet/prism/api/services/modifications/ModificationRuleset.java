@@ -35,6 +35,11 @@ public class ModificationRuleset {
     private List<String> blockBlacklist;
 
     /**
+     * The entity black list.
+     */
+    private List<String> entityBlacklist;
+
+    /**
      * Mask modifications per task.
      */
     private int maxPerTask;
@@ -57,6 +62,17 @@ public class ModificationRuleset {
      */
     public boolean blockBlacklistContainsAny(String... values) {
         return blockBlacklist.stream().anyMatch(str ->
+            Arrays.stream(values).anyMatch(v -> v.equalsIgnoreCase(str)));
+    }
+
+    /**
+     * Check strings against the entity blacklist.
+     *
+     * @param values The block strings
+     * @return True if a match found
+     */
+    public boolean entityBlacklistContainsAny(String... values) {
+        return entityBlacklist.stream().anyMatch(str ->
             Arrays.stream(values).anyMatch(v -> v.equalsIgnoreCase(str)));
     }
 }

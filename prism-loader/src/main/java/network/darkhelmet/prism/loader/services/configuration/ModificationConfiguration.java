@@ -36,6 +36,9 @@ public class ModificationConfiguration {
     @Comment("List materials that should be excluded from modifications.")
     private List<String> blockBlacklist = new ArrayList<>();
 
+    @Comment("List entities that should be excluded from modifications.")
+    private List<String> entityBlacklist = new ArrayList<>();
+
     @Comment("""
             Set a maximum number of modifications per task. Breaking world changes
             up can help avoid overloading individual ticks and causing lag.
@@ -54,6 +57,8 @@ public class ModificationConfiguration {
     public ModificationConfiguration() {
         blockBlacklist.add("bedrock");
         blockBlacklist.add("tnt");
+
+        entityBlacklist.add("creeper");
     }
 
     /**
@@ -64,6 +69,7 @@ public class ModificationConfiguration {
     public ModificationRuleset.ModificationRulesetBuilder toRulesetBuilder() {
         return ModificationRuleset.builder()
             .blockBlacklist(blockBlacklist)
+            .entityBlacklist(entityBlacklist)
             .maxPerTask(maxPerTask)
             .removeDrops(removeDrops)
             .taskDelay(taskDelay);

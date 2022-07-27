@@ -126,6 +126,11 @@ public class EntityAction extends Action implements IEntityAction {
             Object owner,
             IActivity activityContext,
             ModificationQueueMode mode) {
+        // Skip if entity is in the blacklist
+        if (modificationRuleset.entityBlacklistContainsAny(entityType.toString())) {
+            return ModificationResult.builder().activity(activityContext).build();
+        }
+
         WorldCoordinate coordinate = activityContext.location();
         World world = Bukkit.getServer().getWorld(coordinate.world().uuid());
         if (world != null && entityType.getEntityClass() != null) {
