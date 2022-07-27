@@ -48,11 +48,15 @@ public final class ModificationQueueResult {
     private int planned = 0;
 
     /**
+     * The source queue.
+     */
+    private IModificationQueue queue;
+
+    /**
      * The modification results.
      */
     @NonNull
     private List<ModificationResult> results;
-
 
     /**
      * The count of activities skipped.

@@ -33,6 +33,7 @@ import net.jodah.expiringmap.ExpiringMap;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
+import network.darkhelmet.prism.api.services.modifications.IPreviewable;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
@@ -40,6 +41,8 @@ import network.darkhelmet.prism.injection.factories.IRestoreFactory;
 import network.darkhelmet.prism.injection.factories.IRollbackFactory;
 import network.darkhelmet.prism.services.modifications.state.BlockStateChange;
 
+import org.bukkit.Location;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 
 public class ModificationQueueService implements IModificationQueueService {
@@ -61,7 +64,7 @@ public class ModificationQueueService implements IModificationQueueService {
     /**
      * A cache of recently used queues.
      */
-    Map<Object, ModificationQueueResult> usedQueues = ExpiringMap.builder()
+    Map<Object, ModificationQueueResult> queueResults = ExpiringMap.builder()
         .maxSize(4)
         .expiration(5, TimeUnit.MINUTES)
         .expirationListener((owner, result) -> cancelQueueForOwner(owner))
@@ -89,16 +92,19 @@ public class ModificationQueueService implements IModificationQueueService {
     @Override
     public boolean cancelQueueForOwner(Object owner) {
         if (currentQueue != null && currentQueue.owner().equals(owner)) {
+            if (queueResults.containsKey(owner)) {
+                ModificationQueueResult result = queueResults.get(owner);
+
+                // If queue has a cancellable result, cancel it
+                if (result.queue() instanceof IPreviewable) {
+                    cancelPreview(owner, result);
+                }
+
+                queueResults.remove(owner);
+            }
+
             this.currentQueue.destroy();
             this.currentQueue = null;
-
-            return true;
-        }
-
-        if (usedQueues.containsKey(owner)) {
-            cancelPreview(owner, usedQueues.get(owner));
-
-            usedQueues.remove(owner);
 
             return true;
         }
@@ -123,8 +129,9 @@ public class ModificationQueueService implements IModificationQueueService {
                 final ModificationResult result = iterator.next();
 
                 if (result.stateChange() instanceof BlockStateChange blockStateChange) {
-                    player.sendBlockChange(
-                        blockStateChange.oldState().getLocation(), blockStateChange.oldState().getBlockData());
+                    Location loc = blockStateChange.oldState().getLocation();
+                    BlockData liveBlockData = loc.getWorld().getBlockData(loc);
+                    player.sendBlockChange(loc, liveBlockData);
                 }
 
                 iterator.remove();
@@ -144,6 +151,18 @@ public class ModificationQueueService implements IModificationQueueService {
         }
 
         return Optional.empty();
+    }
+
+    @Override
+    public IModificationQueue newQueue(
+        Class<? extends IModificationQueue> clazz, Object owner, List<IActivity> modifications) {
+        if (clazz.equals(Rollback.class)) {
+            return newRollbackQueue(owner, modifications);
+        } else if (clazz.equals(Restore.class)) {
+            return newRestoreQueue(owner, modifications);
+        }
+
+        throw new IllegalArgumentException("Invalid modification queue.");
     }
 
     @Override
@@ -180,8 +199,21 @@ public class ModificationQueueService implements IModificationQueueService {
      * @param result Modification queue result
      */
     protected void onEnd(ModificationQueueResult result) {
-        usedQueues.put(currentQueue.owner(), result);
-        this.currentQueue.destroy();
-        this.currentQueue = null;
+        queueResults.put(currentQueue.owner(), result);
+
+        // Clear and destroy the queue if completing
+        if (result.mode().equals(ModificationQueueMode.COMPLETING)) {
+            this.currentQueue.destroy();
+            this.currentQueue = null;
+        }
+    }
+
+    @Override
+    public Optional<ModificationQueueResult> queueResultForOwner(Object owner) {
+        if (queueResults.containsKey(owner)) {
+            return Optional.of(queueResults.get(owner));
+        }
+
+        return Optional.empty();
     }
 }

@@ -49,9 +49,14 @@ public class BlockActionType extends ActionType {
     @Override
     public IAction createAction(ActionData actionData) {
         BlockData blockData = null;
-        if (actionData.materialData() != null) {
-            String materialName = actionData.material().toLowerCase(Locale.ENGLISH);
-            blockData = Bukkit.createBlockData(materialName + actionData.materialData());
+        if (actionData.material() != null) {
+            String replacedBlockDataStr = actionData.material().toLowerCase(Locale.ENGLISH);
+
+            if (actionData.materialData() != null) {
+                replacedBlockDataStr += actionData.materialData();
+            }
+
+            blockData = Bukkit.createBlockData(replacedBlockDataStr);
         }
 
         NBTContainer nbtContainer = null;
@@ -60,9 +65,14 @@ public class BlockActionType extends ActionType {
         }
 
         BlockData replacedBlockData = null;
-        if (actionData.replacedMaterialData() != null) {
-            String replacedMaterialName = actionData.replacedMaterial().toLowerCase(Locale.ENGLISH);
-            replacedBlockData = Bukkit.createBlockData(replacedMaterialName + actionData.replacedMaterialData());
+        if (actionData.replacedMaterial() != null) {
+            String replacedBlockDataStr = actionData.replacedMaterial().toLowerCase(Locale.ENGLISH);
+
+            if (actionData.replacedMaterialData() != null) {
+                replacedBlockDataStr += actionData.replacedMaterialData();
+            }
+
+            replacedBlockData = Bukkit.createBlockData(replacedBlockDataStr);
         }
 
         Material material = Material.valueOf(actionData.material());

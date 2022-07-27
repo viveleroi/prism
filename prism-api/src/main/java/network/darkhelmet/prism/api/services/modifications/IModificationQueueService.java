@@ -59,6 +59,18 @@ public interface IModificationQueueService {
     Optional<IModificationQueue> currentQueueForOwner(Object owner);
 
     /**
+     * Create a new modification queue.
+     *
+     * @param clazz The modification queue class
+     * @param owner The owner
+     * @param modifications A list of activities to make modifications
+     * @return The rollback queue
+     * @throws IllegalStateException If queue can't be created
+     */
+    IModificationQueue newQueue(
+        Class<? extends IModificationQueue> clazz, Object owner, List<IActivity> modifications);
+
+    /**
      * Create a new rollback queue.
      *
      * @param owner The owner
@@ -77,4 +89,12 @@ public interface IModificationQueueService {
      * @throws IllegalStateException If queue can't be created
      */
     IModificationQueue newRestoreQueue(Object owner, List<IActivity> modifications);
+
+    /**
+     * Get a queue result for a given owner.
+     *
+     * @param owner The owner
+     * @return The queue result
+     */
+    Optional<ModificationQueueResult> queueResultForOwner(Object owner);
 }

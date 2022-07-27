@@ -168,11 +168,11 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
         StateChange<BlockState> stateChange = null;
         if (type().resultType().equals(ActionResultType.REMOVES)) {
             // If the action type removes a block, rollback means we re-set it
-            stateChange = setBlock(activityContext.location(), material, blockData, nbtContainer, owner, mode);
+            stateChange = setBlock(activityContext.location(), blockData, nbtContainer, owner, mode);
         } else if (type().resultType().equals(ActionResultType.CREATES)) {
             // If the action type creates a block, rollback means we remove it
             stateChange = setBlock(
-                activityContext.location(), replacedMaterial, replacedBlockData, null, owner, mode);
+                activityContext.location(), replacedBlockData, null, owner, mode);
         }
 
         return ModificationResult.builder().activity(activityContext).applied().stateChange(stateChange).build();
@@ -187,11 +187,11 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
         StateChange<BlockState> stateChange = null;
         if (type().resultType().equals(ActionResultType.CREATES)) {
             // If the action type creates a block, restore means we re-set it
-            stateChange = setBlock(activityContext.location(), material, blockData, nbtContainer, owner, mode);
+            stateChange = setBlock(activityContext.location(), blockData, nbtContainer, owner, mode);
         } else if (type().resultType().equals(ActionResultType.REMOVES)) {
             // If the action type removes a block, restore means we remove it again
             stateChange = setBlock(
-                activityContext.location(), replacedMaterial, replacedBlockData, null, owner, mode);
+                activityContext.location(), replacedBlockData, null, owner, mode);
         }
 
         return ModificationResult.builder().activity(activityContext).applied().stateChange(stateChange).build();
@@ -202,7 +202,6 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
      */
     protected StateChange<BlockState> setBlock(
         WorldCoordinate coordinate,
-        Material newMaterial,
         BlockData newBlockData,
         NBTContainer newNbtContainer,
         Object owner,
@@ -214,18 +213,11 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
         // Capture existing state for reporting/reversing needs
         final BlockState oldState = block.getState();
 
-        // Set the new material
-        if (mode.equals(ModificationQueueMode.COMPLETING)) {
-            block.setType(newMaterial);
-        }
-
-        // Set the block data
-        if (newBlockData != null) {
-            if (mode.equals(ModificationQueueMode.PLANNING) && owner instanceof Player player) {
-                player.sendBlockChange(loc, newBlockData);
-            } else if (mode.equals(ModificationQueueMode.COMPLETING)) {
-                block.setBlockData(newBlockData, true);
-            }
+        // Send block change or change world
+        if (mode.equals(ModificationQueueMode.PLANNING) && owner instanceof Player player) {
+            player.sendBlockChange(loc, newBlockData);
+        } else if (mode.equals(ModificationQueueMode.COMPLETING)) {
+            block.setBlockData(newBlockData, true);
         }
 
         // Set NBT

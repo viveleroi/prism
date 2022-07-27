@@ -86,4 +86,10 @@ public class Rollback extends AbstractWorldModificationQueue implements IRollbac
 
         super.onEnd(result);
     }
+
+    @Override
+    public void preview() {
+        this.mode = ModificationQueueMode.PLANNING;
+        execute();
+    }
 }

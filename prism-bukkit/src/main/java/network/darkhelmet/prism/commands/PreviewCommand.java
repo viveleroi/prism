@@ -36,10 +36,13 @@ import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
+import network.darkhelmet.prism.api.services.modifications.IPreviewable;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.providers.TaskChainProvider;
 import network.darkhelmet.prism.services.messages.MessageService;
+import network.darkhelmet.prism.services.modifications.Restore;
+import network.darkhelmet.prism.services.modifications.Rollback;
 import network.darkhelmet.prism.services.query.QueryService;
 import network.darkhelmet.prism.services.translation.TranslationKey;
 
@@ -104,42 +107,6 @@ public class PreviewCommand extends BaseCommand {
     }
 
     /**
-     * Run the preview rollback command.
-     *
-     * @param player The player
-     * @param arguments The arguments
-     */
-    @NamedArguments("params")
-    @SubCommand(value = "preview-rollback", alias = {"prb"})
-    @Permission("prism.admin")
-    public void onPreview(final Player player, final Arguments arguments) {
-        // Ensure a queue is free
-        if (!modificationQueueService.queueAvailable()) {
-            messageService.error(player, new TranslationKey("queue-not-free"));
-
-            return;
-        }
-
-        final ActivityQuery query = queryService
-            .queryFromArguments(player.getLocation(), arguments).modification().build();
-        taskChainProvider.newChain().asyncFirst(() -> {
-            try {
-                return storageAdapter.queryActivities(query);
-            } catch (Exception e) {
-                messageService.error(player, new TranslationKey("query-error"));
-                loggingService.handleException(e);
-            }
-
-            return null;
-        }).abortIfNull().<List<IAction>>sync(results -> {
-            IModificationQueue queue = modificationQueueService.newRollbackQueue(player, results);
-            queue.preview();
-
-            return null;
-        }).execute();
-    }
-
-    /**
      * Run the preview apply command.
      *
      * @param player The player
@@ -165,12 +132,89 @@ public class PreviewCommand extends BaseCommand {
      */
     @SubCommand(value = "preview-cancel")
     public void onCancel(final Player player) {
-        if (!modificationQueueService.cancelQueueForOwner(player)) {
+        Optional<IModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
+        if (optionalQueue.isEmpty()) {
             messageService.error(player, new TranslationKey("queue-missing-for-owner"));
 
             return;
         }
 
+        modificationQueueService.cancelQueueForOwner(player);
+
         messageService.previewCancelled(player);
+    }
+
+    /**
+     * Run the preview restore command.
+     *
+     * @param player The player
+     * @param arguments The arguments
+     */
+    @NamedArguments("params")
+    @SubCommand(value = "preview-restore", alias = {"prs"})
+    @Permission("prism.admin")
+    public void onPreviewRestore(final Player player, final Arguments arguments) {
+        final ActivityQuery query = queryService
+            .queryFromArguments(player.getLocation(), arguments).modification().reversed(true).build();
+
+        preview(Restore.class, player, query);
+    }
+
+    /**
+     * Run the preview rollback command.
+     *
+     * @param player The player
+     * @param arguments The arguments
+     */
+    @NamedArguments("params")
+    @SubCommand(value = "preview-rollback", alias = {"prb"})
+    @Permission("prism.admin")
+    public void onPreviewRollback(final Player player, final Arguments arguments) {
+        final ActivityQuery query = queryService
+            .queryFromArguments(player.getLocation(), arguments).modification().reversed(false).build();
+
+        preview(Rollback.class, player, query);
+    }
+
+    /**
+     * Create a new preview.
+     *
+     * @param clazz The modification queue class we're previewing.
+     * @param player The player
+     * @param query The query
+     */
+    protected void preview(Class<? extends IModificationQueue> clazz, final Player player, final ActivityQuery query) {
+        // Ensure a queue is free
+        if (!modificationQueueService.queueAvailable()) {
+            messageService.error(player, new TranslationKey("queue-not-free"));
+
+            return;
+        }
+
+        taskChainProvider.newChain().asyncFirst(() -> {
+            try {
+                return storageAdapter.queryActivities(query);
+            } catch (Exception e) {
+                messageService.error(player, new TranslationKey("query-error"));
+                loggingService.handleException(e);
+            }
+
+            return null;
+        }).abortIfNull().<List<IAction>>sync(results -> {
+            if (results.isEmpty()) {
+                messageService.noResults(player);
+
+                return null;
+            }
+
+            IModificationQueue queue = modificationQueueService.newQueue(clazz, player, results);
+            if (queue instanceof IPreviewable previewable) {
+                previewable.preview();
+            } else {
+                messageService.error(player, new TranslationKey("not-previewable"));
+            }
+
+            return null;
+        }).execute();
     }
 }

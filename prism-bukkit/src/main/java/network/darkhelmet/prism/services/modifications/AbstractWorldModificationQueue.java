@@ -146,13 +146,8 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     protected void postProcess() {}
 
     @Override
-    public void preview() {
-        this.mode = ModificationQueueMode.PLANNING;
-        execute();
-    }
-
-    @Override
     public void apply() {
+        countModificationsRead = 0;
         this.mode = ModificationQueueMode.COMPLETING;
         execute();
     }
@@ -206,12 +201,13 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
 
                 // The task for this action is done being used
                 if (modificationsQueue.isEmpty() || countModificationsRead >= modificationsQueue.size()) {
-                    loggingService.debug("Modification queue now empty, finishing up.");
+                    loggingService.debug("Modification queue fully processed, finishing up.");
 
                     // Cancel the repeating task
                     Bukkit.getServer().getScheduler().cancelTask(taskId);
 
                     ModificationQueueResult result = ModificationQueueResult.builder()
+                        .queue(this)
                         .mode(mode)
                         .results(results)
                         .applied(countApplied)

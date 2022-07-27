@@ -119,7 +119,7 @@ public class RestoreCommand extends BaseCommand {
         }
 
         final ActivityQuery query = queryService
-            .queryFromArguments(player.getLocation(), arguments).modification().build();
+            .queryFromArguments(player.getLocation(), arguments).modification().reversed(true).build();
         taskChainProvider.newChain().asyncFirst(() -> {
             try {
                 return storageAdapter.queryActivities(query);

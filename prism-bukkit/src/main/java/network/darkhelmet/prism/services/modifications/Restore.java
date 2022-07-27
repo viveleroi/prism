@@ -86,4 +86,10 @@ public class Restore extends AbstractWorldModificationQueue implements IRestore 
 
         super.onEnd(result);
     }
+
+    @Override
+    public void preview() {
+        this.mode = ModificationQueueMode.PLANNING;
+        execute();
+    }
 }

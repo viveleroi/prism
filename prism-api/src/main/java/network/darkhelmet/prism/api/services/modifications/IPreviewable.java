@@ -20,4 +20,9 @@
 
 package network.darkhelmet.prism.api.services.modifications;
 
-public interface IRollback extends IModificationQueue, IPreviewable {}
+public interface IPreviewable {
+    /**
+     * Preview the modifications.
+     */
+    void preview();
+}

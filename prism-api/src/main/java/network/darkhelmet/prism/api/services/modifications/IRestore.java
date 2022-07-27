@@ -20,4 +20,4 @@
 
 package network.darkhelmet.prism.api.services.modifications;
 
-public interface IRestore extends IModificationQueue {}
+public interface IRestore extends IModificationQueue, IPreviewable {}

@@ -37,9 +37,4 @@ public interface IModificationQueue {
      * @return The owner
      */
     Object owner();
-
-    /**
-     * Preview the modifications.
-     */
-    void preview();
 }
