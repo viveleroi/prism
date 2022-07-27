@@ -43,6 +43,9 @@ public class ModificationConfiguration implements IModificationConfiguration {
             This can also reduce client lag as fewer changes are sent to clients at once.""")
     private int maxPerTask = 1000;
 
+    @Comment("Toggling clearing item/xp drops from a modification area.")
+    private boolean removeDrops = true;
+
     @Comment("The delay in ticks between modification tasks.")
     private long taskDelay = 5;
 

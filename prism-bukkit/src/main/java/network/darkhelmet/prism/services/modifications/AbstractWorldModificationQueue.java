@@ -168,7 +168,10 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
      */
     protected void preProcess(ModificationQueueResult.ModificationQueueResultBuilder builder) {
         if (mode.equals(ModificationQueueMode.COMPLETING)) {
-            if (query.worldUuid() != null && query.minCoordinate() != null && query.maxCoordinate() != null) {
+            if (configurationService.prismConfig().modifications().removeDrops()
+                    && query.worldUuid() != null
+                    && query.minCoordinate() != null
+                    && query.maxCoordinate() != null) {
                 double x1 = query.minCoordinate().x();
                 double y1 = query.minCoordinate().y();
                 double z1 = query.minCoordinate().z();
