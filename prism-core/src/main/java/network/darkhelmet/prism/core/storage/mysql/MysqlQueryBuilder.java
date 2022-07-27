@@ -81,7 +81,6 @@ public class MysqlQueryBuilder {
      * @throws SQLException Database exception
      */
     public List<DbRow> queryActivities(ActivityQuery query, String prefix) throws SQLException {
-        boolean joinActions = query.lookup() || !query.actionTypes().isEmpty() || !query.actionTypeKeys().isEmpty();
         boolean joinCauses = query.lookup() || query.cause() != null || !query.playerNames().isEmpty();
 
         List<String> fields = new ArrayList<>();
@@ -91,10 +90,7 @@ public class MysqlQueryBuilder {
         fields.add("HEX(`world_uuid`) AS worldUuid");
         fields.add("`materials`.`material`");
         fields.add("`entity_type`");
-
-        if (joinActions) {
-            fields.add("`action`");
-        }
+        fields.add("`action`");
 
         if (joinCauses) {
             fields.add("`cause`");
@@ -140,16 +136,12 @@ public class MysqlQueryBuilder {
         @Language("SQL") String sql = "SELECT " + calc + String.join(", ", fields) + " ";
 
         @Language("SQL") String from = "FROM " + prefix + "activities AS activities "
+            + "JOIN " + prefix + "actions AS actions ON `actions`.`action_id` = `activities`.`action_id` "
             + "JOIN " + prefix + "worlds AS worlds ON `worlds`.`world_id` = `activities`.`world_id` "
             + "LEFT JOIN " + prefix + "entity_types AS entity_types "
             + "ON `entity_types`.`entity_type_id` = `activities`.`entity_type_id` "
             + "LEFT JOIN " + prefix + "materials AS materials "
             + "ON `materials`.`material_id` = `activities`.`material_id` ";
-
-        // Modifications only need actions if we're querying them
-        if (joinActions) {
-            from += "JOIN " + prefix + "actions AS actions ON `actions`.`action_id` = `activities`.`action_id` ";
-        }
 
         // Modifications only need causes if we're querying them
         if (joinCauses) {
