@@ -29,6 +29,12 @@ import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.annotation.SubCommand;
 
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+
 import network.darkhelmet.prism.services.messages.MessageService;
 
 import org.bukkit.command.CommandSender;
@@ -41,6 +47,11 @@ public class AboutCommand extends BaseCommand {
     private final MessageService messageService;
 
     /**
+     * The bukkit audiences.
+     */
+    private final BukkitAudiences audiences;
+
+    /**
      * The version.
      */
     private final String version;
@@ -49,11 +60,16 @@ public class AboutCommand extends BaseCommand {
      * Construct the about command.
      *
      * @param messageService The message service
+     * @param audiences The bukkit audiences
      * @param version The prism version
      */
     @Inject
-    public AboutCommand(MessageService messageService, @Named("version") String version) {
+    public AboutCommand(
+            MessageService messageService,
+            BukkitAudiences audiences,
+            @Named("version") String version) {
         this.messageService = messageService;
+        this.audiences = audiences;
         this.version = version;
     }
 
@@ -67,5 +83,30 @@ public class AboutCommand extends BaseCommand {
     @Permission("prism.admin")
     public void onAbout(final CommandSender sender) {
         messageService.about(sender, version);
+
+        Component links = Component.text()
+            .append(Component.text("Links: ", NamedTextColor.GRAY))
+            .append(link("Discord", "https://discord.gg/7FxZScH4EJ"))
+            .append(Component.text(" "))
+            .append(link("Docs", "https://prism.readthedocs.io/")).build();
+
+        audiences.sender(sender).sendMessage(links);
+    }
+
+    /**
+     * Convenience method to create a link.
+     *
+     * @param label The label
+     * @param url The url
+     * @return The component
+     */
+    protected Component link(String label, String url) {
+        return Component.text()
+            .append(Component.text("[", NamedTextColor.AQUA))
+            .append(Component.text(label, NamedTextColor.WHITE))
+            .append(Component.text("]", NamedTextColor.AQUA))
+            .clickEvent(ClickEvent.openUrl(url))
+                .hoverEvent(HoverEvent.showText(Component.text("Click to open in a browser")))
+            .build();
     }
 }
