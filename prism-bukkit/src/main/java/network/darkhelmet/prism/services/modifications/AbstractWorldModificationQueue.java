@@ -222,7 +222,12 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
 
                         // Delegate reversible modifications to the actions
                         if (activity.action().type().reversible()) {
-                            result = applyModification(activity);
+                            try {
+                                result = applyModification(activity);
+                            } catch (Exception e) {
+                                result = ModificationResult.builder().activity(activity).errored().build();
+                                loggingService.handleException(e);
+                            }
                         }
 
                         results.add(result);

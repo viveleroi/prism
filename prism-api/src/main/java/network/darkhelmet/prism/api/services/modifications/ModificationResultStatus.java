@@ -21,5 +21,5 @@
 package network.darkhelmet.prism.api.services.modifications;
 
 public enum ModificationResultStatus {
-    APPLIED, PLANNED, SKIPPED
+    APPLIED, ERRORED, PLANNED, SKIPPED
 }

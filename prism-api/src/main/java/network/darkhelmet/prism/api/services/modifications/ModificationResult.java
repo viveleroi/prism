@@ -58,6 +58,16 @@ public final class ModificationResult {
         }
 
         /**
+         * Set the status to ERRORED.
+         *
+         * @return The builder
+         */
+        public ModificationResultBuilder errored() {
+            status(ModificationResultStatus.ERRORED);
+            return this;
+        }
+
+        /**
          * Set the status to PLANNED.
          *
          * @return The builder

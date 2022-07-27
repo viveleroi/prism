@@ -22,12 +22,8 @@ package network.darkhelmet.prism.services.wands;
 
 import com.google.inject.Inject;
 
-import java.util.List;
-
-import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
-import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.api.services.wands.IWand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
@@ -36,47 +32,9 @@ import network.darkhelmet.prism.loader.services.configuration.ConfigurationServi
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.providers.TaskChainProvider;
 import network.darkhelmet.prism.services.messages.MessageService;
-import network.darkhelmet.prism.services.translation.TranslationKey;
+import network.darkhelmet.prism.services.modifications.Restore;
 
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
-public class RestoreWand implements IWand {
-    /**
-     * The configuration service.
-     */
-    private final ConfigurationService configurationService;
-
-    /**
-     * The storage adapter.
-     */
-    private final IStorageAdapter storageAdapter;
-
-    /**
-     * The message service.
-     */
-    private final MessageService messageService;
-
-    /**
-     * The modification queue service.
-     */
-    private final IModificationQueueService modificationQueueService;
-
-    /**
-     * The task chain provider.
-     */
-    private final TaskChainProvider taskChainProvider;
-
-    /**
-     * The logging service.
-     */
-    private final LoggingService loggingService;
-
-    /**
-     * The owner.
-     */
-    private Object owner;
-
+public class RestoreWand extends AbstractModificationWand implements IWand {
     /**
      * Construct a new inspection wand.
      *
@@ -95,12 +53,13 @@ public class RestoreWand implements IWand {
             IModificationQueueService modificationQueueService,
             TaskChainProvider taskChainProvider,
             LoggingService loggingService) {
-        this.configurationService = configurationService;
-        this.storageAdapter = storageAdapter;
-        this.messageService = messageService;
-        this.modificationQueueService = modificationQueueService;
-        this.taskChainProvider = taskChainProvider;
-        this.loggingService = loggingService;
+        super(
+            configurationService,
+            storageAdapter,
+            messageService,
+            modificationQueueService,
+            taskChainProvider,
+            loggingService);
     }
 
     @Override
@@ -115,37 +74,9 @@ public class RestoreWand implements IWand {
 
     @Override
     public void use(WorldCoordinate at) {
-        // Ensure a queue is free
-        if (!modificationQueueService.queueAvailable()) {
-            messageService.error((CommandSender) owner, new TranslationKey("queue-not-free"));
+        final ActivityQuery query = ActivityQuery.builder()
+            .modification().location(at).limit(1).reversed(true).build();
 
-            return;
-        }
-
-        final ActivityQuery query = ActivityQuery.builder().location(at).limit(1).reversed(true).build();
-
-        taskChainProvider.newChain().asyncFirst(() -> {
-            try {
-                return storageAdapter.queryActivities(query);
-            } catch (Exception e) {
-                messageService.error((CommandSender) owner, new TranslationKey("query-error"));
-                loggingService.handleException(e);
-            }
-
-            return null;
-        }).abortIfNull().<List<IAction>>sync(modifications -> {
-            if (modifications.isEmpty()) {
-                messageService.noResults((Player) owner);
-
-                return null;
-            }
-
-            ModificationRuleset modificationRuleset = configurationService
-                .prismConfig().modifications().toRulesetBuilder().build();
-
-            modificationQueueService.newRestoreQueue(modificationRuleset, owner, query, modifications).apply();
-
-            return null;
-        }).execute();
+        super.use(query, Restore.class);
     }
 }

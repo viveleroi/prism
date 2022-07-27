@@ -167,7 +167,11 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
             IActivity activityContext,
             ModificationQueueMode mode) {
         // Skip if either material is in the blacklist
-        if (modificationRuleset.blockBlacklistContainsAny(material.toString(), replacedMaterial.toString())) {
+        if (modificationRuleset.blockBlacklistContainsAny(material.toString())) {
+            return ModificationResult.builder().activity(activityContext).build();
+        }
+
+        if (replacedMaterial != null && modificationRuleset.blockBlacklistContainsAny(replacedMaterial.toString())) {
             return ModificationResult.builder().activity(activityContext).build();
         }
 
@@ -191,7 +195,11 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
             IActivity activityContext,
             ModificationQueueMode mode) {
         // Skip if either material is in the blacklist
-        if (modificationRuleset.blockBlacklistContainsAny(material.toString(), replacedMaterial.toString())) {
+        if (modificationRuleset.blockBlacklistContainsAny(material.toString())) {
+            return ModificationResult.builder().activity(activityContext).build();
+        }
+
+        if (replacedMaterial != null && modificationRuleset.blockBlacklistContainsAny(replacedMaterial.toString())) {
             return ModificationResult.builder().activity(activityContext).build();
         }
 
