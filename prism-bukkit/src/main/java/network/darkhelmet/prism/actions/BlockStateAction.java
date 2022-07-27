@@ -166,11 +166,6 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
             Object owner,
             IActivity activityContext,
             ModificationQueueMode mode) {
-        // Skip if this type is not reversible
-        if (!type().reversible()) {
-            return ModificationResult.builder().activity(activityContext).build();
-        }
-
         // Skip if either material is in the blacklist
         if (modificationConfiguration.blockBlacklistContainsAny(material.toString(), replacedMaterial.toString())) {
             return ModificationResult.builder().activity(activityContext).build();
@@ -195,11 +190,6 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
             Object owner,
             IActivity activityContext,
             ModificationQueueMode mode) {
-        // Skip if this type is not reversible
-        if (!type().reversible()) {
-            return ModificationResult.builder().activity(activityContext).build();
-        }
-
         // Skip if either material is in the blacklist
         if (modificationConfiguration.blockBlacklistContainsAny(material.toString(), replacedMaterial.toString())) {
             return ModificationResult.builder().activity(activityContext).build();

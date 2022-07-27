@@ -192,9 +192,13 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                             break;
                         }
 
-                        // Delegate the modifications to the actions
-                        ModificationResult result = applyModification(
-                            configurationService.prismConfig().modifications(), activity);
+                        ModificationResult result = ModificationResult.builder().activity(activity).build();
+
+                        // Delegate reversible modifications to the actions
+                        if (activity.action().type().reversible()) {
+                            result = applyModification(configurationService.prismConfig().modifications(), activity);
+                        }
+
                         results.add(result);
 
                         if (result.status().equals(ModificationResultStatus.PLANNED)) {
