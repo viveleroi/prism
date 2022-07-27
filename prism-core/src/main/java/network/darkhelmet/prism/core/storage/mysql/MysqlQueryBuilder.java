@@ -321,11 +321,6 @@ public class MysqlQueryBuilder {
             parameters.add(query.limit());
         }
 
-        loggingService.debug("Querying activities: %s", sql);
-        for (int i = 0; i < parameters.size(); i++) {
-            loggingService.debug("param[%d] %s", i, parameters.get(i));
-        }
-
         return DB.getResults(sql, parameters.toArray());
     }
 }
