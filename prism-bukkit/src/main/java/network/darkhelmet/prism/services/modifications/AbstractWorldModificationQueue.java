@@ -30,6 +30,7 @@ import java.util.function.Consumer;
 import lombok.Getter;
 
 import network.darkhelmet.prism.PrismBukkit;
+import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
@@ -39,9 +40,12 @@ import network.darkhelmet.prism.api.services.modifications.ModificationResultSta
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.configuration.ModificationConfiguration;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
+import network.darkhelmet.prism.utils.EntityUtils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.BoundingBox;
 
 public abstract class AbstractWorldModificationQueue implements IModificationQueue {
     /**
@@ -57,28 +61,31 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     /**
      * Manage a queue of pending modifications.
      */
-    private final List<IActivity> modificationsQueue = Collections.synchronizedList(new LinkedList<>());
+    protected final List<IActivity> modificationsQueue = Collections.synchronizedList(new LinkedList<>());
 
     /**
      * The onEnd handler.
      */
-    private final Consumer<ModificationQueueResult> onEndCallback;
+    protected final Consumer<ModificationQueueResult> onEndCallback;
 
     /**
      * The period duration between executions of tasks.
      */
-    private final long taskDelay;
+    protected final long taskDelay;
 
     /**
      * The maximum number of queue activities read per task run.
      */
-    private final int maxPerTask;
+    protected final int maxPerTask;
 
     /**
      * The owner.
      */
     @Getter
-    private final Object owner;
+    protected final Object owner;
+
+    @Getter
+    protected final ActivityQuery query;
 
     /**
      * The state.
@@ -89,32 +96,32 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     /**
      * Cache the bukkit task id.
      */
-    private int taskId;
+    protected int taskId;
 
     /**
      * Count how many were read from the queue.
      */
-    private int countModificationsRead;
+    protected int countModificationsRead;
 
     /**
      * Count how many were applied.
      */
-    private int countApplied = 0;
+    protected int countApplied = 0;
 
     /**
      * Count how many were planned.
      */
-    private int countPlanned = 0;
+    protected int countPlanned = 0;
 
     /**
      * Count how many were skipped.
      */
-    private int countSkipped = 0;
+    protected int countSkipped = 0;
 
     /**
      * A list of all modification results.
      */
-    private final List<ModificationResult> results = new ArrayList<>();
+    protected final List<ModificationResult> results = new ArrayList<>();
 
     /**
      * Construct a new world modification.
@@ -122,6 +129,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
      * @param configurationService The configuration service
      * @param loggingService The logging service
      * @param owner The owner
+     * @param query The query
      * @param modifications A list of all modifications
      * @param onEndCallback The ended callback
      */
@@ -129,12 +137,14 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
             ConfigurationService configurationService,
             LoggingService loggingService,
             Object owner,
+            ActivityQuery query,
             final List<IActivity> modifications,
             Consumer<ModificationQueueResult> onEndCallback) {
         modificationsQueue.addAll(modifications);
         this.configurationService = configurationService;
         this.loggingService = loggingService;
         this.owner = owner;
+        this.query = query;
         this.onEndCallback = onEndCallback;
 
         this.maxPerTask = configurationService.prismConfig().modifications().maxPerTask();
@@ -154,9 +164,31 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     }
 
     /**
+     * Apply any pre-modification tasks.
+     */
+    protected void preProcess(ModificationQueueResult.ModificationQueueResultBuilder builder) {
+        if (mode.equals(ModificationQueueMode.COMPLETING)) {
+            if (query.worldUuid() != null && query.minCoordinate() != null && query.maxCoordinate() != null) {
+                double x1 = query.minCoordinate().x();
+                double y1 = query.minCoordinate().y();
+                double z1 = query.minCoordinate().z();
+                double x2 = query.maxCoordinate().x();
+                double y2 = query.maxCoordinate().y();
+                double z2 = query.maxCoordinate().z();
+                BoundingBox boundingBox = new BoundingBox(x1, y1, z1, x2, y2, z2);
+
+                World world = Bukkit.getWorld(query.worldUuid());
+                int removedCount = EntityUtils.removeDropsInRange(world, boundingBox);
+
+                builder.removedDrops(removedCount);
+            }
+        }
+    }
+
+    /**
      * Apply any post-modification tasks.
      */
-    protected void postProcess() {}
+    protected void postProcess(ModificationQueueResult.ModificationQueueResultBuilder builder) {}
 
     @Override
     public void apply() {
@@ -170,6 +202,13 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
         loggingService.debug(String.format(queueSizeMsg, modificationsQueue.size()));
 
         if (!modificationsQueue.isEmpty()) {
+            ModificationQueueResult.ModificationQueueResultBuilder builder = ModificationQueueResult.builder()
+                .queue(this);
+
+            if (countModificationsRead == 0) {
+                preProcess(builder);
+            }
+
             // Schedule a new sync task
             JavaPlugin plugin = PrismBukkit.getInstance().loaderPlugin();
             taskId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
@@ -224,9 +263,10 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                     // Cancel the repeating task
                     Bukkit.getServer().getScheduler().cancelTask(taskId);
 
-                    ModificationQueueResult result = ModificationQueueResult.builder()
-                        .queue(this)
-                        .mode(mode)
+                    // Post process
+                    postProcess(builder);
+
+                    ModificationQueueResult result = builder.mode(mode)
                         .results(results)
                         .applied(countApplied)
                         .planned(countPlanned)
@@ -234,9 +274,6 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                         .build();
 
                     onEnd(result);
-
-                    // Post process
-                    postProcess();
                 }
             }, 0, taskDelay);
         }

@@ -23,6 +23,7 @@ package network.darkhelmet.prism.injection.factories;
 import java.util.List;
 import java.util.function.Consumer;
 
+import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
 import network.darkhelmet.prism.services.modifications.Rollback;
@@ -32,9 +33,14 @@ public interface IRollbackFactory {
      * Create the rollback instance.
      *
      * @param owner The owner
+     * @param query The query
      * @param modifications The modifications
      * @param onEnd The on end callback
      * @return A rollback instance
      */
-    Rollback create(Object owner, List<IActivity> modifications, Consumer<ModificationQueueResult> onEnd);
+    Rollback create(
+        Object owner,
+        ActivityQuery query,
+        List<IActivity> modifications,
+        Consumer<ModificationQueueResult> onEnd);
 }

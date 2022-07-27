@@ -23,6 +23,7 @@ package network.darkhelmet.prism.api.services.modifications;
 import java.util.List;
 import java.util.Optional;
 
+import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.activities.IActivity;
 
 public interface IModificationQueueService {
@@ -63,32 +64,35 @@ public interface IModificationQueueService {
      *
      * @param clazz The modification queue class
      * @param owner The owner
+     * @param query The query used
      * @param modifications A list of activities to make modifications
      * @return The rollback queue
      * @throws IllegalStateException If queue can't be created
      */
     IModificationQueue newQueue(
-        Class<? extends IModificationQueue> clazz, Object owner, List<IActivity> modifications);
+        Class<? extends IModificationQueue> clazz, Object owner, ActivityQuery query, List<IActivity> modifications);
 
     /**
      * Create a new rollback queue.
      *
      * @param owner The owner
+     * @param query The query used
      * @param modifications A list of activities to make modifications
      * @return The rollback queue
      * @throws IllegalStateException If queue can't be created
      */
-    IModificationQueue newRollbackQueue(Object owner, List<IActivity> modifications);
+    IModificationQueue newRollbackQueue(Object owner, ActivityQuery query,  List<IActivity> modifications);
 
     /**
      * Create a new restore queue.
      *
      * @param owner The owner
+     * @param query The query used
      * @param modifications A list of activities to make modifications
      * @return The restore queue
      * @throws IllegalStateException If queue can't be created
      */
-    IModificationQueue newRestoreQueue(Object owner, List<IActivity> modifications);
+    IModificationQueue newRestoreQueue(Object owner, ActivityQuery query, List<IActivity> modifications);
 
     /**
      * Get a queue result for a given owner.

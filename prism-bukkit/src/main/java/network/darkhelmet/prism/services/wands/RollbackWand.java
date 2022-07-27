@@ -26,7 +26,6 @@ import java.util.List;
 
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
-import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
 import network.darkhelmet.prism.api.services.wands.IWand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
@@ -38,6 +37,7 @@ import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.translation.TranslationKey;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public class RollbackWand implements IWand {
     /**
@@ -123,9 +123,14 @@ public class RollbackWand implements IWand {
             }
 
             return null;
-        }).abortIfNull().<List<IAction>>sync(results -> {
-            IModificationQueue queue = modificationQueueService.newRollbackQueue(owner, results);
-            queue.apply();
+        }).abortIfNull().<List<IAction>>sync(modifications -> {
+            if (modifications.isEmpty()) {
+                messageService.noResults((Player) owner);
+
+                return null;
+            }
+
+            modificationQueueService.newRollbackQueue(owner, query, modifications).apply();
 
             return null;
         }).execute();

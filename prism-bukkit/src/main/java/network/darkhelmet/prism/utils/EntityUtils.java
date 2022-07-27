@@ -21,6 +21,7 @@
 package network.darkhelmet.prism.utils;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -29,8 +30,12 @@ import lombok.experimental.UtilityClass;
 
 import org.bukkit.Location;
 import org.bukkit.TreeSpecies;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.Item;
+import org.bukkit.util.BoundingBox;
 
 @UtilityClass
 public class EntityUtils {
@@ -57,10 +62,39 @@ public class EntityUtils {
      * @param entityType The entity type
      * @return True if entity type is hanging
      */
-    protected static boolean isHanging(EntityType entityType) {
+    private static boolean isHanging(EntityType entityType) {
         return entityType.equals(EntityType.ITEM_FRAME)
-                || entityType.equals(EntityType.GLOW_ITEM_FRAME)
-                || entityType.equals(EntityType.PAINTING);
+            || entityType.equals(EntityType.GLOW_ITEM_FRAME)
+            || entityType.equals(EntityType.PAINTING);
+    }
+
+    /**
+     * Remove drops (items + experience orbs) within a bounding box.
+     *
+     * @param world The world
+     * @param boundingBox The bounding box
+     * @return The count of drops removed
+     */
+    public static int removeDropsInRange(World world, BoundingBox boundingBox) {
+        Collection<Entity> nearbyDrops = entitiesInRangeByClass(world, boundingBox, Item.class, ExperienceOrb.class);
+        for (Entity e : nearbyDrops) {
+            e.remove();
+        }
+
+        return nearbyDrops.size();
+    }
+
+    /**
+     * Find all entities within a bounding box by their class.
+     *
+     * @param world The world
+     * @param boundingBox The bounding box
+     * @param entities The entities
+     * @return A list of matched entities
+     */
+    public static List<Entity> entitiesInRangeByClass(World world, BoundingBox boundingBox, Class<?>... entities) {
+        return world.getNearbyEntities(boundingBox).stream().filter(
+            e -> Arrays.stream(entities).anyMatch(clazz -> clazz.isInstance(e))).toList();
     }
 
     /**

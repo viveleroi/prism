@@ -33,7 +33,6 @@ import java.util.List;
 
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
-import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
@@ -130,15 +129,14 @@ public class RollbackCommand extends BaseCommand {
             }
 
             return null;
-        }).abortIfNull().<List<IAction>>sync(results -> {
-            if (results.isEmpty()) {
+        }).abortIfNull().<List<IAction>>sync(modifications -> {
+            if (modifications.isEmpty()) {
                 messageService.noResults(player);
 
                 return null;
             }
 
-            IModificationQueue queue = modificationQueueService.newRollbackQueue(player, results);
-            queue.apply();
+            modificationQueueService.newRollbackQueue(player, query, modifications).apply();
 
             return null;
         }).execute();

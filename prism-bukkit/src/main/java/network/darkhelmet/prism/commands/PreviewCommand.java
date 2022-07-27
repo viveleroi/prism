@@ -207,7 +207,7 @@ public class PreviewCommand extends BaseCommand {
                 return null;
             }
 
-            IModificationQueue queue = modificationQueueService.newQueue(clazz, player, results);
+            IModificationQueue queue = modificationQueueService.newQueue(clazz, player, query, results);
             if (queue instanceof IPreviewable previewable) {
                 previewable.preview();
             } else {

@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import net.jodah.expiringmap.ExpiringMap;
 
+import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
@@ -155,18 +156,18 @@ public class ModificationQueueService implements IModificationQueueService {
 
     @Override
     public IModificationQueue newQueue(
-        Class<? extends IModificationQueue> clazz, Object owner, List<IActivity> modifications) {
+        Class<? extends IModificationQueue> clazz, Object owner, ActivityQuery query, List<IActivity> modifications) {
         if (clazz.equals(Rollback.class)) {
-            return newRollbackQueue(owner, modifications);
+            return newRollbackQueue(owner, query, modifications);
         } else if (clazz.equals(Restore.class)) {
-            return newRestoreQueue(owner, modifications);
+            return newRestoreQueue(owner, query, modifications);
         }
 
         throw new IllegalArgumentException("Invalid modification queue.");
     }
 
     @Override
-    public IModificationQueue newRollbackQueue(Object owner, List<IActivity> modifications) {
+    public IModificationQueue newRollbackQueue(Object owner, ActivityQuery query, List<IActivity> modifications) {
         if (!queueAvailable()) {
             throw new IllegalStateException("No queue available until current queue finished.");
         }
@@ -174,13 +175,13 @@ public class ModificationQueueService implements IModificationQueueService {
         // Cancel any cached queues
         cancelQueueForOwner(owner);
 
-        this.currentQueue = rollbackFactory.create(owner, modifications, this::onEnd);
+        this.currentQueue = rollbackFactory.create(owner, query, modifications, this::onEnd);
 
         return this.currentQueue;
     }
 
     @Override
-    public IModificationQueue newRestoreQueue(Object owner, List<IActivity> modifications) {
+    public IModificationQueue newRestoreQueue(Object owner, ActivityQuery query, List<IActivity> modifications) {
         if (!queueAvailable()) {
             throw new IllegalStateException("No queue available until current queue finished.");
         }
@@ -188,7 +189,7 @@ public class ModificationQueueService implements IModificationQueueService {
         // Cancel any cached queues
         cancelQueueForOwner(owner);
 
-        this.currentQueue = restoreFactory.create(owner, modifications, this::onEnd);
+        this.currentQueue = restoreFactory.create(owner, query, modifications, this::onEnd);
 
         return this.currentQueue;
     }

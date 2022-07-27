@@ -26,6 +26,7 @@ import com.google.inject.assistedinject.Assisted;
 import java.util.List;
 import java.util.function.Consumer;
 
+import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.services.modifications.IRestore;
@@ -51,6 +52,7 @@ public class Restore extends AbstractWorldModificationQueue implements IRestore 
      * @param loggingService The logging service
      * @param storageAdapter The storage adapter
      * @param owner The owner
+     * @param query The query used
      * @param modifications A list of modifications
      * @param onEnd The end callback
      */
@@ -60,10 +62,11 @@ public class Restore extends AbstractWorldModificationQueue implements IRestore 
         LoggingService loggingService,
         IStorageAdapter storageAdapter,
         @Assisted Object owner,
+        @Assisted ActivityQuery query,
         @Assisted final List<IActivity> modifications,
         @Assisted Consumer<ModificationQueueResult> onEnd
     ) {
-        super(configurationService, loggingService, owner, modifications, onEnd);
+        super(configurationService, loggingService, owner, query, modifications, onEnd);
 
         this.storageAdapter = storageAdapter;
     }
