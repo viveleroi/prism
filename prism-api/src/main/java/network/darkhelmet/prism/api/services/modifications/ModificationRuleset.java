@@ -45,6 +45,11 @@ public class ModificationRuleset {
     private int maxPerTask;
 
     /**
+     * A list of blocks to remove.
+     */
+    private List<String> removeBlocks;
+
+    /**
      * Whether to remove drops.
      */
     private boolean removeDrops;

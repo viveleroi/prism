@@ -39,9 +39,11 @@ import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
+import network.darkhelmet.prism.utils.BlockUtils;
 import network.darkhelmet.prism.utils.EntityUtils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.BoundingBox;
@@ -167,6 +169,27 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                 int removedCount = EntityUtils.removeDropsInRange(world, boundingBox);
 
                 builder.removedDrops(removedCount);
+            }
+
+            if (!modificationRuleset.removeBlocks().isEmpty()
+                    && query.worldUuid() != null
+                    && query.minCoordinate() != null
+                    && query.maxCoordinate() != null) {
+                double x1 = query.minCoordinate().x();
+                double y1 = query.minCoordinate().y();
+                double z1 = query.minCoordinate().z();
+                double x2 = query.maxCoordinate().x();
+                double y2 = query.maxCoordinate().y();
+                double z2 = query.maxCoordinate().z();
+                BoundingBox boundingBox = new BoundingBox(x1, y1, z1, x2, y2, z2);
+
+                List<Material> materials = modificationRuleset.removeBlocks().stream().map(m ->
+                    Material.valueOf(m.toUpperCase())).toList();
+
+                World world = Bukkit.getWorld(query.worldUuid());
+                BlockUtils.removeBlocksByMaterial(world, boundingBox, materials);
+
+                builder.removedBlocks(materials.size());
             }
         }
     }

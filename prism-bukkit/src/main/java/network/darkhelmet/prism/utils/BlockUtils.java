@@ -20,18 +20,24 @@
 
 package network.darkhelmet.prism.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.experimental.UtilityClass;
 
+import network.darkhelmet.prism.services.modifications.state.BlockStateChange;
+
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.block.data.type.TrapDoor;
+import org.bukkit.util.BoundingBox;
 
 @UtilityClass
 public class BlockUtils {
@@ -40,6 +46,40 @@ public class BlockUtils {
      */
     private static final BlockFace[] attachmentFacesSides = {
         BlockFace.EAST, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH };
+
+    /**
+     * Remove blocks matching a list of materials.
+     *
+     * @param world The world
+     * @param boundingBox The bounding box
+     * @param materials The materials
+     * @return A list of block state changes
+     */
+    public static List<BlockStateChange> removeBlocksByMaterial(
+            World world, BoundingBox boundingBox, List<Material> materials) {
+        List<BlockStateChange> stateChanges = new ArrayList<>();
+        for (int x = (int) boundingBox.getMinX(); x < boundingBox.getMaxX(); x++) {
+            for (int y = (int) boundingBox.getMinY(); y < boundingBox.getMaxY(); y++) {
+                for (int z = (int) boundingBox.getMinZ(); z < boundingBox.getMaxZ(); z++) {
+                    Block block = world.getBlockAt(x, y, z);
+                    if (materials.contains(block.getType())) {
+                        // Capture the old state
+                        BlockState oldState = block.getState();
+
+                        // Set to air
+                        block.setType(Material.AIR);
+
+                        // Capture the new state
+                        BlockState newState = block.getState();
+
+                        stateChanges.add(new BlockStateChange(oldState, newState));
+                    }
+                }
+            }
+        }
+
+        return stateChanges;
+    }
 
     /**
      * Gets the "root" block of connected block. If not a

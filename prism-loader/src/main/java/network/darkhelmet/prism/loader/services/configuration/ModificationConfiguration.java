@@ -45,6 +45,9 @@ public class ModificationConfiguration {
             This can also reduce client lag as fewer changes are sent to clients at once.""")
     private int maxPerTask = 1000;
 
+    @Comment("A list of (typically unsafe) blocks to remove before a modification occurs.")
+    private List<String> removeBlocks = new ArrayList<>();
+
     @Comment("Toggling clearing item/xp drops from a modification area.")
     private boolean removeDrops = true;
 
@@ -59,6 +62,9 @@ public class ModificationConfiguration {
         blockBlacklist.add("tnt");
 
         entityBlacklist.add("creeper");
+
+        removeBlocks.add("tnt");
+        removeBlocks.add("fire");
     }
 
     /**
@@ -71,6 +77,7 @@ public class ModificationConfiguration {
             .blockBlacklist(blockBlacklist)
             .entityBlacklist(entityBlacklist)
             .maxPerTask(maxPerTask)
+            .removeBlocks(removeBlocks)
             .removeDrops(removeDrops)
             .taskDelay(taskDelay);
     }

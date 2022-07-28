@@ -53,6 +53,12 @@ public final class ModificationQueueResult {
     private IModificationQueue queue;
 
     /**
+     * The count of blocks removed.
+     */
+    @Builder.Default
+    private int removedBlocks = 0;
+
+    /**
      * The count of drops removed.
      */
     @Builder.Default
