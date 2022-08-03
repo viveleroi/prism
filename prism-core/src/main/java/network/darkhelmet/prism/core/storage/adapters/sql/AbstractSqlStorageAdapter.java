@@ -493,6 +493,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
         List<PrismMaterialsRecord> materials = create
             .select(PRISM_MATERIALS.MATERIAL, PRISM_MATERIALS.MATERIAL_ID)
             .from(PRISM_MATERIALS)
+            .where(PRISM_MATERIALS.DATA.isNull())
             .fetchInto(PrismMaterialsRecord.class);
 
         for (PrismMaterialsRecord material : materials) {
