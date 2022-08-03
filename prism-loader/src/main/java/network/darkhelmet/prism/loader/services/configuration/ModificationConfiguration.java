@@ -40,8 +40,8 @@ public class ModificationConfiguration {
     private List<String> entityBlacklist = new ArrayList<>();
 
     @Comment("""
-            Set a maximum number of modifications per task. Breaking world changes
-            up can help avoid overloading individual ticks and causing lag.
+            Set a maximum number of modifications per task. Splitting up world changes
+            can help avoid overloading individual ticks and causing lag.
             This can also reduce client lag as fewer changes are sent to clients at once.""")
     private int maxPerTask = 1000;
 
