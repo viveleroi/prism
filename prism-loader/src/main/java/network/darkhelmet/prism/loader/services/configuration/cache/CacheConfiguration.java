@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.loader.services.configuration;
+package network.darkhelmet.prism.loader.services.configuration.cache;
 
 import java.util.concurrent.TimeUnit;
 
@@ -30,31 +30,28 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 @ConfigSerializable
 @Getter
 public class CacheConfiguration {
-    @Comment("""
-            Lookup queries are cached so that they can be re-used or paginated.
-            This value (duration in ticks, default = 5 minutes) determines how
-            long they're held in memory before being discarded.
-            """)
-    private long lookupExpiration = 5 * 60 * 20;
+    @Comment("Activity queries (lookups) are cached so that they can be re-used or paginated.")
+    private CacheBuilderConfiguration lookupExpiration = new CacheBuilderConfiguration(
+        3, new DurationConfiguration(5, TimeUnit.MINUTES));
 
     @Comment("Cache settings for action key/primary keys.")
-    private PkCacheConfiguration pkCacheActionKey = new PkCacheConfiguration(100);
+    private CacheBuilderConfiguration pkCacheActionKey = new CacheBuilderConfiguration(100);
 
     @Comment("Cache settings for entity types/primary keys.")
-    private PkCacheConfiguration pkCacheEntityType = new PkCacheConfiguration(200);
+    private CacheBuilderConfiguration pkCacheEntityType = new CacheBuilderConfiguration(200);
 
     @Comment("Cache settings for material data/primary keys.")
-    private PkCacheConfiguration pkCacheMaterialData = new PkCacheConfiguration(
+    private CacheBuilderConfiguration pkCacheMaterialData = new CacheBuilderConfiguration(
         5000, new DurationConfiguration(15, TimeUnit.MINUTES));
 
     @Comment("Cache settings for named causes/primary keys.")
-    private PkCacheConfiguration pkCacheNamedCause = new PkCacheConfiguration(
+    private CacheBuilderConfiguration pkCacheNamedCause = new CacheBuilderConfiguration(
         200, new DurationConfiguration(15, TimeUnit.MINUTES));
 
     @Comment("Cache settings for players/primary keys.")
-    private PkCacheConfiguration pkCachePlayer = new PkCacheConfiguration(
+    private CacheBuilderConfiguration pkCachePlayer = new CacheBuilderConfiguration(
         200, new DurationConfiguration(15, TimeUnit.MINUTES));
 
     @Comment("Cache settings for world/primary keys.")
-    private PkCacheConfiguration pkCacheWorld = new PkCacheConfiguration(20);
+    private CacheBuilderConfiguration pkCacheWorld = new CacheBuilderConfiguration(20);
 }

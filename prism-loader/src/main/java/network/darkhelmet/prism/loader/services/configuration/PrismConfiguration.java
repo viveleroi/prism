@@ -26,6 +26,8 @@ import java.util.Locale;
 
 import lombok.Getter;
 
+import network.darkhelmet.prism.loader.services.configuration.cache.CacheConfiguration;
+
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 

@@ -180,6 +180,8 @@ public class PrismBukkit implements IPrism {
                 return;
             }
         } catch (Exception e) {
+            bootstrap.loggingService().handleException(e);
+
             disable();
 
             return;

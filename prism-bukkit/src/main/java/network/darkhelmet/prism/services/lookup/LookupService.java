@@ -20,10 +20,10 @@
 
 package network.darkhelmet.prism.services.lookup;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -32,28 +32,21 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
-import network.darkhelmet.prism.PrismBukkit;
 import network.darkhelmet.prism.api.PaginatedResults;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.configuration.cache.CacheConfiguration;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.providers.TaskChainProvider;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.translation.TranslationKey;
 import network.darkhelmet.prism.services.translation.TranslationService;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.scheduler.BukkitTask;
 
 public class LookupService {
-    /**
-     * The configuration service.
-     */
-    private final ConfigurationService configurationService;
-
     /**
      * The message service.
      */
@@ -87,12 +80,7 @@ public class LookupService {
     /**
      * Cache recent queries.
      */
-    private final Map<CommandSender, ActivityQuery> queries = new HashMap<>();
-
-    /**
-     * Cache tasks for clearing expired queries.
-     */
-    private final Map<CommandSender, BukkitTask> tasks = new HashMap<>();
+    private final Cache<CommandSender, ActivityQuery> recentQueries;
 
     /**
      * Construct the lookup service.
@@ -100,7 +88,7 @@ public class LookupService {
      * @param configurationService The configuration service
      * @param messageService The message service
      * @param storageAdapter The storage adapter
-     * @param translationService The transation service
+     * @param translationService The translation service
      * @param audiences The audiences
      * @param taskChainProvider The task chain provider
      * @param loggingService The logging service
@@ -114,13 +102,27 @@ public class LookupService {
             BukkitAudiences audiences,
             TaskChainProvider taskChainProvider,
             LoggingService loggingService) {
-        this.configurationService = configurationService;
         this.messageService = messageService;
         this.storageAdapter = storageAdapter;
         this.translationService = translationService;
         this.audiences = audiences;
         this.taskChainProvider = taskChainProvider;
         this.loggingService = loggingService;
+
+        CacheConfiguration cacheConfiguration = configurationService.prismConfig().cacheConfiguration();
+
+        recentQueries = Caffeine.newBuilder()
+            .maximumSize(cacheConfiguration.lookupExpiration().maxSize())
+            .expireAfterAccess(cacheConfiguration.lookupExpiration().expiresAfterAccess().duration(),
+                cacheConfiguration.lookupExpiration().expiresAfterAccess().timeUnit())
+            .evictionListener((key, value, cause) -> {
+                String msg = "Evicting activity query from cache: Key: %s, Value: %s, Removal Cause: %s";
+                loggingService.debug(String.format(msg, key, value, cause));
+            })
+            .removalListener((key, value, cause) -> {
+                String msg = "Removing activity query from cache: Key: %s, Value: %s, Removal Cause: %s";
+                loggingService.debug(String.format(msg, key, value, cause));
+            }).build();
     }
 
     /**
@@ -130,7 +132,7 @@ public class LookupService {
      * @return The last query, if any
      */
     public Optional<ActivityQuery> lastQuery(CommandSender sender) {
-        return Optional.ofNullable(queries.get(sender));
+        return Optional.ofNullable(recentQueries.getIfPresent(sender));
     }
 
     /**
@@ -140,27 +142,12 @@ public class LookupService {
      * @param query The activity query
      */
     public void lookup(CommandSender sender, ActivityQuery query) {
-        // Cancel any expiration tasks
-        if (tasks.containsKey(sender)) {
-            tasks.remove(sender).cancel();
-        }
-
-        final long expireAfter = configurationService.prismConfig().cacheConfiguration().lookupExpiration();
         taskChainProvider.newChain().async(() -> {
             try {
                 show(sender, storageAdapter.queryActivitiesPaginated(query));
 
-                // Cache this senders most recent query
-                queries.put(sender, query);
-
-                // Forcefully invalidate old queries after a set time. Because it could be a long
-                // time between queries we can't rely on a guava cache.
-                BukkitTask task = Bukkit.getScheduler().runTaskLater(PrismBukkit.getInstance().loaderPlugin(), () -> {
-                    queries.remove(sender);
-                    tasks.remove(sender);
-                }, expireAfter);
-
-                tasks.put(sender, task);
+                // Cache this senders' most recent query
+                recentQueries.put(sender, query);
             } catch (Exception ex) {
                 messageService.error(sender, new TranslationKey("query-error"));
                 loggingService.handleException(ex);

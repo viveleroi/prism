@@ -18,7 +18,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.loader.services.configuration;
+package network.darkhelmet.prism.loader.services.configuration.cache;
+
+import java.util.concurrent.TimeUnit;
 
 import lombok.Getter;
 
@@ -27,38 +29,25 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
-public class PkCacheConfiguration {
-    @Comment("Set a length of time (since last access) until entries are evicted.")
-    private DurationConfiguration expiresAfterAccess;
+public class DurationConfiguration {
+    @Comment("The duration value.")
+    private Long duration;
 
-    @Comment("""
-            The max size of this cache.
-            Data will be evicted if the cache size reaches this limit.
-            """)
-    private long maxSize;
+    @Comment("The duration time unit.")
+    private TimeUnit timeUnit;
 
     /**
      * Constructor.
      */
-    public PkCacheConfiguration() {}
+    public DurationConfiguration() {}
 
     /**
      * Constructor.
      *
-     * @param maxSize The max size
+     * @param duration The duration
      */
-    public PkCacheConfiguration(long maxSize) {
-        this.maxSize = maxSize;
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param maxSize The max size
-     * @param expiresAfterAccess The duration
-     */
-    public PkCacheConfiguration(long maxSize, DurationConfiguration expiresAfterAccess) {
-        this.maxSize = maxSize;
-        this.expiresAfterAccess = expiresAfterAccess;
+    public DurationConfiguration(long duration, TimeUnit timeUnit) {
+        this.duration = duration;
+        this.timeUnit = timeUnit;
     }
 }

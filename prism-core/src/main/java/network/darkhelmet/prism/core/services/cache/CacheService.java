@@ -28,8 +28,8 @@ import java.util.UUID;
 
 import lombok.Getter;
 
-import network.darkhelmet.prism.loader.services.configuration.CacheConfiguration;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.configuration.cache.CacheConfiguration;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 @Getter
@@ -76,9 +76,7 @@ public class CacheService {
      * @param loggingService The logging service
      */
     @Inject
-    public CacheService(
-            ConfigurationService configurationService,
-            LoggingService loggingService) {
+    public CacheService(ConfigurationService configurationService, LoggingService loggingService) {
         final CacheConfiguration cacheConfiguration = configurationService.prismConfig().cacheConfiguration();
 
         // Build the action key cache
@@ -93,7 +91,7 @@ public class CacheService {
                 loggingService.debug(String.format(msg, key, value, cause));
             });
 
-        if (cacheConfiguration.pkCacheActionKey().expiresAfterAccess() != null) {
+        if (cacheConfiguration.pkCacheActionKey().expiresAfterAccess().duration() != null) {
             actionBuilder.expireAfterAccess(cacheConfiguration.pkCacheActionKey().expiresAfterAccess().duration(),
                 cacheConfiguration.pkCacheActionKey().expiresAfterAccess().timeUnit());
         }
@@ -112,7 +110,7 @@ public class CacheService {
                 loggingService.debug(String.format(msg, key, value, cause));
             });
 
-        if (cacheConfiguration.pkCacheEntityType().expiresAfterAccess() != null) {
+        if (cacheConfiguration.pkCacheEntityType().expiresAfterAccess().duration() != null) {
             entityBuilder.expireAfterAccess(cacheConfiguration.pkCacheEntityType().expiresAfterAccess().duration(),
                 cacheConfiguration.pkCacheEntityType().expiresAfterAccess().timeUnit());
         }
@@ -131,7 +129,7 @@ public class CacheService {
                 loggingService.debug(String.format(msg, key, value, cause));
             });
 
-        if (cacheConfiguration.pkCacheMaterialData().expiresAfterAccess() != null) {
+        if (cacheConfiguration.pkCacheMaterialData().expiresAfterAccess().duration() != null) {
             materialBuilder.expireAfterAccess(cacheConfiguration.pkCacheMaterialData().expiresAfterAccess().duration(),
                 cacheConfiguration.pkCacheMaterialData().expiresAfterAccess().timeUnit());
         }
@@ -150,7 +148,7 @@ public class CacheService {
                 loggingService.debug(String.format(msg, key, value, cause));
             });
 
-        if (cacheConfiguration.pkCacheNamedCause().expiresAfterAccess() != null) {
+        if (cacheConfiguration.pkCacheNamedCause().expiresAfterAccess().duration() != null) {
             namedCauseBuilder.expireAfterAccess(cacheConfiguration.pkCacheNamedCause().expiresAfterAccess().duration(),
                 cacheConfiguration.pkCacheNamedCause().expiresAfterAccess().timeUnit());
         }
@@ -169,7 +167,7 @@ public class CacheService {
                 loggingService.debug(String.format(msg, key, value, cause));
             });
 
-        if (cacheConfiguration.pkCachePlayer().expiresAfterAccess() != null) {
+        if (cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration() != null) {
             playerCauseBuilder.expireAfterAccess(cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration(),
                 cacheConfiguration.pkCachePlayer().expiresAfterAccess().timeUnit());
         }
@@ -188,7 +186,7 @@ public class CacheService {
                 loggingService.debug(String.format(msg, key, value, cause));
             });
 
-        if (cacheConfiguration.pkCachePlayer().expiresAfterAccess() != null) {
+        if (cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration() != null) {
             playerBuilder.expireAfterAccess(cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration(),
                 cacheConfiguration.pkCachePlayer().expiresAfterAccess().timeUnit());
         }
@@ -207,7 +205,7 @@ public class CacheService {
                 loggingService.debug(String.format(msg, key, value, cause));
             });
 
-        if (cacheConfiguration.pkCacheWorld().expiresAfterAccess() != null) {
+        if (cacheConfiguration.pkCacheWorld().expiresAfterAccess().duration() != null) {
             worldBuilder.expireAfterAccess(cacheConfiguration.pkCacheWorld().expiresAfterAccess().duration(),
                 cacheConfiguration.pkCacheWorld().expiresAfterAccess().timeUnit());
         }
