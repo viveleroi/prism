@@ -77,7 +77,7 @@ public class CacheService {
      */
     @Inject
     public CacheService(ConfigurationService configurationService, LoggingService loggingService) {
-        final CacheConfiguration cacheConfiguration = configurationService.prismConfig().cacheConfiguration();
+        final CacheConfiguration cacheConfiguration = configurationService.prismConfig().cache();
 
         // Build the action key cache
         Caffeine<String, Byte> actionBuilder = Caffeine.newBuilder()
@@ -91,7 +91,8 @@ public class CacheService {
                 loggingService.debug(String.format(msg, key, value, cause));
             });
 
-        if (cacheConfiguration.pkCacheActionKey().expiresAfterAccess().duration() != null) {
+        if (cacheConfiguration.pkCacheActionKey().expiresAfterAccess() != null
+                && cacheConfiguration.pkCacheActionKey().expiresAfterAccess().duration() != null) {
             actionBuilder.expireAfterAccess(cacheConfiguration.pkCacheActionKey().expiresAfterAccess().duration(),
                 cacheConfiguration.pkCacheActionKey().expiresAfterAccess().timeUnit());
         }
@@ -110,7 +111,8 @@ public class CacheService {
                 loggingService.debug(String.format(msg, key, value, cause));
             });
 
-        if (cacheConfiguration.pkCacheEntityType().expiresAfterAccess().duration() != null) {
+        if (cacheConfiguration.pkCacheEntityType().expiresAfterAccess() != null
+                && cacheConfiguration.pkCacheEntityType().expiresAfterAccess().duration() != null) {
             entityBuilder.expireAfterAccess(cacheConfiguration.pkCacheEntityType().expiresAfterAccess().duration(),
                 cacheConfiguration.pkCacheEntityType().expiresAfterAccess().timeUnit());
         }
@@ -129,7 +131,8 @@ public class CacheService {
                 loggingService.debug(String.format(msg, key, value, cause));
             });
 
-        if (cacheConfiguration.pkCacheMaterialData().expiresAfterAccess().duration() != null) {
+        if (cacheConfiguration.pkCacheMaterialData().expiresAfterAccess() != null
+                && cacheConfiguration.pkCacheMaterialData().expiresAfterAccess().duration() != null) {
             materialBuilder.expireAfterAccess(cacheConfiguration.pkCacheMaterialData().expiresAfterAccess().duration(),
                 cacheConfiguration.pkCacheMaterialData().expiresAfterAccess().timeUnit());
         }
@@ -148,7 +151,8 @@ public class CacheService {
                 loggingService.debug(String.format(msg, key, value, cause));
             });
 
-        if (cacheConfiguration.pkCacheNamedCause().expiresAfterAccess().duration() != null) {
+        if (cacheConfiguration.pkCacheNamedCause().expiresAfterAccess() != null
+                && cacheConfiguration.pkCacheNamedCause().expiresAfterAccess().duration() != null) {
             namedCauseBuilder.expireAfterAccess(cacheConfiguration.pkCacheNamedCause().expiresAfterAccess().duration(),
                 cacheConfiguration.pkCacheNamedCause().expiresAfterAccess().timeUnit());
         }
@@ -167,7 +171,8 @@ public class CacheService {
                 loggingService.debug(String.format(msg, key, value, cause));
             });
 
-        if (cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration() != null) {
+        if (cacheConfiguration.pkCachePlayer().expiresAfterAccess() != null
+                && cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration() != null) {
             playerCauseBuilder.expireAfterAccess(cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration(),
                 cacheConfiguration.pkCachePlayer().expiresAfterAccess().timeUnit());
         }
@@ -186,7 +191,8 @@ public class CacheService {
                 loggingService.debug(String.format(msg, key, value, cause));
             });
 
-        if (cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration() != null) {
+        if (cacheConfiguration.pkCachePlayer().expiresAfterAccess() != null
+                && cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration() != null) {
             playerBuilder.expireAfterAccess(cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration(),
                 cacheConfiguration.pkCachePlayer().expiresAfterAccess().timeUnit());
         }
@@ -205,7 +211,8 @@ public class CacheService {
                 loggingService.debug(String.format(msg, key, value, cause));
             });
 
-        if (cacheConfiguration.pkCacheWorld().expiresAfterAccess().duration() != null) {
+        if (cacheConfiguration.pkCacheWorld().expiresAfterAccess() != null
+                && cacheConfiguration.pkCacheWorld().expiresAfterAccess().duration() != null) {
             worldBuilder.expireAfterAccess(cacheConfiguration.pkCacheWorld().expiresAfterAccess().duration(),
                 cacheConfiguration.pkCacheWorld().expiresAfterAccess().timeUnit());
         }

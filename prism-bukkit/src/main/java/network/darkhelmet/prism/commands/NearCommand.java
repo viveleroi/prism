@@ -71,12 +71,14 @@ public class NearCommand extends BaseCommand {
     @Permission("prism.admin")
     public void onNear(final Player player) {
         Location loc = player.getLocation();
-        Coordinate minCoordinate = LocationUtils.getMinCoordinate(loc, configurationService.prismConfig().nearRadius());
-        Coordinate maxCoordinate = LocationUtils.getMaxCoordinate(loc, configurationService.prismConfig().nearRadius());
+        Coordinate minCoordinate = LocationUtils
+            .getMinCoordinate(loc, configurationService.prismConfig().defaults().nearRadius());
+        Coordinate maxCoordinate = LocationUtils
+            .getMaxCoordinate(loc, configurationService.prismConfig().defaults().nearRadius());
 
         final ActivityQuery query = ActivityQuery.builder().worldUuid(loc.getWorld().getUID())
             .boundingCoordinates(minCoordinate, maxCoordinate)
-            .limit(configurationService.prismConfig().perPage()).build();
+            .limit(configurationService.prismConfig().defaults().perPage()).build();
         lookupService.lookup(player, query);
     }
 }

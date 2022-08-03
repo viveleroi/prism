@@ -94,7 +94,7 @@ public class TranslationService implements IMessageSource<CommandSender, String>
             PrismConfiguration prismConfiguration) throws IOException {
         this.loggingService = loggingService;
         this.dataDirectory = dataDirectory;
-        this.defaultLocale = prismConfiguration.defaultLocale();
+        this.defaultLocale = prismConfiguration.defaults().defaultLocale();
         this.pluginJar = pluginJar();
 
         this.reloadTranslations();

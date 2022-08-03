@@ -109,7 +109,7 @@ public class LookupService {
         this.taskChainProvider = taskChainProvider;
         this.loggingService = loggingService;
 
-        CacheConfiguration cacheConfiguration = configurationService.prismConfig().cacheConfiguration();
+        CacheConfiguration cacheConfiguration = configurationService.prismConfig().cache();
 
         recentQueries = Caffeine.newBuilder()
             .maximumSize(cacheConfiguration.lookupExpiration().maxSize())

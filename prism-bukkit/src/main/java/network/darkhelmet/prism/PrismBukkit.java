@@ -41,6 +41,7 @@ import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.commands.AboutCommand;
+import network.darkhelmet.prism.commands.ExtinguishCommand;
 import network.darkhelmet.prism.commands.LookupCommand;
 import network.darkhelmet.prism.commands.NearCommand;
 import network.darkhelmet.prism.commands.PageCommand;
@@ -270,6 +271,7 @@ public class PrismBukkit implements IPrism {
             );
 
             commandManager.registerCommand(injectorProvider.injector().getInstance(AboutCommand.class));
+            commandManager.registerCommand(injectorProvider.injector().getInstance(ExtinguishCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(LookupCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(NearCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(PageCommand.class));

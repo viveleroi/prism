@@ -59,6 +59,9 @@ public interface MessageService {
     @Message("reloaded-locales")
     void reloadedLocales(CommandSender receiver);
 
+    @Message("removed-blocks")
+    void removedBlocks(CommandSender receiver, @Placeholder Integer count);
+
     @Message("wand-activated")
     void wandActivated(Player player, @Placeholder WandMode wandmode);
 

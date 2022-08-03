@@ -75,6 +75,7 @@ import network.darkhelmet.prism.services.messages.MessageSender;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.messages.ReceiverResolver;
 import network.darkhelmet.prism.services.messages.resolvers.ActivityPlaceholderResolver;
+import network.darkhelmet.prism.services.messages.resolvers.IntegerPlaceholderResolver;
 import network.darkhelmet.prism.services.messages.resolvers.PaginatedResultsPlaceholderResolver;
 import network.darkhelmet.prism.services.messages.resolvers.StringPlaceholderResolver;
 import network.darkhelmet.prism.services.messages.resolvers.TranslatableStringPlaceholderResolver;
@@ -190,6 +191,7 @@ public class PrismModule extends AbstractModule {
                 .resolvingWithStrategy(new StandardPlaceholderResolverStrategy<>(
                     new StandardSupertypeThenInterfaceSupertypeStrategy(false)))
                 .weightedPlaceholderResolver(TranslationKey.class, translatableStringPlaceholderResolver, 0)
+                .weightedPlaceholderResolver(Integer.class, new IntegerPlaceholderResolver(), 0)
                 .weightedPlaceholderResolver(String.class, new StringPlaceholderResolver(), 0)
                 .weightedPlaceholderResolver(IActivity.class, activityPlaceholderResolver, 0)
                 .weightedPlaceholderResolver(WandMode.class, wandModePlaceholderResolver, 0)

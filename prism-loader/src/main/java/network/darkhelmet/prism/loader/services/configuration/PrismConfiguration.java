@@ -22,7 +22,6 @@ package network.darkhelmet.prism.loader.services.configuration;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import lombok.Getter;
 
@@ -43,14 +42,12 @@ public class PrismConfiguration {
             Configure how Prism caches data. Probably best to leave
             these settings alone unless you have specific reasons to change them.
             """)
-    private CacheConfiguration cacheConfiguration = new CacheConfiguration();
+    private CacheConfiguration cache = new CacheConfiguration();
 
     @Comment("Enable plugin debug mode. Produces extra logging to help diagnose issues.")
     private boolean debug = false;
 
-    @Comment("The default locale for plugin messages. Messages given to players\n"
-        + "will use their client locale settings.")
-    private Locale defaultLocale = Locale.US;
+    private DefaultsConfiguration defaults = new DefaultsConfiguration();
 
     @Comment("Filters allow fine-grained control over what prism records.\n"
         + "See the wiki for documentation.")
@@ -58,10 +55,4 @@ public class PrismConfiguration {
 
     @Comment("Configure rules for modifications (rollbacks/restores).")
     private ModificationConfiguration modifications = new ModificationConfiguration();
-
-    @Comment("Sets the default radius to use when searching for nearby activity.")
-    private int nearRadius = 5;
-
-    @Comment("Limits how many results are shown \"per page\" when doing lookups.")
-    private int perPage = 5;
 }
