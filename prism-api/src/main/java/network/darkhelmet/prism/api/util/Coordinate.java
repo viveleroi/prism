@@ -21,7 +21,9 @@
 package network.darkhelmet.prism.api.util;
 
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString
 public class Coordinate {
     /**
      * The x coordinate.

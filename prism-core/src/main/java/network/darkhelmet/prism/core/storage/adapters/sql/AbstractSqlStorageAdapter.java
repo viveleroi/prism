@@ -49,6 +49,7 @@ import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.storage.IActivityBatch;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.api.util.NamedIdentity;
+import network.darkhelmet.prism.api.util.Pair;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.core.injection.factories.ISqlActivityQueryBuilderFactory;
 import network.darkhelmet.prism.core.services.cache.CacheService;
@@ -74,12 +75,16 @@ import network.darkhelmet.prism.loader.storage.StorageType;
 
 import org.jooq.DSLContext;
 import org.jooq.Index;
+import org.jooq.Record2;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
+import org.jooq.types.UInteger;
 
 import static org.jooq.impl.DSL.avg;
 import static org.jooq.impl.DSL.constraint;
+import static org.jooq.impl.DSL.max;
+import static org.jooq.impl.DSL.min;
 
 public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
     /**
@@ -262,7 +267,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
      *
      * @param hikariConfig The hikari config
      */
-    protected boolean connect(HikariConfig hikariConfig, SQLDialect sqlDialect) throws Exception {
+    protected boolean connect(HikariConfig hikariConfig, SQLDialect sqlDialect) {
         String url = hikariConfig.getDataSourceProperties().getProperty("url");
         if (url == null) {
             url = hikariConfig.getJdbcUrl();
@@ -274,7 +279,9 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
             dataSource = new HikariDataSource(hikariConfig);
 
             create = DSL.using(dataSource.getConnection(), sqlDialect);
-            this.queryBuilder = queryBuilderFactory.create(create);
+            if (queryBuilderFactory != null) {
+                this.queryBuilder = queryBuilderFactory.create(create);
+            }
 
             return true;
         }  catch (Exception e) {
@@ -456,7 +463,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
             .primaryKey(PRISM_ACTIVITIES_CUSTOM_DATA.EXTRA_ID)
             .constraints(
                 constraint("activityId").foreignKey(PRISM_ACTIVITIES_CUSTOM_DATA.ACTIVITY_ID)
-                    .references(PRISM_ACTIVITIES, PRISM_ACTIVITIES.ACTIVITY_ID)
+                    .references(PRISM_ACTIVITIES, PRISM_ACTIVITIES.ACTIVITY_ID).onDeleteCascade()
             )
             .execute();
     }
@@ -677,6 +684,23 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
     @Override
     public IActivityBatch createActivityBatch() {
         return new SqlActivityBatch(dataSource, create, serializerVersion, cacheService);
+    }
+
+    @Override
+    public int deleteActivities(ActivityQuery query, int cycleMinPrimaryKey, int cycleMaxPrimaryKey) {
+        return queryBuilder.deleteActivities(query, cycleMinPrimaryKey, cycleMaxPrimaryKey);
+    }
+
+    @Override
+    public Pair<Integer, Integer> getActivitiesPkBounds() {
+        Result<Record2<UInteger, UInteger>> result = create
+            .select(min(PRISM_ACTIVITIES.ACTIVITY_ID), max(PRISM_ACTIVITIES.ACTIVITY_ID))
+            .from(PRISM_ACTIVITIES).fetch();
+
+        int minPk = result.get(0).get(min(PRISM_ACTIVITIES.ACTIVITY_ID)).intValue();
+        int maxPk = result.get(0).get(max(PRISM_ACTIVITIES.ACTIVITY_ID)).intValue();
+
+        return new Pair<>(minPk, maxPk);
     }
 
     @Override

@@ -20,27 +20,4 @@
 
 package network.darkhelmet.prism.api.util;
 
-import lombok.Getter;
-import lombok.ToString;
-
-@ToString
-public class WorldCoordinate extends Coordinate {
-    /**
-     * The world.
-     */
-    @Getter
-    private final NamedIdentity world;
-
-    /**
-     * Construct a new world coordinate.
-     *
-     * @param world The world identity
-     * @param x The x coordinate
-     * @param y The y coordinate
-     * @param z The z coordinate
-     */
-    public WorldCoordinate(NamedIdentity world, double x, double y, double z) {
-        super(x, y, z);
-        this.world = world;
-    }
-}
+public record Pair<K, V>(K key, V value) {}

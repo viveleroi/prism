@@ -47,16 +47,22 @@ import network.darkhelmet.prism.api.providers.IWorldIdentityProvider;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
 import network.darkhelmet.prism.api.services.modifications.IRestore;
 import network.darkhelmet.prism.api.services.modifications.IRollback;
+import network.darkhelmet.prism.api.services.purges.IPurgeQueue;
+import network.darkhelmet.prism.api.services.purges.PurgeCycleResult;
 import network.darkhelmet.prism.api.services.recording.IRecordingService;
 import network.darkhelmet.prism.api.services.wands.IWand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
 import network.darkhelmet.prism.api.storage.ISqlActivityQueryBuilder;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
+import network.darkhelmet.prism.core.injection.factories.IH2ActivityQueryBuilderFactory;
+import network.darkhelmet.prism.core.injection.factories.IPurgeQueueFactory;
 import network.darkhelmet.prism.core.injection.factories.IRestoreFactory;
 import network.darkhelmet.prism.core.injection.factories.IRollbackFactory;
 import network.darkhelmet.prism.core.injection.factories.ISqlActivityQueryBuilderFactory;
 import network.darkhelmet.prism.core.services.cache.CacheService;
+import network.darkhelmet.prism.core.storage.adapters.h2.H2ActivityQueryBuilder;
 import network.darkhelmet.prism.core.storage.adapters.h2.H2StorageAdapter;
+import network.darkhelmet.prism.core.storage.adapters.h2.IH2ActivityQueryBuilder;
 import network.darkhelmet.prism.core.storage.adapters.mariadb.MariaDbStorageAdapter;
 import network.darkhelmet.prism.core.storage.adapters.mysql.MysqlStorageAdapter;
 import network.darkhelmet.prism.core.storage.adapters.postgres.PostgresStorageAdapter;
@@ -77,12 +83,15 @@ import network.darkhelmet.prism.services.messages.ReceiverResolver;
 import network.darkhelmet.prism.services.messages.resolvers.ActivityPlaceholderResolver;
 import network.darkhelmet.prism.services.messages.resolvers.IntegerPlaceholderResolver;
 import network.darkhelmet.prism.services.messages.resolvers.PaginatedResultsPlaceholderResolver;
+import network.darkhelmet.prism.services.messages.resolvers.PurgeCycleResultPlaceholderResolver;
 import network.darkhelmet.prism.services.messages.resolvers.StringPlaceholderResolver;
 import network.darkhelmet.prism.services.messages.resolvers.TranslatableStringPlaceholderResolver;
 import network.darkhelmet.prism.services.messages.resolvers.WandModePlaceholderResolver;
 import network.darkhelmet.prism.services.modifications.ModificationQueueService;
 import network.darkhelmet.prism.services.modifications.Restore;
 import network.darkhelmet.prism.services.modifications.Rollback;
+import network.darkhelmet.prism.services.purge.PurgeQueue;
+import network.darkhelmet.prism.services.purge.PurgeService;
 import network.darkhelmet.prism.services.recording.RecordingService;
 import network.darkhelmet.prism.services.translation.TranslationKey;
 import network.darkhelmet.prism.services.translation.TranslationService;
@@ -193,6 +202,7 @@ public class PrismModule extends AbstractModule {
                 .weightedPlaceholderResolver(TranslationKey.class, translatableStringPlaceholderResolver, 0)
                 .weightedPlaceholderResolver(Integer.class, new IntegerPlaceholderResolver(), 0)
                 .weightedPlaceholderResolver(String.class, new StringPlaceholderResolver(), 0)
+                .weightedPlaceholderResolver(PurgeCycleResult.class, new PurgeCycleResultPlaceholderResolver(), 0)
                 .weightedPlaceholderResolver(IActivity.class, activityPlaceholderResolver, 0)
                 .weightedPlaceholderResolver(WandMode.class, wandModePlaceholderResolver, 0)
                 .weightedPlaceholderResolver(new TypeToken<>(){}, new PaginatedResultsPlaceholderResolver(), 0)
@@ -248,6 +258,13 @@ public class PrismModule extends AbstractModule {
             .implement(IRollback.class, Rollback.class)
             .build(IRollbackFactory.class));
 
+        // Service - Purge
+        bind(PurgeService.class).in(Singleton.class);
+
+        install(new FactoryModuleBuilder()
+            .implement(IPurgeQueue.class, PurgeQueue.class)
+            .build(IPurgeQueueFactory.class));
+
         // Service - Recording
         bind(IRecordingService.class).to(RecordingService.class).in(Singleton.class);
 
@@ -270,11 +287,20 @@ public class PrismModule extends AbstractModule {
         // Storage
         bind(SqlSchemaUpdater.class).in(Singleton.class);
 
-        install(new FactoryModuleBuilder()
-            .implement(ISqlActivityQueryBuilder.class, SqlActivityQueryBuilder.class)
-            .build(ISqlActivityQueryBuilderFactory.class));
-
         StorageType storageType = prism.loader().configurationService().storageConfig().primaryStorageType();
+
+        // Install the correct query builder
+        if (storageType.equals(StorageType.H2)) {
+            install(new FactoryModuleBuilder()
+                .implement(IH2ActivityQueryBuilder.class, H2ActivityQueryBuilder.class)
+                .build(IH2ActivityQueryBuilderFactory.class));
+        } else {
+            install(new FactoryModuleBuilder()
+                .implement(ISqlActivityQueryBuilder.class, SqlActivityQueryBuilder.class)
+                .build(ISqlActivityQueryBuilderFactory.class));
+        }
+
+        // Bind the correct storage adapter
         switch (storageType) {
             case H2 -> bind(IStorageAdapter.class).to(H2StorageAdapter.class).in(Singleton.class);
             case MARIADB -> bind(IStorageAdapter.class).to(MariaDbStorageAdapter.class).in(Singleton.class);

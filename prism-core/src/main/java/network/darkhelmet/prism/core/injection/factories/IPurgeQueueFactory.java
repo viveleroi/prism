@@ -18,29 +18,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.api.util;
+package network.darkhelmet.prism.core.injection.factories;
 
-import lombok.Getter;
-import lombok.ToString;
+import java.util.function.Consumer;
 
-@ToString
-public class WorldCoordinate extends Coordinate {
+import network.darkhelmet.prism.api.services.purges.IPurgeQueue;
+import network.darkhelmet.prism.api.services.purges.PurgeCycleResult;
+import network.darkhelmet.prism.api.services.purges.PurgeResult;
+
+public interface IPurgeQueueFactory {
     /**
-     * The world.
-     */
-    @Getter
-    private final NamedIdentity world;
-
-    /**
-     * Construct a new world coordinate.
+     * Create the purge instance.
      *
-     * @param world The world identity
-     * @param x The x coordinate
-     * @param y The y coordinate
-     * @param z The z coordinate
+     * @return A purge instance
      */
-    public WorldCoordinate(NamedIdentity world, double x, double y, double z) {
-        super(x, y, z);
-        this.world = world;
-    }
+    IPurgeQueue create(Consumer<PurgeCycleResult> onCycle, Consumer<PurgeResult> onEnd);
 }

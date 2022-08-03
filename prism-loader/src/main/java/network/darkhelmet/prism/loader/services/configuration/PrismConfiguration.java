@@ -60,4 +60,6 @@ public class PrismConfiguration {
 
     @Comment("Configure rules for modifications (rollbacks/restores).")
     private ModificationConfiguration modifications = new ModificationConfiguration();
+
+    private PurgeConfiguration purges = new PurgeConfiguration();
 }

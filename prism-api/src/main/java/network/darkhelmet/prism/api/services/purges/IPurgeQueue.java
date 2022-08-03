@@ -18,29 +18,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.api.util;
+package network.darkhelmet.prism.api.services.purges;
 
-import lombok.Getter;
-import lombok.ToString;
+import network.darkhelmet.prism.api.activities.ActivityQuery;
 
-@ToString
-public class WorldCoordinate extends Coordinate {
+public interface IPurgeQueue {
     /**
-     * The world.
-     */
-    @Getter
-    private final NamedIdentity world;
-
-    /**
-     * Construct a new world coordinate.
+     * Add a query to the purge queue.
      *
-     * @param world The world identity
-     * @param x The x coordinate
-     * @param y The y coordinate
-     * @param z The z coordinate
+     * @param query The query
      */
-    public WorldCoordinate(NamedIdentity world, double x, double y, double z) {
-        super(x, y, z);
-        this.world = world;
-    }
+    void add(ActivityQuery query);
+
+    /**
+     * Check if the queue is running a purge cycle.
+     *
+     * @return True if running
+     */
+    boolean running();
+
+    /**
+     * Start the purge.
+     */
+    void start();
 }

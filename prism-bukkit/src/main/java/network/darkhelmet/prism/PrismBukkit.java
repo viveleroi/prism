@@ -46,6 +46,7 @@ import network.darkhelmet.prism.commands.LookupCommand;
 import network.darkhelmet.prism.commands.NearCommand;
 import network.darkhelmet.prism.commands.PageCommand;
 import network.darkhelmet.prism.commands.PreviewCommand;
+import network.darkhelmet.prism.commands.PurgeCommand;
 import network.darkhelmet.prism.commands.ReloadCommand;
 import network.darkhelmet.prism.commands.RestoreCommand;
 import network.darkhelmet.prism.commands.RollbackCommand;
@@ -300,6 +301,7 @@ public class PrismBukkit implements IPrism {
             commandManager.registerCommand(injectorProvider.injector().getInstance(NearCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(PageCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(PreviewCommand.class));
+            commandManager.registerCommand(injectorProvider.injector().getInstance(PurgeCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(ReloadCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(RestoreCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(RollbackCommand.class));

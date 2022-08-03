@@ -26,6 +26,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
+import lombok.ToString;
 import lombok.experimental.Tolerate;
 
 import network.darkhelmet.prism.api.actions.types.IActionType;
@@ -35,6 +36,7 @@ import network.darkhelmet.prism.api.util.WorldCoordinate;
 
 @Builder(toBuilder = true)
 @Getter
+@ToString
 public final class ActivityQuery {
     /**
      * The action type keys.

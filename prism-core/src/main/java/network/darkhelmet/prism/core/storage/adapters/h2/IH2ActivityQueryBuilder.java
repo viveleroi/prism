@@ -18,29 +18,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.api.util;
+package network.darkhelmet.prism.core.storage.adapters.h2;
 
-import lombok.Getter;
-import lombok.ToString;
+import network.darkhelmet.prism.api.storage.ISqlActivityQueryBuilder;
 
-@ToString
-public class WorldCoordinate extends Coordinate {
-    /**
-     * The world.
-     */
-    @Getter
-    private final NamedIdentity world;
-
-    /**
-     * Construct a new world coordinate.
-     *
-     * @param world The world identity
-     * @param x The x coordinate
-     * @param y The y coordinate
-     * @param z The z coordinate
-     */
-    public WorldCoordinate(NamedIdentity world, double x, double y, double z) {
-        super(x, y, z);
-        this.world = world;
-    }
+public interface IH2ActivityQueryBuilder extends ISqlActivityQueryBuilder {
 }

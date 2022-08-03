@@ -24,6 +24,8 @@ import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
 
+import lombok.Getter;
+
 import network.darkhelmet.prism.loader.services.dependencies.loader.PluginLoader;
 
 import org.bukkit.plugin.Plugin;
@@ -37,6 +39,7 @@ public class TaskChainProvider {
     /**
      * The task chain factory.
      */
+    @Getter
     private TaskChainFactory taskChainFactory;
 
     /**

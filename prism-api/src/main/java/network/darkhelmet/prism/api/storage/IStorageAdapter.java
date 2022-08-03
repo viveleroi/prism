@@ -25,6 +25,7 @@ import java.util.List;
 import network.darkhelmet.prism.api.PaginatedResults;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.util.Pair;
 
 public interface IStorageAdapter {
     /**
@@ -38,6 +39,23 @@ public interface IStorageAdapter {
      * @return The batch
      */
     IActivityBatch createActivityBatch();
+
+    /**
+     * Delete records from the activities table.
+     *
+     * @param query The query
+     * @param cycleMinPrimaryKey The minimum primary key for this cycle
+     * @param cycleMaxPrimaryKey The maximum primary key for this cycle
+     * @return The number of deleted records
+     */
+    int deleteActivities(ActivityQuery query, int cycleMinPrimaryKey, int cycleMaxPrimaryKey);
+
+    /**
+     * Get the min/max primary keys for the activities table.
+     *
+     * @return A min/max pair.
+     */
+    Pair<Integer, Integer> getActivitiesPkBounds();
 
     /**
      * Set the reversed bit for activites.

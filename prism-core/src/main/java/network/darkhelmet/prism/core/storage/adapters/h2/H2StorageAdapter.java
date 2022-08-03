@@ -28,7 +28,7 @@ import java.io.File;
 import java.nio.file.Path;
 
 import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
-import network.darkhelmet.prism.core.injection.factories.ISqlActivityQueryBuilderFactory;
+import network.darkhelmet.prism.core.injection.factories.IH2ActivityQueryBuilderFactory;
 import network.darkhelmet.prism.core.services.cache.CacheService;
 import network.darkhelmet.prism.core.storage.HikariConfigFactory;
 import network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter;
@@ -56,7 +56,7 @@ public class H2StorageAdapter extends AbstractSqlStorageAdapter {
             ConfigurationService configurationService,
             IActionTypeRegistry actionRegistry,
             SqlSchemaUpdater schemaUpdater,
-            ISqlActivityQueryBuilderFactory queryBuilderFactory,
+            IH2ActivityQueryBuilderFactory queryBuilderFactory,
             CacheService cacheService,
             @Named("serializerVersion") short serializerVersion,
             Path dataPath) {
@@ -65,7 +65,7 @@ public class H2StorageAdapter extends AbstractSqlStorageAdapter {
             configurationService,
             actionRegistry,
             schemaUpdater,
-            queryBuilderFactory,
+            null,
             cacheService,
             serializerVersion);
 
@@ -73,6 +73,8 @@ public class H2StorageAdapter extends AbstractSqlStorageAdapter {
             File prismH2File = new File(dataPath.toFile(), configurationService.storageConfig().h2().database());
 
             if (connect(HikariConfigFactory.h2(configurationService.storageConfig(), prismH2File), SQLDialect.H2)) {
+                this.queryBuilder = queryBuilderFactory.create(create);
+
                 prepareSchema();
 
                 ready = true;

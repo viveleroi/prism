@@ -25,6 +25,7 @@ import net.kyori.moonshine.annotation.Placeholder;
 
 import network.darkhelmet.prism.api.PaginatedResults;
 import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.services.purges.PurgeCycleResult;
 import network.darkhelmet.prism.api.services.wands.WandMode;
 import network.darkhelmet.prism.services.translation.TranslationKey;
 
@@ -73,6 +74,15 @@ public interface MessageService {
 
     @Message("preview-cancelled")
     void previewCancelled(CommandSender receiver);
+
+    @Message("purge-complete")
+    void purgeComplete(CommandSender receiver, @Placeholder Integer count);
+
+    @Message("purge-cycle")
+    void purgeCycle(CommandSender receiver, @Placeholder PurgeCycleResult result);
+
+    @Message("purge-starting")
+    void purgeStarting(CommandSender receiver);
 
     @Message("reloaded-config")
     void reloadedConfig(CommandSender receiver);

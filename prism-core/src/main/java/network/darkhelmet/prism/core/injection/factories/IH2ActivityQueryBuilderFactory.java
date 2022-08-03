@@ -18,29 +18,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.api.util;
+package network.darkhelmet.prism.core.injection.factories;
 
-import lombok.Getter;
-import lombok.ToString;
+import network.darkhelmet.prism.core.storage.adapters.h2.H2ActivityQueryBuilder;
 
-@ToString
-public class WorldCoordinate extends Coordinate {
+import org.jooq.DSLContext;
+
+public interface IH2ActivityQueryBuilderFactory {
     /**
-     * The world.
-     */
-    @Getter
-    private final NamedIdentity world;
-
-    /**
-     * Construct a new world coordinate.
+     * Create an sql activity query builder.
      *
-     * @param world The world identity
-     * @param x The x coordinate
-     * @param y The y coordinate
-     * @param z The z coordinate
+     * @param create The dsl context
+     * @return The sql activity query builder
      */
-    public WorldCoordinate(NamedIdentity world, double x, double y, double z) {
-        super(x, y, z);
-        this.world = world;
-    }
+    H2ActivityQueryBuilder create(DSLContext create);
 }

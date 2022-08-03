@@ -18,29 +18,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.api.util;
+package network.darkhelmet.prism.api.services.purges;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.ToString;
 
-@ToString
-public class WorldCoordinate extends Coordinate {
+@Builder
+@Getter
+public class PurgeCycleResult {
     /**
-     * The world.
+     * Number of records deleted this cycle.
      */
-    @Getter
-    private final NamedIdentity world;
+    int deleted;
 
     /**
-     * Construct a new world coordinate.
-     *
-     * @param world The world identity
-     * @param x The x coordinate
-     * @param y The y coordinate
-     * @param z The z coordinate
+     * The upper bound primary key used for this cycle.
      */
-    public WorldCoordinate(NamedIdentity world, double x, double y, double z) {
-        super(x, y, z);
-        this.world = world;
-    }
+    int maxPrimaryKey;
+
+    /**
+     * The lower bound primary key used for this cycle.
+     */
+    int minPrimaryKey;
 }

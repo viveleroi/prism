@@ -38,7 +38,7 @@ public interface IRestoreFactory {
      * @param query The query
      * @param modifications The modifications
      * @param onEnd The on end callback
-     * @return A rollback instance
+     * @return A restore instance
      */
     IRestore create(
         ModificationRuleset modificationRuleset,
