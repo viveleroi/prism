@@ -20,15 +20,14 @@
 
 package network.darkhelmet.prism.services.modifications;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-
-import net.jodah.expiringmap.ExpiringMap;
 
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.activities.IActivity;
@@ -72,10 +71,10 @@ public class ModificationQueueService implements IModificationQueueService {
     /**
      * A cache of recently used queues.
      */
-    Map<Object, ModificationQueueResult> queueResults = ExpiringMap.builder()
-        .maxSize(4)
-        .expiration(5, TimeUnit.MINUTES)
-        .expirationListener((owner, result) -> cancelQueueForOwner(owner))
+    Cache<Object, ModificationQueueResult> queueResults = Caffeine.newBuilder()
+        .expireAfterAccess(5, TimeUnit.MINUTES)
+        .maximumSize(4)
+        .evictionListener((key, value, cause) -> cancelQueueForOwner(key))
         .build();
 
     /**
@@ -103,15 +102,14 @@ public class ModificationQueueService implements IModificationQueueService {
     @Override
     public boolean cancelQueueForOwner(Object owner) {
         if (currentQueue != null && currentQueue.owner().equals(owner)) {
-            if (queueResults.containsKey(owner)) {
-                ModificationQueueResult result = queueResults.get(owner);
-
+            ModificationQueueResult result = queueResults.getIfPresent(owner);
+            if (result != null) {
                 // If queue has a cancellable result, cancel it
                 if (result.queue() instanceof IPreviewable) {
                     cancelPreview(owner, result);
                 }
 
-                queueResults.remove(owner);
+                queueResults.invalidate(owner);
             }
 
             this.currentQueue.destroy();
@@ -233,10 +231,6 @@ public class ModificationQueueService implements IModificationQueueService {
 
     @Override
     public Optional<ModificationQueueResult> queueResultForOwner(Object owner) {
-        if (queueResults.containsKey(owner)) {
-            return Optional.of(queueResults.get(owner));
-        }
-
-        return Optional.empty();
+        return Optional.ofNullable(queueResults.getIfPresent(owner));
     }
 }

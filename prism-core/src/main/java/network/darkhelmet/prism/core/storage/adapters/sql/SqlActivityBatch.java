@@ -223,8 +223,9 @@ public class SqlActivityBatch implements IActivityBatch {
      * @throws SQLException The database exception
      */
     private byte getOrCreateActionId(String actionKey) throws SQLException {
-        if (cacheService.actionKeyPkMap().containsKey(actionKey)) {
-            return cacheService.actionKeyPkMap().getByte(actionKey);
+        Byte actionKeyPk = cacheService.actionKeyPkMap().getIfPresent(actionKey);
+        if (actionKeyPk != null) {
+            return actionKeyPk;
         }
 
         byte primaryKey;
@@ -268,12 +269,16 @@ public class SqlActivityBatch implements IActivityBatch {
      * @throws SQLException The database exception
      */
     private long getOrCreateCauseId(String cause, @Nullable Long playerId) throws SQLException {
-        if (playerId != null && cacheService.playerCausePkMap().containsKey(playerId.longValue())) {
-            return cacheService.playerCausePkMap().get(playerId.longValue());
-        }
-
-        if (cause != null && cacheService.namedCausePkMap().containsKey(cause)) {
-            return cacheService.namedCausePkMap().getLong(cause);
+        if (playerId != null) {
+            Long playerCausePk = cacheService.playerCausePkMap().getIfPresent(playerId);
+            if (playerCausePk != null) {
+                return playerCausePk;
+            }
+        }  else if (cause != null) {
+            Long causePk = cacheService.namedCausePkMap().getIfPresent(cause);
+            if (causePk != null) {
+                return causePk;
+            }
         }
 
         long primaryKey;
@@ -319,7 +324,7 @@ public class SqlActivityBatch implements IActivityBatch {
         }
 
         if (playerId != null) {
-            cacheService.playerCausePkMap().put(playerId.longValue(), primaryKey);
+            cacheService.playerCausePkMap().put(playerId, primaryKey);
         }
 
         return primaryKey;
@@ -333,8 +338,9 @@ public class SqlActivityBatch implements IActivityBatch {
      * @throws SQLException The database exception
      */
     private int getOrCreateEntityTypeId(String entityType) throws SQLException {
-        if (cacheService.entityTypePkMap().containsKey(entityType)) {
-            return cacheService.entityTypePkMap().getInt(entityType);
+        Integer entityPk = cacheService.entityTypePkMap().getIfPresent(entityType);
+        if (entityPk != null) {
+            return entityPk;
         }
 
         int primaryKey;
@@ -378,8 +384,10 @@ public class SqlActivityBatch implements IActivityBatch {
      * @throws SQLException The database exception
      */
     private int getOrCreateMaterialId(String material, String blockData) throws SQLException {
-        if (blockData == null && cacheService.materialPkMap().containsKey(material)) {
-            return cacheService.materialPkMap().getInt(material);
+        String materialData = material + (blockData == null ? "" : blockData);
+        Integer materialPk = cacheService.materialDataPkMap().getIfPresent(materialData);
+        if (materialPk != null) {
+            return materialPk;
         }
 
         int primaryKey;
@@ -410,9 +418,7 @@ public class SqlActivityBatch implements IActivityBatch {
             }
         }
 
-        if (blockData == null) {
-            cacheService.materialPkMap().put(material, primaryKey);
-        }
+        cacheService.materialDataPkMap().put(materialData, primaryKey);
 
         return primaryKey;
     }
@@ -428,8 +434,9 @@ public class SqlActivityBatch implements IActivityBatch {
      * @throws SQLException The database exception
      */
     private long getOrCreatePlayerId(UUID playerUuid, String playerName) throws SQLException {
-        if (cacheService.playerUuidPkMap().containsKey(playerUuid)) {
-            return cacheService.playerUuidPkMap().getLong(playerUuid);
+        Long playerPk = cacheService.playerUuidPkMap().getIfPresent(playerUuid);
+        if (playerPk != null) {
+            return playerPk;
         }
 
         long primaryKey;
@@ -475,8 +482,9 @@ public class SqlActivityBatch implements IActivityBatch {
      * @throws SQLException The database exception
      */
     private byte getOrCreateWorldId(UUID worldUuid, String worldName) throws SQLException {
-        if (cacheService.worldUuidPkMap().containsKey(worldUuid)) {
-            return cacheService.worldUuidPkMap().getByte(worldUuid);
+        Byte worldPk = cacheService.worldUuidPkMap().getIfPresent(worldUuid);
+        if (worldPk != null) {
+            return worldPk;
         }
 
         byte primaryKey;

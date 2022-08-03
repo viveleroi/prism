@@ -497,7 +497,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
 
         for (PrismMaterialsRecord material : materials) {
             int materialId = material.getMaterialId().intValue();
-            cacheService.materialPkMap().put(material.getMaterial(), materialId);
+            cacheService.materialDataPkMap().put(material.getMaterial(), materialId);
         }
 
         // World

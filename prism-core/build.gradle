@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     compileOnly project.property('deps.adventure-api')
-    compileOnly project.property('deps.fastutil')
+    compileOnly project.property('deps.caffeine')
     compileOnly project.property('deps.guice')
     compileOnly project.property('deps.guice-assistedinject')
     compileOnly project.property('deps.h2')

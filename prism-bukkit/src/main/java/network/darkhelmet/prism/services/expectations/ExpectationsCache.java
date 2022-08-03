@@ -20,12 +20,11 @@
 
 package network.darkhelmet.prism.services.expectations;
 
-import java.util.Map;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-
-import net.jodah.expiringmap.ExpirationPolicy;
-import net.jodah.expiringmap.ExpiringMap;
 
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
@@ -38,11 +37,11 @@ public class ExpectationsCache {
     /**
      * Cache expectations and wipe them if our expectations aren't met.
      */
-    Map<Object, Object> expectations = ExpiringMap.builder()
-        .expiration(10, TimeUnit.SECONDS)
-        .expirationPolicy(ExpirationPolicy.CREATED)
-        .expirationListener((key, value) -> {
-            loggingService.debug("Removing object from expectations cache: " + key);
+    Cache<Object, Object> expectations = Caffeine.newBuilder()
+        .expireAfterWrite(10, TimeUnit.SECONDS)
+        .evictionListener((key, value, cause) -> {
+            String msg = "Removing from expectations cache: Key: %s  Value: %s  Cause: %s";
+            loggingService.debug(String.format(msg, key, value, cause));
         })
         .build();
 
@@ -72,7 +71,7 @@ public class ExpectationsCache {
      * @return The cause, if target present
      */
     public Optional<Object> expectation(Object target) {
-        return Optional.ofNullable(expectations.get(target));
+        return Optional.ofNullable(expectations.getIfPresent(target));
     }
 
     /**
@@ -83,7 +82,7 @@ public class ExpectationsCache {
      * @param target The target
      */
     public void metExpectation(Object target) {
-        expectations.remove(target);
+        expectations.invalidate(target);
     }
 }
 

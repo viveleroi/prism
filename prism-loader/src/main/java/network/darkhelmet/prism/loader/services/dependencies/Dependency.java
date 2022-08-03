@@ -155,6 +155,13 @@ public enum Dependency {
         "Hfi5QwtcjtFD14FeQD4z71NxskAKrb6b2giDdi4IRtE=",
         Relocation.of("commons", "org{}apache{}commons")
     ),
+    CAFFEINE(
+        "com.github.ben-manes.caffeine",
+        "caffeine",
+        "3.1.1",
+        "q8BiKm8//GDjSga8zTNLcM+pa3vngk5zQjlERk34zPY=",
+        Relocation.of("caffeine", "com{}github{]ben-manes{}caffeine")
+    ),
     CONFIGURATE_CORE(
         "org.spongepowered",
         "configurate-core",
@@ -184,20 +191,6 @@ public enum Dependency {
         "1.3.0",
         "fQH8JaS7OvDhZiaFRV9FQfv0YmIW6lhG5FXBSR4Va4w=",
         Relocation.of("examination", "net{}kyori{}examination")
-    ),
-    EXPIRINGMAP(
-        "net.jodah",
-        "expiringmap",
-        "0.5.10",
-        "JMR9BW5sKc61kctvVBh2aJUatpWg4U4ZqyWsHZMI8ZQ=",
-        Relocation.of("expiringmap", "net{}jodah{}expiringmap")
-    ),
-    FASTUTIL(
-        "it.unimi.dsi",
-        "fastutil",
-        "8.5.8",
-        "TZ/FeFaB9+NiDCgd4CU5URsFT5k3aXWkK3IiotY6SFg=",
-        Relocation.of("fastutil", "it{}unimi{}dsi{}fastutil")
     ),
     GEANTYREF(
         "io{}leangen{}geantyref",

@@ -98,31 +98,28 @@ public class PlayerQuitListener extends AbstractListener implements Listener {
         // Deactivate any wands
         wandService.deactivateWand(player);
 
-        // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().playerQuit()) {
-            return;
+        if (configurationService.prismConfig().actions().playerQuit()) {
+            // Build the action
+            final IAction action = actionFactory.createAction(ActionTypeRegistry.PLAYER_QUIT);
+
+            // Build the activity
+            final ISingleActivity activity = Activity.builder()
+                .action(action)
+                .location(LocationUtils.locToWorldCoordinate(player.getLocation()))
+                .player(player.getUniqueId(), player.getName())
+                .build();
+
+            recordingService.addToQueue(activity);
         }
 
-        // Build the action
-        final IAction action = actionFactory.createAction(ActionTypeRegistry.PLAYER_QUIT);
-
-        // Build the activity
-        final ISingleActivity activity = Activity.builder()
-            .action(action)
-            .location(LocationUtils.locToWorldCoordinate(player.getLocation()))
-            .player(player.getUniqueId(), player.getName())
-            .build();
-
-        recordingService.addToQueue(activity);
-
         // Remove cached player data
-        if (cacheService.playerUuidPkMap().containsKey(event.getPlayer().getUniqueId())) {
+        Long playerPk = cacheService.playerUuidPkMap().getIfPresent(event.getPlayer().getUniqueId());
+        if (playerPk != null) {
             // Remove player's PK -> cause PK from the cache first
-            long playerId = cacheService.playerUuidPkMap().getLong(event.getPlayer().getUniqueId());
-            cacheService.playerCausePkMap().remove(playerId);
+            cacheService.playerCausePkMap().invalidate(playerPk);
 
             // Remove the player's UUID -> PK from the cache
-            cacheService.playerUuidPkMap().removeLong(event.getPlayer().getUniqueId());
+            cacheService.playerUuidPkMap().invalidate(event.getPlayer().getUniqueId());
         }
     }
 }

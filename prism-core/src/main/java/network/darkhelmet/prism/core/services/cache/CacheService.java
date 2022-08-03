@@ -20,123 +20,119 @@
 
 package network.darkhelmet.prism.core.services.cache;
 
-import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ByteOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.google.inject.Inject;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import lombok.Getter;
+
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
+
+@Getter
 public class CacheService {
     /**
-     * A cache of action keys to primary keys.
-     *
-     * <p>Uses fastutil because these maps may be hit with every activity.</p>
+     * The logging service.
      */
-    private final Object2ByteOpenHashMap<String> actionKeyPkMap = new Object2ByteOpenHashMap<>(100);
+    private LoggingService loggingService;
+
+    /**
+     * A cache of action keys to primary keys.
+     */
+    private final Cache<String, Byte> actionKeyPkMap = Caffeine.newBuilder().maximumSize(100).build();
 
     /**
      * A cache of entity types to primary keys.
-     *
-     * <p>Uses fastutil because these maps may be hit with every activity.</p>
      */
-    private final Object2IntOpenHashMap<String> entityTypePkMap = new Object2IntOpenHashMap<>(100);
+    private final Cache<String, Integer> entityTypePkMap = Caffeine.newBuilder()
+        .maximumSize(200)
+        .evictionListener((key, value, cause) -> {
+            String msg = "Evicting entity type from PK cache: Key: %s, Value: %s, Removal Cause: %s";
+            loggingService.debug(String.format(msg, key, value, cause));
+        })
+        .removalListener((key, value, cause) -> {
+            String msg = "Removing entity type from PK cache: Key: %s, Value: %s, Removal Cause: %s";
+            loggingService.debug(String.format(msg, key, value, cause));
+        })
+        .build();
 
     /**
      * A cache of base materials to primary keys.
-     *
-     * <p>Uses fastutil because these maps may be hit with every activity.</p>
      */
-    private final Object2IntOpenHashMap<String> materialPkMap = new Object2IntOpenHashMap<>();
+    private final Cache<String, Integer> materialDataPkMap = Caffeine.newBuilder()
+        .expireAfterAccess(15, TimeUnit.MINUTES)
+        .maximumSize(5000)
+        .evictionListener((key, value, cause) -> {
+            String msg = "Evicting material data from PK cache: Key: %s, Value: %s, Removal Cause: %s";
+            loggingService.debug(String.format(msg, key, value, cause));
+        })
+        .removalListener((key, value, cause) -> {
+            String msg = "Removing material data from PK cache: Key: %s, Value: %s, Removal Cause: %s";
+            loggingService.debug(String.format(msg, key, value, cause));
+        })
+        .build();
 
     /**
      * A cache of named causes to primary keys.
-     *
-     * <p>Uses fastutil because these maps may be hit with every activity.</p>
      */
-    private final Object2LongOpenHashMap<String> namedCausePkMap = new Object2LongOpenHashMap<>(100);
+    private final Cache<String, Long> namedCausePkMap = Caffeine.newBuilder()
+        .expireAfterAccess(15, TimeUnit.MINUTES)
+        .maximumSize(100)
+        .evictionListener((key, value, cause) -> {
+            String msg = "Evicting named cause from PK cache: Key: %s, Value: %s, Removal Cause: %s";
+            loggingService.debug(String.format(msg, key, value, cause));
+        })
+        .removalListener((key, value, cause) -> {
+            String msg = "Removing named cause from PK cache: Key: %s, Value: %s, Removal Cause: %s";
+            loggingService.debug(String.format(msg, key, value, cause));
+        })
+        .build();
 
     /**
      * A cache of player ids to cause primary keys.
-     *
-     * <p>Uses fastutil because these maps may be hit with every activity.</p>
      */
-    private final Long2LongOpenHashMap playerCausePkMap = new Long2LongOpenHashMap(100);
+    private final Cache<Long, Long> playerCausePkMap = Caffeine.newBuilder()
+        .expireAfterAccess(15, TimeUnit.MINUTES)
+        .maximumSize(200)
+        .evictionListener((key, value, cause) -> {
+            String msg = "Evicting player cause from PK cache: Key: %s, Value: %s, Removal Cause: %s";
+            loggingService.debug(String.format(msg, key, value, cause));
+        })
+        .removalListener((key, value, cause) -> {
+            String msg = "Removing player cause from PK cache: Key: %s, Value: %s, Removal Cause: %s";
+            loggingService.debug(String.format(msg, key, value, cause));
+        })
+        .build();
 
     /**
      * A cache of player uuids to primary keys.
-     *
-     * <p>Uses fastutil because these maps may be hit with every activity.</p>
      */
-    private final Object2LongOpenHashMap<UUID> playerUuidPkMap = new Object2LongOpenHashMap<>(100);
+    private final Cache<UUID, Long> playerUuidPkMap = Caffeine.newBuilder()
+        .maximumSize(200)
+        .evictionListener((key, value, cause) -> {
+            String msg = "Evicting player from PK cache: Key: %s, Value: %s, Removal Cause: %s";
+            loggingService.debug(String.format(msg, key, value, cause));
+        })
+        .removalListener((key, value, cause) -> {
+            String msg = "Removing player from PK cache: Key: %s, Value: %s, Removal Cause: %s";
+            loggingService.debug(String.format(msg, key, value, cause));
+        })
+        .build();
 
     /**
      * A cache of world uuids to primary keys.
-     *
-     * <p>Uses fastutil because these maps may be hit with every activity.</p>
      */
-    private final Object2ByteOpenHashMap<UUID> worldUuidPkMap = new Object2ByteOpenHashMap<>(10);
+    private final Cache<UUID, Byte> worldUuidPkMap = Caffeine.newBuilder().maximumSize(10).build();
 
     /**
-     * Get the action key/primary key cache.
+     * Constructor.
      *
-     * @return The action key/primary key cache
+     * @param loggingService The logging service
      */
-    public Object2ByteOpenHashMap<String> actionKeyPkMap() {
-        return actionKeyPkMap;
-    }
-
-    /**
-     * Get the entity type/primary key cache.
-     *
-     * @return The entity type/primary key cache
-     */
-    public Object2IntOpenHashMap<String> entityTypePkMap() {
-        return entityTypePkMap;
-    }
-
-    /**
-     * Get the material/primary key cache.
-     *
-     * @return The material/primary key cache
-     */
-    public Object2IntOpenHashMap<String> materialPkMap() {
-        return materialPkMap;
-    }
-
-    /**
-     * Get the named cause/primary key cache.
-     *
-     * @return The named cause/primary key cache
-     */
-    public Object2LongOpenHashMap<String> namedCausePkMap() {
-        return namedCausePkMap;
-    }
-
-    /**
-     * Get the player pk cause/primary key cache.
-     *
-     * @return The player pk cause/primary key cache
-     */
-    public Long2LongOpenHashMap playerCausePkMap() {
-        return playerCausePkMap;
-    }
-
-    /**
-     * Get the player uuid/primary key cache.
-     *
-     * @return The player uuid/primary key cache
-     */
-    public Object2LongOpenHashMap<UUID> playerUuidPkMap() {
-        return playerUuidPkMap;
-    }
-
-    /**
-     * Get the world uuid/primary key cache.
-     *
-     * @return The world uuid/primary key cache
-     */
-    public Object2ByteOpenHashMap<UUID> worldUuidPkMap() {
-        return worldUuidPkMap;
+    @Inject
+    public CacheService(LoggingService loggingService) {
+        this.loggingService = loggingService;
     }
 }
