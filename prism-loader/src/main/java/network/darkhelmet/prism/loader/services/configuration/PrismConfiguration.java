@@ -37,6 +37,12 @@ public class PrismConfiguration {
         + "Disabling any here will completely prevent prism from recording them.")
     private ActionsConfiguration actions = new ActionsConfiguration();
 
+    @Comment("""
+            Configure how Prism caches data. Probably best to leave
+            these settings alone unless you have specific reasons to change them.
+            """)
+    private CacheConfiguration cacheConfiguration = new CacheConfiguration();
+
     @Comment("Enable plugin debug mode. Produces extra logging to help diagnose issues.")
     private boolean debug = false;
 
@@ -56,9 +62,4 @@ public class PrismConfiguration {
 
     @Comment("Limits how many results are shown \"per page\" when doing lookups.")
     private int perPage = 5;
-
-    @Comment("Lookup queries are cached so that they can be re-used or paginated.\n"
-        + "This value (duration in ticks, default = 5 minutes) determines how\n"
-        + "long they're held in memory before being discarded.")
-    private long lookupExpiration = 5 * 60 * 20;
 }

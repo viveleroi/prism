@@ -145,7 +145,7 @@ public class LookupService {
             tasks.remove(sender).cancel();
         }
 
-        final long expireAfter = configurationService.prismConfig().lookupExpiration();
+        final long expireAfter = configurationService.prismConfig().cacheConfiguration().lookupExpiration();
         taskChainProvider.newChain().async(() -> {
             try {
                 show(sender, storageAdapter.queryActivitiesPaginated(query));
