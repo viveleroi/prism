@@ -21,6 +21,7 @@
 package network.darkhelmet.prism.services.expectations;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,7 @@ import java.util.Map;
 import network.darkhelmet.prism.api.services.expectations.ExpectationType;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
+@Singleton
 public class ExpectationService {
     /**
      * Cache of expectation types and their caches.

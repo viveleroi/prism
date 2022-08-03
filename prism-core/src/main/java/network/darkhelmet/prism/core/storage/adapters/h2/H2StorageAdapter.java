@@ -21,6 +21,7 @@
 package network.darkhelmet.prism.core.storage.adapters.h2;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 import java.io.File;
@@ -37,6 +38,7 @@ import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 import org.jooq.SQLDialect;
 
+@Singleton
 public class H2StorageAdapter extends AbstractSqlStorageAdapter {
     /**
      * Constructor.

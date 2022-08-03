@@ -23,6 +23,7 @@ package network.darkhelmet.prism.services.modifications;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import java.util.Iterator;
 import java.util.List;
@@ -48,6 +49,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+@Singleton
 public class ModificationQueueService implements IModificationQueueService {
     /**
      * The message service.

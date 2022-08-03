@@ -23,6 +23,7 @@ package network.darkhelmet.prism.core.services.cache;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import java.util.UUID;
 
@@ -33,6 +34,7 @@ import network.darkhelmet.prism.loader.services.configuration.cache.CacheConfigu
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 @Getter
+@Singleton
 public class CacheService {
     /**
      * A cache of action keys to primary keys.

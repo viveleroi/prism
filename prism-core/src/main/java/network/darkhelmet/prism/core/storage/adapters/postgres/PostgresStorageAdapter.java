@@ -21,6 +21,7 @@
 package network.darkhelmet.prism.core.storage.adapters.postgres;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.zaxxer.hikari.HikariConfig;
 
@@ -38,6 +39,7 @@ import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 import org.jooq.SQLDialect;
 
+@Singleton
 public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
     /**
      * Constructor.

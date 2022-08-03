@@ -21,6 +21,7 @@
 package network.darkhelmet.prism.services.messages.resolvers;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -43,6 +44,7 @@ import org.bukkit.command.CommandSender;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public class ActivityPlaceholderResolver implements IPlaceholderResolver<CommandSender, IActivity, Component> {
     /**
      * The translation service.

@@ -20,10 +20,13 @@
 
 package network.darkhelmet.prism.actions.types;
 
+import com.google.inject.Singleton;
+
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.core.actions.types.AbstractActionTypeRegistry;
 
+@Singleton
 public class ActionTypeRegistry extends AbstractActionTypeRegistry {
     /**
      * Static cache of action types.

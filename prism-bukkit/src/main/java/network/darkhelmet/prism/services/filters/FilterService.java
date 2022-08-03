@@ -21,6 +21,7 @@
 package network.darkhelmet.prism.services.filters;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 
+@Singleton
 public class FilterService implements IFilterService {
     /**
      * The logging service.

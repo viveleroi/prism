@@ -23,6 +23,7 @@ package network.darkhelmet.prism.services.lookup;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import java.util.Optional;
 
@@ -46,6 +47,7 @@ import network.darkhelmet.prism.services.translation.TranslationService;
 
 import org.bukkit.command.CommandSender;
 
+@Singleton
 public class LookupService {
     /**
      * The message service.

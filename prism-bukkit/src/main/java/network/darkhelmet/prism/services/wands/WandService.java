@@ -22,6 +22,7 @@ package network.darkhelmet.prism.services.wands;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +34,7 @@ import network.darkhelmet.prism.services.messages.MessageService;
 
 import org.bukkit.entity.Player;
 
+@Singleton
 public class WandService {
     /**
      * Cache all players with active wands.

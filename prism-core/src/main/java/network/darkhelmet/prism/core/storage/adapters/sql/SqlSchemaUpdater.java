@@ -21,10 +21,12 @@
 package network.darkhelmet.prism.core.storage.adapters.sql;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import network.darkhelmet.prism.api.providers.IWorldIdentityProvider;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
+@Singleton
 public class SqlSchemaUpdater {
     /**
      * The logger.

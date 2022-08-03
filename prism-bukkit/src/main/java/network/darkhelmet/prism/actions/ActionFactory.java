@@ -21,6 +21,7 @@
 package network.darkhelmet.prism.actions;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import java.util.Optional;
 
@@ -40,6 +41,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
+@Singleton
 public class ActionFactory implements IActionFactory<BlockState, Entity, ItemStack> {
     /**
      * The action type registry.

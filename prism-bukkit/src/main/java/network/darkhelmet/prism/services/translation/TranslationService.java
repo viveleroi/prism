@@ -21,6 +21,7 @@
 package network.darkhelmet.prism.services.translation;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +54,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
+@Singleton
 public class TranslationService implements IMessageSource<CommandSender, String> {
     /**
      * The default locale.

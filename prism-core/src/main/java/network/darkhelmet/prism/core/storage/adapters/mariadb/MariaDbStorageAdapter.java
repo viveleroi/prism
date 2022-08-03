@@ -21,6 +21,7 @@
 package network.darkhelmet.prism.core.storage.adapters.mariadb;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.zaxxer.hikari.HikariConfig;
 
@@ -47,6 +48,7 @@ import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import org.intellij.lang.annotations.Language;
 import org.jooq.SQLDialect;
 
+@Singleton
 public class MariaDbStorageAdapter extends AbstractSqlStorageAdapter {
     /**
      * Constructor.

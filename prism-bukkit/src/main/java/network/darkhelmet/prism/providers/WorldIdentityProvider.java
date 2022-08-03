@@ -20,6 +20,8 @@
 
 package network.darkhelmet.prism.providers;
 
+import com.google.inject.Singleton;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +32,7 @@ import network.darkhelmet.prism.api.util.NamedIdentity;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
+@Singleton
 public class WorldIdentityProvider implements IWorldIdentityProvider {
     @Override
     public Collection<NamedIdentity> worlds() {

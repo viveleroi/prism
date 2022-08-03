@@ -21,6 +21,7 @@
 package network.darkhelmet.prism.services.recording;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -32,6 +33,7 @@ import network.darkhelmet.prism.services.filters.FilterService;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
+@Singleton
 public class RecordingService implements IRecordingService {
     /**
      * The filter service.
