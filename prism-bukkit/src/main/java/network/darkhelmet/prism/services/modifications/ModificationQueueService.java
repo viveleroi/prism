@@ -41,6 +41,7 @@ import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.core.injection.factories.IRestoreFactory;
 import network.darkhelmet.prism.core.injection.factories.IRollbackFactory;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.modifications.state.BlockStateChange;
 
@@ -74,27 +75,38 @@ public class ModificationQueueService implements IModificationQueueService {
     /**
      * A cache of recently used queues.
      */
-    Cache<Object, ModificationQueueResult> queueResults = Caffeine.newBuilder()
-        .expireAfterAccess(5, TimeUnit.MINUTES)
-        .maximumSize(4)
-        .evictionListener((key, value, cause) -> cancelQueueForOwner(key))
-        .build();
+    private final Cache<Object, ModificationQueueResult> queueResults;
 
     /**
      * Constructor.
      *
+     * @param loggingService The logging service
      * @param messageService The message service
      * @param restoreFactory The restore factory
      * @param rollbackFactory The rollback factory.
      */
     @Inject
     public ModificationQueueService(
-        MessageService messageService,
-        IRestoreFactory restoreFactory,
-        IRollbackFactory rollbackFactory) {
+            LoggingService loggingService,
+            MessageService messageService,
+            IRestoreFactory restoreFactory,
+            IRollbackFactory rollbackFactory) {
         this.messageService = messageService;
         this.restoreFactory = restoreFactory;
         this.rollbackFactory = rollbackFactory;
+
+        queueResults = Caffeine.newBuilder()
+            .expireAfterAccess(10, TimeUnit.MINUTES)
+            .maximumSize(4)
+            .evictionListener((key, value, cause) -> {
+                String msg = "Evicting queue result cache: Key: %s, Value: %s, Removal Cause: %s";
+                loggingService.debug(String.format(msg, key, value, cause));
+            })
+            .removalListener((key, value, cause) -> {
+                String msg = "Removing queue result cache: Key: %s, Value: %s, Removal Cause: %s";
+                loggingService.debug(String.format(msg, key, value, cause));
+            })
+            .build();
     }
 
     @Override
@@ -105,16 +117,6 @@ public class ModificationQueueService implements IModificationQueueService {
     @Override
     public boolean cancelQueueForOwner(Object owner) {
         if (currentQueue != null && currentQueue.owner().equals(owner)) {
-            ModificationQueueResult result = queueResults.getIfPresent(owner);
-            if (result != null) {
-                // If queue has a cancellable result, cancel it
-                if (result.queue() instanceof IPreviewable) {
-                    cancelPreview(owner, result);
-                }
-
-                queueResults.invalidate(owner);
-            }
-
             this.currentQueue.destroy();
             this.currentQueue = null;
 
@@ -122,6 +124,21 @@ public class ModificationQueueService implements IModificationQueueService {
         }
 
         return false;
+    }
+
+    @Override
+    public void clearEverythingForOwner(Object owner) {
+        cancelQueueForOwner(owner);
+
+        ModificationQueueResult result = queueResults.getIfPresent(owner);
+        if (result != null) {
+            // If queue has a cancellable result, cancel it
+            if (result.queue() instanceof IPreviewable) {
+                cancelPreview(owner, result);
+            }
+
+            queueResults.invalidate(owner);
+        }
     }
 
     /**
@@ -191,8 +208,8 @@ public class ModificationQueueService implements IModificationQueueService {
             throw new IllegalStateException("No queue available until current queue finished.");
         }
 
-        // Cancel any cached queues
-        cancelQueueForOwner(owner);
+        // Cancel any existing queues/results
+        clearEverythingForOwner(owner);
 
         this.currentQueue = rollbackFactory.create(modificationRuleset, owner, query, modifications, this::onEnd);
 
@@ -209,8 +226,8 @@ public class ModificationQueueService implements IModificationQueueService {
             throw new IllegalStateException("No queue available until current queue finished.");
         }
 
-        // Cancel any cached queues
-        cancelQueueForOwner(owner);
+        // Cancel any existing queues/results
+        clearEverythingForOwner(owner);
 
         this.currentQueue = restoreFactory.create(modificationRuleset, owner, query, modifications, this::onEnd);
 
@@ -230,7 +247,7 @@ public class ModificationQueueService implements IModificationQueueService {
             if (currentQueue.owner() instanceof CommandSender sender) {
                 messageService.modificationsAppliedSuccess(sender);
                 messageService.modificationsApplied(sender, result.applied());
-                messageService.modificationsSkipped(sender, result.skipped());
+                messageService.modificationsSkipped(sender, result);
 
                 if (result.removedBlocks() > 0) {
                     messageService.modificationsRemovedBlocks(sender, result.removedBlocks());
@@ -242,8 +259,7 @@ public class ModificationQueueService implements IModificationQueueService {
             }
 
             // Clear and destroy the queue if completing
-            this.currentQueue.destroy();
-            this.currentQueue = null;
+            cancelQueueForOwner(currentQueue.owner());
         } else if (result.mode().equals(ModificationQueueMode.PLANNING)) {
             // Message the user with results
             if (currentQueue.owner() instanceof CommandSender sender) {

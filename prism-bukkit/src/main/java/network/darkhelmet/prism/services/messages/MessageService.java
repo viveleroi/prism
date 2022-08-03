@@ -25,6 +25,7 @@ import net.kyori.moonshine.annotation.Placeholder;
 
 import network.darkhelmet.prism.api.PaginatedResults;
 import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
 import network.darkhelmet.prism.api.services.purges.PurgeCycleResult;
 import network.darkhelmet.prism.api.services.wands.WandMode;
 
@@ -107,6 +108,9 @@ public interface MessageService {
     @Message("rich.error.queue-not-free")
     void errorQueueNotFree(CommandSender receiver);
 
+    @Message("rich.error.queue-result-missing")
+    void errorQueueResultMissing(CommandSender receiver);
+
     @Message("rich.error.query-exec")
     void errorQueryExec(CommandSender receiver);
 
@@ -137,8 +141,15 @@ public interface MessageService {
     @Message("rich.modifications-removed-drops")
     void modificationsRemovedDrops(CommandSender receiver, @Placeholder Integer count);
 
+    @Message("rich.modifications-report-skipped-header")
+    void modificationsReportSkippedHeader(CommandSender receiver);
+
+    @Message("rich.modifications-report-skipped-activity")
+    void modificationsReportSkippedActivity(
+        CommandSender receiver, @Placeholder IActivity activity, @Placeholder String skipreason);
+
     @Message("rich.modifications-skipped")
-    void modificationsSkipped(CommandSender receiver, @Placeholder Integer count);
+    void modificationsSkipped(CommandSender receiver, @Placeholder ModificationQueueResult result);
 
     @Message("rich.modifications-applied-success")
     void modificationsAppliedSuccess(CommandSender receiver);

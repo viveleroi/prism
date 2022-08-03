@@ -47,6 +47,7 @@ import network.darkhelmet.prism.api.providers.IWorldIdentityProvider;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
 import network.darkhelmet.prism.api.services.modifications.IRestore;
 import network.darkhelmet.prism.api.services.modifications.IRollback;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
 import network.darkhelmet.prism.api.services.purges.IPurgeQueue;
 import network.darkhelmet.prism.api.services.purges.PurgeCycleResult;
 import network.darkhelmet.prism.api.services.recording.IRecordingService;
@@ -83,6 +84,7 @@ import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.messages.ReceiverResolver;
 import network.darkhelmet.prism.services.messages.resolvers.ActivityPlaceholderResolver;
 import network.darkhelmet.prism.services.messages.resolvers.IntegerPlaceholderResolver;
+import network.darkhelmet.prism.services.messages.resolvers.ModificationQueueResultPlaceholderResolver;
 import network.darkhelmet.prism.services.messages.resolvers.PaginatedResultsPlaceholderResolver;
 import network.darkhelmet.prism.services.messages.resolvers.PurgeCycleResultPlaceholderResolver;
 import network.darkhelmet.prism.services.messages.resolvers.StringPlaceholderResolver;
@@ -187,6 +189,7 @@ public class PrismModule extends AbstractModule {
             MessageRenderer messageRenderer,
             MessageSender messageSender,
             ActivityPlaceholderResolver activityPlaceholderResolver,
+            ModificationQueueResultPlaceholderResolver modificationQueueResultPlaceholderResolver,
             WandModePlaceholderResolver wandModePlaceholderResolver) {
         try {
             return Moonshine.<MessageService, CommandSender>builder(
@@ -202,6 +205,8 @@ public class PrismModule extends AbstractModule {
                 .weightedPlaceholderResolver(PurgeCycleResult.class, new PurgeCycleResultPlaceholderResolver(), 0)
                 .weightedPlaceholderResolver(IActivity.class, activityPlaceholderResolver, 0)
                 .weightedPlaceholderResolver(WandMode.class, wandModePlaceholderResolver, 0)
+                .weightedPlaceholderResolver(
+                    ModificationQueueResult.class, modificationQueueResultPlaceholderResolver, 0)
                 .weightedPlaceholderResolver(new TypeToken<>(){}, new PaginatedResultsPlaceholderResolver(), 0)
                 .create(this.getClass().getClassLoader());
         } catch (UnscannableMethodException e) {

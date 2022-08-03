@@ -94,7 +94,7 @@ public class PlayerQuitListener extends AbstractListener implements Listener {
         final Player player = event.getPlayer();
 
         // Cancel any modification queues for this player
-        modificationQueueService.cancelQueueForOwner(player);
+        modificationQueueService.clearEverythingForOwner(player);
 
         // Deactivate any wands
         wandService.deactivateWand(player);

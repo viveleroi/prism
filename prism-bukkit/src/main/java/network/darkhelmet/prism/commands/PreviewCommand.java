@@ -160,7 +160,7 @@ public class PreviewCommand {
             return;
         }
 
-        modificationQueueService.cancelQueueForOwner(player);
+        modificationQueueService.clearEverythingForOwner(player);
 
         messageService.previewCancelled(player);
     }

@@ -46,6 +46,12 @@ public final class ModificationResult {
     @Builder.Default
     private final ModificationResultStatus status = ModificationResultStatus.SKIPPED;
 
+    /**
+     * The reason for a skip. Unused if status != SKIPPED.
+     */
+    @Builder.Default
+    private final ModificationSkipReason skipReason = ModificationSkipReason.NOT_IMPLEMENTED;
+
     public static class ModificationResultBuilder {
         /**
          * Set the status to APPLIED.

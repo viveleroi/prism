@@ -33,6 +33,7 @@ import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
+import network.darkhelmet.prism.api.services.modifications.ModificationSkipReason;
 import network.darkhelmet.prism.api.services.modifications.StateChange;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.services.modifications.state.BlockStateChange;
@@ -207,11 +208,13 @@ public class BlockAction extends MaterialAction implements IBlockAction {
             ModificationQueueMode mode) {
         // Skip if either material is in the blacklist
         if (modificationRuleset.blockBlacklistContainsAny(material.toString())) {
-            return ModificationResult.builder().activity(activityContext).build();
+            return ModificationResult.builder()
+                .activity(activityContext).skipReason(ModificationSkipReason.BLACKLISTED).build();
         }
 
         if (replacedMaterial != null && modificationRuleset.blockBlacklistContainsAny(replacedMaterial.toString())) {
-            return ModificationResult.builder().activity(activityContext).build();
+            return ModificationResult.builder()
+                .activity(activityContext).skipReason(ModificationSkipReason.BLACKLISTED).build();
         }
 
         StateChange<BlockState> stateChange = null;
@@ -236,11 +239,13 @@ public class BlockAction extends MaterialAction implements IBlockAction {
             ModificationQueueMode mode) {
         // Skip if either material is in the blacklist
         if (modificationRuleset.blockBlacklistContainsAny(material.toString())) {
-            return ModificationResult.builder().activity(activityContext).build();
+            return ModificationResult.builder()
+                .activity(activityContext).skipReason(ModificationSkipReason.BLACKLISTED).build();
         }
 
         if (replacedMaterial != null && modificationRuleset.blockBlacklistContainsAny(replacedMaterial.toString())) {
-            return ModificationResult.builder().activity(activityContext).build();
+            return ModificationResult.builder()
+                .activity(activityContext).skipReason(ModificationSkipReason.BLACKLISTED).build();
         }
 
         StateChange<BlockState> stateChange = null;

@@ -81,6 +81,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         final Method method,
         final @Nullable Object[] parameters
     ) {
+        Component action = Component.text(value.action().type().key());
         Component actionPastTense = actionPastTense(receiver, value.action().type());
         Component cause = cause(receiver, value.cause(), value.player());
         Component since = since(receiver, value.timestamp());
@@ -106,8 +107,8 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
                 translationService.messageOf(receiver, "text.sign-plus"));
         }
 
-        return Map.of(placeholderName + "_action_past_tense",
-            Either.left(ConclusionValue.conclusionValue(actionPastTense)),
+        return Map.of(placeholderName + "_action", Either.left(ConclusionValue.conclusionValue(action)),
+            placeholderName + "_action_past_tense", Either.left(ConclusionValue.conclusionValue(actionPastTense)),
             placeholderName + "_id", Either.left(ConclusionValue.conclusionValue(activityId)),
             placeholderName + "_cause", Either.left(ConclusionValue.conclusionValue(cause)),
             placeholderName + "_count", Either.left(ConclusionValue.conclusionValue(count)),
