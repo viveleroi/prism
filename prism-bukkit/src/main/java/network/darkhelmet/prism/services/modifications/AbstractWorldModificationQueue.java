@@ -166,9 +166,9 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                 BoundingBox boundingBox = new BoundingBox(x1, y1, z1, x2, y2, z2);
 
                 World world = Bukkit.getWorld(query.worldUuid());
-                int removedCount = EntityUtils.removeDropsInRange(world, boundingBox);
+                int count = EntityUtils.removeDropsInRange(world, boundingBox);
 
-                builder.removedDrops(removedCount);
+                builder.removedDrops(count);
             }
 
             if (!modificationRuleset.removeBlocks().isEmpty()
@@ -187,9 +187,9 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                     Material.valueOf(m.toUpperCase())).toList();
 
                 World world = Bukkit.getWorld(query.worldUuid());
-                BlockUtils.removeBlocksByMaterial(world, boundingBox, materials);
+                int count = BlockUtils.removeBlocksByMaterial(world, boundingBox, materials).size();
 
-                builder.removedBlocks(materials.size());
+                builder.removedBlocks(count);
             }
         }
     }

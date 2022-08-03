@@ -40,18 +40,19 @@ import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.core.injection.factories.IRestoreFactory;
 import network.darkhelmet.prism.core.injection.factories.IRollbackFactory;
-import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.modifications.state.BlockStateChange;
 
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class ModificationQueueService implements IModificationQueueService {
     /**
-     * The configuration service.
+     * The message service.
      */
-    private final ConfigurationService configurationService;
+    private final MessageService messageService;
 
     /**
      * Cache the current queue, if any.
@@ -80,16 +81,16 @@ public class ModificationQueueService implements IModificationQueueService {
     /**
      * Constructor.
      *
-     * @param configurationService The configuration service
+     * @param messageService The message service
      * @param restoreFactory The restore factory
      * @param rollbackFactory The rollback factory.
      */
     @Inject
     public ModificationQueueService(
-        ConfigurationService configurationService,
+        MessageService messageService,
         IRestoreFactory restoreFactory,
         IRollbackFactory rollbackFactory) {
-        this.configurationService = configurationService;
+        this.messageService = messageService;
         this.restoreFactory = restoreFactory;
         this.rollbackFactory = rollbackFactory;
     }
@@ -222,10 +223,30 @@ public class ModificationQueueService implements IModificationQueueService {
     protected void onEnd(ModificationQueueResult result) {
         queueResults.put(currentQueue.owner(), result);
 
-        // Clear and destroy the queue if completing
         if (result.mode().equals(ModificationQueueMode.COMPLETING)) {
+            // Message the user with results
+            if (currentQueue.owner() instanceof CommandSender sender) {
+                messageService.modificationsSuccess(sender);
+                messageService.modificationsApplied(sender, result.applied());
+                messageService.modificationsSkipped(sender, result.skipped());
+
+                if (result.removedBlocks() > 0) {
+                    messageService.modificationsRemovedBlocks(sender, result.removedBlocks());
+                }
+
+                if (result.removedDrops() > 0) {
+                    messageService.modificationsRemovedDrops(sender, result.removedDrops());
+                }
+            }
+
+            // Clear and destroy the queue if completing
             this.currentQueue.destroy();
             this.currentQueue = null;
+        } else if (result.mode().equals(ModificationQueueMode.PLANNING)) {
+            // Message the user with results
+            if (currentQueue.owner() instanceof CommandSender sender) {
+                messageService.modificationsPlanned(sender, result.planned());
+            }
         }
     }
 

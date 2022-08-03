@@ -41,11 +41,29 @@ public interface MessageService {
     @Message("activity-row")
     void listActivityRow(CommandSender receiver, @Placeholder IActivity activity);
 
-    @Message("pagination-header")
-    void paginationHeader(CommandSender receiver, @Placeholder PaginatedResults<?> pagination);
+    @Message("modifications-applied")
+    void modificationsApplied(CommandSender receiver, @Placeholder Integer count);
+
+    @Message("modifications-planned")
+    void modificationsPlanned(CommandSender receiver, @Placeholder Integer count);
+
+    @Message("modifications-removed-blocks")
+    void modificationsRemovedBlocks(CommandSender receiver, @Placeholder Integer count);
+
+    @Message("modifications-removed-drops")
+    void modificationsRemovedDrops(CommandSender receiver, @Placeholder Integer count);
+
+    @Message("modifications-skipped")
+    void modificationsSkipped(CommandSender receiver, @Placeholder Integer count);
+
+    @Message("modifications-success")
+    void modificationsSuccess(CommandSender receiver);
 
     @Message("no-results")
     void noResults(CommandSender receiver);
+
+    @Message("pagination-header")
+    void paginationHeader(CommandSender receiver, @Placeholder PaginatedResults<?> pagination);
 
     @Message("preview-applied")
     void previewApplied(CommandSender receiver);
@@ -61,6 +79,9 @@ public interface MessageService {
 
     @Message("removed-blocks")
     void removedBlocks(CommandSender receiver, @Placeholder Integer count);
+
+    @Message("removed-drops")
+    void removedDrops(CommandSender receiver, @Placeholder Integer count);
 
     @Message("wand-activated")
     void wandActivated(Player player, @Placeholder WandMode wandmode);
