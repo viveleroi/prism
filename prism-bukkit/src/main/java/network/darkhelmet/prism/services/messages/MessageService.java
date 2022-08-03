@@ -44,9 +44,6 @@ public interface MessageService {
     @Message("modifications-applied")
     void modificationsApplied(CommandSender receiver, @Placeholder Integer count);
 
-    @Message("modifications-planned")
-    void modificationsPlanned(CommandSender receiver, @Placeholder Integer count);
-
     @Message("modifications-removed-blocks")
     void modificationsRemovedBlocks(CommandSender receiver, @Placeholder Integer count);
 
@@ -56,8 +53,11 @@ public interface MessageService {
     @Message("modifications-skipped")
     void modificationsSkipped(CommandSender receiver, @Placeholder Integer count);
 
-    @Message("modifications-success")
-    void modificationsSuccess(CommandSender receiver);
+    @Message("modifications-applied-success")
+    void modificationsAppliedSuccess(CommandSender receiver);
+
+    @Message("modifications-planned-success")
+    void modificationsAppliedSuccess(CommandSender receiver, @Placeholder Integer count);
 
     @Message("no-results")
     void noResults(CommandSender receiver);

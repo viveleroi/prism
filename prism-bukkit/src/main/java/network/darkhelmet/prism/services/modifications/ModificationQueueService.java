@@ -228,7 +228,7 @@ public class ModificationQueueService implements IModificationQueueService {
         if (result.mode().equals(ModificationQueueMode.COMPLETING)) {
             // Message the user with results
             if (currentQueue.owner() instanceof CommandSender sender) {
-                messageService.modificationsSuccess(sender);
+                messageService.modificationsAppliedSuccess(sender);
                 messageService.modificationsApplied(sender, result.applied());
                 messageService.modificationsSkipped(sender, result.skipped());
 
@@ -247,7 +247,7 @@ public class ModificationQueueService implements IModificationQueueService {
         } else if (result.mode().equals(ModificationQueueMode.PLANNING)) {
             // Message the user with results
             if (currentQueue.owner() instanceof CommandSender sender) {
-                messageService.modificationsPlanned(sender, result.planned());
+                messageService.modificationsAppliedSuccess(sender, result.planned());
             }
         }
     }
