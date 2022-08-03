@@ -41,6 +41,9 @@ public interface MessageService {
     @Message("activity-row")
     void listActivityRow(CommandSender receiver, @Placeholder IActivity activity);
 
+    @Message("activity-row-no-content")
+    void listActivityRowNoContent(CommandSender receiver, @Placeholder IActivity activity);
+
     @Message("modifications-applied")
     void modificationsApplied(CommandSender receiver, @Placeholder Integer count);
 

@@ -170,7 +170,12 @@ public class LookupService {
             messageService.noResults(sender);
         } else {
             for (IActivity activity : results.results()) {
-                messageService.listActivityRow(sender, activity);
+                System.out.println(activity.action().descriptor());
+                if (activity.action().descriptor() != null) {
+                    messageService.listActivityRow(sender, activity);
+                } else {
+                    messageService.listActivityRowNoContent(sender, activity);
+                }
             }
 
             if (results.hasPrevPage() || results.hasNextPage()) {
