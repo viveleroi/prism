@@ -86,5 +86,27 @@ public final class ModificationResult {
             status(ModificationResultStatus.SKIPPED);
             return this;
         }
+
+        /**
+         * Set the status based on the mode.
+         *
+         * <p>Planning mode = Planned status
+         * Completing mode = Applied status
+         * Undecided mode = Skipped status</p>
+         *
+         * @param mode The mode
+         * @return The builder
+         */
+        public ModificationResultBuilder statusFromMode(ModificationQueueMode mode) {
+            if (mode.equals(ModificationQueueMode.PLANNING)) {
+                planned();
+            } else if (mode.equals(ModificationQueueMode.COMPLETING)) {
+                applied();
+            } else {
+                skipped();
+            }
+
+            return this;
+        }
     }
 }

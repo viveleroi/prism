@@ -185,7 +185,8 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
                 activityContext.location(), replacedBlockData, null, owner, mode);
         }
 
-        return ModificationResult.builder().activity(activityContext).applied().stateChange(stateChange).build();
+        return ModificationResult.builder()
+            .activity(activityContext).statusFromMode(mode).stateChange(stateChange).build();
     }
 
     @Override
@@ -213,7 +214,8 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
                 activityContext.location(), replacedBlockData, null, owner, mode);
         }
 
-        return ModificationResult.builder().activity(activityContext).applied().stateChange(stateChange).build();
+        return ModificationResult.builder()
+            .activity(activityContext).statusFromMode(mode).stateChange(stateChange).build();
     }
 
     /**
