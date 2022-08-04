@@ -148,13 +148,6 @@ public enum Dependency {
         "Ct3sZw/tzT8RPFyAkdeDKA0j9146y4QbYanNsHk3agg=",
         Relocation.of("aopalliance", "org{}aopalliance")
     ),
-    APACHE_COLLECTIONS(
-        "org{}apache{}commons",
-        "commons-collections4",
-        "4.4",
-        "Hfi5QwtcjtFD14FeQD4z71NxskAKrb6b2giDdi4IRtE=",
-        Relocation.of("commons", "org{}apache{}commons")
-    ),
     CAFFEINE(
         "com.github.ben-manes.caffeine",
         "caffeine",

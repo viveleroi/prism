@@ -27,8 +27,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.collections4.iterators.IteratorEnumeration;
-
 /**
  * A drop-in replacement for {@link Properties} for sorting keys.
  *

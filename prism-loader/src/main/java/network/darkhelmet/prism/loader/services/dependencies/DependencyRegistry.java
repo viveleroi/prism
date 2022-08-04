@@ -87,7 +87,6 @@ public class DependencyRegistry {
             Dependency.ADVENTURE_SERIALIZER_LEGACY,
             Dependency.ADVENTURE_SERIALIZER_PLAIN,
             Dependency.AOPALLIANCE,
-            Dependency.APACHE_COLLECTIONS,
             Dependency.CAFFEINE,
             Dependency.CONFIGURATE_CORE,
             Dependency.CONFIGURATE_HOCON,

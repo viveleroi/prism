@@ -8,7 +8,6 @@ dependencies {
     compileOnly project.property('deps.adventure-bukkit')
     compileOnly project.property('deps.adventure-minimessage')
     compileOnly project.property('deps.adventure-plain')
-    compileOnly project.property('deps.apache-commons-collections')
     compileOnly project.property('deps.caffeine')
     compileOnly project.property('deps.configurate-hocon')
     compileOnly project.property('deps.guice')
@@ -54,7 +53,6 @@ shadowJar {
     relocate 'net.kyori.adventure', 'network.darkhelmet.prism.libs.adventure'
     relocate 'net.kyori.moonshine', 'network.darkhelmet.prism.libs.moonshine'
     relocate 'org.aopalliance', 'network.darkhelmet.prism.libs.aopalliance'
-    relocate 'org.apache.commons', 'network.darkhelmet.prism.libs.commons'
     relocate 'org.jooq', 'network.darkhelmet.prism.libs.jooq'
     relocate 'org.mariadb', 'network.darkhelmet.prism.libs.mariadb'
     relocate 'org.postgresql', 'network.darkhelmet.prism.libs.postgresql'
