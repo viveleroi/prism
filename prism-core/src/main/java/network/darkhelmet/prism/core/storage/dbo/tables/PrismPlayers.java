@@ -76,7 +76,7 @@ public class PrismPlayers extends TableImpl<PrismPlayersRecord> {
      */
     public final TableField<PrismPlayersRecord, String> PLAYER = createField(
         DSL.name("player"),
-        SQLDataType.VARCHAR(16).nullable(false),
+        SQLDataType.VARCHAR(32).nullable(false),
         this,
         "");
 
