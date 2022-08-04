@@ -131,17 +131,35 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         if (player != null) {
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.uuid());
 
+            Component playerHeading = MiniMessage.miniMessage().deserialize(
+                translationService.messageOf(receiver, "player-hover-header"));
+
+            Component uuid = MiniMessage.miniMessage().deserialize(
+                translationService.messageOf(receiver, "player-hover-uuid"));
+
+            Component online = MiniMessage.miniMessage().deserialize(
+                translationService.messageOf(receiver, "player-hover-online"));
+
+            Component banned = MiniMessage.miniMessage().deserialize(
+                translationService.messageOf(receiver, "player-hover-banned"));
+
+            String yes = translationService.messageOf(receiver, "player-hover-yes");
+            String no = translationService.messageOf(receiver, "player-hover-no");
+
             Component hover = Component.text()
-                .append(Component.text("Player\n", NamedTextColor.DARK_PURPLE))
-                .append(Component.text("UUID: ", NamedTextColor.GRAY))
+                .append(playerHeading)
+                .append(Component.text("\n"))
+                .append(uuid)
+                .append(Component.text(" "))
                 .append(Component.text(player.uuid().toString(), NamedTextColor.WHITE))
                 .append(Component.text("\n"))
-                .append(Component.text("Online? ", NamedTextColor.GRAY))
-                .append(Component.text(offlinePlayer.isOnline() ? "Yes" : "No", NamedTextColor.WHITE))
+                .append(online)
+                .append(Component.text(" "))
+                .append(Component.text(offlinePlayer.isOnline() ? yes : no, NamedTextColor.WHITE))
                 .append(Component.text("\n"))
-                .append(Component.text("Banned? ", NamedTextColor.GRAY))
-                .append(Component.text(offlinePlayer.isBanned() ? "Yes" : "No", NamedTextColor.WHITE))
-
+                .append(banned)
+                .append(Component.text(" "))
+                .append(Component.text(offlinePlayer.isBanned() ? yes : no, NamedTextColor.WHITE))
                 .build();
 
             return Component.text()
