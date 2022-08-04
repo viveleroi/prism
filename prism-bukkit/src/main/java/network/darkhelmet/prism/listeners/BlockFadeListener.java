@@ -36,9 +36,9 @@ import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockFormEvent;
+import org.bukkit.event.block.BlockFadeEvent;
 
-public class BlockFormListener extends AbstractListener implements Listener {
+public class BlockFadeListener extends AbstractListener implements Listener {
     /**
      * Construct the listener.
      *
@@ -48,7 +48,7 @@ public class BlockFormListener extends AbstractListener implements Listener {
      * @param recordingService The recording service
      */
     @Inject
-    public BlockFormListener(
+    public BlockFadeListener(
             ConfigurationService configurationService,
             ActionFactory actionFactory,
             ExpectationService expectationService,
@@ -57,21 +57,21 @@ public class BlockFormListener extends AbstractListener implements Listener {
     }
 
     /**
-     * Listens for block form events.
+     * Listens for block fade events.
      *
      * @param event The event
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onBlockForm(final BlockFormEvent event) {
+    public void onBlockFade(final BlockFadeEvent event) {
         // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().blockForm()) {
+        if (!configurationService.prismConfig().actions().blockFade()) {
             return;
         }
 
         // Build the action
         final Block block = event.getBlock();
         final IAction action = actionFactory
-            .createBlockAction(ActionTypeRegistry.BLOCK_FORM, event.getNewState(), block.getState());
+            .createBlockAction(ActionTypeRegistry.BLOCK_FADE, event.getNewState(), block.getState());
 
         // Build the block activity
         ISingleActivity activity = Activity.builder()

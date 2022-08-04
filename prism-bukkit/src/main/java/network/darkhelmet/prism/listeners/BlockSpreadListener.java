@@ -73,7 +73,7 @@ public class BlockSpreadListener extends AbstractListener implements Listener {
         final IAction action = actionFactory
             .createBlockAction(ActionTypeRegistry.BLOCK_SPREAD, event.getNewState(), block.getState());
 
-        // Build the block spread activity
+        // Build the block activity
         ISingleActivity activity = Activity.builder()
             .action(action)
             .cause(nameFromCause(event.getSource()))

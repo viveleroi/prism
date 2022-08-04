@@ -31,7 +31,10 @@ public class ActionsConfiguration {
     @Comment("block-break is when a player or entity destroys a block (except from burn/explode).")
     private boolean blockBreak = true;
 
-    @Comment("block-form is when a blocks forms - concrete, snow, etc.")
+    @Comment("block-fade is when a block fades - melting snow, etc.")
+    private boolean blockFade = false;
+
+    @Comment("block-form is when a block forms - concrete, snow, etc.")
     private boolean blockForm = true;
 
     @Comment("block-place is when a player or entity places a block.")
