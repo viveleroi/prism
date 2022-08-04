@@ -33,6 +33,8 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
      */
     public static final ActionType BLOCK_BREAK =
         new BlockActionType("block-break", ActionResultType.REMOVES, true);
+    public static final ActionType BLOCK_FORM =
+        new BlockActionType("block-form", ActionResultType.CREATES, true);
     public static final ActionType BLOCK_PLACE =
         new BlockActionType("block-place", ActionResultType.CREATES, true);
     public static final ActionType BLOCK_SPREAD =
@@ -60,6 +62,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
     public ActionTypeRegistry() {
         // Register Prism actions
         registerAction(BLOCK_BREAK);
+        registerAction(BLOCK_FORM);
         registerAction(BLOCK_PLACE);
         registerAction(BLOCK_SPREAD);
         registerAction(ENTITY_KILL);
