@@ -33,9 +33,14 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 @ConfigSerializable
 @Getter
 public class PrismConfiguration {
-    @Comment("Actions are in-game events/changes that Prism can record data for.\n"
-        + "Some are purely informational, some can be reversed/restored.\n"
-        + "Disabling any here will completely prevent prism from recording them.")
+    @Comment("""
+            Actions are in-game events/changes that Prism can record data for.
+            Some are purely informational, some can be reversed/restored.
+            Disabling any here will completely prevent prism from recording them.
+            Actions that are disabled by default may need some consideration/filters
+            before turning them. Blanket-enabling everything is a recipe for exponential
+            database growth (aka bad stuff).
+            """)
     private ActionsConfiguration actions = new ActionsConfiguration();
 
     @Comment("""

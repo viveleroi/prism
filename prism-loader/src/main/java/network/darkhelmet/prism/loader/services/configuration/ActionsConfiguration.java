@@ -32,16 +32,22 @@ public class ActionsConfiguration {
     private boolean blockBreak = true;
 
     @Comment("block-fade is when a block fades - melting snow, etc.")
-    private boolean blockFade = false;
+    private boolean blockFade = true;
 
     @Comment("block-form is when a block forms - concrete, snow, etc.")
-    private boolean blockForm = true;
+    private boolean blockForm = false;
 
     @Comment("block-place is when a player or entity places a block.")
     private boolean blockPlace = true;
 
-    @Comment("block-spread is when a block spreads to a new block. Fire, mushrooms, etc.")
-    private boolean blockSpread = true;
+    @Comment("""
+            block-spread is when a block spreads to a new block. Fire, mushrooms, etc.
+            This event can produce a lot of data. There's a lot of natural gen you may
+            wish to ignore. For example, vine/cave_vines all produce spread events
+            as they grow, and grass blocks as it's spreads to dirt.
+            A filter to ignore those is strongly recommended if you enable this.
+            """)
+    private boolean blockSpread = false;
 
     @Comment("entity-kill is when an entity (or player) kills another.")
     private boolean entityKill = true;
