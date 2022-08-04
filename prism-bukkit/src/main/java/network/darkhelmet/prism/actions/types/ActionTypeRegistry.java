@@ -31,6 +31,8 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
     /**
      * Static cache of action types.
      */
+    public static final ActionType BED_ENTER =
+        new BlockActionType("bed-enter", ActionResultType.NONE, false);
     public static final ActionType BLOCK_BREAK =
         new BlockActionType("block-break", ActionResultType.REMOVES, true);
     public static final ActionType BLOCK_FADE =
@@ -63,6 +65,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
      */
     public ActionTypeRegistry() {
         // Register Prism actions
+        registerAction(BED_ENTER);
         registerAction(BLOCK_BREAK);
         registerAction(BLOCK_FADE);
         registerAction(BLOCK_FORM);

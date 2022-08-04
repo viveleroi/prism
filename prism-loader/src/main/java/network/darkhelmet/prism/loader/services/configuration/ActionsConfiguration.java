@@ -28,6 +28,9 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 @ConfigSerializable
 @Getter
 public class ActionsConfiguration {
+    @Comment("bed-enter is when a player or entity gets into bed.")
+    private boolean bedEnter = true;
+
     @Comment("block-break is when a player or entity destroys a block (except from burn/explode).")
     private boolean blockBreak = true;
 
