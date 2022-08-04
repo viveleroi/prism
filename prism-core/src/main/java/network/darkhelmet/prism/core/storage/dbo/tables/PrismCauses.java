@@ -76,7 +76,7 @@ public class PrismCauses extends TableImpl<PrismCausesRecord> {
      */
     public final TableField<PrismCausesRecord, String> CAUSE = createField(
         DSL.name("cause"),
-        SQLDataType.VARCHAR(25),
+        SQLDataType.VARCHAR(155),
         this,
         "");
 
