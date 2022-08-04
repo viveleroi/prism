@@ -85,12 +85,12 @@ public class AbstractListener {
     }
 
     /**
-     * Converts a cause to a descriptor.
+     * Converts a cause to a string name.
      *
      * @param cause The cause
-     * @return The cause descriptor
+     * @return The cause name
      */
-    protected String causeDescriptor(Object cause) {
+    protected String nameFromCause(Object cause) {
         String finalCause = null;
         if (cause instanceof Entity causeEntity) {
             finalCause = causeEntity.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');

@@ -86,7 +86,7 @@ public class VehicleCreateListener extends AbstractListener implements Listener 
         if (cause instanceof Player player) {
             builder.player(player.getUniqueId(), player.getName());
         } else {
-            builder.cause(causeDescriptor(cause));
+            builder.cause(nameFromCause(cause));
         }
 
         ISingleActivity activity = builder.build();

@@ -60,6 +60,7 @@ public class ModificationConfiguration {
     public ModificationConfiguration() {
         blockBlacklist.add("bedrock");
         blockBlacklist.add("tnt");
+        blockBlacklist.add("fire");
 
         entityBlacklist.add("creeper");
 

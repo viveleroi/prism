@@ -27,25 +27,18 @@ import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.recording.RecordingService;
 import network.darkhelmet.prism.utils.LocationUtils;
 
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByBlockEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.projectiles.BlockProjectileSource;
+import org.bukkit.event.block.BlockSpreadEvent;
 
-public class EntityDeathListener extends AbstractListener implements Listener {
+public class BlockSpreadListener extends AbstractListener implements Listener {
     /**
      * Construct the listener.
      *
@@ -55,7 +48,7 @@ public class EntityDeathListener extends AbstractListener implements Listener {
      * @param recordingService The recording service
      */
     @Inject
-    public EntityDeathListener(
+    public BlockSpreadListener(
             ConfigurationService configurationService,
             ActionFactory actionFactory,
             ExpectationService expectationService,
@@ -64,55 +57,28 @@ public class EntityDeathListener extends AbstractListener implements Listener {
     }
 
     /**
-     * Listen to entity death events.
+     * Listens for block spread events.
      *
      * @param event The event
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onEntityDeath(final EntityDeathEvent event) {
+    public void onBlockSpread(final BlockSpreadEvent event) {
         // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().entityKill()) {
+        if (!configurationService.prismConfig().actions().blockSpread()) {
             return;
         }
 
-        final LivingEntity entity = event.getEntity();
+        // Build the action
+        final Block block = event.getBlock();
+        final IAction action = actionFactory
+            .createBlockAction(ActionTypeRegistry.BLOCK_SPREAD, event.getNewState(), block.getState());
 
-        // Resolve cause using last damage
-        Object cause = null;
-        EntityDamageEvent damageEvent = entity.getLastDamageCause();
-        if (damageEvent != null && !damageEvent.isCancelled()) {
-            if (damageEvent instanceof EntityDamageByEntityEvent) {
-                cause = ((EntityDamageByEntityEvent) damageEvent).getDamager();
-
-                if (cause instanceof Projectile) {
-                    cause = ((Projectile) cause).getShooter();
-
-                    if (cause instanceof BlockProjectileSource) {
-                        cause = ((BlockProjectileSource) cause).getBlock();
-                    }
-                }
-            } else if (damageEvent instanceof EntityDamageByBlockEvent) {
-                cause = ((EntityDamageByBlockEvent) damageEvent).getDamager();
-            }
-        }
-
-        final IAction action = actionFactory.createEntityAction(ActionTypeRegistry.ENTITY_KILL, entity);
-
-        WorldCoordinate at = LocationUtils.locToWorldCoordinate(entity.getLocation());
-
-        // Build the block break by player activity
-        Activity.ActivityBuilder builder = Activity.builder();
-        builder.action(action).location(at);
-
-        if (cause != null) {
-            if (cause instanceof Player player) {
-                builder.player(player.getUniqueId(), player.getName());
-            } else {
-                builder.cause(nameFromCause(cause));
-            }
-        }
-
-        ISingleActivity activity = builder.build();
+        // Build the block spread activity
+        ISingleActivity activity = Activity.builder()
+            .action(action)
+            .cause(nameFromCause(event.getSource()))
+            .location(LocationUtils.locToWorldCoordinate(block.getLocation()))
+            .build();
 
         recordingService.addToQueue(activity);
     }

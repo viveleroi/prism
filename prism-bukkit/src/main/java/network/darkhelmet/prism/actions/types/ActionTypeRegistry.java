@@ -35,8 +35,10 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         new BlockActionType("block-break", ActionResultType.REMOVES, true);
     public static final ActionType BLOCK_PLACE =
         new BlockActionType("block-place", ActionResultType.CREATES, true);
+    public static final ActionType BLOCK_SPREAD =
+        new BlockActionType("block-spread", ActionResultType.CREATES, true);
     public static final ActionType ENTITY_KILL =
-            new EntityActionType("entity-kill", ActionResultType.REMOVES, true);
+        new EntityActionType("entity-kill", ActionResultType.REMOVES, true);
     public static final ActionType HANGING_BREAK =
         new EntityActionType("hanging-break", ActionResultType.REMOVES, true);
     public static final ActionType ITEM_DROP =
@@ -59,6 +61,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         // Register Prism actions
         registerAction(BLOCK_BREAK);
         registerAction(BLOCK_PLACE);
+        registerAction(BLOCK_SPREAD);
         registerAction(ENTITY_KILL);
         registerAction(HANGING_BREAK);
         registerAction(ITEM_DROP);

@@ -34,6 +34,9 @@ public class ActionsConfiguration {
     @Comment("block-place is when a player or entity places a block.")
     private boolean blockPlace = true;
 
+    @Comment("block-spread is when a block spreads to a new block. Fire, mushrooms, etc.")
+    private boolean blockSpread = true;
+
     @Comment("entity-kill is when an entity (or player) kills another.")
     private boolean entityKill = true;
 
