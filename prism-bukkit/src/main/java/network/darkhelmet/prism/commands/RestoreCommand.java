@@ -29,9 +29,6 @@ import dev.triumphteam.cmd.core.annotation.NamedArguments;
 import dev.triumphteam.cmd.core.annotation.SubCommand;
 import dev.triumphteam.cmd.core.argument.named.Arguments;
 
-import java.util.List;
-
-import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
@@ -138,19 +135,17 @@ public class RestoreCommand extends BaseCommand {
             }
 
             return null;
-        }).abortIfNull().<List<IAction>>sync(modifications -> {
+        }).abortIfNull().syncLast(modifications -> {
             if (modifications.isEmpty()) {
                 messageService.noResults(player);
 
-                return null;
+                return;
             }
 
             ModificationRuleset modificationRuleset = configurationService
                 .prismConfig().modifications().toRulesetBuilder().build();
 
             modificationQueueService.newRestoreQueue(modificationRuleset, player, query, modifications).apply();
-
-            return null;
         }).execute();
     }
 }

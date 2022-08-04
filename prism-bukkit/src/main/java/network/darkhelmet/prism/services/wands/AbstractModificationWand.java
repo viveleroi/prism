@@ -22,9 +22,6 @@ package network.darkhelmet.prism.services.wands;
 
 import com.google.inject.Inject;
 
-import java.util.List;
-
-import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
@@ -124,19 +121,17 @@ public abstract class AbstractModificationWand {
             }
 
             return null;
-        }).abortIfNull().<List<IAction>>sync(modifications -> {
+        }).abortIfNull().syncLast(modifications -> {
             if (modifications.isEmpty()) {
                 messageService.noResults((Player) owner);
 
-                return null;
+                return;
             }
 
             ModificationRuleset modificationRuleset = configurationService
                 .prismConfig().modifications().toRulesetBuilder().build();
 
             modificationQueueService.newQueue(clazz, modificationRuleset, owner, query, modifications).apply();
-
-            return null;
         }).execute();
     }
 }
