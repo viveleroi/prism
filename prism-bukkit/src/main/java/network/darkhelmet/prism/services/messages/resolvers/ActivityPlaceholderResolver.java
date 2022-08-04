@@ -28,6 +28,8 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.moonshine.placeholder.ConclusionValue;
 import net.kyori.moonshine.placeholder.ContinuanceValue;
@@ -40,6 +42,8 @@ import network.darkhelmet.prism.api.activities.IGroupedActivity;
 import network.darkhelmet.prism.api.util.NamedIdentity;
 import network.darkhelmet.prism.services.translation.TranslationService;
 
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -125,11 +129,32 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
      */
     protected Component cause(CommandSender receiver, String cause, NamedIdentity player) {
         if (player != null) {
-            cause = player.name();
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.uuid());
+
+            Component hover = Component.text()
+                .append(Component.text("Player\n", NamedTextColor.DARK_PURPLE))
+                .append(Component.text("UUID: ", NamedTextColor.GRAY))
+                .append(Component.text(player.uuid().toString(), NamedTextColor.WHITE))
+                .append(Component.text("\n"))
+                .append(Component.text("Online? ", NamedTextColor.GRAY))
+                .append(Component.text(offlinePlayer.isOnline() ? "Yes" : "No", NamedTextColor.WHITE))
+                .append(Component.text("\n"))
+                .append(Component.text("Banned? ", NamedTextColor.GRAY))
+                .append(Component.text(offlinePlayer.isBanned() ? "Yes" : "No", NamedTextColor.WHITE))
+
+                .build();
+
+            return Component.text()
+                .append(Component.text(player.name()))
+                .hoverEvent(HoverEvent.showText(hover))
+                .build();
         }
 
         if (cause != null) {
-            return Component.text(cause);
+            Component hover = Component.text()
+                .append(Component.text("Non-player", NamedTextColor.GRAY)).build();
+
+            return Component.text().append(Component.text(cause)).hoverEvent(HoverEvent.showText(hover)).build();
         } else {
             return Component.text(translationService.messageOf(receiver, "unknown-cause"));
         }
