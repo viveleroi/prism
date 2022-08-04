@@ -35,7 +35,9 @@ import network.darkhelmet.prism.utils.LocationUtils;
 import network.darkhelmet.prism.utils.MaterialTag;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -140,6 +142,12 @@ public class PlayerInteractListener extends AbstractListener implements Listener
             if (MaterialTag.ITEMS_BOATS.isTagged(heldItem.getType())) {
                 expectationService.cacheFor(ExpectationType.SPAWN_VEHICLE)
                     .expect(targetLocation, event.getPlayer());
+            }
+        } else if (event.getAction().equals(Action.PHYSICAL) && block.getType().equals(Material.FARMLAND)) {
+            // Record block break for crop
+            Block blockAbove = block.getRelative(BlockFace.UP);
+            if (MaterialTag.CROPS.isTagged(blockAbove.getType())) {
+                processBlockBreak(blockAbove, event.getPlayer());
             }
         }
     }
