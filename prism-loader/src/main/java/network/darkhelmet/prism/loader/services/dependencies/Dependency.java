@@ -108,8 +108,8 @@ public enum Dependency {
     ADVENTURE_PLATFORM_BUKKIT(
         "net.kyori",
         "adventure-platform-bukkit",
-        "4.1.1",
-        "QUEhpg90xXy90dTjaMckc8O5SixeD8bAgSoBg/HenBc=",
+        "4.1.2",
+        "zyChYbTEvOws4Pk2oVEyt4JkTsWhGAMUhQLdNklURo0=",
         Relocation.of("adventure", "net{}kyori{}adventure"),
         Relocation.of("viaversion", "com.viaversion")
     ),
