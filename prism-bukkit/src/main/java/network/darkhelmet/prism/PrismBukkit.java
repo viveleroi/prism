@@ -106,6 +106,7 @@ import network.darkhelmet.prism.listeners.player.PlayerUnleashEntityListener;
 import network.darkhelmet.prism.listeners.portal.PortalCreateListener;
 import network.darkhelmet.prism.listeners.projectile.ProjectileLaunchListener;
 import network.darkhelmet.prism.listeners.sheep.SheepDyeWoolListener;
+import network.darkhelmet.prism.listeners.sign.SignChangeListener;
 import network.darkhelmet.prism.listeners.sponge.SpongeAbsorbListener;
 import network.darkhelmet.prism.listeners.structure.StructureGrowListener;
 import network.darkhelmet.prism.listeners.vehicle.VehicleDestroyListener;
@@ -291,6 +292,7 @@ public class PrismBukkit implements IPrism {
             registerEvent(ProjectileLaunchListener.class);
             registerEvent(PortalCreateListener.class);
             registerEvent(SheepDyeWoolListener.class);
+            registerEvent(SignChangeListener.class);
             registerEvent(SpongeAbsorbListener.class);
             registerEvent(StructureGrowListener.class);
             registerEvent(TntPrimeListener.class);

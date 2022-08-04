@@ -173,6 +173,17 @@ public class BlockAction extends MaterialAction implements IBlockAction {
         return this.readWriteNbt != null;
     }
 
+    /**
+     * Allow merging in custom NBT data if we need to override something.
+     *
+     * @param nbtString The nbt string
+     */
+    public void mergeCompound(String nbtString) {
+        if (readWriteNbt != null) {
+            readWriteNbt.mergeCompound(NBT.parseNBT(nbtString));
+        }
+    }
+
     @Override
     public @Nullable String serializeCustomData() {
         if (this.readWriteNbt != null) {

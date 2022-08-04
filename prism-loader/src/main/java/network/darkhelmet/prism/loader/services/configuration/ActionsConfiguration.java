@@ -151,6 +151,9 @@ public class ActionsConfiguration {
     @Comment("player-teleport is when a player teleports.")
     private boolean playerTeleport = true;
 
+    @Comment("sign-edit is when a player edits the text on a sign.")
+    private boolean signEdit = false;
+
     @Comment("vehicle-break is when something breaks a boat or minecart.")
     private boolean vehicleBreak = true;
 
