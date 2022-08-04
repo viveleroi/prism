@@ -40,7 +40,7 @@ import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.query.QueryService;
 import network.darkhelmet.prism.services.translation.TranslationKey;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 
 @Command(value = "prism", alias = {"pr"})
 public class RestoreCommand extends BaseCommand {
@@ -111,33 +111,33 @@ public class RestoreCommand extends BaseCommand {
     /**
      * Run the restore command.
      *
-     * @param player The player
+     * @param sender The command sender
      */
     @NamedArguments("params")
     @SubCommand(value = "restore", alias = {"rs"})
     @Permission("prism.admin")
-    public void onRestore(final Player player, final Arguments arguments) {
+    public void onRestore(final CommandSender sender, final Arguments arguments) {
         // Ensure a queue is free
         if (!modificationQueueService.queueAvailable()) {
-            messageService.error(player, new TranslationKey("queue-not-free"));
+            messageService.error(sender, new TranslationKey("queue-not-free"));
 
             return;
         }
 
         final ActivityQuery query = queryService
-            .queryFromArguments(player.getLocation(), arguments).modification().reversed(true).build();
+            .queryFromArguments(sender, arguments).modification().reversed(true).build();
         taskChainProvider.newChain().asyncFirst(() -> {
             try {
                 return storageAdapter.queryActivities(query);
             } catch (Exception e) {
-                messageService.error(player, new TranslationKey("query-error"));
+                messageService.error(sender, new TranslationKey("query-error"));
                 loggingService.handleException(e);
             }
 
             return null;
         }).abortIfNull().syncLast(modifications -> {
             if (modifications.isEmpty()) {
-                messageService.noResults(player);
+                messageService.noResults(sender);
 
                 return;
             }
@@ -145,7 +145,7 @@ public class RestoreCommand extends BaseCommand {
             ModificationRuleset modificationRuleset = configurationService
                 .prismConfig().modifications().toRulesetBuilder().build();
 
-            modificationQueueService.newRestoreQueue(modificationRuleset, player, query, modifications).apply();
+            modificationQueueService.newRestoreQueue(modificationRuleset, sender, query, modifications).apply();
         }).execute();
     }
 }

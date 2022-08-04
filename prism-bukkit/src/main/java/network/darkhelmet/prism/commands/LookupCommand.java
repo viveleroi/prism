@@ -30,14 +30,13 @@ import dev.triumphteam.cmd.core.annotation.SubCommand;
 import dev.triumphteam.cmd.core.argument.named.Arguments;
 
 import network.darkhelmet.prism.api.activities.ActivityQuery;
-import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.lookup.LookupService;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.query.QueryService;
 import network.darkhelmet.prism.services.translation.TranslationKey;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 
 @Command(value = "prism", alias = {"pr"})
 public class LookupCommand extends BaseCommand {
@@ -57,11 +56,6 @@ public class LookupCommand extends BaseCommand {
     private final MessageService messageService;
 
     /**
-     * The storage adapter.
-     */
-    private final IStorageAdapter storageAdapter;
-
-    /**
      * The lookup service.
      */
     private final LookupService lookupService;
@@ -72,7 +66,6 @@ public class LookupCommand extends BaseCommand {
      * @param configurationService The configuration service
      * @param queryService The query service
      * @param messageService The message service
-     * @param storageAdapter The storage adapter
      * @param lookupService The lookup service
      */
     @Inject
@@ -80,31 +73,29 @@ public class LookupCommand extends BaseCommand {
             ConfigurationService configurationService,
             QueryService queryService,
             MessageService messageService,
-            IStorageAdapter storageAdapter,
             LookupService lookupService) {
         this.configurationService = configurationService;
         this.queryService = queryService;
         this.messageService = messageService;
-        this.storageAdapter = storageAdapter;
         this.lookupService = lookupService;
     }
 
     /**
      * Run a lookup.
      *
-     * @param player The player
+     * @param sender The command sender
      * @param arguments The arguments
      */
     @NamedArguments("params")
     @SubCommand(value = "lookup", alias = {"l"})
     @Permission("prism.admin")
-    public void onLookup(final Player player, final Arguments arguments) {
+    public void onLookup(final CommandSender sender, final Arguments arguments) {
         try {
-            final ActivityQuery query = queryService.queryFromArguments(player.getLocation(), arguments)
+            final ActivityQuery query = queryService.queryFromArguments(sender, arguments)
                 .limit(configurationService.prismConfig().defaults().perPage()).build();
-            lookupService.lookup(player, query);
+            lookupService.lookup(sender, query);
         } catch (IllegalArgumentException ex) {
-            messageService.error(player, new TranslationKey(ex.getMessage()));
+            messageService.error(sender, new TranslationKey(ex.getMessage()));
         }
     }
 }

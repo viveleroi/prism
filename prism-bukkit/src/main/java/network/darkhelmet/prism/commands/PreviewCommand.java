@@ -165,7 +165,7 @@ public class PreviewCommand extends BaseCommand {
     @Permission("prism.admin")
     public void onPreviewRestore(final Player player, final Arguments arguments) {
         final ActivityQuery query = queryService
-            .queryFromArguments(player.getLocation(), arguments).modification().reversed(true).build();
+            .queryFromArguments(player, arguments).modification().reversed(true).build();
 
         preview(Restore.class, player, query);
     }
@@ -181,7 +181,7 @@ public class PreviewCommand extends BaseCommand {
     @Permission("prism.admin")
     public void onPreviewRollback(final Player player, final Arguments arguments) {
         final ActivityQuery query = queryService
-            .queryFromArguments(player.getLocation(), arguments).modification().reversed(false).build();
+            .queryFromArguments(player, arguments).modification().reversed(false).build();
 
         preview(Rollback.class, player, query);
     }

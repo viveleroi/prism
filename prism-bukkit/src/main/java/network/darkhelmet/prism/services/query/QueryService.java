@@ -44,7 +44,9 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 
 public class QueryService {
     /**
@@ -65,15 +67,47 @@ public class QueryService {
     /**
      * Start a query builder from command-derived parameters.
      *
+     * @param sender The command sender
+     * @param arguments The arguments
+     * @return The activity query builder
+     */
+    public ActivityQuery.ActivityQueryBuilder queryFromArguments(CommandSender sender, Arguments arguments) {
+        if (sender instanceof Player player) {
+            return queryFromArguments(arguments, player.getLocation());
+        } else {
+            return queryFromArguments(arguments, null);
+        }
+    }
+
+    /**
+     * Start a query builder from command-derived parameters.
+     *
      * @param referenceLocation The reference location
      * @param arguments The arguments
      * @return The activity query builder
      */
-    public ActivityQuery.ActivityQueryBuilder queryFromArguments(Location referenceLocation, Arguments arguments) {
+    public ActivityQuery.ActivityQueryBuilder queryFromArguments(Arguments arguments, Location referenceLocation) {
         ActivityQuery.ActivityQueryBuilder builder = ActivityQuery.builder();
+        World world = referenceLocation != null ? referenceLocation.getWorld() : null;
+
+        // world: parameter
+        if (arguments.get("world", String.class).isPresent()) {
+            String worldName = arguments.get("world", String.class).get();
+
+            world = Bukkit.getServer().getWorld(worldName);
+            if (world == null) {
+                throw new IllegalArgumentException("param-error-invalid-world");
+            }
+
+            builder.worldUuid(world.getUID());
+        }
 
         // at: parameter
         if (arguments.get("at", String.class).isPresent()) {
+            if (world == null) {
+                throw new IllegalArgumentException("param-error-at-no-world");
+            }
+
             String at = arguments.get("at", String.class).get();
 
             String[] segments = at.split(",");
@@ -82,15 +116,23 @@ public class QueryService {
                 int y = Integer.parseInt(segments[1]);
                 int z = Integer.parseInt(segments[2]);
 
-                referenceLocation = new Location(referenceLocation.getWorld(), x, y, z);
+                referenceLocation = new Location(world, x, y, z);
             } else {
                 throw new IllegalArgumentException("param-error-at-invalid-loc");
             }
         }
 
+        if (referenceLocation != null) {
+            world = referenceLocation.getWorld();
+        }
+
         // in: parameter
         String in = null;
         if (arguments.get("in", String.class).isPresent()) {
+            if (referenceLocation == null) {
+                throw new IllegalArgumentException("param-error-console-in");
+            }
+
             in = arguments.get("in", String.class).get();
 
             parseIn(builder, referenceLocation, in);
@@ -98,6 +140,10 @@ public class QueryService {
 
         // r: parameter
         if (arguments.get("r", Integer.class).isPresent()) {
+            if (referenceLocation == null) {
+                throw new IllegalArgumentException("param-error-console-radius");
+            }
+
             Integer radius = arguments.get("r", Integer.class).get();
 
             if (in != null && in.equalsIgnoreCase("chunk")) {
@@ -109,6 +155,10 @@ public class QueryService {
 
         // bounds: parameter
         if (arguments.get("bounds", String.class).isPresent()) {
+            if (world == null) {
+                throw new IllegalArgumentException("param-error-console-bounds");
+            }
+
             String at = arguments.get("bounds", String.class).get();
             String[] segments = at.split("-");
             if (segments.length != 2) {
@@ -133,22 +183,10 @@ public class QueryService {
             int maxY = Integer.parseInt(maxSegments[1]);
             int maxZ = Integer.parseInt(maxSegments[2]);
 
-            builder.worldUuid(referenceLocation.getWorld().getUID());
+            builder.worldUuid(world.getUID());
             Coordinate min = new Coordinate(minX, minY, minZ);
             Coordinate max = new Coordinate(maxX, maxY, maxZ);
             builder.boundingCoordinates(min, max);
-        }
-
-        // world: parameter
-        if (arguments.get("world", String.class).isPresent()) {
-            String worldName = arguments.get("world", String.class).get();
-
-            World world = Bukkit.getServer().getWorld(worldName);
-            if (world == null) {
-                throw new IllegalArgumentException("param-error-invalid-world");
-            }
-
-            builder.worldUuid(world.getUID());
         }
 
         // before: parameter
