@@ -71,6 +71,9 @@ public class ActionsConfiguration {
     @Comment("item-drop is when a player or block drops an item on the ground.")
     private boolean itemDrop = true;
 
+    @Comment("item-pickup is when a player or entity picks up an item from the ground.")
+    private boolean itemPickup = true;
+
     @Comment("player-join is when a player connects to the server.")
     private boolean playerJoin = false;
 
