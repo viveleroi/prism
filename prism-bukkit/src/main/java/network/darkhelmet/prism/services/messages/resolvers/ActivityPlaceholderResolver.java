@@ -30,6 +30,7 @@ import java.util.Map;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.moonshine.placeholder.ConclusionValue;
 import net.kyori.moonshine.placeholder.ContinuanceValue;
@@ -37,6 +38,7 @@ import net.kyori.moonshine.placeholder.IPlaceholderResolver;
 import net.kyori.moonshine.util.Either;
 
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
+import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.activities.IGroupedActivity;
 import network.darkhelmet.prism.api.util.NamedIdentity;
@@ -74,11 +76,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         final Method method,
         final @Nullable Object[] parameters
     ) {
-        String pastTenseTranslationKey = value.action().type().pastTenseTranslationKey();
-        String pastTense = translationService.messageOf(receiver, pastTenseTranslationKey);
-
-        Component actionPastTense = Component.text(pastTense);
-        Component actionFamily = actionFamily(value.action().type().key());
+        Component actionPastTense = actionPastTense(receiver, value.action().type());
         Component cause = cause(receiver, value.cause(), value.player());
         Component since = since(receiver, value.timestamp());
 
@@ -100,25 +98,37 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         }
 
         return Map.of(placeholderName + "_action_past_tense",
-                Either.left(ConclusionValue.conclusionValue(actionPastTense)),
-                placeholderName + "_action_family", Either.left(ConclusionValue.conclusionValue(actionFamily)),
-                placeholderName + "_cause", Either.left(ConclusionValue.conclusionValue(cause)),
-                placeholderName + "_count", Either.left(ConclusionValue.conclusionValue(count)),
-                placeholderName + "_sign", Either.left(ConclusionValue.conclusionValue(sign)),
-                placeholderName + "_since", Either.left(ConclusionValue.conclusionValue(since)),
-                placeholderName + "_content", Either.left(ConclusionValue.conclusionValue(content)));
+            Either.left(ConclusionValue.conclusionValue(actionPastTense)),
+            placeholderName + "_cause", Either.left(ConclusionValue.conclusionValue(cause)),
+            placeholderName + "_count", Either.left(ConclusionValue.conclusionValue(count)),
+            placeholderName + "_sign", Either.left(ConclusionValue.conclusionValue(sign)),
+            placeholderName + "_since", Either.left(ConclusionValue.conclusionValue(since)),
+            placeholderName + "_content", Either.left(ConclusionValue.conclusionValue(content)));
     }
 
     /**
-     * Get the action family. "break" for "block-break"
+     * Build the action past tense component.
      *
-     * @param typeKey The action type key
-     * @return The action family
+     * @param receiver The receiver
+     * @param actionType The action type
+     * @return The component
      */
-    protected Component actionFamily(String typeKey) {
-        String[] segments = typeKey.split("-");
+    protected Component actionPastTense(CommandSender receiver, IActionType actionType) {
+        String pastTenseTranslationKey = actionType.pastTenseTranslationKey();
+        String pastTense = translationService.messageOf(receiver, pastTenseTranslationKey);
 
-        return Component.text(segments[segments.length - 1]);
+        Component actionHover = Component.text()
+            .append(Component.text("a:", NamedTextColor.GRAY))
+            .append(Component.text(actionType.key(), TextColor.fromCSSHexString("#ffd782")))
+            .append(Component.text(" or ", NamedTextColor.WHITE))
+            .append(Component.text("a:", NamedTextColor.GRAY))
+            .append(Component.text(actionType.familyKey(), TextColor.fromCSSHexString("#ffd782")))
+            .build();
+
+        return Component.text()
+            .append(Component.text(pastTense))
+            .hoverEvent(HoverEvent.showText(actionHover))
+            .build();
     }
 
     /**
