@@ -68,6 +68,7 @@ import network.darkhelmet.prism.listeners.HangingBreakListener;
 import network.darkhelmet.prism.listeners.LeavesDecayListener;
 import network.darkhelmet.prism.listeners.PlayerBedEnterListener;
 import network.darkhelmet.prism.listeners.PlayerDropItemListener;
+import network.darkhelmet.prism.listeners.PlayerExpChangeListener;
 import network.darkhelmet.prism.listeners.PlayerInteractListener;
 import network.darkhelmet.prism.listeners.PlayerJoinListener;
 import network.darkhelmet.prism.listeners.PlayerQuitListener;
@@ -227,6 +228,7 @@ public class PrismBukkit implements IPrism {
             registerEvent(LeavesDecayListener.class);
             registerEvent(PlayerBedEnterListener.class);
             registerEvent(PlayerDropItemListener.class);
+            registerEvent(PlayerExpChangeListener.class);
             registerEvent(PlayerInteractListener.class);
             registerEvent(PlayerJoinListener.class);
             registerEvent(PlayerQuitListener.class);

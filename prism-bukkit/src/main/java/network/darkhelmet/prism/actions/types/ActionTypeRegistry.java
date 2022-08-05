@@ -67,6 +67,8 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         new EntityActionType("vehicle-exit", ActionResultType.NONE, false);
     public static final ActionType VEHICLE_PLACE =
         new EntityActionType("vehicle-place", ActionResultType.CREATES, false);
+    public static final ActionType XP_PICKUP =
+        new EntityActionType("xp-pickup", ActionResultType.NONE, false);
 
     /**
      * Construct the action registry.
@@ -91,5 +93,6 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(VEHICLE_ENTER);
         registerAction(VEHICLE_EXIT);
         registerAction(VEHICLE_PLACE);
+        registerAction(XP_PICKUP);
     }
 }

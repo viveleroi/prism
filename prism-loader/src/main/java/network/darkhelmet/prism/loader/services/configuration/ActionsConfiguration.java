@@ -35,7 +35,7 @@ public class ActionsConfiguration {
     private boolean blockBreak = true;
 
     @Comment("block-fade is when a block fades - melting snow, etc.")
-    private boolean blockFade = true;
+    private boolean blockFade = false;
 
     @Comment("block-form is when a block forms - concrete, snow, etc.")
     private boolean blockForm = false;
@@ -91,4 +91,7 @@ public class ActionsConfiguration {
 
     @Comment("vehicle-place is when a player places a boat or minecart.")
     private boolean vehiclePlace = true;
+
+    @Comment("xp-pickup is when a player picks up XP orbs.")
+    private boolean xpPickup = false;
 }
