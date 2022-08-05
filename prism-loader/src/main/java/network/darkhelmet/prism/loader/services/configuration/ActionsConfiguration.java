@@ -59,6 +59,9 @@ public class ActionsConfiguration {
             + "This event will operate if block-break is false, even for detachments.")
     private boolean hangingBreak = true;
 
+    @Comment("item-dispense is when a block dispenses an item.")
+    private boolean itemDispense = true;
+
     @Comment("item-drop is when a player or block drops an item on the ground.")
     private boolean itemDrop = true;
 
