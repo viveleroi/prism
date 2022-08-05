@@ -39,6 +39,8 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         new BlockActionType("block-fade", ActionResultType.REMOVES, true);
     public static final ActionType BLOCK_FORM =
         new BlockActionType("block-form", ActionResultType.CREATES, true);
+    public static final ActionType BLOCK_IGNITE =
+        new BlockActionType("block-ignite", ActionResultType.NONE, false);
     public static final ActionType BLOCK_PLACE =
         new BlockActionType("block-place", ActionResultType.CREATES, true);
     public static final ActionType BLOCK_SPREAD =
@@ -71,6 +73,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(BLOCK_BREAK);
         registerAction(BLOCK_FADE);
         registerAction(BLOCK_FORM);
+        registerAction(BLOCK_IGNITE);
         registerAction(BLOCK_PLACE);
         registerAction(BLOCK_SPREAD);
         registerAction(ENTITY_KILL);

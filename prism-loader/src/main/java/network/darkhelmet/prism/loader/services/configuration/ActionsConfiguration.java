@@ -40,6 +40,12 @@ public class ActionsConfiguration {
     @Comment("block-form is when a block forms - concrete, snow, etc.")
     private boolean blockForm = false;
 
+    @Comment("""
+            block-ignite is when a block is lit on fire.
+            Note: Fire spreads to other blocks (block-spread). This records an initial ignition.
+            """)
+    private boolean blockIgnite = true;
+
     @Comment("block-place is when a player or entity places a block.")
     private boolean blockPlace = true;
 
