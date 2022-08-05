@@ -47,7 +47,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class BlockStateAction extends MaterialAction implements IBlockAction {
+public class BlockAction extends MaterialAction implements IBlockAction {
     /**
      * The block data.
      */
@@ -75,7 +75,7 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
      * @param blockState The block state
      * @param replacedBlockState The replaced block state
      */
-    public BlockStateAction(IActionType type, BlockState blockState, @Nullable BlockState replacedBlockState) {
+    public BlockAction(IActionType type, BlockState blockState, @Nullable BlockState replacedBlockState) {
         super(type, blockState.getType());
 
         // Set new block data
@@ -101,13 +101,37 @@ public class BlockStateAction extends MaterialAction implements IBlockAction {
      * Construct a block state action.
      *
      * @param type The action type
+     * @param blockData The block data
+     * @param replacedBlockData The replaced block data
+     */
+    public BlockAction(IActionType type, BlockData blockData, @Nullable BlockData replacedBlockData) {
+        super(type, blockData.getMaterial());
+
+        // Set new block data
+        this.blockData = blockData;
+        this.nbtContainer = null;
+
+        // Set old block data
+        if (replacedBlockData != null) {
+            this.replacedBlockData = replacedBlockData;
+            this.replacedMaterial = replacedBlockData.getMaterial();
+        } else {
+            this.replacedBlockData = null;
+            this.replacedMaterial = Material.AIR;
+        }
+    }
+
+    /**
+     * Construct a block state action.
+     *
+     * @param type The action type
      * @param material The material
      * @param blockData The block data
      * @param teData The custom data
      * @param replacedMaterial The replaced material
      * @param replacedBlockData The replaced block data
      */
-    public BlockStateAction(
+    public BlockAction(
             ActionType type,
             Material material,
             BlockData blockData,

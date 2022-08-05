@@ -24,7 +24,7 @@ import de.tr7zw.nbtapi.NBTContainer;
 
 import java.util.Locale;
 
-import network.darkhelmet.prism.actions.BlockStateAction;
+import network.darkhelmet.prism.actions.BlockAction;
 import network.darkhelmet.prism.api.actions.ActionData;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
@@ -81,7 +81,7 @@ public class BlockActionType extends ActionType {
             replaced = Material.valueOf(actionData.replacedMaterial());
         }
 
-        return new BlockStateAction(
+        return new BlockAction(
             this, material, blockData, nbtContainer, replaced, replacedBlockData, actionData.descriptor());
     }
 }

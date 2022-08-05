@@ -40,6 +40,7 @@ import network.darkhelmet.prism.utils.LocationUtils;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockIgniteEvent;
@@ -54,7 +55,7 @@ public class AbstractListener {
     /**
      * The action registry.
      */
-    protected final IActionFactory<BlockState, Entity, ItemStack> actionFactory;
+    protected final IActionFactory<BlockState, BlockData, Entity, ItemStack> actionFactory;
 
     /**
      * The expectation service.
@@ -185,7 +186,7 @@ public class AbstractListener {
      */
     protected void recordBlockBreakAction(Block block, Object cause) {
         // Build the action
-        final IAction action = actionFactory.createBlockAction(ActionTypeRegistry.BLOCK_BREAK, block.getState());
+        final IAction action = actionFactory.createBlockStateAction(ActionTypeRegistry.BLOCK_BREAK, block.getState());
 
         // Build the block break by player activity
         Activity.ActivityBuilder builder = Activity.builder();

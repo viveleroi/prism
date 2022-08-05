@@ -77,7 +77,7 @@ public class BlockPlaceListener extends AbstractListener implements Listener {
         final BlockState replacedState = event.getBlockReplacedState();
 
         // Build the action
-        final IAction action = actionFactory.createBlockAction(
+        final IAction action = actionFactory.createBlockStateAction(
             ActionTypeRegistry.BLOCK_PLACE, blockPlaced.getState(), replacedState);
 
         WorldCoordinate at = LocationUtils.locToWorldCoordinate(blockPlaced.getLocation());

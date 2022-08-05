@@ -22,7 +22,7 @@ package network.darkhelmet.prism.api.actions;
 
 import network.darkhelmet.prism.api.actions.types.IActionType;
 
-public interface IActionFactory<B, E, I> {
+public interface IActionFactory<B, D, E, I> {
     /**
      * Create a new generic action.
      *
@@ -64,17 +64,17 @@ public interface IActionFactory<B, E, I> {
      * @param blockState The new block state
      * @return The block action
      */
-    IBlockAction createBlockAction(IActionType type, B blockState);
+    IBlockAction createBlockStateAction(IActionType type, B blockState);
 
     /**
      * Create a new action for the given type/block, including a replaced block state.
      *
      * @param type The action type
      * @param blockState The new block state
-     * @param replaced The replaced block state
+     * @param replacedBlockState The replaced block state
      * @return The block action
      */
-    IBlockAction createBlockAction(IActionType type, B blockState, B replaced);
+    IBlockAction createBlockStateAction(IActionType type, B blockState, B replacedBlockState);
 
     /**
      * Create a new action for the given type/block.
@@ -83,7 +83,7 @@ public interface IActionFactory<B, E, I> {
      * @param blockState The new block state
      * @return The block action
      */
-    IBlockAction createBlockAction(String key, B blockState);
+    IBlockAction createBlockStateAction(String key, B blockState);
 
     /**
      * Create a new action for the given type/block, including a replaced block state.
@@ -93,7 +93,17 @@ public interface IActionFactory<B, E, I> {
      * @param replaced The replaced block state
      * @return The block action
      */
-    IBlockAction createBlockAction(String key, B blockState, B replaced);
+    IBlockAction createBlockStateAction(String key, B blockState, B replaced);
+
+    /**
+     * Create a new action for the given type/block, including a replaced block data.
+     *
+     * @param type The action type
+     * @param blockData The block data
+     * @param replacedBlockData The replaced block data
+     * @return The block action
+     */
+    IBlockAction createBlockDataAction(IActionType type, D blockData, D replacedBlockData);
 
     /**
      * Create a new action for the given entity.

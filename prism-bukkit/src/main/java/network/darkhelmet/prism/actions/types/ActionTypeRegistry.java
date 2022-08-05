@@ -45,6 +45,8 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         new BlockActionType("block-place", ActionResultType.CREATES, true);
     public static final ActionType BLOCK_SPREAD =
         new BlockActionType("block-spread", ActionResultType.CREATES, true);
+    public static final ActionType BUCKET_EMPTY =
+        new ItemActionType("bucket-empty", ActionResultType.NONE, false);
     public static final ActionType ENTITY_KILL =
         new EntityActionType("entity-kill", ActionResultType.REMOVES, true);
     public static final ActionType HANGING_BREAK =
@@ -82,6 +84,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(BLOCK_IGNITE);
         registerAction(BLOCK_PLACE);
         registerAction(BLOCK_SPREAD);
+        registerAction(BUCKET_EMPTY);
         registerAction(ENTITY_KILL);
         registerAction(HANGING_BREAK);
         registerAction(ITEM_DISPENSE);

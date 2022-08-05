@@ -22,11 +22,52 @@ package network.darkhelmet.prism.utils;
 
 import lombok.experimental.UtilityClass;
 
+import network.darkhelmet.prism.PrismBukkit;
+
 import org.bukkit.Material;
 import org.bukkit.Tag;
 
 @UtilityClass
 public class TagLib {
+    /**
+     * Buckets which produce a water block when emptied outside of water.
+     */
+    public static final MaterialTag WATER_BUCKETS = new MaterialTag(
+        Material.AXOLOTL_BUCKET,
+        Material.COD_BUCKET,
+        Material.PUFFERFISH_BUCKET,
+        Material.SALMON_BUCKET,
+        Material.TROPICAL_FISH_BUCKET,
+        Material.WATER_BUCKET);
+
+    static {
+        if (PrismBukkit.getInstance().serializerVersion() >= 119) {
+            WATER_BUCKETS.append(Material.TADPOLE_BUCKET);
+        }
+    }
+
+    /**
+     * Some blocks are always "waterlogged" and not actually subclasses of Waterlogged.
+     */
+    public static final MaterialTag WATER_BLOCKS = new MaterialTag(
+        Material.WATER,
+        Material.BUBBLE_COLUMN,
+        Material.KELP,
+        Material.KELP_PLANT,
+        Material.SEAGRASS,
+        Material.TALL_SEAGRASS,
+        Material.TUBE_CORAL,
+        Material.BRAIN_CORAL,
+        Material.BUBBLE_CORAL,
+        Material.FIRE_CORAL,
+        Material.CONDUIT
+    );
+
+    /**
+     * Buckets which produce a lava block when emptied outside of lava.
+     */
+    public static final MaterialTag LAVA_BUCKETS = new MaterialTag(Material.LAVA_BUCKET);
+
     /**
      * All plants that have a one-block structure.
      */

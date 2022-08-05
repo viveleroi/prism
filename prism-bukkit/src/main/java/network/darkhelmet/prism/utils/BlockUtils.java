@@ -48,6 +48,24 @@ public class BlockUtils {
         BlockFace.EAST, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH };
 
     /**
+     * Get the block material a bucket material would place/break.
+     *
+     * @param bucket The bucket material
+     * @return The block material
+     */
+    public static Material blockMaterialFromBucket(Material bucket) {
+        if (TagLib.WATER_BUCKETS.isTagged(bucket)) {
+            return Material.WATER;
+        } else if (TagLib.LAVA_BUCKETS.isTagged(bucket)) {
+            return Material.LAVA;
+        } else if (bucket.equals(Material.POWDER_SNOW_BUCKET)) {
+            return Material.POWDER_SNOW;
+        }
+
+        return null;
+    }
+
+    /**
      * Remove blocks matching a list of materials.
      *
      * @param world The world

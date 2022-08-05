@@ -49,6 +49,9 @@ public class ActionsConfiguration {
     @Comment("block-place is when a player or entity places a block.")
     private boolean blockPlace = true;
 
+    @Comment("bucket-empty is when a player places a block by emptying a bucket item.")
+    private boolean bucketEmpty = true;
+
     @Comment("""
             block-spread is when a block spreads to a new block. Fire, mushrooms, etc.
             This event can produce a lot of data. There's a lot of natural gen you may

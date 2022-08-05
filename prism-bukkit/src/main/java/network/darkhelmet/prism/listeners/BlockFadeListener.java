@@ -71,7 +71,7 @@ public class BlockFadeListener extends AbstractListener implements Listener {
         // Build the action
         final Block block = event.getBlock();
         final IAction action = actionFactory
-            .createBlockAction(ActionTypeRegistry.BLOCK_FADE, event.getNewState(), block.getState());
+            .createBlockStateAction(ActionTypeRegistry.BLOCK_FADE, event.getNewState(), block.getState());
 
         // Build the block activity
         ISingleActivity activity = Activity.builder()

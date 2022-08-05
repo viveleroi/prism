@@ -85,7 +85,7 @@ public class BlockIgniteListener extends AbstractListener implements Listener {
         }
 
         // Build the action
-        final IAction action = actionFactory.createBlockAction(
+        final IAction action = actionFactory.createBlockStateAction(
             ActionTypeRegistry.BLOCK_IGNITE, affectedBlock.getState());
 
         // Build the block activity

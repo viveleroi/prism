@@ -73,7 +73,7 @@ public class PlayerBedEnterListener extends AbstractListener implements Listener
         // Only OK means they successfully entered the bed
         if (event.getBedEnterResult().equals(PlayerBedEnterEvent.BedEnterResult.OK)) {
             // Build the action
-            final IAction action = actionFactory.createBlockAction(
+            final IAction action = actionFactory.createBlockStateAction(
                 ActionTypeRegistry.BED_ENTER, event.getBed().getState());
 
             // Build the activity

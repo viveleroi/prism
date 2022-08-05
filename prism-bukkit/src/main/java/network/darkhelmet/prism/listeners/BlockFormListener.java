@@ -71,7 +71,7 @@ public class BlockFormListener extends AbstractListener implements Listener {
         // Build the action
         final Block block = event.getBlock();
         final IAction action = actionFactory
-            .createBlockAction(ActionTypeRegistry.BLOCK_FORM, event.getNewState(), block.getState());
+            .createBlockStateAction(ActionTypeRegistry.BLOCK_FORM, event.getNewState(), block.getState());
 
         // Build the block activity
         ISingleActivity activity = Activity.builder()

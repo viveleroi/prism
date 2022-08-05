@@ -38,11 +38,12 @@ import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
 
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
 @Singleton
-public class ActionFactory implements IActionFactory<BlockState, Entity, ItemStack> {
+public class ActionFactory implements IActionFactory<BlockState, BlockData, Entity, ItemStack> {
     /**
      * The action type registry.
      */
@@ -88,32 +89,41 @@ public class ActionFactory implements IActionFactory<BlockState, Entity, ItemSta
     }
 
     @Override
-    public IBlockAction createBlockAction(IActionType type, BlockState blockState) {
-        return createBlockAction(type, blockState, null);
-    }
-
-    @Override
-    public IBlockAction createBlockAction(IActionType type, BlockState blockState, BlockState replaced) {
+    public IBlockAction createBlockDataAction(IActionType type, BlockData blockData, BlockData replacedBlockData) {
         if (!(type instanceof BlockActionType)) {
             throw new IllegalArgumentException("Block actions cannot be made from non-block action types.");
         }
 
-        return new BlockStateAction(type, blockState, replaced);
+        return new BlockAction(type, blockData, replacedBlockData);
     }
 
     @Override
-    public IBlockAction createBlockAction(String key, BlockState blockState) {
-        return createBlockAction(key, blockState, null);
+    public IBlockAction createBlockStateAction(IActionType type, BlockState blockState) {
+        return createBlockStateAction(type, blockState, null);
     }
 
     @Override
-    public IBlockAction createBlockAction(String key, BlockState blockState, BlockState replaced) {
+    public IBlockAction createBlockStateAction(IActionType type, BlockState blockState, BlockState replaced) {
+        if (!(type instanceof BlockActionType)) {
+            throw new IllegalArgumentException("Block actions cannot be made from non-block action types.");
+        }
+
+        return new BlockAction(type, blockState, replaced);
+    }
+
+    @Override
+    public IBlockAction createBlockStateAction(String key, BlockState blockState) {
+        return createBlockStateAction(key, blockState, null);
+    }
+
+    @Override
+    public IBlockAction createBlockStateAction(String key, BlockState blockState, BlockState replaced) {
         Optional<IActionType> actionTypeOptional = actionTypeRegistry.actionType(key);
         if (actionTypeOptional.isEmpty()) {
             throw new IllegalArgumentException("Invalid action type key");
         }
 
-        return createBlockAction(actionTypeOptional.get(), blockState, replaced);
+        return createBlockStateAction(actionTypeOptional.get(), blockState, replaced);
     }
 
     @Override
