@@ -80,6 +80,9 @@ public class ActionsConfiguration {
     @Comment("player-quit is when a player disconnects from the server.")
     private boolean playerQuit = false;
 
+    @Comment("player-teleport is when a player teleports.")
+    private boolean playerTeleport = true;
+
     @Comment("vehicle-enter is when an entity enters a boat or minecart.")
     private boolean vehicleEnter = true;
 

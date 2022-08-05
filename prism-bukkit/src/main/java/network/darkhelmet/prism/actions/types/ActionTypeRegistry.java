@@ -59,6 +59,8 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         new GenericActionType("player-join", ActionResultType.NONE, false);
     public static final ActionType PLAYER_QUIT =
         new GenericActionType("player-quit", ActionResultType.NONE, false);
+    public static final ActionType PLAYER_TELEPORT =
+        new GenericActionType("player-teleport", ActionResultType.NONE, false);
     public static final ActionType VEHICLE_ENTER =
         new EntityActionType("vehicle-enter", ActionResultType.NONE, false);
     public static final ActionType VEHICLE_EXIT =
@@ -85,6 +87,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(ITEM_PICKUP);
         registerAction(PLAYER_JOIN);
         registerAction(PLAYER_QUIT);
+        registerAction(PLAYER_TELEPORT);
         registerAction(VEHICLE_ENTER);
         registerAction(VEHICLE_EXIT);
         registerAction(VEHICLE_PLACE);

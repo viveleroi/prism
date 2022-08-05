@@ -22,17 +22,25 @@ package network.darkhelmet.prism.listeners;
 
 import com.google.inject.Inject;
 
+import java.util.Locale;
+
 import network.darkhelmet.prism.actions.ActionFactory;
+import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.api.actions.IAction;
+import network.darkhelmet.prism.api.activities.Activity;
+import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.recording.RecordingService;
+import network.darkhelmet.prism.utils.LocationUtils;
 
+import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
-public class EntitySpawnListener extends AbstractListener implements Listener {
+public class PlayerTeleportListener extends AbstractListener implements Listener {
     /**
      * Construct the listener.
      *
@@ -42,7 +50,7 @@ public class EntitySpawnListener extends AbstractListener implements Listener {
      * @param recordingService The recording service
      */
     @Inject
-    public EntitySpawnListener(
+    public PlayerTeleportListener(
             ConfigurationService configurationService,
             ActionFactory actionFactory,
             ExpectationService expectationService,
@@ -51,11 +59,38 @@ public class EntitySpawnListener extends AbstractListener implements Listener {
     }
 
     /**
-     * Listens for entity explode events.
+     * On player quit.
      *
      * @param event The event
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onEntitySpawn(final EntitySpawnEvent event) {
+    public void onPlayerTeleport(final PlayerTeleportEvent event) {
+        // Ignore if this event is disabled
+        if (!configurationService.prismConfig().actions().playerTeleport()) {
+            return;
+        }
+
+        Location to = event.getTo();
+
+        String descriptor = "to unknown";
+        if (to != null && to.getWorld() != null) {
+            descriptor = String.format("%s %d,%d,%d",
+                to.getWorld().getName(), to.getBlockX(), to.getBlockY(), to.getBlockZ());
+        }
+
+        descriptor += String.format(" (via %s)",
+            (event.getCause().name().toLowerCase(Locale.ENGLISH).replace("_", " ")));
+
+        // Build the action
+        final IAction action = actionFactory.createAction(ActionTypeRegistry.PLAYER_TELEPORT, descriptor);
+
+        // Build the activity
+        final ISingleActivity activity = Activity.builder()
+            .action(action)
+            .location(LocationUtils.locToWorldCoordinate(event.getFrom()))
+            .player(event.getPlayer().getUniqueId(), event.getPlayer().getName())
+            .build();
+
+        recordingService.addToQueue(activity);
     }
 }
