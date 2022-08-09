@@ -219,7 +219,7 @@ public class QueryService {
         if (arguments.getAsList("m", Material.class).isPresent()) {
             List<String> finalMaterials = new ArrayList<>();
             arguments.getAsList("m", Material.class).get().forEach(m -> {
-                finalMaterials.add(m.toString());
+                finalMaterials.add(m.toString().toLowerCase(Locale.ENGLISH));
             });
 
             parseMaterials(builder, finalMaterials);
