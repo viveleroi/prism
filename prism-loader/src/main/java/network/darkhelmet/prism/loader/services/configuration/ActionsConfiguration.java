@@ -49,8 +49,12 @@ public class ActionsConfiguration {
     @Comment("block-place is when a player or entity places a block.")
     private boolean blockPlace = true;
 
-    @Comment("bucket-empty is when a player places a block by emptying a bucket item.")
-    private boolean bucketEmpty = true;
+    @Comment("""
+            block-shift is when a piston pushes or pulls a block.
+            It's disabled by default because these are difficult to rollback
+            and can become extremely spammy due to redstone contraptions.
+            """)
+    private boolean blockShift = true;
 
     @Comment("""
             block-spread is when a block spreads to a new block. Fire, mushrooms, etc.
@@ -60,6 +64,9 @@ public class ActionsConfiguration {
             A filter to ignore those is strongly recommended if you enable this.
             """)
     private boolean blockSpread = false;
+
+    @Comment("bucket-empty is when a player places a block by emptying a bucket item.")
+    private boolean bucketEmpty = true;
 
     @Comment("entity-kill is when an entity (or player) kills another.")
     private boolean entityKill = true;
