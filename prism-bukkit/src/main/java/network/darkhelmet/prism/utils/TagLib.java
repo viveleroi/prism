@@ -253,8 +253,42 @@ public class TagLib {
             Tag.SAPLINGS,
             Tag.STANDING_SIGNS)
         .append(
-            Tag.BUTTONS,
-            Tag.CARPETS,
+            Tag.WOOL_CARPETS,
             Tag.FLOWER_POTS)
         .append(REDSTONE_DETACHABLE, GROWABLES, ALL_PLANTS, DETACHABLES, TOP_BANNERS, RECURSIVE_TOP_DETACHABLES);
+
+    /**
+     * All wall-placeable skulls.
+     */
+    public static final MaterialTag WALL_SKULLS = new MaterialTag(
+        Material.SKELETON_WALL_SKULL,
+        Material.WITHER_SKELETON_WALL_SKULL,
+        Material.CREEPER_WALL_HEAD,
+        Material.DRAGON_WALL_HEAD,
+        Material.PLAYER_WALL_HEAD,
+        Material.ZOMBIE_WALL_HEAD);
+
+    /**
+     * All floor-placeable skulls.
+     */
+    public static final MaterialTag FLOOR_SKULLS = new MaterialTag(
+        Material.SKELETON_SKULL,
+        Material.WITHER_SKELETON_SKULL,
+        Material.CREEPER_HEAD,
+        Material.DRAGON_HEAD,
+        Material.PLAYER_HEAD,
+        Material.ZOMBIE_HEAD);
+
+    /**
+     * All skulls.
+     */
+    public static final MaterialTag ALL_SKULLS = new MaterialTag(WALL_SKULLS).append(FLOOR_SKULLS);
+
+    /**
+     * All materials that can be broken by fluid flowing.
+     */
+    public static final MaterialTag FLUID_BREAKABLE = new MaterialTag(TOP_DETACHABLES)
+        .append(Material.END_ROD)
+        .append(Material.TRIPWIRE)
+        .append(ALL_SKULLS);
 }

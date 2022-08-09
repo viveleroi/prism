@@ -71,6 +71,14 @@ public class ActionsConfiguration {
     @Comment("entity-kill is when an entity (or player) kills another.")
     private boolean entityKill = true;
 
+    @Comment("""
+            fluid-flow tracks the flow of water and lava. Even when this is false,
+            prism will record blocks broken by water/lava.
+            We strongly, strongly, strongly recommend leaving this false and using
+            a drain command instead. This produces an insane amount of activity data.
+            """)
+    private boolean fluidFlow = false;
+
     @Comment("hanging-break is when an item frame or painting is broken/detached.\n"
             + "This event will operate if block-break is false, even for detachments.")
     private boolean hangingBreak = true;

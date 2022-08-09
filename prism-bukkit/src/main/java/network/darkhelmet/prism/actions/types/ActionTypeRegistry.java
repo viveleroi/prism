@@ -51,6 +51,8 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         new ItemActionType("bucket-empty", ActionResultType.NONE, false);
     public static final ActionType ENTITY_KILL =
         new EntityActionType("entity-kill", ActionResultType.REMOVES, true);
+    public static final ActionType FLUID_FLOW =
+        new BlockActionType("fluid-flow", ActionResultType.CREATES, true);
     public static final ActionType HANGING_BREAK =
         new EntityActionType("hanging-break", ActionResultType.REMOVES, true);
     public static final ActionType ITEM_DISPENSE =
@@ -89,6 +91,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(BLOCK_SPREAD);
         registerAction(BUCKET_EMPTY);
         registerAction(ENTITY_KILL);
+        registerAction(FLUID_FLOW);
         registerAction(HANGING_BREAK);
         registerAction(ITEM_DISPENSE);
         registerAction(ITEM_DROP);

@@ -103,7 +103,9 @@ public class AbstractListener {
             }
         } else if (cause instanceof Block causeBlock) {
             finalCause = causeBlock.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
-        } else if (cause instanceof BlockIgniteEvent.IgniteCause igniteCause) {
+        } else if (cause instanceof BlockState causeBlockState) {
+            finalCause = causeBlockState.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+        }  else if (cause instanceof BlockIgniteEvent.IgniteCause igniteCause) {
             finalCause = igniteCause.name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
         } else if (cause instanceof String causeStr) {
             finalCause = causeStr;
