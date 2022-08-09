@@ -169,7 +169,9 @@ public class TagLib {
     public static final MaterialTag RECURSIVE_BOTTOM_DETACHABLES = new MaterialTag(
         Material.CHAIN,
         Material.POINTED_DRIPSTONE,
-        Material.VINE
+        Material.VINE,
+        Material.WEEPING_VINES,
+        Material.WEEPING_VINES_PLANT
     ).append(Tag.CAVE_VINES);
 
     /**
@@ -179,7 +181,7 @@ public class TagLib {
         Material.SPORE_BLOSSOM,
         Material.LANTERN,
         Material.SOUL_LANTERN
-    ).append(Tag.CAVE_VINES).append(DETACHABLES, RECURSIVE_BOTTOM_DETACHABLES);
+    ).append(DETACHABLES, RECURSIVE_BOTTOM_DETACHABLES);
 
     /**
      * All materials that can detach from the side of a block.
@@ -220,9 +222,7 @@ public class TagLib {
         Material.SCAFFOLDING,
         Material.SUGAR_CANE,
         Material.TWISTING_VINES,
-        Material.TWISTING_VINES_PLANT,
-        Material.WEEPING_VINES,
-        Material.WEEPING_VINES_PLANT
+        Material.TWISTING_VINES_PLANT
     ).append(Tag.CAVE_VINES);
 
     /**

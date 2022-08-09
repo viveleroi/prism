@@ -54,7 +54,6 @@ import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStor
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
 import static org.jooq.impl.DSL.avg;
-import static org.jooq.impl.DSL.case_;
 import static org.jooq.impl.DSL.coalesce;
 import static org.jooq.impl.DSL.count;
 
@@ -272,11 +271,11 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
             // In order to do this, we tell hanging blocks to sort *after* everything else,
             // then we sort everything by `y asc` and sort these hanging blocks by `y desc`.
             // cave_vines are sorted to come after cave_vines_plant so the plant is rebuilt first.
-            queryBuilder.addOrderBy(case_(PRISM_MATERIALS.MATERIAL)
-                .when("cave_vines", 1)
+            queryBuilder.addOrderBy(DSL.decode()
+                .when(PRISM_MATERIALS.MATERIAL.in("cave_vines", "weeping_vines"), 1)
                 .else_(-1).asc());
-            queryBuilder.addOrderBy(case_(PRISM_MATERIALS.MATERIAL)
-                .when("cave_vines_plant", 1)
+            queryBuilder.addOrderBy(DSL.decode()
+                .when(PRISM_MATERIALS.MATERIAL.in("cave_vines_plant", "weeping_vines_plant"), 1)
                 .else_(-1).asc());
 
             queryBuilder.addOrderBy(DSL.decode()
@@ -287,14 +286,20 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
             queryBuilder.addOrderBy(PRISM_ACTIVITIES.X.asc());
             queryBuilder.addOrderBy(PRISM_ACTIVITIES.Z.asc());
 
+            List<String> materialsToBuildUp = List.of(
+                "pointed_dripstone",
+                "cave_vines_plant",
+                "weeping_vines_plant",
+                "vine");
+
             queryBuilder.addOrderBy(DSL.decode()
                 .when(PRISM_MATERIALS.MATERIAL
-                .in("pointed_dripstone", "cave_vines_plant", "vine"), PRISM_ACTIVITIES.Y)
+                .in(materialsToBuildUp), PRISM_ACTIVITIES.Y)
                 .desc());
 
             queryBuilder.addOrderBy(DSL.decode()
                 .when(PRISM_MATERIALS.MATERIAL
-                .notIn("pointed_dripstone", "cave_vines_plant", "vine"), PRISM_ACTIVITIES.Y)
+                .notIn(materialsToBuildUp), PRISM_ACTIVITIES.Y)
                 .asc());
         }
 
