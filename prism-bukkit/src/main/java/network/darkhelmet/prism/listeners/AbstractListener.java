@@ -42,6 +42,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.inventory.ItemStack;
@@ -95,7 +96,11 @@ public class AbstractListener {
     protected String nameFromCause(Object cause) {
         String finalCause = null;
         if (cause instanceof Entity causeEntity) {
-            finalCause = causeEntity.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+            if (causeEntity.getType().equals(EntityType.FALLING_BLOCK)) {
+                finalCause = "gravity";
+            } else {
+                finalCause = causeEntity.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+            }
         } else if (cause instanceof Block causeBlock) {
             finalCause = causeBlock.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
         } else if (cause instanceof BlockIgniteEvent.IgniteCause igniteCause) {
@@ -133,11 +138,6 @@ public class AbstractListener {
             recordBlockBreakAction(detachable, cause);
         }
 
-        // Record all blocks that will fall
-        for (Block faller : BlockUtils.gravity(new ArrayList<>(), block)) {
-            recordBlockBreakAction(faller, cause);
-        }
-
         // Record this block
         recordBlockBreakAction(block, cause);
     }
@@ -164,7 +164,7 @@ public class AbstractListener {
             }
 
             // Record all blocks that will fall
-            for (Block faller : BlockUtils.gravity(new ArrayList<>(), block)) {
+            for (Block faller : BlockUtils.gravityAffectedBlocksAbove(new ArrayList<>(), block)) {
                 // Skip blocks already in the affected block list
                 if (affectedBlocks.contains(faller)) {
                     continue;

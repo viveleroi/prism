@@ -127,13 +127,13 @@ public class BlockUtils {
      * @param startBlock The start block
      * @return A list of any blocks that are considered "fallers"
      */
-    public static List<Block> gravity(List<Block> accumulator, Block startBlock) {
+    public static List<Block> gravityAffectedBlocksAbove(List<Block> accumulator, Block startBlock) {
         Block neighbor = startBlock.getRelative(BlockFace.UP);
         if (TagLib.GRAVITY_AFFECTED.isTagged(neighbor.getType())) {
             accumulator.add(neighbor);
 
             // Recurse upwards
-            gravity(accumulator, neighbor);
+            gravityAffectedBlocksAbove(accumulator, neighbor);
         }
 
         return accumulator;
