@@ -21,7 +21,6 @@
 package network.darkhelmet.prism.services.filters;
 
 import java.util.List;
-import java.util.UUID;
 
 import network.darkhelmet.prism.actions.MaterialAction;
 import network.darkhelmet.prism.api.activities.IActivity;
@@ -37,7 +36,7 @@ public class ActivityFilter {
     /**
      * All world UUIDs.
      */
-    private final List<UUID> worldUuids;
+    private final List<String> worldNames;
 
     /**
      * Actions.
@@ -53,17 +52,17 @@ public class ActivityFilter {
      * Construct a new activity filter.
      *
      * @param behavior The behavior
-     * @param worldUuids The world UUIDs
+     * @param worldNames The world names
      * @param actions The actions
      * @param materialTag The material tag
      */
     public ActivityFilter(
             FilterBehavior behavior,
-            List<UUID> worldUuids,
+            List<String> worldNames,
             List<String> actions,
             MaterialTag materialTag) {
         this.behavior = behavior;
-        this.worldUuids = worldUuids;
+        this.worldNames = worldNames;
         this.actions = actions;
         this.materialTag = materialTag;
     }
@@ -116,10 +115,10 @@ public class ActivityFilter {
      * <p>If none listed, the filter will match all.</p>
      *
      * @param activity The activity
-     * @return True if world UUID matched
+     * @return True if world name matched
      */
     private boolean worldsMatch(IActivity activity) {
-        return worldUuids.isEmpty() || worldUuids.contains(activity.location().world().uuid());
+        return worldNames.isEmpty() || worldNames.contains(activity.location().world().name());
     }
 
     /**

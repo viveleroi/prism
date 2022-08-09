@@ -26,7 +26,6 @@ import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.filters.IFilterService;
@@ -35,9 +34,7 @@ import network.darkhelmet.prism.loader.services.configuration.FilterConfiguartio
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.utils.MaterialTag;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.World;
 
 @Singleton
 public class FilterService implements IFilterService {
@@ -87,17 +84,11 @@ public class FilterService implements IFilterService {
             }
 
             // Worlds
-            List<UUID> worldUuids = new ArrayList<>();
-            for (String worldName : config.worlds()) {
-                World world = Bukkit.getServer().getWorld(worldName);
-                if (world == null) {
-                    loggingService.logger().warn("Filter error: No world found by name {}.", worldName);
-
-                    continue;
-                }
-
-                worldUuids.add(world.getUID());
-            }
+            // Note: Worlds may not be loaded here and users type world names so we'll
+            // just rely on the name for comparison. No need for UUIDs otherwise we'd need
+            // to monitor world load/unload events.
+            // Unfortunately that also means we can't error when an invalid world is configured.
+            List<String> worldNames = config.worlds();
 
             // Materials
             MaterialTag materialTag = new MaterialTag();
@@ -110,7 +101,7 @@ public class FilterService implements IFilterService {
                 }
             }
 
-            filters.add(new ActivityFilter(config.behavior(), worldUuids, config.actions(), materialTag));
+            filters.add(new ActivityFilter(config.behavior(), worldNames, config.actions(), materialTag));
         }
     }
 
