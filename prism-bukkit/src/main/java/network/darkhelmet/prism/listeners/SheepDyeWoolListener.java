@@ -62,13 +62,13 @@ public class SheepDyeWoolListener extends AbstractListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onSheepDyeWool(final SheepDyeWoolEvent event) {
         // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().sheepDye()) {
+        if (!configurationService.prismConfig().actions().entityDye()) {
             return;
         }
 
         // Build the action
         final IAction action = actionFactory
-            .createEntityAction(ActionTypeRegistry.SHEEP_DYE, event.getEntity());
+            .createEntityAction(ActionTypeRegistry.ENTITY_DYE, event.getEntity());
 
         // Build the activity
         Activity.ActivityBuilder builder = Activity.builder()

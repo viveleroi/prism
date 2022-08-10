@@ -71,6 +71,9 @@ public class ActionsConfiguration {
     @Comment("bucket-fill is when a player removes a block by filling a bucket.")
     private boolean bucketFill = true;
 
+    @Comment("entity-dye is when a player dyes an entity.")
+    private boolean entityDye = true;
+
     @Comment("entity-eat is when an entity eats a block and changes it.")
     private boolean entityEat = true;
 
@@ -106,9 +109,6 @@ public class ActionsConfiguration {
 
     @Comment("player-teleport is when a player teleports.")
     private boolean playerTeleport = true;
-
-    @Comment("sheep-dye is when a player dyes sheep.")
-    private boolean sheepDye = true;
 
     @Comment("vehicle-enter is when an entity enters a boat or minecart.")
     private boolean vehicleEnter = true;
