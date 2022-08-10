@@ -31,7 +31,6 @@ import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.recording.RecordingService;
-import network.darkhelmet.prism.utils.BlockUtils;
 import network.darkhelmet.prism.utils.LocationUtils;
 
 import org.bukkit.Material;
@@ -42,7 +41,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketFillEvent;
-import org.bukkit.inventory.ItemStack;
 
 public class PlayerBucketFillListener extends AbstractListener implements Listener {
     /**
@@ -70,12 +68,7 @@ public class PlayerBucketFillListener extends AbstractListener implements Listen
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerBucketFill(final PlayerBucketFillEvent event) {
         // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().bucketFill()) {
-            return;
-        }
-
-        Material bucketMaterial = BlockUtils.bucketMaterialFromBlock(event.getBlock());
-        if (bucketMaterial == null) {
+        if (event.getItemStack() == null || !configurationService.prismConfig().actions().bucketFill()) {
             return;
         }
 
@@ -84,7 +77,7 @@ public class PlayerBucketFillListener extends AbstractListener implements Listen
 
         // Build the action
         final IAction bucketEmptyAction = actionFactory.createItemStackAction(
-            ActionTypeRegistry.BUCKET_FILL, new ItemStack(bucketMaterial));
+            ActionTypeRegistry.BUCKET_FILL, event.getItemStack());
 
         // Build the activity
         final ISingleActivity bucketEmptyActivity = Activity.builder()
@@ -95,9 +88,13 @@ public class PlayerBucketFillListener extends AbstractListener implements Listen
 
         recordingService.addToQueue(bucketEmptyActivity);
 
+        // No block data
+        if (event.getBlock().getType().equals(Material.AIR)) {
+            return;
+        }
+
         BlockData blockData = event.getBlock().getBlockData();
         if (event.getBlockClicked().getBlockData() instanceof Waterlogged waterlogged) {
-            System.out.println("WATERLOGGED " + waterlogged.isWaterlogged());
             blockData = waterlogged;
 
             // Fake the waterlogged block now being dry
