@@ -68,6 +68,12 @@ public class BlockFadeListener extends AbstractListener implements Listener {
             return;
         }
 
+        // Ignore fades into the same block.
+        // DEEPSLATE_REDSTONE_ORE fades into DEEPSLATE_REDSTONE_ORE. State stuff?
+        if (event.getBlock().getType().equals(event.getNewState().getType())) {
+            return;
+        }
+
         // Build the action
         final Block block = event.getBlock();
         final IAction action = actionFactory
