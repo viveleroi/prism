@@ -80,6 +80,9 @@ public class ActionsConfiguration {
     @Comment("entity-kill is when an entity (or player) kills another.")
     private boolean entityKill = true;
 
+    @Comment("entity-shear is when a player shears an entity.")
+    private boolean entityShear = true;
+
     @Comment("""
             fluid-flow tracks the flow of water and lava. Even when this is false,
             prism will record blocks broken by water/lava.

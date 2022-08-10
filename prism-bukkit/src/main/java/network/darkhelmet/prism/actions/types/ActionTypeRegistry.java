@@ -57,6 +57,8 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         new BlockActionType("entity-eat", ActionResultType.CREATES, true);
     public static final ActionType ENTITY_KILL =
         new EntityActionType("entity-kill", ActionResultType.REMOVES, true);
+    public static final ActionType ENTITY_SHEAR =
+        new EntityActionType("entity-shear", ActionResultType.CREATES, true);
     public static final ActionType FLUID_FLOW =
         new BlockActionType("fluid-flow", ActionResultType.CREATES, true);
     public static final ActionType HANGING_BREAK =
@@ -100,6 +102,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(ENTITY_DYE);
         registerAction(ENTITY_EAT);
         registerAction(ENTITY_KILL);
+        registerAction(ENTITY_SHEAR);
         registerAction(FLUID_FLOW);
         registerAction(HANGING_BREAK);
         registerAction(ITEM_DISPENSE);
