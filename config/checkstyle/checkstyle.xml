@@ -59,6 +59,9 @@
     </module>
 
     <module name="TreeWalker">
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="System\.out\.print"/>
+        </module>
 	    <module name="NoWhitespaceAfter">
 	        <property name="tokens" value="DOT"/>
 	        <property name="allowLineBreaks" value="false"/>

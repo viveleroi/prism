@@ -24,7 +24,6 @@ import com.google.inject.Inject;
 
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
-import org.spongepowered.api.block.transaction.BlockTransactionReceipt;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
@@ -46,14 +45,5 @@ public class ChangeBlockListener extends AbstractListener {
      * @param event ChangeBlockEvent
      */
     @Listener(order = Order.POST)
-    public void onChangeBlock(ChangeBlockEvent event) {
-        if (event instanceof ChangeBlockEvent.Post) {
-            ChangeBlockEvent.Post post = (ChangeBlockEvent.Post) event;
-
-            for (BlockTransactionReceipt receipt : post.receipts()) {
-                System.out.println(receipt.finalBlock());
-                System.out.println(receipt.originalBlock());
-            }
-        }
-    }
+    public void onChangeBlock(ChangeBlockEvent event) {}
 }
