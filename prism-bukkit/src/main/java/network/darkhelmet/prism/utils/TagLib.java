@@ -148,8 +148,25 @@ public class TagLib {
      * Materials that attach to any side of a block.
      */
     public static final MaterialTag DETACHABLES = new MaterialTag(
+        Material.AMETHYST_CLUSTER,
+        Material.CHORUS_PLANT);
+
+    /**
+     * Materials that attach to any side of a block, recursively.
+     */
+    public static final MaterialTag RECURSIVE_DETACHABLES = new MaterialTag(
         Material.CHORUS_PLANT,
-        Material.AMETHYST_CLUSTER);
+        Material.END_PORTAL,
+        Material.NETHER_PORTAL);
+
+    /**
+     * Materials that can have recursive attachments.
+     */
+    public static final MaterialTag RECURSIVE_DETACHABLE_HOLDERS = new MaterialTag(
+        Material.END_PORTAL_FRAME,
+        Material.CHORUS_FLOWER,
+        Material.CHORUS_PLANT,
+        Material.OBSIDIAN);
 
     /**
      * All redstone-related items that detach when connected block is broken.
@@ -172,7 +189,7 @@ public class TagLib {
         Material.VINE,
         Material.WEEPING_VINES,
         Material.WEEPING_VINES_PLANT
-    ).append(Tag.CAVE_VINES);
+    ).append(Tag.CAVE_VINES).append(RECURSIVE_DETACHABLES);
 
     /**
      * Materials that attach to the bottom of a block.
@@ -206,7 +223,6 @@ public class TagLib {
         Material.COCOA,
         Material.GLOW_LICHEN,
         Material.LEVER,
-        Material.NETHER_PORTAL,
         Material.SCAFFOLDING,
         Material.TRIPWIRE_HOOK)
         .append(Tag.BUTTONS, Tag.WALL_SIGNS, Tag.CLIMBABLE)
@@ -223,7 +239,7 @@ public class TagLib {
         Material.SUGAR_CANE,
         Material.TWISTING_VINES,
         Material.TWISTING_VINES_PLANT
-    ).append(Tag.CAVE_VINES);
+    ).append(Tag.CAVE_VINES).append(RECURSIVE_DETACHABLES);
 
     /**
      * All materials that can detach from the top of a block.
@@ -238,7 +254,6 @@ public class TagLib {
         Material.SOUL_TORCH,
         Material.LEVER,
         Material.SNOW,
-        Material.NETHER_PORTAL,
         Material.LILY_PAD,
         Material.NETHER_WART,
         Material.BEACON,

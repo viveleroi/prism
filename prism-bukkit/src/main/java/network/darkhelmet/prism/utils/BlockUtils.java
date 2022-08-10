@@ -27,6 +27,7 @@ import lombok.experimental.UtilityClass;
 
 import network.darkhelmet.prism.services.modifications.state.BlockStateChange;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -147,11 +148,50 @@ public class BlockUtils {
      * @return A list of any detachable blocks
      */
     public static List<Block> detachables(List<Block> accumulator, Block startBlock) {
+        // We can avoid a ton of useless checks by checking for the limited number
+        // of materials that can have "recursive detachables on all sides" at all.
+        if (TagLib.RECURSIVE_DETACHABLE_HOLDERS.isTagged(startBlock.getType())) {
+            allSideDetachables(accumulator, new ArrayList<>(), startBlock);
+        }
+
         sideDetachables(accumulator, startBlock);
         topDetachables(accumulator, startBlock);
         bottomDetachables(accumulator, startBlock);
 
         return accumulator;
+    }
+
+    /**
+     * Query all "detachable" blocks on all sides of a given block.
+     *
+     * <p>This only checks recursive materials because any all-side
+     * detachable that is not recursive is checked in side-specific methods.</p>
+     *
+     * @param matchAccumulator Accumulation list as there may be recursion
+     * @param startBlock The start block
+     * @return A list of any blocks that are considered "detachable"
+     */
+    protected static List<Block> allSideDetachables(
+            List<Block> matchAccumulator, List<Location> rejectAccumulator, Block startBlock) {
+        for (BlockFace face : BlockFace.values()) {
+            Block neighbor = startBlock.getRelative(face);
+
+            // Skip visited
+            if (matchAccumulator.contains(neighbor) || rejectAccumulator.contains(neighbor.getLocation())) {
+                continue;
+            }
+
+            if (TagLib.RECURSIVE_DETACHABLES.isTagged(neighbor.getType())) {
+                matchAccumulator.add(neighbor);
+
+                // Recurse
+                allSideDetachables(matchAccumulator, rejectAccumulator, neighbor);
+            } else {
+                rejectAccumulator.add(neighbor.getLocation());
+            }
+        }
+
+        return matchAccumulator;
     }
 
     /**
