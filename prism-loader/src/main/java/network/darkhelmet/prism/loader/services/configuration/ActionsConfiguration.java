@@ -101,6 +101,9 @@ public class ActionsConfiguration {
             + "This event will operate if block-break is false, even for detachments.")
     private boolean hangingBreak = true;
 
+    @Comment("inventory-open is when a player opens an inventory (chest, furnace, anything except theirs).")
+    private boolean inventoryOpen = true;
+
     @Comment("item-dispense is when a block dispenses an item.")
     private boolean itemDispense = true;
 

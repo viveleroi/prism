@@ -25,7 +25,12 @@ import com.google.inject.Inject;
 import java.util.Optional;
 
 import network.darkhelmet.prism.actions.ActionFactory;
+import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.api.actions.IAction;
+import network.darkhelmet.prism.api.activities.Activity;
+import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.services.wands.IWand;
+import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.recording.RecordingService;
@@ -45,6 +50,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.InventoryHolder;
 
 public class PlayerInteractListener extends AbstractListener implements Listener {
     /**
@@ -104,6 +110,30 @@ public class PlayerInteractListener extends AbstractListener implements Listener
 
             // Cancel the event
             event.setCancelled(true);
+
+            return;
+        }
+
+        WorldCoordinate at = LocationUtils.locToWorldCoordinate(event.getClickedBlock().getLocation());
+
+        if (event.getClickedBlock().getState() instanceof InventoryHolder) {
+            // Ignore if this event is disabled
+            if (!configurationService.prismConfig().actions().inventoryOpen()) {
+                return;
+            }
+
+            // Build the action
+            final IAction action = actionFactory
+                .createBlockStateAction(ActionTypeRegistry.INVENTORY_OPEN, event.getClickedBlock().getState());
+
+            // Build the activity
+            ISingleActivity activity = Activity.builder()
+                .action(action)
+                .player(event.getPlayer().getUniqueId(), event.getPlayer().getName())
+                .location(at)
+                .build();
+
+            recordingService.addToQueue(activity);
         }
     }
 
