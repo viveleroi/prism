@@ -25,7 +25,6 @@ import com.google.inject.Inject;
 import java.util.Optional;
 
 import network.darkhelmet.prism.actions.ActionFactory;
-import network.darkhelmet.prism.api.services.expectations.ExpectationType;
 import network.darkhelmet.prism.api.services.wands.IWand;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
@@ -46,7 +45,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
 
 public class PlayerInteractListener extends AbstractListener implements Listener {
     /**
@@ -126,24 +124,11 @@ public class PlayerInteractListener extends AbstractListener implements Listener
             return;
         }
 
-        // Left click = block's location
-        // Right click = location of block connected to the clicked block face
-        Location targetLocation = block.getLocation();
-        if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-            targetLocation = block.getRelative(event.getBlockFace()).getLocation();
-        }
-
         if (event.useInteractedBlock().equals(Event.Result.DENY) || event.useItemInHand().equals(Event.Result.DENY)) {
             return;
         }
 
-        ItemStack heldItem = player.getInventory().getItemInMainHand();
-        if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-            if (MaterialTag.ITEMS_BOATS.isTagged(heldItem.getType())) {
-                expectationService.cacheFor(ExpectationType.SPAWN_VEHICLE)
-                    .expect(targetLocation, event.getPlayer());
-            }
-        } else if (event.getAction().equals(Action.PHYSICAL) && block.getType().equals(Material.FARMLAND)) {
+        if (event.getAction().equals(Action.PHYSICAL) && block.getType().equals(Material.FARMLAND)) {
             // Record block break for crop
             Block blockAbove = block.getRelative(BlockFace.UP);
             if (MaterialTag.CROPS.isTagged(blockAbove.getType())) {

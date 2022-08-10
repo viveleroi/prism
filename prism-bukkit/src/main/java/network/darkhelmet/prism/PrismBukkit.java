@@ -69,6 +69,7 @@ import network.darkhelmet.prism.listeners.EntityChangeBlockListener;
 import network.darkhelmet.prism.listeners.EntityDeathListener;
 import network.darkhelmet.prism.listeners.EntityExplodeListener;
 import network.darkhelmet.prism.listeners.EntityPickupItemListener;
+import network.darkhelmet.prism.listeners.EntityPlaceListener;
 import network.darkhelmet.prism.listeners.EntitySpawnListener;
 import network.darkhelmet.prism.listeners.HangingBreakListener;
 import network.darkhelmet.prism.listeners.LeavesDecayListener;
@@ -83,7 +84,6 @@ import network.darkhelmet.prism.listeners.PlayerQuitListener;
 import network.darkhelmet.prism.listeners.PlayerTeleportListener;
 import network.darkhelmet.prism.listeners.SpongeAbsorbListener;
 import network.darkhelmet.prism.listeners.StructureGrowListener;
-import network.darkhelmet.prism.listeners.VehicleCreateListener;
 import network.darkhelmet.prism.listeners.VehicleEnterListener;
 import network.darkhelmet.prism.listeners.VehicleExitListener;
 import network.darkhelmet.prism.loader.services.dependencies.Dependency;
@@ -238,6 +238,7 @@ public class PrismBukkit implements IPrism {
             registerEvent(EntityDeathListener.class);
             registerEvent(EntityExplodeListener.class);
             registerEvent(EntityPickupItemListener.class);
+            registerEvent(EntityPlaceListener.class);
             registerEvent(EntitySpawnListener.class);
             registerEvent(HangingBreakListener.class);
             registerEvent(LeavesDecayListener.class);
@@ -252,7 +253,6 @@ public class PrismBukkit implements IPrism {
             registerEvent(PlayerTeleportListener.class);
             registerEvent(SpongeAbsorbListener.class);
             registerEvent(StructureGrowListener.class);
-            registerEvent(VehicleCreateListener.class);
             registerEvent(VehicleEnterListener.class);
             registerEvent(VehicleExitListener.class);
 

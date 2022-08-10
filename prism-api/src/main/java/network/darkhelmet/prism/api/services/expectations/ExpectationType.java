@@ -24,10 +24,5 @@ public enum ExpectationType {
     /**
      * Items will detach from a block face.
      */
-    DETACH,
-
-    /**
-     * A vehicle will be spawned.
-     */
-    SPAWN_VEHICLE
+    DETACH
 }
