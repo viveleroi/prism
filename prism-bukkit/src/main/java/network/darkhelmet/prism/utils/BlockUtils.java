@@ -34,6 +34,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.block.data.type.TrapDoor;
@@ -60,6 +61,26 @@ public class BlockUtils {
             return Material.LAVA;
         } else if (bucket.equals(Material.POWDER_SNOW_BUCKET)) {
             return Material.POWDER_SNOW;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the bucket material a block would create on bucket fill.
+     *
+     * @param block The block
+     * @return The bucket material
+     */
+    public static Material bucketMaterialFromBlock(Block block) {
+        if (block.getType().equals(Material.WATER)) {
+            return Material.WATER_BUCKET;
+        } else if (block.getType().equals(Material.LAVA)) {
+            return Material.LAVA_BUCKET;
+        } else if (block.getBlockData() instanceof Waterlogged waterlogged) {
+            if (waterlogged.isWaterlogged()) {
+                return Material.WATER_BUCKET;
+            }
         }
 
         return null;

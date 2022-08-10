@@ -65,8 +65,11 @@ public class ActionsConfiguration {
             """)
     private boolean blockSpread = false;
 
-    @Comment("bucket-empty is when a player places a block by emptying a bucket item.")
+    @Comment("bucket-empty is when a player places a block by emptying a bucket.")
     private boolean bucketEmpty = true;
+
+    @Comment("bucket-fill is when a player removes a block by filling a bucket.")
+    private boolean bucketFill = true;
 
     @Comment("entity-kill is when an entity (or player) kills another.")
     private boolean entityKill = true;
