@@ -86,6 +86,9 @@ public class ActionsConfiguration {
     @Comment("entity-shear is when a player shears an entity.")
     private boolean entityShear = true;
 
+    @Comment("entity-unleash is when a player or natural cause unleashes an entity.")
+    private boolean entityUnleash = true;
+
     @Comment("""
             fluid-flow tracks the flow of water and lava. Even when this is false,
             prism will record blocks broken by water/lava.

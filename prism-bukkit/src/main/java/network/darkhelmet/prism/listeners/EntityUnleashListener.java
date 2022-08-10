@@ -22,6 +22,8 @@ package network.darkhelmet.prism.listeners;
 
 import com.google.inject.Inject;
 
+import java.util.Locale;
+
 import network.darkhelmet.prism.actions.ActionFactory;
 import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.IAction;
@@ -35,9 +37,9 @@ import network.darkhelmet.prism.utils.LocationUtils;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerLeashEntityEvent;
+import org.bukkit.event.entity.EntityUnleashEvent;
 
-public class PlayerLeashEntityListener extends AbstractListener implements Listener {
+public class EntityUnleashListener extends AbstractListener implements Listener {
     /**
      * Construct the listener.
      *
@@ -47,7 +49,7 @@ public class PlayerLeashEntityListener extends AbstractListener implements Liste
      * @param recordingService The recording service
      */
     @Inject
-    public PlayerLeashEntityListener(
+    public EntityUnleashListener(
             ConfigurationService configurationService,
             ActionFactory actionFactory,
             ExpectationService expectationService,
@@ -56,26 +58,31 @@ public class PlayerLeashEntityListener extends AbstractListener implements Liste
     }
 
     /**
-     * Listens for entity leash events.
+     * Listens for entity unleash events.
      *
      * @param event The event
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerLeashEntity(final PlayerLeashEntityEvent event) {
+    public void onEntityUnleash(final EntityUnleashEvent event) {
         // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().entityLeash()) {
+        if (!configurationService.prismConfig().actions().entityUnleash()) {
+            return;
+        }
+
+        // Let PlayerUnleashEntityEvent take over
+        if (event.getReason().equals(EntityUnleashEvent.UnleashReason.PLAYER_UNLEASH)) {
             return;
         }
 
         // Build the action
         final IAction action = actionFactory
-            .createEntityAction(ActionTypeRegistry.ENTITY_LEASH, event.getEntity());
+            .createEntityAction(ActionTypeRegistry.ENTITY_UNLEASH, event.getEntity());
 
         // Build the activity
         ISingleActivity activity = Activity.builder()
             .action(action)
             .location(LocationUtils.locToWorldCoordinate(event.getEntity().getLocation()))
-            .player(event.getPlayer().getUniqueId(), event.getPlayer().getName())
+            .cause(event.getReason().name().toLowerCase(Locale.ENGLISH).replace("_", " "))
             .build();
 
         recordingService.addToQueue(activity);

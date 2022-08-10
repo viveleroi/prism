@@ -55,7 +55,7 @@ public class SheepDyeWoolListener extends AbstractListener implements Listener {
     }
 
     /**
-     * Listens for entity place events.
+     * Listens for entity dye events.
      *
      * @param event The event
      */

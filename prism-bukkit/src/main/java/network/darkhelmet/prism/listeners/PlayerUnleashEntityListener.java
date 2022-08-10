@@ -35,9 +35,9 @@ import network.darkhelmet.prism.utils.LocationUtils;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerLeashEntityEvent;
+import org.bukkit.event.player.PlayerUnleashEntityEvent;
 
-public class PlayerLeashEntityListener extends AbstractListener implements Listener {
+public class PlayerUnleashEntityListener extends AbstractListener implements Listener {
     /**
      * Construct the listener.
      *
@@ -47,7 +47,7 @@ public class PlayerLeashEntityListener extends AbstractListener implements Liste
      * @param recordingService The recording service
      */
     @Inject
-    public PlayerLeashEntityListener(
+    public PlayerUnleashEntityListener(
             ConfigurationService configurationService,
             ActionFactory actionFactory,
             ExpectationService expectationService,
@@ -56,20 +56,20 @@ public class PlayerLeashEntityListener extends AbstractListener implements Liste
     }
 
     /**
-     * Listens for entity leash events.
+     * Listens for player unleash entity events.
      *
      * @param event The event
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerLeashEntity(final PlayerLeashEntityEvent event) {
+    public void onPlayerUnleashEntity(final PlayerUnleashEntityEvent event) {
         // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().entityLeash()) {
+        if (!configurationService.prismConfig().actions().entityUnleash()) {
             return;
         }
 
         // Build the action
         final IAction action = actionFactory
-            .createEntityAction(ActionTypeRegistry.ENTITY_LEASH, event.getEntity());
+            .createEntityAction(ActionTypeRegistry.ENTITY_UNLEASH, event.getEntity());
 
         // Build the activity
         ISingleActivity activity = Activity.builder()

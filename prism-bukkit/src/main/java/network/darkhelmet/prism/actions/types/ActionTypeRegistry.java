@@ -61,6 +61,8 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         new EntityActionType("entity-leash", ActionResultType.NONE, false);
     public static final ActionType ENTITY_SHEAR =
         new EntityActionType("entity-shear", ActionResultType.CREATES, true);
+    public static final ActionType ENTITY_UNLEASH =
+        new EntityActionType("entity-unleash", ActionResultType.NONE, false);
     public static final ActionType FLUID_FLOW =
         new BlockActionType("fluid-flow", ActionResultType.CREATES, true);
     public static final ActionType HANGING_BREAK =
@@ -106,6 +108,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(ENTITY_KILL);
         registerAction(ENTITY_LEASH);
         registerAction(ENTITY_SHEAR);
+        registerAction(ENTITY_UNLEASH);
         registerAction(FLUID_FLOW);
         registerAction(HANGING_BREAK);
         registerAction(ITEM_DISPENSE);
