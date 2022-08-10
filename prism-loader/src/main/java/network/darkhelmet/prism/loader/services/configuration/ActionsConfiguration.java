@@ -54,7 +54,7 @@ public class ActionsConfiguration {
             It's disabled by default because these are difficult to rollback
             and can become extremely spammy due to redstone contraptions.
             """)
-    private boolean blockShift = true;
+    private boolean blockShift = false;
 
     @Comment("""
             block-spread is when a block spreads to a new block. Fire, mushrooms, etc.
