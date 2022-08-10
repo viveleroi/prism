@@ -77,6 +77,8 @@ public class BlockUtils {
             return Material.WATER_BUCKET;
         } else if (block.getType().equals(Material.LAVA)) {
             return Material.LAVA_BUCKET;
+        } else if (block.getType().equals(Material.POWDER_SNOW)) {
+            return Material.POWDER_SNOW_BUCKET;
         } else if (block.getBlockData() instanceof Waterlogged waterlogged) {
             if (waterlogged.isWaterlogged()) {
                 return Material.WATER_BUCKET;
