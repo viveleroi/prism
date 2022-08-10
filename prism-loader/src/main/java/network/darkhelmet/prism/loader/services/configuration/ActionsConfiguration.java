@@ -80,6 +80,9 @@ public class ActionsConfiguration {
     @Comment("entity-kill is when an entity (or player) kills another.")
     private boolean entityKill = true;
 
+    @Comment("entity-leash is when a player leashes an entity.")
+    private boolean entityLeash = true;
+
     @Comment("entity-shear is when a player shears an entity.")
     private boolean entityShear = true;
 
