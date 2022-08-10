@@ -32,6 +32,7 @@ import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.recording.RecordingService;
 import network.darkhelmet.prism.utils.LocationUtils;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
@@ -66,6 +67,11 @@ public class BlockIgniteListener extends AbstractListener implements Listener {
     public void onBlockIgnite(final BlockIgniteEvent event) {
         // Ignore if this event is disabled
         if (!configurationService.prismConfig().actions().blockIgnite()) {
+            return;
+        }
+
+        // Ignore igniting air. Isn't this just fire spread?
+        if (event.getBlock().getType().equals(Material.AIR)) {
             return;
         }
 
