@@ -51,6 +51,8 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         new ItemActionType("bucket-empty", ActionResultType.NONE, false);
     public static final ActionType BUCKET_FILL =
         new ItemActionType("bucket-fill", ActionResultType.NONE, false);
+    public static final ActionType ENTITY_EAT =
+        new EntityActionType("entity-eat", ActionResultType.REMOVES, true);
     public static final ActionType ENTITY_KILL =
         new EntityActionType("entity-kill", ActionResultType.REMOVES, true);
     public static final ActionType FLUID_FLOW =
@@ -95,6 +97,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(BLOCK_SPREAD);
         registerAction(BUCKET_EMPTY);
         registerAction(BUCKET_FILL);
+        registerAction(ENTITY_EAT);
         registerAction(ENTITY_KILL);
         registerAction(FLUID_FLOW);
         registerAction(HANGING_BREAK);

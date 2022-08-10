@@ -71,6 +71,9 @@ public class ActionsConfiguration {
     @Comment("bucket-fill is when a player removes a block by filling a bucket.")
     private boolean bucketFill = true;
 
+    @Comment("entity-eat is when an entity eats a block and changes it.")
+    private boolean entityEat = true;
+
     @Comment("entity-kill is when an entity (or player) kills another.")
     private boolean entityKill = true;
 

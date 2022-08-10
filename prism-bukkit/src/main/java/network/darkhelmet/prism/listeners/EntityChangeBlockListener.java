@@ -80,8 +80,13 @@ public class EntityChangeBlockListener extends AbstractListener implements Liste
 
         // If the entity is a sheep, it's eating
         if (event.getEntityType().equals(EntityType.SHEEP)) {
+            // Ignore if this event is disabled
+            if (!configurationService.prismConfig().actions().entityEat()) {
+                return;
+            }
+
             IAction action = actionFactory.createBlockStateAction(
-                ActionTypeRegistry.BLOCK_FADE, newState, oldState);
+                ActionTypeRegistry.ENTITY_EAT, newState, oldState);
 
             // Build the block activity
             final ISingleActivity activity = Activity.builder()
