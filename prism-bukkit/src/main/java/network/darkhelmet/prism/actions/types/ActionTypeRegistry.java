@@ -69,6 +69,8 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         new GenericActionType("player-quit", ActionResultType.NONE, false);
     public static final ActionType PLAYER_TELEPORT =
         new GenericActionType("player-teleport", ActionResultType.NONE, false);
+    public static final ActionType SHEEP_DYE =
+        new EntityActionType("sheep-dye", ActionResultType.CREATES, true);
     public static final ActionType VEHICLE_ENTER =
         new EntityActionType("vehicle-enter", ActionResultType.NONE, false);
     public static final ActionType VEHICLE_EXIT =
@@ -102,6 +104,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(PLAYER_JOIN);
         registerAction(PLAYER_QUIT);
         registerAction(PLAYER_TELEPORT);
+        registerAction(SHEEP_DYE);
         registerAction(VEHICLE_ENTER);
         registerAction(VEHICLE_EXIT);
         registerAction(VEHICLE_PLACE);

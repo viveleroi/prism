@@ -104,6 +104,9 @@ public class ActionsConfiguration {
     @Comment("player-teleport is when a player teleports.")
     private boolean playerTeleport = true;
 
+    @Comment("sheep-dye is when a player dyes sheep.")
+    private boolean sheepDye = true;
+
     @Comment("vehicle-enter is when an entity enters a boat or minecart.")
     private boolean vehicleEnter = true;
 
