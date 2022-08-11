@@ -37,6 +37,7 @@ import network.darkhelmet.prism.services.recording.RecordingService;
 import network.darkhelmet.prism.services.wands.WandService;
 import network.darkhelmet.prism.utils.LocationUtils;
 import network.darkhelmet.prism.utils.MaterialTag;
+import network.darkhelmet.prism.utils.TagLib;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -79,7 +80,7 @@ public class PlayerInteractListener extends AbstractListener implements Listener
     }
 
     /**
-     * Listen to player interact events.
+     * Listen to player interact events (only for internal logic, not monitoring).
      *
      * @param event Tne event
      */
@@ -110,30 +111,6 @@ public class PlayerInteractListener extends AbstractListener implements Listener
 
             // Cancel the event
             event.setCancelled(true);
-
-            return;
-        }
-
-        WorldCoordinate at = LocationUtils.locToWorldCoordinate(event.getClickedBlock().getLocation());
-
-        if (event.getClickedBlock().getState() instanceof InventoryHolder) {
-            // Ignore if this event is disabled
-            if (!configurationService.prismConfig().actions().inventoryOpen()) {
-                return;
-            }
-
-            // Build the action
-            final IAction action = actionFactory
-                .createBlockStateAction(ActionTypeRegistry.INVENTORY_OPEN, event.getClickedBlock().getState());
-
-            // Build the activity
-            ISingleActivity activity = Activity.builder()
-                .action(action)
-                .player(event.getPlayer().getUniqueId(), event.getPlayer().getName())
-                .location(at)
-                .build();
-
-            recordingService.addToQueue(activity);
         }
     }
 
@@ -164,6 +141,48 @@ public class PlayerInteractListener extends AbstractListener implements Listener
             if (MaterialTag.CROPS.isTagged(blockAbove.getType())) {
                 processBlockBreak(blockAbove, event.getPlayer());
             }
+
+            return;
+        }
+
+        WorldCoordinate at = LocationUtils.locToWorldCoordinate(event.getClickedBlock().getLocation());
+
+        if (event.getClickedBlock().getState() instanceof InventoryHolder) {
+            // Ignore if this event is disabled
+            if (!configurationService.prismConfig().actions().inventoryOpen()) {
+                return;
+            }
+
+            // Build the action
+            final IAction action = actionFactory
+                .createBlockStateAction(ActionTypeRegistry.INVENTORY_OPEN, event.getClickedBlock().getState());
+
+            // Build the activity
+            ISingleActivity activity = Activity.builder()
+                .action(action)
+                .player(event.getPlayer().getUniqueId(), event.getPlayer().getName())
+                .location(at)
+                .build();
+
+            recordingService.addToQueue(activity);
+        } else if (TagLib.USABLE.isTagged(event.getMaterial())) {
+            // Ignore if this event is disabled
+            if (!configurationService.prismConfig().actions().blockUse()) {
+                return;
+            }
+
+            // Build the action
+            final IAction action = actionFactory
+                .createBlockStateAction(ActionTypeRegistry.BLOCK_USE, event.getClickedBlock().getState());
+
+            // Build the activity
+            ISingleActivity activity = Activity.builder()
+                .action(action)
+                .player(event.getPlayer().getUniqueId(), event.getPlayer().getName())
+                .location(at)
+                .build();
+
+            recordingService.addToQueue(activity);
         }
     }
 }

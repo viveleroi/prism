@@ -306,4 +306,21 @@ public class TagLib {
         .append(Material.END_ROD)
         .append(Material.TRIPWIRE)
         .append(ALL_SKULLS);
+
+    /**
+     * All materials that can be "used" - opened but doesn't store inventory or performs some action.
+     */
+    public static final MaterialTag USABLE = new MaterialTag(
+        Material.ANVIL,
+        Material.CARTOGRAPHY_TABLE,
+        Material.COMPARATOR,
+        Material.CRAFTING_TABLE,
+        Material.LEVER,
+        Material.LOOM,
+        Material.NOTE_BLOCK,
+        Material.REPEATER,
+        Material.ENCHANTING_TABLE,
+        Material.FLETCHING_TABLE,
+        Material.SMITHING_TABLE
+    ).append(Tag.BUTTONS).append(Tag.DOORS).append(Tag.TRAPDOORS);
 }

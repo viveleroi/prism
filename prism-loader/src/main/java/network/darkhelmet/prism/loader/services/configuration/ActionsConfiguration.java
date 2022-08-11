@@ -65,6 +65,9 @@ public class ActionsConfiguration {
             """)
     private boolean blockSpread = false;
 
+    @Comment("block-use is when a player uses a block (buttons, doors, anvil, enchanting table, etc).")
+    private boolean blockUse = true;
+
     @Comment("bucket-empty is when a player places a block by emptying a bucket.")
     private boolean bucketEmpty = true;
 
