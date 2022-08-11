@@ -258,4 +258,18 @@ public class BlockUtils {
 
         return accumulator;
     }
+
+    /**
+     * Get the "harvested" age for a specific block.
+     *
+     * @param material The material
+     * @return The age, or null
+     */
+    public Integer harvestedAge(Material material) {
+        if (material.equals(Material.SWEET_BERRY_BUSH)) {
+            return 1;
+        }
+
+        return null;
+    }
 }

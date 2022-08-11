@@ -40,6 +40,9 @@ public class ActionsConfiguration {
     @Comment("block-form is when a block forms - concrete, snow, etc.")
     private boolean blockForm = false;
 
+    @Comment("block-harvest is when a player harvests a block without breaking it (sweet berries).")
+    private boolean blockHarvest = true;
+
     @Comment("""
             block-ignite is when a block is lit on fire.
             Note: Fire spreads to other blocks (block-spread). This records an initial ignition.
