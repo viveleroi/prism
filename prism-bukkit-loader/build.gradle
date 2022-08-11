@@ -37,7 +37,6 @@ shadowJar {
     relocate 'io.leangen.geantyref', 'network.darkhelmet.prism.libs.geantyref'
     relocate 'net.kyori.adventure', 'network.darkhelmet.prism.libs.adventure'
     relocate 'net.kyori.examination', 'network.darkhelmet.prism.libs.examination'
-
 }
 
 artifacts {
@@ -48,5 +47,5 @@ runServer {
     // Configure the Minecraft version for our task.
     // This is the only required configuration besides applying the plugin.
     // Your plugin's jar (or shadowJar if present) will be used automatically.
-    minecraftVersion('1.19')
+    minecraftVersion('1.19.2')
 }

@@ -3,6 +3,13 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
+repositories {
+    maven {
+        name "papermc"
+        url "https://papermc.io/repo/repository/maven-public/"
+    }
+}
+
 dependencies {
     compileOnly project.property('deps.adventure-api')
     compileOnly project.property('deps.adventure-bukkit')
@@ -20,8 +27,9 @@ dependencies {
     compileOnly project.property('deps.moonshine-standard')
     compileOnly project.property('deps.nbt-api')
     compileOnly project.property('deps.p6spy')
-    compileOnly project.property('deps.spigot-api')
+    compileOnly project.property('deps.paper-api')
     compileOnly project.property('deps.taskchain')
+    implementation project.property('deps.paperlib')
     // included here as I'm too lazy to add snapshot support to the dep loader
     implementation project.property('deps.triumph-cmd-bukkit')
     implementation project(':prism-core')
@@ -50,6 +58,7 @@ shadowJar {
     relocate 'de.tr7zw.nbtapi', 'network.darkhelmet.prism.libs.nbtapi'
     relocate 'dev.triumphteam', 'network.darkhelmet.prism.libs.triumphteam'
     relocate 'io.leangen.geantyref', 'network.darkhelmet.prism.libs.geantyref'
+    relocate 'io.papermc.lib', 'network.darkhelmet.prism.libs.paperlib'
     relocate 'net.kyori.adventure', 'network.darkhelmet.prism.libs.adventure'
     relocate 'net.kyori.moonshine', 'network.darkhelmet.prism.libs.moonshine'
     relocate 'org.aopalliance', 'network.darkhelmet.prism.libs.aopalliance'

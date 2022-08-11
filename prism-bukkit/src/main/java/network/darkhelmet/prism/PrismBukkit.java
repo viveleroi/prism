@@ -25,6 +25,8 @@ import dev.triumphteam.cmd.core.argument.named.Argument;
 import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 
+import io.papermc.lib.PaperLib;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -90,6 +92,7 @@ import network.darkhelmet.prism.listeners.PortalCreateListener;
 import network.darkhelmet.prism.listeners.SheepDyeWoolListener;
 import network.darkhelmet.prism.listeners.SpongeAbsorbListener;
 import network.darkhelmet.prism.listeners.StructureGrowListener;
+import network.darkhelmet.prism.listeners.TntPrimeListener;
 import network.darkhelmet.prism.listeners.VehicleEnterListener;
 import network.darkhelmet.prism.listeners.VehicleExitListener;
 import network.darkhelmet.prism.loader.services.dependencies.Dependency;
@@ -267,6 +270,10 @@ public class PrismBukkit implements IPrism {
             registerEvent(StructureGrowListener.class);
             registerEvent(VehicleEnterListener.class);
             registerEvent(VehicleExitListener.class);
+
+            if (PaperLib.isPaper()) {
+                registerEvent(TntPrimeListener.class);
+            }
 
             // Register commands
             BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(loaderPlugin());
