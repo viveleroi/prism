@@ -47,7 +47,7 @@ public abstract class Action implements IAction {
      * Construct a new action.
      *
      * @param type The action type
-     * @poram descriptor The descriptor
+     * @param descriptor The descriptor
      */
     public Action(IActionType type, String descriptor) {
         this.type = type;

@@ -74,7 +74,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
     public static final ActionType HANGING_BREAK =
         new EntityActionType("hanging-break", ActionResultType.REMOVES, true);
     public static final ActionType HANGING_PLACE =
-        new EntityActionType("hanging-place", ActionResultType.CREATES, false);
+        new EntityActionType("hanging-place", ActionResultType.CREATES, true);
     public static final ActionType INVENTORY_OPEN =
         new BlockActionType("inventory-open", ActionResultType.NONE, false);
     public static final ActionType ITEM_DISPENSE =

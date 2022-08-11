@@ -24,8 +24,10 @@ import de.tr7zw.nbtapi.NBTContainer;
 import de.tr7zw.nbtapi.NBTEntity;
 
 import java.util.Locale;
+import java.util.UUID;
 
 import network.darkhelmet.prism.api.actions.IEntityAction;
+import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
@@ -74,7 +76,6 @@ public class EntityAction extends Action implements IEntityAction {
             "HurtTime",
             "OnGround",
             "Pos",
-            "UUID",
             "WorldUUIDLeast",
             "WorldUUIDMost"
         };
@@ -96,7 +97,7 @@ public class EntityAction extends Action implements IEntityAction {
      * @param type The action type
      * @param entityType The entity type
      * @param container The nbt container
-     * @poram descriptor The descriptor
+     * @param descriptor The descriptor
      */
     public EntityAction(IActionType type, EntityType entityType, NBTContainer container, String descriptor) {
         super(type, descriptor);
@@ -133,13 +134,29 @@ public class EntityAction extends Action implements IEntityAction {
 
         WorldCoordinate coordinate = activityContext.location();
         World world = Bukkit.getServer().getWorld(coordinate.world().uuid());
-        if (world != null && entityType.getEntityClass() != null) {
-            Location loc = LocationUtils.worldCoordToLocation(coordinate);
+        if (world == null) {
+            return ModificationResult.builder().activity(activityContext).build();
+        }
 
-            world.spawn(loc, entityType.getEntityClass(), entity ->
-                new NBTEntity(entity).mergeCompound(nbtContainer));
+        if (type().resultType().equals(ActionResultType.REMOVES)) {
+            if (entityType.getEntityClass() != null) {
+                Location loc = LocationUtils.worldCoordToLocation(coordinate);
 
-            return ModificationResult.builder().activity(activityContext).applied().build();
+                world.spawn(loc, entityType.getEntityClass(), entity ->
+                    new NBTEntity(entity).mergeCompound(nbtContainer));
+
+                return ModificationResult.builder().activity(activityContext).applied().build();
+            }
+        } else if (type().resultType().equals(ActionResultType.CREATES)) {
+            UUID uuid = nbtContainer.getUUID("UUID");
+            if (uuid != null) {
+                Entity entity = world.getEntity(uuid);
+                if (entity != null) {
+                    entity.remove();
+
+                    return ModificationResult.builder().activity(activityContext).applied().build();
+                }
+            }
         }
 
         return ModificationResult.builder().activity(activityContext).build();
