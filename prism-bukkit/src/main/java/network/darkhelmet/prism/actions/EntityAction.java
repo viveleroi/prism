@@ -32,7 +32,6 @@ import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
-import network.darkhelmet.prism.utils.EntityUtils;
 import network.darkhelmet.prism.utils.LocationUtils;
 
 import org.bukkit.Bukkit;
@@ -84,7 +83,8 @@ public class EntityAction extends Action implements IEntityAction {
         }
 
         if (entity instanceof Boat boat) {
-            this.descriptor += EntityUtils.treeSpeciesToDescriptor(boat.getWoodType()) + " ";
+            this.descriptor += boat.getBoatType().name()
+                .toLowerCase(Locale.ENGLISH).replace("_", " ") + " ";
         }
 
         this.descriptor += entityType.toString().toLowerCase(Locale.ENGLISH).replace("_", " ");

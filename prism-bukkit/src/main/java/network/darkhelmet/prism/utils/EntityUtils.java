@@ -23,13 +23,11 @@ package network.darkhelmet.prism.utils;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import lombok.experimental.UtilityClass;
 
 import org.bukkit.Location;
-import org.bukkit.TreeSpecies;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -95,19 +93,5 @@ public class EntityUtils {
     public static List<Entity> entitiesInRangeByClass(World world, BoundingBox boundingBox, Class<?>... entities) {
         return world.getNearbyEntities(boundingBox).stream().filter(
             e -> Arrays.stream(entities).anyMatch(clazz -> clazz.isInstance(e))).toList();
-    }
-
-    /**
-     * Converts a tree species to a common term descriptor.
-     *
-     * @param treeSpecies Tree species
-     * @return Common term descriptor
-     */
-    public static String treeSpeciesToDescriptor(TreeSpecies treeSpecies) {
-        return switch (treeSpecies) {
-            case GENERIC -> "oak";
-            case REDWOOD -> "spruce";
-            default -> treeSpecies.name().toLowerCase(Locale.ENGLISH).replace("_", " ");
-        };
     }
 }
