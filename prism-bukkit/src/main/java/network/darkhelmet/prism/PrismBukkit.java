@@ -90,6 +90,7 @@ import network.darkhelmet.prism.listeners.PlayerJoinListener;
 import network.darkhelmet.prism.listeners.PlayerLeashEntityListener;
 import network.darkhelmet.prism.listeners.PlayerQuitListener;
 import network.darkhelmet.prism.listeners.PlayerShearEntityListener;
+import network.darkhelmet.prism.listeners.PlayerTakeLecternBookListener;
 import network.darkhelmet.prism.listeners.PlayerTeleportListener;
 import network.darkhelmet.prism.listeners.PlayerUnleashEntityListener;
 import network.darkhelmet.prism.listeners.PortalCreateListener;
@@ -271,6 +272,7 @@ public class PrismBukkit implements IPrism {
             registerEvent(PlayerLeashEntityListener.class);
             registerEvent(PlayerQuitListener.class);
             registerEvent(PlayerShearEntityListener.class);
+            registerEvent(PlayerTakeLecternBookListener.class);
             registerEvent(PlayerTeleportListener.class);
             registerEvent(PlayerUnleashEntityListener.class);
             registerEvent(ProjectileLaunchListener.class);
