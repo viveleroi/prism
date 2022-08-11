@@ -20,6 +20,9 @@
 
 package network.darkhelmet.prism.api.actions.types;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
 public abstract class ActionType implements IActionType {
     /**
      * The key.

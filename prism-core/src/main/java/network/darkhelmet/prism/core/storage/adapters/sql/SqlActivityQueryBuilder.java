@@ -154,7 +154,6 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
      * @return A list of DbRow results
      */
     public Result<Record> queryActivities(ActivityQuery query) {
-        boolean joinCauses = query.lookup() || query.cause() != null || !query.playerNames().isEmpty();
         boolean useDeprecated = ((storageConfiguration.primaryStorageType().equals(StorageType.MYSQL)
             && storageConfiguration.mysql().useDeprecated())
             || (storageConfiguration.primaryStorageType().equals(StorageType.MARIADB)
@@ -167,11 +166,10 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
             PRISM_WORLDS.WORLD_UUID,
             PRISM_MATERIALS.MATERIAL,
             PRISM_ENTITY_TYPES.ENTITY_TYPE,
-            PRISM_ACTIONS.ACTION);
-
-        if (joinCauses) {
-            queryBuilder.addSelect(PRISM_CAUSES.CAUSE, PRISM_PLAYERS.PLAYER_UUID, PRISM_PLAYERS.PLAYER);
-        }
+            PRISM_ACTIONS.ACTION,
+            PRISM_CAUSES.CAUSE,
+            PRISM_PLAYERS.PLAYER_UUID,
+            PRISM_PLAYERS.PLAYER);
 
         // Add fields useful only for lookups
         if (query.lookup()) {
@@ -221,13 +219,9 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
             .equal(PRISM_ACTIVITIES.ENTITY_TYPE_ID));
         queryBuilder.addJoin(PRISM_MATERIALS, JoinType.LEFT_OUTER_JOIN, PRISM_MATERIALS.MATERIAL_ID
             .equal(PRISM_ACTIVITIES.MATERIAL_ID));
-
-        // Modifications only need causes if we're querying them
-        if (joinCauses) {
-            queryBuilder.addJoin(PRISM_CAUSES, PRISM_CAUSES.CAUSE_ID.equal(PRISM_ACTIVITIES.CAUSE_ID));
-            queryBuilder.addJoin(PRISM_PLAYERS, JoinType.LEFT_OUTER_JOIN, PRISM_PLAYERS.PLAYER_ID
-                .equal(PRISM_CAUSES.PLAYER_ID));
-        }
+        queryBuilder.addJoin(PRISM_CAUSES, PRISM_CAUSES.CAUSE_ID.equal(PRISM_ACTIVITIES.CAUSE_ID));
+        queryBuilder.addJoin(PRISM_PLAYERS, JoinType.LEFT_OUTER_JOIN, PRISM_PLAYERS.PLAYER_ID
+            .equal(PRISM_CAUSES.PLAYER_ID));
 
         if (query.modification()) {
             queryBuilder.addJoin(PRISM_ACTIVITIES_CUSTOM_DATA, JoinType.LEFT_OUTER_JOIN,

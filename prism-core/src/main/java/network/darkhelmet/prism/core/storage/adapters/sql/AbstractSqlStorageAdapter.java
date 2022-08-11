@@ -607,24 +607,19 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
                 material = materialName.toUpperCase(Locale.ENGLISH);
             }
 
-            // Some data not available if querying for modification
-            String cause = null;
+            // Cause
+            String cause = r.getValue(PRISM_CAUSES.CAUSE);
             NamedIdentity player = null;
-            String descriptor = null;
-            if (query.lookup()) {
-                // Cause
-                cause = r.getValue(PRISM_CAUSES.CAUSE);
 
-                // Player
-                if (r.getValue(PRISM_PLAYERS.PLAYER_UUID) != null) {
-                    String playerName = r.getValue(PRISM_PLAYERS.PLAYER);
-                    UUID playerUuid = UUID.fromString(r.getValue(PRISM_PLAYERS.PLAYER_UUID));
+            // Player
+            if (r.getValue(PRISM_PLAYERS.PLAYER_UUID) != null) {
+                String playerName = r.getValue(PRISM_PLAYERS.PLAYER);
+                UUID playerUuid = UUID.fromString(r.getValue(PRISM_PLAYERS.PLAYER_UUID));
 
-                    player = new NamedIdentity(playerUuid, playerName);
-                }
-
-                descriptor = r.getValue(PRISM_ACTIVITIES.DESCRIPTOR);
+                player = new NamedIdentity(playerUuid, playerName);
             }
+
+            String descriptor = query.lookup() ? r.getValue(PRISM_ACTIVITIES.DESCRIPTOR) : null;
 
             long timestamp;
             if (query.grouped()) {

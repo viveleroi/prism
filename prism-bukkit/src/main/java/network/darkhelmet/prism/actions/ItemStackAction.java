@@ -23,6 +23,7 @@ package network.darkhelmet.prism.actions;
 import de.tr7zw.nbtapi.NBTContainer;
 import de.tr7zw.nbtapi.NBTItem;
 
+import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.IItemAction;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.IActionType;
@@ -31,10 +32,13 @@ import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.services.modifications.state.ItemStackStateChange;
+import network.darkhelmet.prism.utils.LocationUtils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -96,14 +100,25 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
         activityContext.player();
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(activityContext.player().uuid());
 
-        // Give item back to player
-        if (offlinePlayer.isOnline() && activityContext.action().type().resultType().equals(ActionResultType.REMOVES)) {
+        // The only time we give items back to a player's personal inventory is when they dropped it
+        if (type().equals(ActionTypeRegistry.ITEM_DROP) && offlinePlayer.isOnline()) {
+            // Give item back to player
             Player player = (Player) offlinePlayer;
             player.getInventory().addItem(itemStack.clone());
 
             ItemStackStateChange stateChange = new ItemStackStateChange(itemStack.clone(), null);
 
             return ModificationResult.builder().activity(activityContext).applied().stateChange(stateChange).build();
+        } else if (type().resultType().equals(ActionResultType.REMOVES)) {
+            Location loc = LocationUtils.worldCoordToLocation(activityContext.location());
+            if (loc.getBlock().getState() instanceof InventoryHolder holder) {
+                holder.getInventory().addItem(itemStack);
+
+                ItemStackStateChange stateChange = new ItemStackStateChange(itemStack.clone(), null);
+
+                return ModificationResult.builder()
+                    .activity(activityContext).applied().stateChange(stateChange).build();
+            }
         }
 
         return ModificationResult.builder().activity(activityContext).build();
