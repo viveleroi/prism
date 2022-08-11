@@ -58,7 +58,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
     public static final ActionType BUCKET_FILL =
         new ItemActionType("bucket-fill", ActionResultType.NONE, false);
     public static final ActionType ENTITY_DYE =
-        new EntityActionType("entity-dye", ActionResultType.CREATES, true);
+        new EntityActionType("entity-dye", ActionResultType.REPLACES, true);
     public static final ActionType ENTITY_EAT =
         new BlockActionType("entity-eat", ActionResultType.CREATES, true);
     public static final ActionType ENTITY_KILL =
@@ -84,7 +84,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
     public static final ActionType ITEM_INSERT =
         new ItemActionType("item-insert", ActionResultType.CREATES, true);
     public static final ActionType ITEM_PICKUP =
-        new ItemActionType("item-pickup", ActionResultType.REMOVES, false);
+        new ItemActionType("item-pickup", ActionResultType.NONE, false);
     public static final ActionType ITEM_REMOVE =
         new ItemActionType("item-remove", ActionResultType.REMOVES, true);
     public static final ActionType ITEM_THROW =
@@ -100,7 +100,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
     public static final ActionType VEHICLE_EXIT =
         new EntityActionType("vehicle-exit", ActionResultType.NONE, false);
     public static final ActionType VEHICLE_PLACE =
-        new EntityActionType("vehicle-place", ActionResultType.CREATES, false);
+        new EntityActionType("vehicle-place", ActionResultType.CREATES, true);
     public static final ActionType XP_PICKUP =
         new EntityActionType("xp-pickup", ActionResultType.NONE, false);
 

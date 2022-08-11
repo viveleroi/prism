@@ -147,14 +147,20 @@ public class EntityAction extends Action implements IEntityAction {
 
                 return ModificationResult.builder().activity(activityContext).applied().build();
             }
-        } else if (type().resultType().equals(ActionResultType.CREATES)) {
+        } else {
             UUID uuid = nbtContainer.getUUID("UUID");
             if (uuid != null) {
                 Entity entity = world.getEntity(uuid);
                 if (entity != null) {
-                    entity.remove();
+                    if (type().resultType().equals(ActionResultType.CREATES)) {
+                        entity.remove();
 
-                    return ModificationResult.builder().activity(activityContext).applied().build();
+                        return ModificationResult.builder().activity(activityContext).applied().build();
+                    } else if (type().resultType().equals(ActionResultType.REPLACES)) {
+                        new NBTEntity(entity).mergeCompound(nbtContainer);
+
+                        return ModificationResult.builder().activity(activityContext).applied().build();
+                    }
                 }
             }
         }

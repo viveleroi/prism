@@ -31,7 +31,7 @@ public enum ActionResultType {
     /**
      * Actions which have no "real" result and are purely informational. (Or can't be realistically reversed).
      *
-     * <p>Example: vehicle enter</p>
+     * <p>Example: player joint</p>
      */
     NONE,
 
@@ -40,5 +40,12 @@ public enum ActionResultType {
      *
      * <p>Example: block broken, item removed, etc.</p>
      */
-    REMOVES
+    REMOVES,
+
+    /**
+     * Actions which result in replacing something.
+     *
+     * <p>Example: dying sheep, etc.</p>
+     */
+    REPLACES
 }
