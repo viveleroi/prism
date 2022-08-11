@@ -43,6 +43,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Jukebox;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -52,6 +53,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 
 public class PlayerInteractListener extends AbstractListener implements Listener {
     /**
@@ -147,7 +149,9 @@ public class PlayerInteractListener extends AbstractListener implements Listener
 
         WorldCoordinate at = LocationUtils.locToWorldCoordinate(event.getClickedBlock().getLocation());
 
-        if (event.getClickedBlock().getState() instanceof InventoryHolder) {
+        if (event.getClickedBlock().getState() instanceof Jukebox jukebox) {
+            recordJukeboxActivity(jukebox, at, player);
+        } else if (event.getClickedBlock().getState() instanceof InventoryHolder) {
             // Ignore if this event is disabled
             if (!configurationService.prismConfig().actions().inventoryOpen()) {
                 return;
@@ -184,5 +188,42 @@ public class PlayerInteractListener extends AbstractListener implements Listener
 
             recordingService.addToQueue(activity);
         }
+    }
+
+    /**
+     * Helper to record interactions with a jukebox.
+     *
+     * @param jukebox The jukebox
+     * @param at The location
+     * @param player The player
+     */
+    private void recordJukeboxActivity(Jukebox jukebox, WorldCoordinate at, Player player) {
+        final IAction action;
+        if (jukebox.isPlaying()) {
+            // Ignore if this event is disabled
+            if (!configurationService.prismConfig().actions().itemRemove()) {
+                return;
+            }
+
+            action = actionFactory.createItemStackAction(
+                ActionTypeRegistry.ITEM_REMOVE, new ItemStack(jukebox.getPlaying()));
+        } else {
+            // Ignore if this event is disabled
+            if (!configurationService.prismConfig().actions().itemInsert()) {
+                return;
+            }
+
+            action = actionFactory.createItemStackAction(
+                ActionTypeRegistry.ITEM_INSERT, player.getInventory().getItemInMainHand());
+        }
+
+        // Build the activity
+        ISingleActivity activity = Activity.builder()
+            .action(action)
+            .player(player.getUniqueId(), player.getName())
+            .location(at)
+            .build();
+
+        recordingService.addToQueue(activity);
     }
 }
