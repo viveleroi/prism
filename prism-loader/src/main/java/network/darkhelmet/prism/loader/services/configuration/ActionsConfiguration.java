@@ -106,9 +106,14 @@ public class ActionsConfiguration {
             """)
     private boolean fluidFlow = false;
 
-    @Comment("hanging-break is when an item frame or painting is broken/detached.\n"
-            + "This event will operate if block-break is false, even for detachments.")
+    @Comment("""
+            hanging-break is when an item frame or painting is broken/detached.
+            This event will operate if block-break is false, even for detachments.
+            """)
     private boolean hangingBreak = true;
+
+    @Comment("hanging-place is when an item frame or painting is hung up.")
+    private boolean hangingPlace = true;
 
     @Comment("inventory-open is when a player opens an inventory (chest, furnace, anything except theirs).")
     private boolean inventoryOpen = true;

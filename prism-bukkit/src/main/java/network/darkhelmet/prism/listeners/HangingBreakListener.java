@@ -22,6 +22,7 @@ package network.darkhelmet.prism.listeners;
 
 import com.google.inject.Inject;
 
+import java.util.Locale;
 import java.util.Optional;
 
 import network.darkhelmet.prism.actions.ActionFactory;
@@ -79,10 +80,7 @@ public class HangingBreakListener extends AbstractListener implements Listener {
         }
 
         final Hanging hanging = event.getEntity();
-
-        if (event.getCause().equals(HangingBreakEvent.RemoveCause.EXPLOSION)) {
-            recordHangingBreak(hanging, "explosion");
-        } else if (event.getCause().equals(HangingBreakEvent.RemoveCause.PHYSICS)) {
+        if (event.getCause().equals(HangingBreakEvent.RemoveCause.PHYSICS)) {
             // Physics causes. Hopefully find the actual cause through an expectation
             Optional<Object> expectation = expectationService.cacheFor(ExpectationType.DETACH).expectation(hanging);
             expectation.ifPresent(o -> {
@@ -92,6 +90,8 @@ public class HangingBreakListener extends AbstractListener implements Listener {
                 // Remove from cache
                 expectationService.cacheFor(ExpectationType.DETACH).metExpectation(hanging);
             });
+        } else {
+            recordHangingBreak(hanging, event.getCause().name().toLowerCase(Locale.ENGLISH));
         }
     }
 

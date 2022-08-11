@@ -72,7 +72,9 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
     public static final ActionType FLUID_FLOW =
         new BlockActionType("fluid-flow", ActionResultType.CREATES, true);
     public static final ActionType HANGING_BREAK =
-        new EntityActionType("hanging-break", ActionResultType.REMOVES, true);
+        new EntityActionType("hanging-break", ActionResultType.REMOVES, false);
+    public static final ActionType HANGING_PLACE =
+        new EntityActionType("hanging-place", ActionResultType.CREATES, false);
     public static final ActionType INVENTORY_OPEN =
         new BlockActionType("inventory-open", ActionResultType.NONE, false);
     public static final ActionType ITEM_DISPENSE =
@@ -128,6 +130,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(ENTITY_UNLEASH);
         registerAction(FLUID_FLOW);
         registerAction(HANGING_BREAK);
+        registerAction(HANGING_PLACE);
         registerAction(INVENTORY_OPEN);
         registerAction(ITEM_DISPENSE);
         registerAction(ITEM_DROP);
