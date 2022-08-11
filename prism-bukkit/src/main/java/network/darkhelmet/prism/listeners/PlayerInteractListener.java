@@ -160,7 +160,7 @@ public class PlayerInteractListener extends AbstractListener implements Listener
             // Build the activity
             ISingleActivity activity = Activity.builder()
                 .action(action)
-                .player(event.getPlayer().getUniqueId(), event.getPlayer().getName())
+                .player(player.getUniqueId(), player.getName())
                 .location(at)
                 .build();
 
@@ -178,7 +178,7 @@ public class PlayerInteractListener extends AbstractListener implements Listener
             // Build the activity
             ISingleActivity activity = Activity.builder()
                 .action(action)
-                .player(event.getPlayer().getUniqueId(), event.getPlayer().getName())
+                .player(player.getUniqueId(), player.getName())
                 .location(at)
                 .build();
 
