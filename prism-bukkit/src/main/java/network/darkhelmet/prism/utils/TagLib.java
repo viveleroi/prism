@@ -312,15 +312,23 @@ public class TagLib {
      */
     public static final MaterialTag USABLE = new MaterialTag(
         Material.ANVIL,
+        Material.BELL,
         Material.CARTOGRAPHY_TABLE,
         Material.COMPARATOR,
         Material.CRAFTING_TABLE,
+        Material.DRAGON_EGG,
+        Material.ENCHANTING_TABLE,
+        Material.FLETCHING_TABLE,
+        Material.GRINDSTONE,
         Material.LEVER,
         Material.LOOM,
         Material.NOTE_BLOCK,
         Material.REPEATER,
-        Material.ENCHANTING_TABLE,
-        Material.FLETCHING_TABLE,
-        Material.SMITHING_TABLE
-    ).append(Tag.BUTTONS).append(Tag.DOORS).append(Tag.TRAPDOORS).append(Tag.FENCE_GATES);
+        Material.SMITHING_TABLE,
+        Material.STONECUTTER
+    ).append(Tag.BUTTONS)
+        .append(Tag.DOORS)
+        .append(Tag.TRAPDOORS)
+        .append(Tag.FENCE_GATES)
+        .append(Tag.PRESSURE_PLATES);
 }
