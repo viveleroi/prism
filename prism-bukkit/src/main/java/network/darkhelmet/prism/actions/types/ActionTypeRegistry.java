@@ -83,6 +83,8 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         new ItemActionType("item-pickup", ActionResultType.REMOVES, false);
     public static final ActionType ITEM_REMOVE =
         new ItemActionType("item-remove", ActionResultType.REMOVES, true);
+    public static final ActionType ITEM_THROW =
+        new GenericActionType("item-throw", ActionResultType.NONE, false);
     public static final ActionType PLAYER_JOIN =
         new GenericActionType("player-join", ActionResultType.NONE, false);
     public static final ActionType PLAYER_QUIT =
@@ -129,6 +131,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(ITEM_INSERT);
         registerAction(ITEM_PICKUP);
         registerAction(ITEM_REMOVE);
+        registerAction(ITEM_THROW);
         registerAction(PLAYER_JOIN);
         registerAction(PLAYER_QUIT);
         registerAction(PLAYER_TELEPORT);

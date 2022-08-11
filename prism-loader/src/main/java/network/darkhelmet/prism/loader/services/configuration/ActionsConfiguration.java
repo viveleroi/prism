@@ -125,6 +125,9 @@ public class ActionsConfiguration {
     @Comment("item-remove is when a player or block removes an item from an inventory.")
     private boolean itemRemove = true;
 
+    @Comment("item-throw is when a player throws an item.")
+    private boolean itemThrow = true;
+
     @Comment("player-join is when a player connects to the server.")
     private boolean playerJoin = false;
 

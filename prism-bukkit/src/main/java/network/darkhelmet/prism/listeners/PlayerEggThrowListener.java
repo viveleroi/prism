@@ -36,9 +36,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerExpChangeEvent;
+import org.bukkit.event.player.PlayerEggThrowEvent;
 
-public class PlayerExpChangeListener extends AbstractListener implements Listener {
+public class PlayerEggThrowListener extends AbstractListener implements Listener {
     /**
      * Construct the listener.
      *
@@ -48,7 +48,7 @@ public class PlayerExpChangeListener extends AbstractListener implements Listene
      * @param recordingService The recording service
      */
     @Inject
-    public PlayerExpChangeListener(
+    public PlayerEggThrowListener(
             ConfigurationService configurationService,
             ActionFactory actionFactory,
             ExpectationService expectationService,
@@ -57,27 +57,21 @@ public class PlayerExpChangeListener extends AbstractListener implements Listene
     }
 
     /**
-     * On xp change.
+     * On egg throw.
      *
      * @param event The event
      */
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onPlayerExpChange(final PlayerExpChangeEvent event) {
+    public void onPlayerEggThrow(final PlayerEggThrowEvent event) {
         // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().xpPickup()) {
-            return;
-        }
-
-        // We only care about xp gains
-        if (event.getAmount() < 0) {
+        if (!configurationService.prismConfig().actions().itemThrow()) {
             return;
         }
 
         final Player player = event.getPlayer();
-        String descriptor = String.format("%dxp", event.getAmount());
 
         // Build the action
-        final IAction action = actionFactory.createAction(ActionTypeRegistry.XP_PICKUP, descriptor);
+        final IAction action = actionFactory.createAction(ActionTypeRegistry.ITEM_THROW, "egg");
 
         // Build the activity
         final ISingleActivity activity = Activity.builder()

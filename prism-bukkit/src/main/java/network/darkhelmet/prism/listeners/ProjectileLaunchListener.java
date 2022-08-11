@@ -26,7 +26,6 @@ import network.darkhelmet.prism.actions.ActionFactory;
 import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.recording.RecordingService;
@@ -36,9 +35,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerExpChangeEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 
-public class PlayerExpChangeListener extends AbstractListener implements Listener {
+public class ProjectileLaunchListener extends AbstractListener implements Listener {
     /**
      * Construct the listener.
      *
@@ -48,7 +47,7 @@ public class PlayerExpChangeListener extends AbstractListener implements Listene
      * @param recordingService The recording service
      */
     @Inject
-    public PlayerExpChangeListener(
+    public ProjectileLaunchListener(
             ConfigurationService configurationService,
             ActionFactory actionFactory,
             ExpectationService expectationService,
@@ -57,35 +56,33 @@ public class PlayerExpChangeListener extends AbstractListener implements Listene
     }
 
     /**
-     * On xp change.
+     * On item throw.
      *
      * @param event The event
      */
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onPlayerExpChange(final PlayerExpChangeEvent event) {
+    public void onProjectileLaunch(final ProjectileLaunchEvent event) {
         // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().xpPickup()) {
+        if (!configurationService.prismConfig().actions().itemThrow()) {
             return;
         }
 
-        // We only care about xp gains
-        if (event.getAmount() < 0) {
-            return;
-        }
-
-        final Player player = event.getPlayer();
-        String descriptor = String.format("%dxp", event.getAmount());
+        String entityThrown = nameFromCause(event.getEntity());
 
         // Build the action
-        final IAction action = actionFactory.createAction(ActionTypeRegistry.XP_PICKUP, descriptor);
+        final IAction action = actionFactory.createAction(ActionTypeRegistry.ITEM_THROW, entityThrown);
 
         // Build the activity
-        final ISingleActivity activity = Activity.builder()
+        Activity.ActivityBuilder builder = Activity.builder()
             .action(action)
-            .location(LocationUtils.locToWorldCoordinate(player.getLocation()))
-            .player(player.getUniqueId(), player.getName())
-            .build();
+            .location(LocationUtils.locToWorldCoordinate(event.getLocation()));
 
-        recordingService.addToQueue(activity);
+        if (event.getEntity().getShooter() instanceof Player player) {
+            builder.player(player.getUniqueId(), player.getName());
+        } else {
+            builder.cause(nameFromCause(event.getEntity().getShooter()));
+        }
+
+        recordingService.addToQueue(builder.build());
     }
 }
