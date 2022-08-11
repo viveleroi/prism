@@ -322,5 +322,5 @@ public class TagLib {
         Material.ENCHANTING_TABLE,
         Material.FLETCHING_TABLE,
         Material.SMITHING_TABLE
-    ).append(Tag.BUTTONS).append(Tag.DOORS).append(Tag.TRAPDOORS);
+    ).append(Tag.BUTTONS).append(Tag.DOORS).append(Tag.TRAPDOORS).append(Tag.FENCE_GATES);
 }
