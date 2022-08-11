@@ -68,6 +68,9 @@ public class ActionsConfiguration {
     @Comment("block-use is when a player uses a block (buttons, doors, anvil, enchanting table, etc).")
     private boolean blockUse = true;
 
+    @Comment("bonemeal-use is when a player uses bonemeal on a block (grown trees/grass/flowers are block-place).")
+    private boolean bonemealUse = true;
+
     @Comment("bucket-empty is when a player places a block by emptying a bucket.")
     private boolean bucketEmpty = true;
 

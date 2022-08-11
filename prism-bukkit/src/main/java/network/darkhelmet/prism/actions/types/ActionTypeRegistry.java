@@ -49,6 +49,8 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         new BlockActionType("block-spread", ActionResultType.CREATES, true);
     public static final ActionType BLOCK_USE =
         new BlockActionType("block-use", ActionResultType.NONE, false);
+    public static final ActionType BONEMEAL_USE =
+        new BlockActionType("bonemeal-use", ActionResultType.NONE, false);
     public static final ActionType BUCKET_EMPTY =
         new ItemActionType("bucket-empty", ActionResultType.NONE, false);
     public static final ActionType BUCKET_FILL =
@@ -110,6 +112,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(BLOCK_SHIFT);
         registerAction(BLOCK_SPREAD);
         registerAction(BLOCK_USE);
+        registerAction(BONEMEAL_USE);
         registerAction(BUCKET_EMPTY);
         registerAction(BUCKET_FILL);
         registerAction(ENTITY_DYE);

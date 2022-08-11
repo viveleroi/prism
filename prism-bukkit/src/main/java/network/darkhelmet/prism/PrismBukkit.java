@@ -59,6 +59,7 @@ import network.darkhelmet.prism.listeners.BlockBurnListener;
 import network.darkhelmet.prism.listeners.BlockDispenseListener;
 import network.darkhelmet.prism.listeners.BlockExplodeListener;
 import network.darkhelmet.prism.listeners.BlockFadeListener;
+import network.darkhelmet.prism.listeners.BlockFertilizeListener;
 import network.darkhelmet.prism.listeners.BlockFormListener;
 import network.darkhelmet.prism.listeners.BlockFromToListener;
 import network.darkhelmet.prism.listeners.BlockIgniteListener;
@@ -235,6 +236,7 @@ public class PrismBukkit implements IPrism {
             registerEvent(BlockDispenseListener.class);
             registerEvent(BlockExplodeListener.class);
             registerEvent(BlockFadeListener.class);
+            registerEvent(BlockFertilizeListener.class);
             registerEvent(BlockFormListener.class);
             registerEvent(BlockFromToListener.class);
             registerEvent(BlockIgniteListener.class);
