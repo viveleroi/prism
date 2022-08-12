@@ -66,7 +66,7 @@ public class WandModePlaceholderResolver implements
         final Method method,
         final @Nullable Object[] parameters
     ) {
-        String translated = translationService.messageOf(receiver, "wand-mode-"
+        String translated = translationService.messageOf(receiver, "text.wand-mode-"
             + value.toString().toLowerCase(Locale.ENGLISH));
         return Map.of(placeholderName, Either.left(ConclusionValue.conclusionValue(Component.text(translated))));
     }

@@ -92,9 +92,11 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
 
         Component sign;
         if (value.action().type().resultType().equals(ActionResultType.REMOVES)) {
-            sign = MiniMessage.miniMessage().deserialize(translationService.messageOf(receiver, "sign-minus"));
+            sign = MiniMessage.miniMessage().deserialize(
+                translationService.messageOf(receiver, "text.sign-minus"));
         } else {
-            sign = MiniMessage.miniMessage().deserialize(translationService.messageOf(receiver, "sign-plus"));
+            sign = MiniMessage.miniMessage().deserialize(
+                translationService.messageOf(receiver, "text.sign-plus"));
         }
 
         return Map.of(placeholderName + "_action_past_tense",
@@ -142,19 +144,19 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.uuid());
 
             Component playerHeading = MiniMessage.miniMessage().deserialize(
-                translationService.messageOf(receiver, "player-hover-header"));
+                translationService.messageOf(receiver, "rich.player-hover-header"));
 
             Component uuid = MiniMessage.miniMessage().deserialize(
-                translationService.messageOf(receiver, "player-hover-uuid"));
+                translationService.messageOf(receiver, "rich.player-hover-uuid"));
 
             Component online = MiniMessage.miniMessage().deserialize(
-                translationService.messageOf(receiver, "player-hover-online"));
+                translationService.messageOf(receiver, "rich.player-hover-online"));
 
             Component banned = MiniMessage.miniMessage().deserialize(
-                translationService.messageOf(receiver, "player-hover-banned"));
+                translationService.messageOf(receiver, "rich.player-hover-banned"));
 
-            String yes = translationService.messageOf(receiver, "player-hover-yes");
-            String no = translationService.messageOf(receiver, "player-hover-no");
+            String yes = translationService.messageOf(receiver, "text.player-hover-yes");
+            String no = translationService.messageOf(receiver, "text.player-hover-no");
 
             Component hover = Component.text()
                 .append(playerHeading)
@@ -184,7 +186,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
 
             return Component.text().append(Component.text(cause)).hoverEvent(HoverEvent.showText(hover)).build();
         } else {
-            return Component.text(translationService.messageOf(receiver, "unknown-cause"));
+            return Component.text(translationService.messageOf(receiver, "text.unknown-cause"));
         }
     }
 
@@ -198,7 +200,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         long diffInSeconds = System.currentTimeMillis() / 1000 - timestamp;
 
         if (diffInSeconds < 60) {
-            return Component.text(translationService.messageOf(receiver, "just-now"));
+            return Component.text(translationService.messageOf(receiver, "text.just-now"));
         }
 
         long period = 24 * 60 * 60;
@@ -224,7 +226,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         }
 
         // 'time_ago' will have something at this point
-        String ago = translationService.messageOf(receiver, "ago");
+        String ago = translationService.messageOf(receiver, "text.ago");
         return Component.text(timeAgo.append(" ").append(ago).toString());
     }
 }

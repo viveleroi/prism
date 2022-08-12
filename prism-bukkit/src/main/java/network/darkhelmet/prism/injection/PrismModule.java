@@ -85,7 +85,6 @@ import network.darkhelmet.prism.services.messages.resolvers.IntegerPlaceholderRe
 import network.darkhelmet.prism.services.messages.resolvers.PaginatedResultsPlaceholderResolver;
 import network.darkhelmet.prism.services.messages.resolvers.PurgeCycleResultPlaceholderResolver;
 import network.darkhelmet.prism.services.messages.resolvers.StringPlaceholderResolver;
-import network.darkhelmet.prism.services.messages.resolvers.TranslatableStringPlaceholderResolver;
 import network.darkhelmet.prism.services.messages.resolvers.WandModePlaceholderResolver;
 import network.darkhelmet.prism.services.modifications.ModificationQueueService;
 import network.darkhelmet.prism.services.modifications.Restore;
@@ -93,7 +92,6 @@ import network.darkhelmet.prism.services.modifications.Rollback;
 import network.darkhelmet.prism.services.purge.PurgeQueue;
 import network.darkhelmet.prism.services.purge.PurgeService;
 import network.darkhelmet.prism.services.recording.RecordingService;
-import network.darkhelmet.prism.services.translation.TranslationKey;
 import network.darkhelmet.prism.services.translation.TranslationService;
 import network.darkhelmet.prism.services.wands.InspectionWand;
 import network.darkhelmet.prism.services.wands.RestoreWand;
@@ -176,7 +174,6 @@ public class PrismModule extends AbstractModule {
      * @param messageRenderer The message renderer
      * @param messageSender The message sender
      * @param activityPlaceholderResolver The activity placeholder resolver
-     * @param translatableStringPlaceholderResolver The translatable string resolver
      * @param wandModePlaceholderResolver The wand mode resolver
      * @return The message service
      */
@@ -188,7 +185,6 @@ public class PrismModule extends AbstractModule {
             MessageRenderer messageRenderer,
             MessageSender messageSender,
             ActivityPlaceholderResolver activityPlaceholderResolver,
-            TranslatableStringPlaceholderResolver translatableStringPlaceholderResolver,
             WandModePlaceholderResolver wandModePlaceholderResolver) {
         try {
             return Moonshine.<MessageService, CommandSender>builder(
@@ -199,7 +195,6 @@ public class PrismModule extends AbstractModule {
                 .sent(messageSender)
                 .resolvingWithStrategy(new StandardPlaceholderResolverStrategy<>(
                     new StandardSupertypeThenInterfaceSupertypeStrategy(false)))
-                .weightedPlaceholderResolver(TranslationKey.class, translatableStringPlaceholderResolver, 0)
                 .weightedPlaceholderResolver(Integer.class, new IntegerPlaceholderResolver(), 0)
                 .weightedPlaceholderResolver(String.class, new StringPlaceholderResolver(), 0)
                 .weightedPlaceholderResolver(PurgeCycleResult.class, new PurgeCycleResultPlaceholderResolver(), 0)
@@ -272,7 +267,6 @@ public class PrismModule extends AbstractModule {
         bind(MessageRenderer.class).in(Singleton.class);
         bind(MessageSender.class).in(Singleton.class);
         bind(ActivityPlaceholderResolver.class).in(Singleton.class);
-        bind(TranslatableStringPlaceholderResolver.class).in(Singleton.class);
 
         // Service - Translation
         bind(TranslationService.class).in(Singleton.class);

@@ -33,7 +33,6 @@ import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.lookup.LookupService;
 import network.darkhelmet.prism.services.messages.MessageService;
-import network.darkhelmet.prism.services.translation.TranslationKey;
 
 import org.bukkit.command.CommandSender;
 
@@ -80,12 +79,12 @@ public class PageCommand extends BaseCommand {
     public void onPage(CommandSender sender, Integer page) {
         Optional<ActivityQuery> optionalQuery = lookupService.lastQuery(sender);
         if (optionalQuery.isEmpty()) {
-            messageService.error(sender, new TranslationKey("no-last-query"));
+            messageService.errorNoLastQuery(sender);
             return;
         }
 
         if (page < 1) {
-            messageService.error(sender, new TranslationKey("invalid-page"));
+            messageService.errorInvalidPage(sender);
             return;
         }
 

@@ -29,12 +29,12 @@ import dev.triumphteam.cmd.core.annotation.NamedArguments;
 import dev.triumphteam.cmd.core.annotation.SubCommand;
 import dev.triumphteam.cmd.core.argument.named.Arguments;
 
+import java.util.Optional;
+
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.lookup.LookupService;
-import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.query.QueryService;
-import network.darkhelmet.prism.services.translation.TranslationKey;
 
 import org.bukkit.command.CommandSender;
 
@@ -51,11 +51,6 @@ public class LookupCommand extends BaseCommand {
     private final QueryService queryService;
 
     /**
-     * The message service.
-     */
-    private final MessageService messageService;
-
-    /**
      * The lookup service.
      */
     private final LookupService lookupService;
@@ -65,18 +60,15 @@ public class LookupCommand extends BaseCommand {
      *
      * @param configurationService The configuration service
      * @param queryService The query service
-     * @param messageService The message service
      * @param lookupService The lookup service
      */
     @Inject
     public LookupCommand(
             ConfigurationService configurationService,
             QueryService queryService,
-            MessageService messageService,
             LookupService lookupService) {
         this.configurationService = configurationService;
         this.queryService = queryService;
-        this.messageService = messageService;
         this.lookupService = lookupService;
     }
 
@@ -90,12 +82,11 @@ public class LookupCommand extends BaseCommand {
     @SubCommand(value = "lookup", alias = {"l"})
     @Permission("prism.admin")
     public void onLookup(final CommandSender sender, final Arguments arguments) {
-        try {
-            final ActivityQuery query = queryService.queryFromArguments(sender, arguments)
+        Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(sender, arguments);
+        if (builder.isPresent()) {
+            final ActivityQuery query = builder.get()
                 .limit(configurationService.prismConfig().defaults().perPage()).build();
             lookupService.lookup(sender, query);
-        } catch (IllegalArgumentException ex) {
-            messageService.error(sender, new TranslationKey(ex.getMessage()));
         }
     }
 }

@@ -29,6 +29,8 @@ import dev.triumphteam.cmd.core.annotation.NamedArguments;
 import dev.triumphteam.cmd.core.annotation.SubCommand;
 import dev.triumphteam.cmd.core.argument.named.Arguments;
 
+import java.util.Optional;
+
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
@@ -38,7 +40,6 @@ import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.providers.TaskChainProvider;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.query.QueryService;
-import network.darkhelmet.prism.services.translation.TranslationKey;
 
 import org.bukkit.command.CommandSender;
 
@@ -119,33 +120,35 @@ public class RestoreCommand extends BaseCommand {
     public void onRestore(final CommandSender sender, final Arguments arguments) {
         // Ensure a queue is free
         if (!modificationQueueService.queueAvailable()) {
-            messageService.error(sender, new TranslationKey("queue-not-free"));
+            messageService.errorQueueNotFree(sender);
 
             return;
         }
 
-        final ActivityQuery query = queryService
-            .queryFromArguments(sender, arguments).modification().reversed(true).build();
-        taskChainProvider.newChain().asyncFirst(() -> {
-            try {
-                return storageAdapter.queryActivities(query);
-            } catch (Exception e) {
-                messageService.error(sender, new TranslationKey("query-error"));
-                loggingService.handleException(e);
-            }
+        Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(sender, arguments);
+        if (builder.isPresent()) {
+            final ActivityQuery query = builder.get().modification().reversed(true).build();
+            taskChainProvider.newChain().asyncFirst(() -> {
+                try {
+                    return storageAdapter.queryActivities(query);
+                } catch (Exception e) {
+                    messageService.errorQueryExec(sender);
+                    loggingService.handleException(e);
+                }
 
-            return null;
-        }).abortIfNull().syncLast(modifications -> {
-            if (modifications.isEmpty()) {
-                messageService.noResults(sender);
+                return null;
+            }).abortIfNull().syncLast(modifications -> {
+                if (modifications.isEmpty()) {
+                    messageService.noResults(sender);
 
-                return;
-            }
+                    return;
+                }
 
-            ModificationRuleset modificationRuleset = configurationService
-                .prismConfig().modifications().toRulesetBuilder().build();
+                ModificationRuleset modificationRuleset = configurationService
+                    .prismConfig().modifications().toRulesetBuilder().build();
 
-            modificationQueueService.newRestoreQueue(modificationRuleset, sender, query, modifications).apply();
-        }).execute();
+                modificationQueueService.newRestoreQueue(modificationRuleset, sender, query, modifications).apply();
+            }).execute();
+        }
     }
 }

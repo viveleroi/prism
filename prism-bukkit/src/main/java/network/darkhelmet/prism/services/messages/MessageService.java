@@ -27,81 +27,128 @@ import network.darkhelmet.prism.api.PaginatedResults;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.purges.PurgeCycleResult;
 import network.darkhelmet.prism.api.services.wands.WandMode;
-import network.darkhelmet.prism.services.translation.TranslationKey;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public interface MessageService {
-    @Message("about")
+    @Message("rich.about")
     void about(CommandSender receiver, @Placeholder String version);
 
-    @Message("error")
-    void error(CommandSender receiver, @Placeholder TranslationKey message);
+    @Message("rich.error.invalid-page")
+    void errorInvalidPage(CommandSender receiver);
 
-    @Message("activity-row")
+    @Message("rich.error.no-blocks-removed")
+    void errorNoBlocksRemoved(CommandSender receiver);
+
+    @Message("rich.error.no-last-query")
+    void errorNoLastQuery(CommandSender receiver);
+
+    @Message("rich.error.not-previewable")
+    void errorNotPreviewable(CommandSender receiver);
+
+    @Message("rich.error.param-at-invalid-loc")
+    void errorParamAtInvalidLocation(CommandSender receiver);
+
+    @Message("rich.error.param-at-no-world")
+    void errorParamAtNoWorld(CommandSender receiver);
+
+    @Message("rich.error.param-bounds-invalid-format")
+    void errorParamBoundsInvalid(CommandSender receiver);
+
+    @Message("rich.error.param-console-bounds")
+    void errorParamConsoleBounds(CommandSender receiver);
+
+    @Message("rich.error.param-console-in")
+    void errorParamConsoleIn(CommandSender receiver);
+
+    @Message("rich.error.param-console-radius")
+    void errorParamConsoleRadius(CommandSender receiver);
+
+    @Message("rich.error.param-invalid-world")
+    void errorParamInvalidWorld(CommandSender receiver);
+
+    @Message("rich.error.param-r-and-in-chunk")
+    void errorParamRadiusAndChunk(CommandSender receiver);
+
+    @Message("rich.error.purge-queue-not-free")
+    void errorPurgeQueryNotFree(CommandSender receiver);
+
+    @Message("rich.error.queue-missing")
+    void errorQueueMissing(CommandSender receiver);
+
+    @Message("rich.error.queue-not-free")
+    void errorQueueNotFree(CommandSender receiver);
+
+    @Message("rich.error.query-exec")
+    void errorQueryExec(CommandSender receiver);
+
+    @Message("rich.error.reload-locale")
+    void errorReloadLocale(CommandSender receiver);
+
+    @Message("rich.activity-row")
     void listActivityRow(CommandSender receiver, @Placeholder IActivity activity);
 
-    @Message("activity-row-no-content")
+    @Message("rich.activity-row-no-content")
     void listActivityRowNoContent(CommandSender receiver, @Placeholder IActivity activity);
 
-    @Message("modifications-applied")
+    @Message("rich.modifications-applied")
     void modificationsApplied(CommandSender receiver, @Placeholder Integer count);
 
-    @Message("modifications-removed-blocks")
+    @Message("rich.modifications-removed-blocks")
     void modificationsRemovedBlocks(CommandSender receiver, @Placeholder Integer count);
 
-    @Message("modifications-removed-drops")
+    @Message("rich.modifications-removed-drops")
     void modificationsRemovedDrops(CommandSender receiver, @Placeholder Integer count);
 
-    @Message("modifications-skipped")
+    @Message("rich.modifications-skipped")
     void modificationsSkipped(CommandSender receiver, @Placeholder Integer count);
 
-    @Message("modifications-applied-success")
+    @Message("rich.modifications-applied-success")
     void modificationsAppliedSuccess(CommandSender receiver);
 
-    @Message("modifications-planned-success")
+    @Message("rich.modifications-planned-success")
     void modificationsAppliedSuccess(CommandSender receiver, @Placeholder Integer count);
 
-    @Message("no-results")
+    @Message("rich.no-results")
     void noResults(CommandSender receiver);
 
-    @Message("pagination-header")
+    @Message("rich.pagination-header")
     void paginationHeader(CommandSender receiver, @Placeholder PaginatedResults<?> pagination);
 
-    @Message("preview-applied")
+    @Message("rich.preview-applied")
     void previewApplied(CommandSender receiver);
 
-    @Message("preview-cancelled")
+    @Message("rich.preview-cancelled")
     void previewCancelled(CommandSender receiver);
 
-    @Message("purge-complete")
+    @Message("rich.purge-complete")
     void purgeComplete(CommandSender receiver, @Placeholder Integer count);
 
-    @Message("purge-cycle")
+    @Message("rich.purge-cycle")
     void purgeCycle(CommandSender receiver, @Placeholder PurgeCycleResult result);
 
-    @Message("purge-starting")
+    @Message("rich.purge-starting")
     void purgeStarting(CommandSender receiver);
 
-    @Message("reloaded-config")
+    @Message("rich.reloaded-config")
     void reloadedConfig(CommandSender receiver);
 
-    @Message("reloaded-locales")
+    @Message("rich.reloaded-locales")
     void reloadedLocales(CommandSender receiver);
 
-    @Message("removed-blocks")
+    @Message("rich.removed-blocks")
     void removedBlocks(CommandSender receiver, @Placeholder Integer count);
 
-    @Message("removed-drops")
+    @Message("rich.removed-drops")
     void removedDrops(CommandSender receiver, @Placeholder Integer count);
 
-    @Message("wand-activated")
+    @Message("rich.wand-activated")
     void wandActivated(Player player, @Placeholder WandMode wandmode);
 
-    @Message("wand-switched")
-    void wandSwitched(Player player, @Placeholder WandMode wandmode);
-
-    @Message("wand-deactivated")
+    @Message("rich.wand-deactivated")
     void wandDeactivated(Player player, @Placeholder WandMode wandmode);
+
+    @Message("rich.wand-switched")
+    void wandSwitched(Player player, @Placeholder WandMode wandmode);
 }

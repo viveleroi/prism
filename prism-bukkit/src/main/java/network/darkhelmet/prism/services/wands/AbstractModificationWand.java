@@ -31,7 +31,6 @@ import network.darkhelmet.prism.loader.services.configuration.ConfigurationServi
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.providers.TaskChainProvider;
 import network.darkhelmet.prism.services.messages.MessageService;
-import network.darkhelmet.prism.services.translation.TranslationKey;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -107,7 +106,7 @@ public abstract class AbstractModificationWand {
     protected void use(ActivityQuery query, Class<? extends IModificationQueue> clazz) {
         // Ensure a queue is free
         if (!modificationQueueService.queueAvailable()) {
-            messageService.error((CommandSender) owner, new TranslationKey("queue-not-free"));
+            messageService.errorQueueNotFree((CommandSender) owner);
 
             return;
         }
@@ -116,7 +115,7 @@ public abstract class AbstractModificationWand {
             try {
                 return storageAdapter.queryActivities(query);
             } catch (Exception e) {
-                messageService.error((CommandSender) owner, new TranslationKey("query-error"));
+                messageService.errorQueryExec((CommandSender) owner);
                 loggingService.handleException(e);
             }
 

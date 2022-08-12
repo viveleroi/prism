@@ -65,7 +65,7 @@ public abstract class ActionType implements IActionType {
 
     @Override
     public String pastTenseTranslationKey() {
-        return "past-tense." + key;
+        return "text.past-tense." + key;
     }
 
     @Override

@@ -42,7 +42,6 @@ import network.darkhelmet.prism.loader.services.configuration.cache.CacheConfigu
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.providers.TaskChainProvider;
 import network.darkhelmet.prism.services.messages.MessageService;
-import network.darkhelmet.prism.services.translation.TranslationKey;
 import network.darkhelmet.prism.services.translation.TranslationService;
 
 import org.bukkit.command.CommandSender;
@@ -151,7 +150,7 @@ public class LookupService {
                 // Cache this senders' most recent query
                 recentQueries.put(sender, query);
             } catch (Exception ex) {
-                messageService.error(sender, new TranslationKey("query-error"));
+                messageService.errorQueryExec(sender);
                 loggingService.handleException(ex);
             }
         }).execute();
@@ -182,9 +181,10 @@ public class LookupService {
                 if (results.hasPrevPage()) {
                     String cmd = "/pr page " + (results.currentPage() - 1);
 
-                    Component hover = Component.text(translationService.messageOf(sender, "page-prev-hover"));
-                    String temp = translationService.messageOf(sender, "page-prev");
-                    prev = MiniMessage.miniMessage().deserialize(temp)
+                    Component hover = Component.text(
+                        translationService.messageOf(sender, "text.page-prev-hover"));
+                    prev = MiniMessage.miniMessage().deserialize(
+                            translationService.messageOf(sender, "rich.page-prev"))
                         .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, hover))
                         .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
                 }
@@ -193,9 +193,10 @@ public class LookupService {
                 if (results.hasNextPage()) {
                     String cmd = "/pr page " + (results.currentPage() + 1);
 
-                    Component hover = Component.text(translationService.messageOf(sender, "page-next-hover"));
-                    String temp = translationService.messageOf(sender, "page-next");
-                    next = MiniMessage.miniMessage().deserialize(temp)
+                    Component hover = Component.text(
+                        translationService.messageOf(sender, "text.page-next-hover"));
+                    next = MiniMessage.miniMessage().deserialize(
+                            translationService.messageOf(sender, "rich.page-next"))
                         .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, hover))
                         .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
                 }

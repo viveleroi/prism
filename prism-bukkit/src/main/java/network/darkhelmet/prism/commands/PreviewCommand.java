@@ -46,7 +46,6 @@ import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.modifications.Restore;
 import network.darkhelmet.prism.services.modifications.Rollback;
 import network.darkhelmet.prism.services.query.QueryService;
-import network.darkhelmet.prism.services.translation.TranslationKey;
 
 import org.bukkit.entity.Player;
 
@@ -125,7 +124,7 @@ public class PreviewCommand extends BaseCommand {
     public void onApply(final Player player) {
         Optional<IModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
         if (optionalQueue.isEmpty()) {
-            messageService.error(player, new TranslationKey("queue-missing-for-owner"));
+            messageService.errorQueueMissing(player);
 
             return;
         }
@@ -144,7 +143,7 @@ public class PreviewCommand extends BaseCommand {
     public void onCancel(final Player player) {
         Optional<IModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
         if (optionalQueue.isEmpty()) {
-            messageService.error(player, new TranslationKey("queue-missing-for-owner"));
+            messageService.errorQueueMissing(player);
 
             return;
         }
@@ -164,10 +163,12 @@ public class PreviewCommand extends BaseCommand {
     @SubCommand(value = "preview-restore", alias = {"prs"})
     @Permission("prism.admin")
     public void onPreviewRestore(final Player player, final Arguments arguments) {
-        final ActivityQuery query = queryService
-            .queryFromArguments(player, arguments).modification().reversed(true).build();
+        Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(player, arguments);
+        if (builder.isPresent()) {
+            final ActivityQuery query = builder.get().modification().reversed(true).build();
 
-        preview(Restore.class, player, query);
+            preview(Restore.class, player, query);
+        }
     }
 
     /**
@@ -180,10 +181,12 @@ public class PreviewCommand extends BaseCommand {
     @SubCommand(value = "preview-rollback", alias = {"prb"})
     @Permission("prism.admin")
     public void onPreviewRollback(final Player player, final Arguments arguments) {
-        final ActivityQuery query = queryService
-            .queryFromArguments(player, arguments).modification().reversed(false).build();
+        Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(player, arguments);
+        if (builder.isPresent()) {
+            final ActivityQuery query = builder.get().modification().reversed(false).build();
 
-        preview(Rollback.class, player, query);
+            preview(Rollback.class, player, query);
+        }
     }
 
     /**
@@ -196,7 +199,7 @@ public class PreviewCommand extends BaseCommand {
     protected void preview(Class<? extends IModificationQueue> clazz, final Player player, final ActivityQuery query) {
         // Ensure a queue is free
         if (!modificationQueueService.queueAvailable()) {
-            messageService.error(player, new TranslationKey("queue-not-free"));
+            messageService.errorQueueNotFree(player);
 
             return;
         }
@@ -205,7 +208,7 @@ public class PreviewCommand extends BaseCommand {
             try {
                 return storageAdapter.queryActivities(query);
             } catch (Exception e) {
-                messageService.error(player, new TranslationKey("query-error"));
+                messageService.errorQueryExec(player);
                 loggingService.handleException(e);
             }
 
@@ -225,7 +228,7 @@ public class PreviewCommand extends BaseCommand {
             if (queue instanceof IPreviewable previewable) {
                 previewable.preview();
             } else {
-                messageService.error(player, new TranslationKey("not-previewable"));
+                messageService.errorNotPreviewable(player);
             }
 
             return null;

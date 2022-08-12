@@ -33,7 +33,6 @@ import java.util.List;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.modifications.state.BlockStateChange;
-import network.darkhelmet.prism.services.translation.TranslationKey;
 import network.darkhelmet.prism.utils.BlockUtils;
 
 import org.bukkit.Material;
@@ -92,7 +91,7 @@ public class ExtinguishCommand extends BaseCommand {
         if (removalCount > 0) {
             messageService.removedBlocks(player, removalCount);
         } else {
-            messageService.error(player, new TranslationKey("no-blocks-removed"));
+            messageService.errorNoBlocksRemoved(player);
         }
     }
 }

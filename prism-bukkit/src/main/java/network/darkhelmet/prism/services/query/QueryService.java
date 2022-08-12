@@ -37,6 +37,7 @@ import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.util.Coordinate;
+import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.utils.LocationUtils;
 
 import org.bukkit.Bukkit;
@@ -55,13 +56,19 @@ public class QueryService {
     private final ActionTypeRegistry actionRegistry;
 
     /**
+     * The message service.
+     */
+    private final MessageService messageService;
+
+    /**
      * The query service.
      *
      * @param actionRegistry The action registry
      */
     @Inject
-    public QueryService(ActionTypeRegistry actionRegistry) {
+    public QueryService(ActionTypeRegistry actionRegistry, MessageService messageService) {
         this.actionRegistry = actionRegistry;
+        this.messageService = messageService;
     }
 
     /**
@@ -71,11 +78,11 @@ public class QueryService {
      * @param arguments The arguments
      * @return The activity query builder
      */
-    public ActivityQuery.ActivityQueryBuilder queryFromArguments(CommandSender sender, Arguments arguments) {
+    public Optional<ActivityQuery.ActivityQueryBuilder> queryFromArguments(CommandSender sender, Arguments arguments) {
         if (sender instanceof Player player) {
-            return queryFromArguments(arguments, player.getLocation());
+            return queryFromArguments(sender, arguments, player.getLocation());
         } else {
-            return queryFromArguments(arguments, null);
+            return queryFromArguments(sender, arguments, null);
         }
     }
 
@@ -86,7 +93,8 @@ public class QueryService {
      * @param arguments The arguments
      * @return The activity query builder
      */
-    public ActivityQuery.ActivityQueryBuilder queryFromArguments(Arguments arguments, Location referenceLocation) {
+    public Optional<ActivityQuery.ActivityQueryBuilder> queryFromArguments(
+            CommandSender sender, Arguments arguments, Location referenceLocation) {
         ActivityQuery.ActivityQueryBuilder builder = ActivityQuery.builder();
         World world = referenceLocation != null ? referenceLocation.getWorld() : null;
 
@@ -96,7 +104,9 @@ public class QueryService {
 
             world = Bukkit.getServer().getWorld(worldName);
             if (world == null) {
-                throw new IllegalArgumentException("param-error-invalid-world");
+                messageService.errorParamInvalidWorld(sender);
+
+                return Optional.empty();
             }
 
             builder.worldUuid(world.getUID());
@@ -105,7 +115,9 @@ public class QueryService {
         // at: parameter
         if (arguments.get("at", String.class).isPresent()) {
             if (world == null) {
-                throw new IllegalArgumentException("param-error-at-no-world");
+                messageService.errorParamAtNoWorld(sender);
+
+                return Optional.empty();
             }
 
             String at = arguments.get("at", String.class).get();
@@ -118,7 +130,9 @@ public class QueryService {
 
                 referenceLocation = new Location(world, x, y, z);
             } else {
-                throw new IllegalArgumentException("param-error-at-invalid-loc");
+                messageService.errorParamAtInvalidLocation(sender);
+
+                return Optional.empty();
             }
         }
 
@@ -130,7 +144,9 @@ public class QueryService {
         String in = null;
         if (arguments.get("in", String.class).isPresent()) {
             if (referenceLocation == null) {
-                throw new IllegalArgumentException("param-error-console-in");
+                messageService.errorParamConsoleIn(sender);
+
+                return Optional.empty();
             }
 
             in = arguments.get("in", String.class).get();
@@ -141,13 +157,17 @@ public class QueryService {
         // r: parameter
         if (arguments.get("r", Integer.class).isPresent()) {
             if (referenceLocation == null) {
-                throw new IllegalArgumentException("param-error-console-radius");
+                messageService.errorParamConsoleRadius(sender);
+
+                return Optional.empty();
             }
 
             Integer radius = arguments.get("r", Integer.class).get();
 
             if (in != null && in.equalsIgnoreCase("chunk")) {
-                throw new IllegalArgumentException("param-error-r-and-in-chunk");
+                messageService.errorParamRadiusAndChunk(sender);
+
+                return Optional.empty();
             }
 
             parseRadius(builder, referenceLocation, radius);
@@ -156,23 +176,31 @@ public class QueryService {
         // bounds: parameter
         if (arguments.get("bounds", String.class).isPresent()) {
             if (world == null) {
-                throw new IllegalArgumentException("param-error-console-bounds");
+                messageService.errorParamConsoleBounds(sender);
+
+                return Optional.empty();
             }
 
             String at = arguments.get("bounds", String.class).get();
             String[] segments = at.split("-");
             if (segments.length != 2) {
-                throw new IllegalArgumentException("param-error-bounds-invalid-format");
+                messageService.errorParamBoundsInvalid(sender);
+
+                return Optional.empty();
             }
 
             String[] minSegments = segments[0].split(",");
             if (minSegments.length != 3) {
-                throw new IllegalArgumentException("param-error-bounds-invalid-format");
+                messageService.errorParamBoundsInvalid(sender);
+
+                return Optional.empty();
             }
 
             String[] maxSegments = segments[1].split(",");
             if (maxSegments.length != 3) {
-                throw new IllegalArgumentException("param-error-bounds-invalid-format");
+                messageService.errorParamBoundsInvalid(sender);
+
+                return Optional.empty();
             }
 
             int minX = Integer.parseInt(minSegments[0]);
@@ -247,7 +275,7 @@ public class QueryService {
             builder.reversed(arguments.get("reversed", Boolean.class).get());
         }
 
-        return builder;
+        return Optional.of(builder);
     }
 
     /**
