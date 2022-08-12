@@ -41,23 +41,6 @@ public interface IActionFactory<B, D, E, I> {
     IAction createAction(IActionType type, String descriptor);
 
     /**
-     * Create a new generic action.
-     *
-     * @param key The action type key
-     * @return The action
-     */
-    IAction createAction(String key);
-
-    /**
-     * Create a new generic action.
-     *
-     * @param key The action type key
-     * @param descriptor The descriptor
-     * @return The action
-     */
-    IAction createAction(String key, String descriptor);
-
-    /**
      * Create a new action for the given type/block.
      *
      * @param type The action type
@@ -75,25 +58,6 @@ public interface IActionFactory<B, D, E, I> {
      * @return The block action
      */
     IBlockAction createBlockStateAction(IActionType type, B blockState, B replacedBlockState);
-
-    /**
-     * Create a new action for the given type/block.
-     *
-     * @param key The action type key
-     * @param blockState The new block state
-     * @return The block action
-     */
-    IBlockAction createBlockStateAction(String key, B blockState);
-
-    /**
-     * Create a new action for the given type/block, including a replaced block state.
-     *
-     * @param key The action type key
-     * @param blockState The new block state
-     * @param replaced The replaced block state
-     * @return The block action
-     */
-    IBlockAction createBlockStateAction(String key, B blockState, B replaced);
 
     /**
      * Create a new action for the given type/block, including a replaced block data.
@@ -115,15 +79,6 @@ public interface IActionFactory<B, D, E, I> {
     IEntityAction createEntityAction(IActionType type, E entity);
 
     /**
-     * Create a new action for the given entity.
-     *
-     * @param key The action type key
-     * @param entity The entity
-     * @return The entity action
-     */
-    IEntityAction createEntityAction(String key, E entity);
-
-    /**
      * Create a new action for the given type/item stack.
      *
      * @param type The action type
@@ -131,13 +86,4 @@ public interface IActionFactory<B, D, E, I> {
      * @return The item stack action
      */
     IItemAction createItemStackAction(IActionType type, I itemStack);
-
-    /**
-     * Create a new action for the given type/item stack.
-     *
-     * @param key The action type key
-     * @param itemStack The item stack
-     * @return The item stack action
-     */
-    IItemAction createItemStackAction(String key, I itemStack);
 }

@@ -20,10 +20,7 @@
 
 package network.darkhelmet.prism.actions;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
-import java.util.Optional;
 
 import network.darkhelmet.prism.actions.types.BlockActionType;
 import network.darkhelmet.prism.actions.types.EntityActionType;
@@ -35,7 +32,6 @@ import network.darkhelmet.prism.api.actions.IBlockAction;
 import network.darkhelmet.prism.api.actions.IEntityAction;
 import network.darkhelmet.prism.api.actions.IItemAction;
 import network.darkhelmet.prism.api.actions.types.IActionType;
-import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
 
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
@@ -44,21 +40,6 @@ import org.bukkit.inventory.ItemStack;
 
 @Singleton
 public class ActionFactory implements IActionFactory<BlockState, BlockData, Entity, ItemStack> {
-    /**
-     * The action type registry.
-     */
-    private final IActionTypeRegistry actionTypeRegistry;
-
-    /**
-     * Constructor.
-     *
-     * @param actionTypeRegistry The action type registry
-     */
-    @Inject
-    public ActionFactory(IActionTypeRegistry actionTypeRegistry) {
-        this.actionTypeRegistry = actionTypeRegistry;
-    }
-
     @Override
     public IAction createAction(IActionType type) {
         return createAction(type, null);
@@ -71,21 +52,6 @@ public class ActionFactory implements IActionFactory<BlockState, BlockData, Enti
         }
 
         return new GenericAction(type, descriptor);
-    }
-
-    @Override
-    public IAction createAction(String key) {
-        return createAction(key, null);
-    }
-
-    @Override
-    public IAction createAction(String key, String descriptor) {
-        Optional<IActionType> actionTypeOptional = actionTypeRegistry.actionType(key);
-        if (actionTypeOptional.isEmpty()) {
-            throw new IllegalArgumentException("Invalid action type key");
-        }
-
-        return createAction(actionTypeOptional.get(), descriptor);
     }
 
     @Override
@@ -112,21 +78,6 @@ public class ActionFactory implements IActionFactory<BlockState, BlockData, Enti
     }
 
     @Override
-    public IBlockAction createBlockStateAction(String key, BlockState blockState) {
-        return createBlockStateAction(key, blockState, null);
-    }
-
-    @Override
-    public IBlockAction createBlockStateAction(String key, BlockState blockState, BlockState replaced) {
-        Optional<IActionType> actionTypeOptional = actionTypeRegistry.actionType(key);
-        if (actionTypeOptional.isEmpty()) {
-            throw new IllegalArgumentException("Invalid action type key");
-        }
-
-        return createBlockStateAction(actionTypeOptional.get(), blockState, replaced);
-    }
-
-    @Override
     public IEntityAction createEntityAction(IActionType type, Entity entity) {
         if (!(type instanceof EntityActionType)) {
             throw new IllegalArgumentException("Entity actions cannot be made from non-entity action types.");
@@ -136,31 +87,11 @@ public class ActionFactory implements IActionFactory<BlockState, BlockData, Enti
     }
 
     @Override
-    public IEntityAction createEntityAction(String key, Entity entity) {
-        Optional<IActionType> actionTypeOptional = actionTypeRegistry.actionType(key);
-        if (actionTypeOptional.isEmpty()) {
-            throw new IllegalArgumentException("Invalid action type key");
-        }
-
-        return new EntityAction(actionTypeOptional.get(), entity);
-    }
-
-    @Override
     public IItemAction createItemStackAction(IActionType type, ItemStack itemStack) {
         if (!(type instanceof ItemActionType)) {
             throw new IllegalArgumentException("Item actions cannot be made from non-item action types.");
         }
 
         return new ItemStackAction(type, itemStack);
-    }
-
-    @Override
-    public IItemAction createItemStackAction(String key, ItemStack itemStack) {
-        Optional<IActionType> actionTypeOptional = actionTypeRegistry.actionType(key);
-        if (actionTypeOptional.isEmpty()) {
-            throw new IllegalArgumentException("Invalid action type key");
-        }
-
-        return new ItemStackAction(actionTypeOptional.get(), itemStack);
     }
 }
