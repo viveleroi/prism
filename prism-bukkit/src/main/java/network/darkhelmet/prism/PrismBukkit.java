@@ -41,6 +41,7 @@ import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.IPrism;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
+import network.darkhelmet.prism.api.services.recording.IRecordingService;
 import network.darkhelmet.prism.api.storage.IStorageAdapter;
 import network.darkhelmet.prism.commands.AboutCommand;
 import network.darkhelmet.prism.commands.ExtinguishCommand;
@@ -405,6 +406,16 @@ public class PrismBukkit implements IPrism {
      * On disable.
      */
     public void onDisable() {
+        IRecordingService recordingService = injectorProvider.injector().getInstance(IRecordingService.class);
+        if (!recordingService.queue().isEmpty()) {
+            loader().loggingService().logger().info(
+                "Blocking shut down to try to fully drain prism recording queue...");
+
+            recordingService.drainSync();
+
+            loader().loggingService().logger().info("Recording queue now empty.");
+        }
+
         if (storageAdapter != null) {
             storageAdapter.close();
         }

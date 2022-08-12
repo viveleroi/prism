@@ -28,6 +28,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import network.darkhelmet.prism.PrismBukkit;
 import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.services.recording.IRecordingService;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.filters.FilterService;
 
 import org.bukkit.Bukkit;
@@ -36,9 +37,24 @@ import org.bukkit.scheduler.BukkitTask;
 @Singleton
 public class RecordingService implements IRecordingService {
     /**
+     * The configuration service.
+     */
+    private final ConfigurationService configurationService;
+
+    /**
      * The filter service.
      */
-    protected final FilterService filterService;
+    private final FilterService filterService;
+
+    /**
+     * The recording task.
+     */
+    private final RecordingTask recordingTask;
+
+    /**
+     * Set the recording mode.
+     */
+    private RecordMode recordMode = RecordMode.NORMAL;
 
     /**
      * Queue of activities.
@@ -51,15 +67,27 @@ public class RecordingService implements IRecordingService {
     private BukkitTask task;
 
     /**
+     * The drain mode.
+     */
+    private enum RecordMode {
+        NORMAL, DRAIN_SYNC
+    }
+
+    /**
      * Construct the recording manager.
      *
+     * @param configurationService The configuration service
+     * @param filterService The filter service
      * @param recordingTask The recording task
      */
     @Inject
     public RecordingService(
+            ConfigurationService configurationService,
             FilterService filterService,
             RecordingTask recordingTask) {
+        this.configurationService = configurationService;
         this.filterService = filterService;
+        this.recordingTask = recordingTask;
 
         queueNextRecording(recordingTask);
     }
@@ -88,27 +116,39 @@ public class RecordingService implements IRecordingService {
     }
 
     @Override
+    public void drainSync() {
+        recordMode = RecordMode.DRAIN_SYNC;
+
+        RecordingTask recordingTask = this.recordingTask.toNew();
+        while (!queue.isEmpty()) {
+            recordingTask.save();
+        }
+    }
+
+    @Override
     public LinkedBlockingQueue<ISingleActivity> queue() {
         return queue;
     }
 
     @Override
     public void queueNextRecording(Runnable recordingTask) {
-        queueNextRecording(recordingTask, 10);
+        long delay = configurationService.prismConfig().recording().delay();
+        queueNextRecording(delay);
     }
 
     /**
      * Queue the next recording with a specific delay.
      *
-     * @param recordingTask The recording task
      * @param delay The delay
      */
-    public void queueNextRecording(Runnable recordingTask, long delay) {
+    public void queueNextRecording(long delay) {
         if (task != null) {
             throw new IllegalStateException("Recording tasks must be cleared before scheduling a new one.");
         }
 
-        task = Bukkit.getServer().getScheduler()
-            .runTaskLaterAsynchronously(PrismBukkit.getInstance().loaderPlugin(), recordingTask, delay);
+        if (recordMode.equals(RecordMode.NORMAL)) {
+            task = Bukkit.getServer().getScheduler()
+                .runTaskLaterAsynchronously(PrismBukkit.getInstance().loaderPlugin(), recordingTask, delay);
+        }
     }
 }

@@ -39,6 +39,13 @@ public interface IRecordingService {
     void clearTask();
 
     /**
+     * Drain the queue synchronously.
+     *
+     * <p>This is done sync to block any other processes.</p>
+     */
+    void drainSync();
+
+    /**
      * Get the queue.
      *
      * @return the queue

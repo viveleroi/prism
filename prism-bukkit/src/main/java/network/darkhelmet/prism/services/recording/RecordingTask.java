@@ -113,4 +113,13 @@ public class RecordingTask implements Runnable {
 
         recordingService.clearTask();
     }
+
+    /**
+     * Create a new recording task.
+     *
+     * @return The recording task
+     */
+    public RecordingTask toNew() {
+        return new RecordingTask(storageConfig, storageAdapter, recordingService, loggingService);
+    }
 }

@@ -62,4 +62,6 @@ public class PrismConfiguration {
     private ModificationConfiguration modifications = new ModificationConfiguration();
 
     private PurgeConfiguration purges = new PurgeConfiguration();
+
+    private RecordingConfiguration recording = new RecordingConfiguration();
 }
