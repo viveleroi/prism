@@ -189,6 +189,9 @@ public class LookupService {
                         .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
                 }
 
+                Component splitter = MiniMessage.miniMessage().deserialize(
+                    translationService.messageOf(sender, "rich.page-separator"));
+
                 Component next = Component.empty();
                 if (results.hasNextPage()) {
                     String cmd = "/pr page " + (results.currentPage() + 1);
@@ -201,7 +204,7 @@ public class LookupService {
                         .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
                 }
 
-                audiences.sender(sender).sendMessage(prev.append(next));
+                audiences.sender(sender).sendMessage(prev.append(splitter).append(next));
             }
         }
     }
