@@ -233,6 +233,7 @@ public class TagLib {
      */
     public static final MaterialTag RECURSIVE_TOP_DETACHABLES = new MaterialTag(
         Material.BAMBOO,
+        Material.KELP_PLANT,
         Material.KELP,
         Material.CACTUS,
         Material.SCAFFOLDING,
