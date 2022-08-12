@@ -28,6 +28,7 @@ import network.darkhelmet.prism.actions.ActionFactory;
 import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.IActionFactory;
+import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.services.expectations.ExpectationType;
@@ -38,6 +39,7 @@ import network.darkhelmet.prism.utils.BlockUtils;
 import network.darkhelmet.prism.utils.EntityUtils;
 import network.darkhelmet.prism.utils.LocationUtils;
 
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
@@ -201,6 +203,72 @@ public class AbstractListener {
         }
 
         ISingleActivity activity = builder.build();
+        recordingService.addToQueue(activity);
+    }
+
+    /**
+     * Record an item insert activity.
+     *
+     * @param location The location
+     * @param player The player
+     * @param itemStack The item stack
+     * @param amount The amount
+     * @param slot The slot
+     */
+    protected void recordItemInsertActivity(
+            Location location, Player player, ItemStack itemStack, int amount, int slot) {
+        recordItemActivity(ActionTypeRegistry.ITEM_INSERT, location, player, itemStack, amount, slot);
+    }
+
+    /**
+     * Record an item remove activity.
+     *
+     * @param location The location
+     * @param player The player
+     * @param itemStack The item stack
+     * @param amount The amount
+     * @param slot The slot
+     */
+    protected void recordItemRemoveActivity(
+            Location location, Player player, ItemStack itemStack, int amount, int slot) {
+        recordItemActivity(ActionTypeRegistry.ITEM_REMOVE, location, player, itemStack, amount, slot);
+    }
+
+    /**
+     * Record AN item insert/remove activity.
+     *
+     * @param actionType The action type
+     * @param location The location
+     * @param player The player
+     * @param itemStack The item stack
+     * @param amount The amount
+     * @param slot The slot
+     */
+    protected void recordItemActivity(
+            ActionType actionType, Location location, Player player, ItemStack itemStack, int amount, int slot) {
+        // Ignore if this event is disabled
+        if (actionType.equals(ActionTypeRegistry.ITEM_INSERT)
+                && !configurationService.prismConfig().actions().itemInsert()) {
+            return;
+        } else if (actionType.equals(ActionTypeRegistry.ITEM_REMOVE)
+                && !configurationService.prismConfig().actions().itemRemove()) {
+            return;
+        }
+
+        // Clone the item stack and set the quantity because
+        // this is what we use to record the action
+        ItemStack clonedStack = itemStack.clone();
+        clonedStack.setAmount(amount);
+
+        // Build the action
+        final IAction action = actionFactory.createItemStackAction(actionType, clonedStack);
+
+        // Build the activity
+        final ISingleActivity activity = Activity.builder()
+            .action(action).player(player.getUniqueId(), player.getName())
+            .location(LocationUtils.locToWorldCoordinate(location))
+            .build();
+
         recordingService.addToQueue(activity);
     }
 }
