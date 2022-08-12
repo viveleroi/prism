@@ -102,7 +102,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
     public static final ActionType VEHICLE_PLACE =
         new EntityActionType("vehicle-place", ActionResultType.CREATES, true);
     public static final ActionType XP_PICKUP =
-        new EntityActionType("xp-pickup", ActionResultType.NONE, false);
+        new GenericActionType("xp-pickup", ActionResultType.NONE, false);
 
     /**
      * Construct the action registry.
