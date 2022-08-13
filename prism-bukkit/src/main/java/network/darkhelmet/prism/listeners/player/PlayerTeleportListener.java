@@ -74,7 +74,7 @@ public class PlayerTeleportListener extends AbstractListener implements Listener
         Location to = event.getTo();
 
         String descriptor = "to unknown";
-        if (to != null && to.getWorld() != null) {
+        if (to.getWorld() != null) {
             descriptor = String.format("%s %d,%d,%d",
                 to.getWorld().getName(), to.getBlockX(), to.getBlockY(), to.getBlockZ());
         }
