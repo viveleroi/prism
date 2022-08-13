@@ -47,11 +47,16 @@ public class ActionFactory implements IActionFactory<BlockState, BlockData, Enti
 
     @Override
     public IAction createAction(IActionType type, String descriptor) {
+        return createAction(type, descriptor, null);
+    }
+
+    @Override
+    public IAction createAction(IActionType type, String descriptor, Record metadata) {
         if (!(type instanceof GenericActionType)) {
             throw new IllegalArgumentException("Generic actions cannot be made from non-generic action types.");
         }
 
-        return new GenericAction(type, descriptor);
+        return new GenericAction(type, descriptor, metadata);
     }
 
     @Override

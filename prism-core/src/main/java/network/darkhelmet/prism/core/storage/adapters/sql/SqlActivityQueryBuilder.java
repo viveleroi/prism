@@ -174,6 +174,7 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
         // Add fields useful only for lookups
         if (query.lookup()) {
             queryBuilder.addSelect(PRISM_ACTIVITIES.DESCRIPTOR);
+            queryBuilder.addSelect(PRISM_ACTIVITIES.METADATA);
 
             if (!useDeprecated) {
                 queryBuilder.addSelect(count().over().as("totalrows"));
@@ -244,7 +245,8 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
                 PRISM_CAUSES.CAUSE,
                 PRISM_PLAYERS.PLAYER,
                 PRISM_PLAYERS.PLAYER_UUID,
-                PRISM_ACTIVITIES.DESCRIPTOR);
+                PRISM_ACTIVITIES.DESCRIPTOR,
+                PRISM_ACTIVITIES.METADATA);
         }
 
         // Order by

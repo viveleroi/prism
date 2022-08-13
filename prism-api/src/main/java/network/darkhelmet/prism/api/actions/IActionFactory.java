@@ -41,6 +41,16 @@ public interface IActionFactory<B, D, E, I> {
     IAction createAction(IActionType type, String descriptor);
 
     /**
+     * Create a new generic action.
+     *
+     * @param type The action type
+     * @param descriptor The descriptor
+     * @param metadata The metadata record
+     * @return The action
+     */
+    IAction createAction(IActionType type, String descriptor, Record metadata);
+
+    /**
      * Create a new action for the given type/block.
      *
      * @param type The action type

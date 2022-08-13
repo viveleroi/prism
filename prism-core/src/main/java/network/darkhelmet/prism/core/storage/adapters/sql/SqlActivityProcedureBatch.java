@@ -35,8 +35,14 @@ import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.storage.IActivityBatch;
 import network.darkhelmet.prism.api.util.NamedIdentity;
 import network.darkhelmet.prism.core.utils.TypeUtils;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 public class SqlActivityProcedureBatch implements IActivityBatch {
+    /**
+     * The logging service.
+     */
+    private final LoggingService loggingService;
+
     /**
      * The hikari data source.
      */
@@ -62,7 +68,11 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
      *
      * @param serializerVersion The serializer version
      */
-    public SqlActivityProcedureBatch(HikariDataSource hikariDataSource, short serializerVersion) {
+    public SqlActivityProcedureBatch(
+            LoggingService loggingService,
+            HikariDataSource hikariDataSource,
+            short serializerVersion) {
+        this.loggingService = loggingService;
         this.hikariDataSource = hikariDataSource;
         this.serializerVersion = serializerVersion;
     }
@@ -72,7 +82,7 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
         connection = hikariDataSource.getConnection();
 
         statement = connection.prepareCall(
-            "{ CALL createActivity(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
+            "{ CALL createActivity(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
     }
 
     @Override
@@ -123,8 +133,7 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
         }
 
         // Replaced material & data
-        if (activity.action() instanceof IBlockAction) {
-            IBlockAction blockAction = (IBlockAction) activity.action();
+        if (activity.action() instanceof IBlockAction blockAction) {
             statement.setString(12, blockAction.serializeReplacedMaterial());
             statement.setString(13, blockAction.serializeReplacedBlockData());
         } else {
@@ -154,6 +163,18 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
             statement.setString(18, activity.action().descriptor());
         } else {
             statement.setNull(18, Types.VARCHAR);
+        }
+
+        // Serialize the metadata
+        if (activity.action().metadata() != null) {
+            try {
+                statement.setString(19, activity.action().serializeMetadata());
+            } catch (Exception e) {
+                loggingService.handleException(e);
+                statement.setNull(19, Types.VARCHAR);
+            }
+        } else {
+            statement.setNull(19, Types.VARCHAR);
         }
 
         statement.addBatch();

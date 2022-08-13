@@ -172,7 +172,7 @@ public class LookupService {
                 if (activity.action().descriptor() != null) {
                     messageService.listActivityRow(sender, activity);
                 } else {
-                    messageService.listActivityRowNoContent(sender, activity);
+                    messageService.listActivityRowNoDescriptor(sender, activity);
                 }
             }
 

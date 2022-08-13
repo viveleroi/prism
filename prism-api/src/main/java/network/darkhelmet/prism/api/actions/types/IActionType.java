@@ -30,7 +30,7 @@ public interface IActionType {
      * @param actionData The action data
      * @return The action
      */
-    IAction createAction(ActionData actionData);
+    IAction createAction(ActionData actionData) throws Exception;
 
     /**
      * Get the key.
@@ -45,6 +45,13 @@ public interface IActionType {
      * @return The family key
      */
     String familyKey();
+
+    /**
+     * Get the class type of any metadata.
+     *
+     * @return The metadata record class
+     */
+    Class<? extends Record> metadataClass();
 
     /**
      * Get the past-tense translation key for this specific action.

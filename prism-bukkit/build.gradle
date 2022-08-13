@@ -19,6 +19,8 @@ dependencies {
     compileOnly project.property('deps.configurate-hocon')
     compileOnly project.property('deps.guice')
     compileOnly project.property('deps.guice-assistedinject')
+    compileOnly project.property('deps.jackson-core')
+    compileOnly project.property('deps.jackson-databind')
     compileOnly project.property('deps.jar-relocator')
     compileOnly project.property('deps.jooq')
     compileOnly project.property('deps.log4j-api')
@@ -48,6 +50,7 @@ shadowJar {
     archiveFileName = 'prism-bukkit.jarinjar'
 
     relocate 'co.aikar.taskchain', 'network.darkhelmet.prism.libs.taskchain'
+    relocate 'com.fasterxml.jackson', 'network.darkhelmet.prism.libs.jackson'
     relocate 'com.github.ben-manes.caffeine', 'network.darkhelmet.prism.libs.caffeine'
     relocate 'com.google.inject', 'network.darkhelmet.prism.libs.inject'
     relocate 'com.h2database', 'network.darkhelmet.prism.libs.h2'

@@ -315,6 +315,7 @@ public class MariaDbStorageAdapter extends AbstractSqlStorageAdapter {
                     + "IN `customDataVersion` SMALLINT,"
                     + "IN `customData` TEXT,"
                     + "IN `descriptor` VARCHAR(255),"
+                    + "IN `metadata` VARCHAR(255),"
                     + "OUT `activityId` INT) "
                     + "BEGIN "
                     + "    SET @entityId = NULL;"
@@ -338,10 +339,10 @@ public class MariaDbStorageAdapter extends AbstractSqlStorageAdapter {
                     + "    END IF; "
                     + "    INSERT INTO `" + prefix + "activities` "
                     + "    (`timestamp`, `world_id`, `x`, `y`, `z`, `action_id`, `material_id`, "
-                    + "    `old_material_id`, `entity_type_id`, `cause_id`, `descriptor`) "
+                    + "    `old_material_id`, `entity_type_id`, `cause_id`, `descriptor`, `metadata`) "
                     + "    VALUES "
                     + "    (`timestamp`, @worldId, `x`, `y`, `z`, @actionId, @materialId, "
-                    + "    @oldMaterialId, @entityId, @causeId, `descriptor`); "
+                    + "    @oldMaterialId, @entityId, @causeId, `descriptor`, `metadata`); "
                     + "    SET `activityId` = LAST_INSERT_ID(); "
                     + "    IF `customData` IS NOT NULL THEN "
                     + "        INSERT INTO `" + prefix + "activities_custom_data` (`activity_id`, `version`, `data`) "
@@ -356,7 +357,7 @@ public class MariaDbStorageAdapter extends AbstractSqlStorageAdapter {
     @Override
     public IActivityBatch createActivityBatch() {
         if (configurationService.storageConfig().mariadb().useStoredProcedures()) {
-            return new SqlActivityProcedureBatch(dataSource, serializerVersion);
+            return new SqlActivityProcedureBatch(loggingService, dataSource, serializerVersion);
         }
 
         return super.createActivityBatch();

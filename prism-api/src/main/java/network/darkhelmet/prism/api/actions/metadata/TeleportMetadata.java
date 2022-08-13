@@ -18,15 +18,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.api.actions;
+package network.darkhelmet.prism.api.actions.metadata;
 
-public record ActionData(
-    String material,
-    String materialData,
-    String replacedMaterial,
-    String replacedMaterialData,
-    String entityType,
-    String customData,
-    String descriptor,
-    String metadata,
-    short customDataVersion) {}
+public record TeleportMetadata(String using) {}

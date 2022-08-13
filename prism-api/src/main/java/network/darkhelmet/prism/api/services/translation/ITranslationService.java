@@ -18,15 +18,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.api.actions;
+package network.darkhelmet.prism.api.services.translation;
 
-public record ActionData(
-    String material,
-    String materialData,
-    String replacedMaterial,
-    String replacedMaterialData,
-    String entityType,
-    String customData,
-    String descriptor,
-    String metadata,
-    short customDataVersion) {}
+public interface ITranslationService {
+    /**
+     * Translate the given message key for this receiver.
+     *
+     * @param receiver The receiver
+     * @param messageKey The message key
+     * @return The translated text
+     */
+    String translate(final Object receiver, final String messageKey);
+}

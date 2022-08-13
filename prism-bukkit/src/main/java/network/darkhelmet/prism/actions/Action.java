@@ -20,10 +20,22 @@
 
 package network.darkhelmet.prism.actions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+
 import network.darkhelmet.prism.api.actions.IAction;
+import network.darkhelmet.prism.api.actions.metadata.TeleportMetadata;
 import network.darkhelmet.prism.api.actions.types.IActionType;
+import network.darkhelmet.prism.api.services.translation.ITranslationService;
 
 public abstract class Action implements IAction {
+    /**
+     * The object mapper.
+     */
+    protected static final ObjectMapper objectMapper = new ObjectMapper();
+
     /**
      * The descriptor.
      */
@@ -32,7 +44,12 @@ public abstract class Action implements IAction {
     /**
      * The type.
      */
-    private IActionType type;
+    protected final IActionType type;
+
+    /**
+     * The metadata.
+     */
+    protected Record metadata;
 
     /**
      * Construct a new action.
@@ -40,7 +57,7 @@ public abstract class Action implements IAction {
      * @param type The action type
      */
     public Action(IActionType type) {
-        this.type = type;
+        this(type, null, null);
     }
 
     /**
@@ -50,13 +67,49 @@ public abstract class Action implements IAction {
      * @param descriptor The descriptor
      */
     public Action(IActionType type, String descriptor) {
+        this(type, descriptor, null);
+    }
+
+    /**
+     * Construct a new action.
+     *
+     * @param type The action type
+     * @param descriptor The descriptor
+     * @param metadata The metadata
+     */
+    public Action(IActionType type, String descriptor, Record metadata) {
         this.type = type;
         this.descriptor = descriptor;
+        this.metadata = metadata;
     }
 
     @Override
     public String descriptor() {
         return descriptor;
+    }
+
+    @Override
+    public Record metadata() {
+        return metadata;
+    }
+
+    @Override
+    public Component metadataComponent(Object receiver, ITranslationService translationService) {
+        if (metadata instanceof TeleportMetadata teleportMetadata) {
+            String using = translationService.translate(receiver, "text.metadata-hover-using");
+
+            return Component.text()
+                .append(Component.text(using + ": ", NamedTextColor.GRAY))
+                .append(Component.text(teleportMetadata.using(), NamedTextColor.WHITE))
+                .build();
+        }
+
+        return null;
+    }
+
+    @Override
+    public String serializeMetadata() throws Exception {
+        return objectMapper.writeValueAsString(metadata);
     }
 
     @Override

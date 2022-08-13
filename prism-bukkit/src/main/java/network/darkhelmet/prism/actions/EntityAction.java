@@ -100,7 +100,7 @@ public class EntityAction extends Action implements IEntityAction {
      * @param descriptor The descriptor
      */
     public EntityAction(IActionType type, EntityType entityType, NBTContainer container, String descriptor) {
-        super(type, descriptor);
+        super(type, descriptor, null);
 
         this.entityType = entityType;
         this.nbtContainer = container;

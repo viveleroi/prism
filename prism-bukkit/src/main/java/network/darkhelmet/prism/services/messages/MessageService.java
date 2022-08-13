@@ -89,8 +89,8 @@ public interface MessageService {
     @Message("rich.activity-row")
     void listActivityRow(CommandSender receiver, @Placeholder IActivity activity);
 
-    @Message("rich.activity-row-no-content")
-    void listActivityRowNoContent(CommandSender receiver, @Placeholder IActivity activity);
+    @Message("rich.activity-row-no-descriptor")
+    void listActivityRowNoDescriptor(CommandSender receiver, @Placeholder IActivity activity);
 
     @Message("rich.modifications-applied")
     void modificationsApplied(CommandSender receiver, @Placeholder Integer count);

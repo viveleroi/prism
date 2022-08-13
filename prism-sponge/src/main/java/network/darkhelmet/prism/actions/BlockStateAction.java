@@ -20,12 +20,15 @@
 
 package network.darkhelmet.prism.actions;
 
+import net.kyori.adventure.text.Component;
+
 import network.darkhelmet.prism.api.actions.IBlockAction;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
+import network.darkhelmet.prism.api.services.translation.ITranslationService;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -77,6 +80,21 @@ public class BlockStateAction implements IBlockAction {
 
     @Override
     public String descriptor() {
+        return null;
+    }
+
+    @Override
+    public Record metadata() {
+        return null;
+    }
+
+    @Override
+    public Component metadataComponent(Object receiver, ITranslationService translationService) {
+        return null;
+    }
+
+    @Override
+    public String serializeMetadata() {
         return null;
     }
 

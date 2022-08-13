@@ -46,6 +46,7 @@ import java.util.stream.Stream;
 import net.kyori.adventure.translation.Translator;
 import net.kyori.moonshine.message.IMessageSource;
 
+import network.darkhelmet.prism.api.services.translation.ITranslationService;
 import network.darkhelmet.prism.loader.services.configuration.PrismConfiguration;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.utils.SortedProperties;
@@ -55,7 +56,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
-public class TranslationService implements IMessageSource<CommandSender, String> {
+public class TranslationService implements IMessageSource<CommandSender, String>, ITranslationService {
     /**
      * The default locale.
      */
@@ -100,6 +101,15 @@ public class TranslationService implements IMessageSource<CommandSender, String>
         this.pluginJar = pluginJar();
 
         this.reloadTranslations();
+    }
+
+    @Override
+    public String translate(final Object receiver, final String messageKey) {
+        if (receiver instanceof CommandSender commandSender) {
+            return messageOf(commandSender, messageKey);
+        } else {
+            return null;
+        }
     }
 
     @Override

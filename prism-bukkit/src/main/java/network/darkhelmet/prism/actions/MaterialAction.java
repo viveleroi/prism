@@ -50,7 +50,7 @@ public abstract class MaterialAction extends Action implements IMaterialAction {
      * @param material The material
      */
     public MaterialAction(IActionType type, Material material, String descriptor) {
-        super(type, descriptor);
+        super(type, descriptor, null);
 
         this.material = material;
 

@@ -27,17 +27,22 @@ public abstract class ActionType implements IActionType {
     /**
      * The key.
      */
-    protected String key;
+    protected final String key;
 
     /**
      * The action result type.
      */
-    protected ActionResultType resultType;
+    protected final ActionResultType resultType;
 
     /**
      * Indicates whether this action type is usually reversible.
      */
-    protected boolean reversible;
+    protected final boolean reversible;
+
+    /**
+     * The metadata class.
+     */
+    protected final Class<? extends Record> metadataClass;
 
     /**
      * Construct a new action type.
@@ -47,9 +52,23 @@ public abstract class ActionType implements IActionType {
      * @param reversible If action is reversible
      */
     public ActionType(String key, ActionResultType resultType, boolean reversible) {
+        this(key, resultType, reversible, null);
+    }
+
+    /**
+     * Construct a new action type.
+     *
+     * @param key The key
+     * @param resultType The result type
+     * @param reversible If action is reversible
+     * @param metadataClass The metadata class
+     */
+    public ActionType(
+            String key, ActionResultType resultType, boolean reversible, Class<? extends Record> metadataClass) {
         this.key = key;
         this.resultType = resultType;
         this.reversible = reversible;
+        this.metadataClass = metadataClass;
     }
 
     @Override
@@ -61,6 +80,11 @@ public abstract class ActionType implements IActionType {
     public String familyKey() {
         String[] segments = key.split("-");
         return segments[segments.length - 1];
+    }
+
+    @Override
+    public Class<? extends Record> metadataClass() {
+        return metadataClass;
     }
 
     @Override

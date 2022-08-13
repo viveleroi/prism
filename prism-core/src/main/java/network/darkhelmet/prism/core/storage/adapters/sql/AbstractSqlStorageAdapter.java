@@ -429,6 +429,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
             .column(PRISM_ACTIVITIES.ENTITY_TYPE_ID)
             .column(PRISM_ACTIVITIES.CAUSE_ID)
             .column(PRISM_ACTIVITIES.DESCRIPTOR)
+            .column(PRISM_ACTIVITIES.METADATA)
             .column(PRISM_ACTIVITIES.REVERSED)
             .primaryKey(PRISM_ACTIVITIES.ACTIVITY_ID)
             .constraints(
@@ -620,6 +621,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
             }
 
             String descriptor = query.lookup() ? r.getValue(PRISM_ACTIVITIES.DESCRIPTOR) : null;
+            String metadata = query.lookup() ? r.getValue(PRISM_ACTIVITIES.METADATA) : null;
 
             long timestamp;
             if (query.grouped()) {
@@ -647,29 +649,37 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
                 // Build the action data
                 ActionData actionData = new ActionData(
                     material, materialData, replacedMaterial, replacedMaterialData,
-                    entityType, customData, descriptor, customDataVersion);
+                    entityType, customData, descriptor, metadata, customDataVersion);
 
                 // Build the activity
-                IActivity activity = new Activity(activityId, actionType.createAction(actionData),
-                    coordinate, cause, player, timestamp);
+                try {
+                    IActivity activity = new Activity(activityId, actionType.createAction(actionData),
+                        coordinate, cause, player, timestamp);
 
-                // Add to result list
-                activities.add(activity);
+                    // Add to result list
+                    activities.add(activity);
+                } catch (Exception e) {
+                    loggingService.handleException(e);
+                }
             } else {
                 // Build the action data
                 ActionData actionData = new ActionData(
                     material, null, null, null,
-                    entityType, null, descriptor, (short) 0);
+                    entityType, null, descriptor, metadata, (short) 0);
 
                 // Count
                 int count = r.getValue("groupcount", Integer.class);
 
                 // Build the grouped activity
-                IActivity activity = new GroupedActivity(
-                    actionType.createAction(actionData), coordinate, cause, player, timestamp, count);
+                try {
+                    IActivity activity = new GroupedActivity(
+                        actionType.createAction(actionData), coordinate, cause, player, timestamp, count);
 
-                // Add to result list
-                activities.add(activity);
+                    // Add to result list
+                    activities.add(activity);
+                } catch (Exception e) {
+                    loggingService.handleException(e);
+                }
             }
         }
 
@@ -678,7 +688,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
 
     @Override
     public IActivityBatch createActivityBatch() {
-        return new SqlActivityBatch(dataSource, create, serializerVersion, cacheService);
+        return new SqlActivityBatch(loggingService, dataSource, create, serializerVersion, cacheService);
     }
 
     @Override

@@ -22,8 +22,8 @@ package network.darkhelmet.prism.core.storage.dbo.records;
 
 import org.jooq.Field;
 import org.jooq.Record1;
-import org.jooq.Record13;
-import org.jooq.Row13;
+import org.jooq.Record14;
+import org.jooq.Row14;
 import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
@@ -33,7 +33,7 @@ import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStor
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRecord> implements
-        Record13<
+        Record14<
             UInteger,
             UInteger,
             UByte,
@@ -45,6 +45,7 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
             UShort,
             UShort,
             UInteger,
+            String,
             String,
             Boolean> {
     private static final long serialVersionUID = 1L;
@@ -230,6 +231,21 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
     }
 
     /**
+     * Setter for <code>prism_activities.metadata</code>.
+     */
+    public PrismActivitiesRecord setMetadata(String value) {
+        set(12, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>prism_activities.metadata</code>.
+     */
+    public String getMetadata() {
+        return (String) get(12);
+    }
+
+    /**
      * Setter for <code>prism_activities.reversed</code>.
      */
     public PrismActivitiesRecord setReversed(Boolean value) {
@@ -258,39 +274,41 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
     // -------------------------------------------------------------------------
 
     @Override
-    public Row13<
-            UInteger,
-            UInteger,
-            UByte,
-            Integer,
-            Integer,
-            Integer,
-            UByte,
-            UShort,
-            UShort,
-            UShort,
-            UInteger,
-            String,
-            Boolean> fieldsRow() {
-        return (Row13) super.fieldsRow();
+    public Row14<
+        UInteger,
+        UInteger,
+        UByte,
+        Integer,
+        Integer,
+        Integer,
+        UByte,
+        UShort,
+        UShort,
+        UShort,
+        UInteger,
+        String,
+        String,
+        Boolean> fieldsRow() {
+        return (Row14) super.fieldsRow();
     }
 
     @Override
-    public Row13<
-            UInteger,
-            UInteger,
-            UByte,
-            Integer,
-            Integer,
-            Integer,
-            UByte,
-            UShort,
-            UShort,
-            UShort,
-            UInteger,
-            String,
-            Boolean> valuesRow() {
-        return (Row13) super.valuesRow();
+    public Row14<
+        UInteger,
+        UInteger,
+        UByte,
+        Integer,
+        Integer,
+        Integer,
+        UByte,
+        UShort,
+        UShort,
+        UShort,
+        UInteger,
+        String,
+        String,
+        Boolean> valuesRow() {
+        return (Row14) super.valuesRow();
     }
 
     @Override
@@ -354,7 +372,12 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
     }
 
     @Override
-    public Field<Boolean> field13() {
+    public Field<String> field13() {
+        return PRISM_ACTIVITIES.METADATA;
+    }
+
+    @Override
+    public Field<Boolean> field14() {
         return PRISM_ACTIVITIES.REVERSED;
     }
 
@@ -419,7 +442,12 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
     }
 
     @Override
-    public Boolean component13() {
+    public String component13() {
+        return getMetadata();
+    }
+
+    @Override
+    public Boolean component14() {
         return getReversed();
     }
 
@@ -556,12 +584,23 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
     }
 
     @Override
-    public Boolean value13() {
+    public String value13() {
+        return getMetadata();
+    }
+
+    @Override
+    public PrismActivitiesRecord value13(String value) {
+        setMetadata(value);
+        return this;
+    }
+
+    @Override
+    public Boolean value14() {
         return getReversed();
     }
 
     @Override
-    public PrismActivitiesRecord value13(Boolean value) {
+    public PrismActivitiesRecord value14(Boolean value) {
         setReversed(value);
         return this;
     }
@@ -580,7 +619,8 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
             UShort value10,
             UInteger value11,
             String value12,
-            Boolean value13) {
+            String value13,
+            Boolean value14) {
         value1(value1);
         value2(value2);
         value3(value3);
@@ -594,6 +634,7 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
         value11(value11);
         value12(value12);
         value13(value13);
+        value14(value14);
         return this;
     }
 
@@ -624,6 +665,7 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
             UShort entityTypeId,
             UInteger causeId,
             String descriptor,
+            String metadata,
             Boolean reversed) {
         super(PRISM_ACTIVITIES);
 
@@ -639,6 +681,7 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
         setEntityTypeId(entityTypeId);
         setCauseId(causeId);
         setDescriptor(descriptor);
+        setMetadata(metadata);
         setReversed(reversed);
     }
 }

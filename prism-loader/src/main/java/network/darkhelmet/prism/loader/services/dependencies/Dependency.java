@@ -228,6 +228,27 @@ public enum Dependency {
         "AHbCSbQ4fYNpFGUo/V2ss++6CY3ALs+ayB3r38LhL9U=",
         Relocation.of("hocon", "com{}typesafe{}config")
     ),
+    JACKSON_ANNOTATIONS(
+        "com{}fasterxml{}jackson{}core",
+        "jackson-annotations",
+        "2.13.3",
+        "Uyam+83nz4gX82wlQQHNRfas6kJYUYzTyA7luJ9OS5s=",
+        Relocation.of("jackson", "com{}fasterxml{}jackson")
+    ),
+    JACKSON_CORE(
+        "com{}fasterxml{}jackson{}core",
+        "jackson-core",
+        "2.13.3",
+        "qxGajqPMaUcuvA6HC4Sb+75TatV9YT3DhFPM1ZLKaj0=",
+        Relocation.of("jackson", "com{}fasterxml{}jackson")
+    ),
+    JACKSON_DATABIND(
+        "com{}fasterxml{}jackson{}core",
+        "jackson-databind",
+        "2.13.3",
+        "ZES/CNjNRil0Cvw9sSdpOPSUco3rZjzlhcTpH2tF64Q=",
+        Relocation.of("jackson", "com{}fasterxml{}jackson")
+    ),
     JOOQ(
         "org.jooq",
         "jooq",

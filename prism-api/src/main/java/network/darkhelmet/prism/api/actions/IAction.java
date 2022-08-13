@@ -20,11 +20,16 @@
 
 package network.darkhelmet.prism.api.actions;
 
+import net.kyori.adventure.text.Component;
+
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
+import network.darkhelmet.prism.api.services.translation.ITranslationService;
+
+import org.jetbrains.annotations.Nullable;
 
 public interface IAction {
     /**
@@ -70,6 +75,32 @@ public interface IAction {
      * @return The descriptor
      */
     String descriptor();
+
+    /**
+     * Get the metadata record attached to this action.
+     *
+     * @return The metadata
+     */
+    @Nullable Record metadata();
+
+    /**
+     * Get the metadata as a component.
+     *
+     * <p>Metadata components are used as hover effects for descriptors in chat results.</p>
+     *
+     * @param receiver The receiver
+     * @param translationService The translation service
+     * @return The metadata component.
+     */
+    Component metadataComponent(Object receiver, ITranslationService translationService);
+
+    /**
+     * Serialize the metdata.
+     *
+     * @return The serialized metdata
+     * @throws Exception Serialization exception
+     */
+    String serializeMetadata() throws Exception;
 
     /**
      * Get the action type.

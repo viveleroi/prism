@@ -41,6 +41,7 @@ import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.storage.IActivityBatch;
 import network.darkhelmet.prism.api.util.NamedIdentity;
 import network.darkhelmet.prism.core.services.cache.CacheService;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 import org.jetbrains.annotations.Nullable;
 import org.jooq.DSLContext;
@@ -58,6 +59,11 @@ import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStor
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
 
 public class SqlActivityBatch implements IActivityBatch {
+    /**
+     * The logging service.
+     */
+    private final LoggingService loggingService;
+
     /**
      * The data source.
      */
@@ -109,10 +115,12 @@ public class SqlActivityBatch implements IActivityBatch {
      * @param cacheService The cache service
      */
     public SqlActivityBatch(
+            LoggingService loggingService,
             HikariDataSource dataSource,
             DSLContext create,
             short serializerVersion,
             CacheService cacheService) {
+        this.loggingService = loggingService;
         this.dataSource = dataSource;
         this.create = create;
         this.serializerVersion = serializerVersion;
@@ -136,8 +144,9 @@ public class SqlActivityBatch implements IActivityBatch {
             PRISM_ACTIVITIES.OLD_MATERIAL_ID,
             PRISM_ACTIVITIES.WORLD_ID,
             PRISM_ACTIVITIES.CAUSE_ID,
-            PRISM_ACTIVITIES.DESCRIPTOR
-        ).values((UInteger) null, null, null, null, null, null, null, null, null, null, null).getSQL();
+            PRISM_ACTIVITIES.DESCRIPTOR,
+            PRISM_ACTIVITIES.METADATA
+        ).values((UInteger) null, null, null, null, null, null, null, null, null, null, null, null).getSQL();
 
         statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
     }
@@ -203,6 +212,18 @@ public class SqlActivityBatch implements IActivityBatch {
 
         // Set the descriptor
         statement.setString(11, activity.action().descriptor());
+
+        // Serialize the metadata
+        if (activity.action().metadata() != null) {
+            try {
+                statement.setString(12, activity.action().serializeMetadata());
+            } catch (Exception e) {
+                loggingService.handleException(e);
+                statement.setNull(12, Types.VARCHAR);
+            }
+        } else {
+            statement.setNull(12, Types.VARCHAR);
+        }
 
         if (activity.action() instanceof ICustomData) {
             if (((ICustomData) activity.action()).hasCustomData()) {

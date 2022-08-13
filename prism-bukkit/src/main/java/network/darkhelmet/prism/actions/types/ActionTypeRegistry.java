@@ -22,6 +22,7 @@ package network.darkhelmet.prism.actions.types;
 
 import com.google.inject.Singleton;
 
+import network.darkhelmet.prism.api.actions.metadata.TeleportMetadata;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.core.actions.types.AbstractActionTypeRegistry;
@@ -94,7 +95,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
     public static final ActionType PLAYER_QUIT =
         new GenericActionType("player-quit", ActionResultType.NONE, false);
     public static final ActionType PLAYER_TELEPORT =
-        new GenericActionType("player-teleport", ActionResultType.NONE, false);
+        new GenericActionType("player-teleport", ActionResultType.NONE, false, TeleportMetadata.class);
     public static final ActionType VEHICLE_ENTER =
         new EntityActionType("vehicle-enter", ActionResultType.NONE, false);
     public static final ActionType VEHICLE_EXIT =

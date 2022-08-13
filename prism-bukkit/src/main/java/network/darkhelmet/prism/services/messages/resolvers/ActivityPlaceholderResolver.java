@@ -28,6 +28,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -79,11 +80,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         Component actionPastTense = actionPastTense(receiver, value.action().type());
         Component cause = cause(receiver, value.cause(), value.player());
         Component since = since(receiver, value.timestamp());
-
-        Component content = Component.empty();
-        if (value.action().descriptor() != null) {
-            content = Component.text(value.action().descriptor());
-        }
+        Component descriptor = descriptor(receiver, value);
 
         Component count = Component.text("1");
         if (value instanceof IGroupedActivity grouped) {
@@ -105,7 +102,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
             placeholderName + "_count", Either.left(ConclusionValue.conclusionValue(count)),
             placeholderName + "_sign", Either.left(ConclusionValue.conclusionValue(sign)),
             placeholderName + "_since", Either.left(ConclusionValue.conclusionValue(since)),
-            placeholderName + "_content", Either.left(ConclusionValue.conclusionValue(content)));
+            placeholderName + "_descriptor", Either.left(ConclusionValue.conclusionValue(descriptor)));
     }
 
     /**
@@ -188,6 +185,28 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         } else {
             return Component.text(translationService.messageOf(receiver, "text.unknown-cause"));
         }
+    }
+
+    /**
+     * Get the descriptor.
+     *
+     * @param receiver The receiver
+     * @param value The activity
+     * @return The descriptor component
+     */
+    protected Component descriptor(CommandSender receiver, IActivity value) {
+        Component descriptor = Component.empty();
+        if (value.action().descriptor() != null) {
+            TextComponent.Builder builder = Component.text().append(Component.text(value.action().descriptor()));
+
+            if (value.action().metadata() != null) {
+                builder.hoverEvent(HoverEvent.showText(value.action().metadataComponent(receiver, translationService)));
+            }
+
+            descriptor = builder.build();
+        }
+
+        return descriptor;
     }
 
     /**

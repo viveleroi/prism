@@ -33,7 +33,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row13;
+import org.jooq.Row14;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -171,6 +171,15 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
     public final TableField<PrismActivitiesRecord, String> DESCRIPTOR = createField(
         DSL.name("descriptor"),
         SQLDataType.VARCHAR(155),
+        this,
+        "");
+
+    /**
+     * The column <code>prism_activities.metadata</code>.
+     */
+    public final TableField<PrismActivitiesRecord, String> METADATA = createField(
+        DSL.name("metadata"),
+        SQLDataType.VARCHAR(255),
         this,
         "");
 
@@ -353,7 +362,7 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
     }
 
     @Override
-    public Row13<
+    public Row14<
         UInteger,
         UInteger,
         UByte,
@@ -365,7 +374,9 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         UShort,
         UShort,
         UInteger,
-        String, Boolean> fieldsRow() {
-        return (Row13) super.fieldsRow();
+        String,
+        String,
+        Boolean> fieldsRow() {
+        return (Row14) super.fieldsRow();
     }
 }

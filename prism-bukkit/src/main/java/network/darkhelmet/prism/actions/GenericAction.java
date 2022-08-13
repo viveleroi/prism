@@ -35,9 +35,31 @@ public class GenericAction extends Action implements IAction {
      * @param descriptor The descriptor
      */
     public GenericAction(IActionType type, String descriptor) {
-        super(type);
+        super(type, descriptor);
+    }
 
-        this.descriptor = descriptor;
+    /**
+     * Construct a new generic action.
+     *
+     * @param type The action type
+     * @param descriptor The descriptor
+     * @param metadata The metadata
+     */
+    public GenericAction(IActionType type, String descriptor, Record metadata) {
+        super(type, descriptor, metadata);
+    }
+
+    /**
+     * Construct a new generic action.
+     *
+     * @param type The action type
+     * @param descriptor The descriptor
+     * @param metadata The metadata
+     */
+    public GenericAction(IActionType type, String descriptor, String metadata) throws Exception {
+        super(type, descriptor);
+
+        this.metadata = objectMapper.readValue(metadata, type.metadataClass());
     }
 
     @Override

@@ -31,6 +31,7 @@ shadowJar {
         project(':prism-bukkit').tasks.shadowJar.archiveFile
     }
 
+    relocate 'com.fasterxml.jackson', 'network.darkhelmet.prism.libs.jackson'
     relocate 'org.objectweb.asm', 'network.darkhelmet.prism.asm'
     relocate 'org.spongepowered.configurate', 'network.darkhelmet.prism.libs.configurate'
     relocate 'com.typesafe', 'network.darkhelmet.prism.libs.typesafe'

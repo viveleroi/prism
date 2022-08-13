@@ -22,11 +22,10 @@ package network.darkhelmet.prism.listeners.player;
 
 import com.google.inject.Inject;
 
-import java.util.Locale;
-
 import network.darkhelmet.prism.actions.ActionFactory;
 import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.IAction;
+import network.darkhelmet.prism.api.actions.metadata.TeleportMetadata;
 import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.listeners.AbstractListener;
@@ -79,11 +78,10 @@ public class PlayerTeleportListener extends AbstractListener implements Listener
                 to.getWorld().getName(), to.getBlockX(), to.getBlockY(), to.getBlockZ());
         }
 
-        descriptor += String.format(" (via %s)",
-            (event.getCause().name().toLowerCase(Locale.ENGLISH).replace("_", " ")));
+        TeleportMetadata metadata = new TeleportMetadata(event.getCause().name().toLowerCase());
 
         // Build the action
-        final IAction action = actionFactory.createAction(ActionTypeRegistry.PLAYER_TELEPORT, descriptor);
+        final IAction action = actionFactory.createAction(ActionTypeRegistry.PLAYER_TELEPORT, descriptor, metadata);
 
         // Build the activity
         final ISingleActivity activity = Activity.builder()
