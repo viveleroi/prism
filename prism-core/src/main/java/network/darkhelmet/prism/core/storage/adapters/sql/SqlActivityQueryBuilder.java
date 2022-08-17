@@ -256,13 +256,13 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
             } else {
                 queryBuilder.addOrderBy(avg(PRISM_ACTIVITIES.TIMESTAMP).desc());
             }
-        } else if (query.lookup()) {
+        } else {
             if (query.sort().equals(ActivityQuery.Sort.ASCENDING)) {
                 queryBuilder.addOrderBy(PRISM_ACTIVITIES.TIMESTAMP.asc());
             } else {
                 queryBuilder.addOrderBy(PRISM_ACTIVITIES.TIMESTAMP.desc());
             }
-        } else {
+
             // Most rollbacks "build up" but some hanging blocks need to be "built down" or they just break.
             // In order to do this, we tell hanging blocks to sort *after* everything else,
             // then we sort everything by `y asc` and sort these hanging blocks by `y desc`.

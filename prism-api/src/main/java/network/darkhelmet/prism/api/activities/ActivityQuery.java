@@ -196,5 +196,41 @@ public final class ActivityQuery {
 
             return this;
         }
+
+        /**
+         * Indicate this query is for use with a restore modifier.
+         *
+         * <p>Sets lookup and grouped to false,
+         * sort direction to ascending,
+         * reversed boolean to true.</p>
+         *
+         * @return The query
+         */
+        public ActivityQueryBuilder restore() {
+            this.lookup(false);
+            this.grouped(false);
+            this.sort(Sort.ASCENDING);
+            this.reversed(true);
+
+            return this;
+        }
+
+        /**
+         * Indicate this query is for use with modifiers.
+         *
+         * <p>Sets lookup and grouped to false,
+         * sort direction to descending,
+         * reversed boolean to false.</p>
+         *
+         * @return The query
+         */
+        public ActivityQueryBuilder rollback() {
+            this.lookup(false);
+            this.grouped(false);
+            this.sort(Sort.DESCENDING);
+            this.reversed(false);
+
+            return this;
+        }
     }
 }

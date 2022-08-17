@@ -127,7 +127,7 @@ public class RestoreCommand extends BaseCommand {
 
         Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(sender, arguments);
         if (builder.isPresent()) {
-            final ActivityQuery query = builder.get().modification().reversed(true).build();
+            final ActivityQuery query = builder.get().restore().build();
             taskChainProvider.newChain().asyncFirst(() -> {
                 try {
                     return storageAdapter.queryActivities(query);

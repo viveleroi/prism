@@ -74,8 +74,7 @@ public class RestoreWand extends AbstractModificationWand implements IWand {
 
     @Override
     public void use(WorldCoordinate at) {
-        final ActivityQuery query = ActivityQuery.builder()
-            .modification().location(at).limit(1).reversed(true).build();
+        final ActivityQuery query = ActivityQuery.builder().location(at).limit(1).restore().build();
 
         super.use(query, Restore.class);
     }
