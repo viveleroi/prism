@@ -430,6 +430,6 @@ public class QueryService {
             }
         }
 
-        return cal.getTime().getTime();
+        return cal.getTime().getTime() / 1000;
     }
 }
