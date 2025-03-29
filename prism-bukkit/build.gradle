@@ -5,8 +5,8 @@ plugins {
 
 repositories {
     maven {
-        name "papermc"
-        url "https://papermc.io/repo/repository/maven-public/"
+        name = "papermc"
+        url = "https://papermc.io/repo/repository/maven-public/"
     }
 }
 
@@ -43,7 +43,6 @@ dependencies {
 compileJava {
     options.compilerArgs += ["-parameters"]
     options.fork = true
-    options.forkOptions.executable = 'javac'
 }
 
 shadowJar {
