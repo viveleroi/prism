@@ -8,4 +8,5 @@ repositories {
 
 dependencies {
     implementation 'io.franzbecker:gradle-lombok:5.0.0'
+    implementation 'com.github.ben-manes:gradle-versions-plugin:0.52.0'
 }

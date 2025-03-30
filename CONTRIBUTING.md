@@ -34,6 +34,15 @@ Any changes to the repository by contributors should be opened as a Pull Request
 3. Make sure your code lints (`./gradlew check`).
 4. Open that pull request!
 
+## Updating Dependencies
+
+Dependency updates should be tested thoroughly. Some dependencies are downloaded by Prism at runtime
+and require updating hashes for security.
+
+To check which gradle dependencies have updates, use:
+
+- `./gradlew dependencyUpdates`
+
 ## Any contributions you make will be under the GNU GPL 3 Software License
 
 Changes you submit are automatically licensed under the GNU GPL 3 license the project uses. Any code taken

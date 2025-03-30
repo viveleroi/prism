@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'checkstyle'
     id 'io.franzbecker.gradle-lombok'
+    id 'com.github.ben-manes.versions'
 }
 
 group = project.property('group')
