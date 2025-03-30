@@ -13,15 +13,10 @@ Prism is broken out into several modules:
 - `prism-bukkit-loader` - Minimal code for a "loader" plugin that can bootstrap prism and download dependencies.
 - `prism-core` - The core code shared by all platform-specific versions.
 - `prism-loader` - The core code shared by all platform-specific loader plugins.
-- `prism-sponge` - The core code for the sponge platform version of Prism.
 
 For testing, you can use `./gradlew -p prism-bukkit-loader runServer`. This will download a paper server and run prism on it.
 
 Server files and plugin configs will be inside `prism-bukkit-loader/run`.
-
-For testing sponge, you can use `./gradlew -p prism-sponge runServer`. 
-
-As of this writing, there's not much to the sponge port and it has yet to be updated for the loader effort.
 
 A lot of `services` code inside the bukkit module will be eventually moved to core.
 
