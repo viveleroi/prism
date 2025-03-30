@@ -3,6 +3,7 @@ plugins {
     id 'checkstyle'
     id 'io.franzbecker.gradle-lombok'
     id 'com.github.ben-manes.versions'
+    id 'com.palantir.git-version'
 }
 
 group = project.property('group')
@@ -34,19 +35,11 @@ lombok {
     sha256 = ''
 }
 
-def getBuildNumber = {
-    // get the name of the last tag
-    def tagInfo = new ByteArrayOutputStream()
-    exec {
-        commandLine 'git', 'describe', '--tags'
-        standardOutput = tagInfo
-    }
-    tagInfo = tagInfo.toString()
-
-    if (!tagInfo.contains('-')) {
-        return 0
-    }
-    return tagInfo.split("-")[1]
+def getDate() {
+    def date = new Date()
+    return date.format('yyyyMMddHHmmss')
 }
 
-project.ext.fullVersion = version = project.property('version') + '-b' + getBuildNumber()
+def details = versionDetails()
+
+project.ext.fullVersion = version = project.property('version') + '-' + details.lastTag + '-' + getDate() + '-' + details.gitHash

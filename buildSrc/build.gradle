@@ -9,4 +9,5 @@ repositories {
 dependencies {
     implementation 'io.franzbecker:gradle-lombok:5.0.0'
     implementation 'com.github.ben-manes:gradle-versions-plugin:0.52.0'
+    implementation 'com.palantir.git-version:com.palantir.git-version.gradle.plugin:3.2.0'
 }
