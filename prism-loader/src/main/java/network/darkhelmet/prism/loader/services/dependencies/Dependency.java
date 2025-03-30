@@ -55,8 +55,8 @@ public enum Dependency {
     JAR_RELOCATOR(
         "me.lucko",
         "jar-relocator",
-        "1.5",
-        "0D6eM99gKpEYFNDydgnto3Df0ygZGdRVqy5ahtj0oIs="
+        "1.7",
+        "b30RhOF6kHiHl+O5suNLh/+eAr1iOFEFLXhwkHHDu4I="
     ),
 
     ADVENTURE(
@@ -151,23 +151,23 @@ public enum Dependency {
     CAFFEINE(
         "com.github.ben-manes.caffeine",
         "caffeine",
-        "3.1.1",
-        "q8BiKm8//GDjSga8zTNLcM+pa3vngk5zQjlERk34zPY=",
+        "3.2.0",
+        "7EEd/fDAPyUhhkjOiYYWMLcWgOWFippyeOusjlXKs9c=",
         Relocation.of("caffeine", "com{}github{]ben-manes{}caffeine")
     ),
     CONFIGURATE_CORE(
         "org.spongepowered",
         "configurate-core",
-        "4.1.2",
-        "vWp7rosBzMzCQRn22zL1sb98oz3mWG9tm47NJq/hRqw=",
+        "4.2.0",
+        "BsHp93iaGJrwwBVuvp9GnafMZ0Iz9D6BM8gxMe3Z9+A=",
         Relocation.of("configurate", "org{}spongepowered{]configurate"),
         Relocation.of("geantyref", "io{}leangen{}geantyref")
     ),
     CONFIGURATE_HOCON(
         "org.spongepowered",
         "configurate-hocon",
-        "4.1.2",
-        "wkQQ0cS/Z4oelsXptHzs4wezcXDSMaQeSheHxCyTUF8=",
+        "4.2.0",
+        "/xN1mkZZmBB/iJgVB1G50M93tbX/ubXsFszqnPIpiT4=",
         Relocation.of("configurate", "org{}spongepowered{}configurate"),
         Relocation.of("hocon", "com{}typesafe{}config")
     ),
@@ -210,15 +210,15 @@ public enum Dependency {
     H2_DRIVER(
         "com.h2database",
         "h2",
-        "2.1.214",
+        "2.1.232",
         "1iPNwPYdIYz1SajQnxw5H/kQlhFrIuJHVHX85PvnK9A=",
         Relocation.of("h2", "com{}h2database")
     ),
     HIKARI(
         "com.zaxxer",
         "HikariCP",
-        "5.0.1",
-        "JtSSOX5ndbQpZzeokZvwQEev5YJ/3SwItFV1lUNrOis=",
+        "6.3.0",
+        "B8Y0QFmvMKE1FEIJx8i9ZmuIIxJEIuyFmGTSCdSrfKE=",
         Relocation.of("hikari", "com{}zaxxer{}hikari")
     ),
     HOCON_CONFIG(
@@ -231,22 +231,22 @@ public enum Dependency {
     JACKSON_ANNOTATIONS(
         "com{}fasterxml{}jackson{}core",
         "jackson-annotations",
-        "2.13.3",
-        "Uyam+83nz4gX82wlQQHNRfas6kJYUYzTyA7luJ9OS5s=",
+        "2.18.3",
+        "iqV0DYC1pQJVCLQbutuqH7N3ImfGKLLjBoGk9F+LiTE=",
         Relocation.of("jackson", "com{}fasterxml{}jackson")
     ),
     JACKSON_CORE(
         "com{}fasterxml{}jackson{}core",
         "jackson-core",
-        "2.13.3",
-        "qxGajqPMaUcuvA6HC4Sb+75TatV9YT3DhFPM1ZLKaj0=",
+        "2.18.3",
+        "BWvE0+XlPOghRQ+pez+eD43eElz22miENTux8JWC4dk=",
         Relocation.of("jackson", "com{}fasterxml{}jackson")
     ),
     JACKSON_DATABIND(
         "com{}fasterxml{}jackson{}core",
         "jackson-databind",
-        "2.13.3",
-        "ZES/CNjNRil0Cvw9sSdpOPSUco3rZjzlhcTpH2tF64Q=",
+        "2.18.3",
+        "UQvdp1p6YYbFvzO4USOUiKFFCQauV1cSHy4cxIp+EI8=",
         Relocation.of("jackson", "com{}fasterxml{}jackson")
     ),
     JOOQ(
@@ -261,7 +261,7 @@ public enum Dependency {
     MARIADB_DRIVER(
         "org.mariadb.jdbc",
         "mariadb-java-client",
-        "3.0.6",
+        "3.5.3",
         "l3ynmAt3e1qo0yZ4IEKWoQjz6svE8hCIfjmxmGn60NM=",
         Relocation.of("mariadb", "org{}mariadb")
     ),
@@ -289,10 +289,10 @@ public enum Dependency {
         Relocation.of("geantyref", "io{}leangen{}geantyref")
     ),
     MYSQL_DRIVER(
-        "mysql",
-        "mysql-connector-java",
-        "8.0.29",
-        "1OMtKmAmtazAAwC3OobCj7kmga6WKbIQSO5nAUyRHbY=",
+        "com{}mysql",
+        "mysql-connector-j",
+        "9.2.0",
+        "fplBu9zKJE2Hjqlb//eI/Zumplr3V/JL5sYykw1hx+0=",
         Relocation.of("mysql", "com{}mysql")
     ),
     NBT_API(
@@ -314,7 +314,7 @@ public enum Dependency {
     POSTGRES_DRIVER(
         "org.postgresql",
         "postgresql",
-        "42.4.0",
+        "42.7.5",
         "/iW5wKLFlFhQTsiIYoU99SLuh/igJWSDXVN8Ka5MsSU=",
         Relocation.of("postgresql", "org{}postgresql")
     ),

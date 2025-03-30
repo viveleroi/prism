@@ -31,7 +31,7 @@ repositories {
 }
 
 lombok {
-    version = '1.18.24'
+    version = '1.18.36'
     sha256 = ''
 }
 
