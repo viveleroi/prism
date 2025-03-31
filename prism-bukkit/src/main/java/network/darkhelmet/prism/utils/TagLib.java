@@ -72,7 +72,6 @@ public class TagLib {
      * All plants that have a one-block structure.
      */
     public static final MaterialTag PLANTS = new MaterialTag(
-        Material.GRASS,
         Material.FERN,
         Material.DEAD_BUSH,
         Material.DANDELION,
@@ -90,7 +89,11 @@ public class TagLib {
         Material.LILY_PAD,
         Material.KELP,
         Material.KELP_PLANT,
-        Material.SWEET_BERRY_BUSH)
+        Material.SHORT_GRASS,
+        Material.SEAGRASS,
+        Material.SWEET_BERRY_BUSH,
+        Material.TALL_GRASS,
+        Material.TALL_SEAGRASS)
         .append(Tag.WALL_CORALS)
         .append(Tag.CORALS);
 

@@ -25,8 +25,6 @@ import dev.triumphteam.cmd.core.argument.named.Argument;
 import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 
-import io.papermc.lib.PaperLib;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -34,8 +32,6 @@ import java.util.List;
 import java.util.Set;
 
 import lombok.Getter;
-
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 
 import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.IPrism;
@@ -185,7 +181,6 @@ public class PrismBukkit implements IPrism {
      */
     protected Set<Dependency> platformDependencies() {
         return EnumSet.of(
-            Dependency.ADVENTURE_PLATFORM_BUKKIT,
             Dependency.NBT_API,
             Dependency.TASKCHAIN_BUKKIT,
             Dependency.TASKCHAIN_CORE
@@ -285,12 +280,9 @@ public class PrismBukkit implements IPrism {
             registerEvent(SheepDyeWoolListener.class);
             registerEvent(SpongeAbsorbListener.class);
             registerEvent(StructureGrowListener.class);
+            registerEvent(TntPrimeListener.class);
             registerEvent(VehicleEnterListener.class);
             registerEvent(VehicleExitListener.class);
-
-            if (PaperLib.isPaper()) {
-                registerEvent(TntPrimeListener.class);
-            }
 
             // Register commands
             BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(loaderPlugin());
@@ -418,11 +410,6 @@ public class PrismBukkit implements IPrism {
 
         if (storageAdapter != null) {
             storageAdapter.close();
-        }
-
-        BukkitAudiences audiences = injectorProvider.injector().getInstance(BukkitAudiences.class);
-        if (audiences != null) {
-            audiences.close();
         }
     }
 }

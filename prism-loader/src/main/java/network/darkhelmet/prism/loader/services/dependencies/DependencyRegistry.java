@@ -76,16 +76,6 @@ public class DependencyRegistry {
      */
     public Set<Dependency> globalDependencies() {
         return EnumSet.of(
-            Dependency.ADVENTURE,
-            Dependency.ADVENTURE_KEY,
-            Dependency.ADVENTURE_MINIMESSAGE,
-            Dependency.ADVENTURE_NBT,
-            Dependency.ADVENTURE_PLATFORM,
-            Dependency.ADVENTURE_PLATFORM_FACET,
-            Dependency.ADVENTURE_SERIALIZER_GSON,
-            Dependency.ADVENTURE_SERIALIZER_GSON_LEGACY,
-            Dependency.ADVENTURE_SERIALIZER_LEGACY,
-            Dependency.ADVENTURE_SERIALIZER_PLAIN,
             Dependency.AOPALLIANCE,
             Dependency.CAFFEINE,
             Dependency.CONFIGURATE_CORE,
@@ -99,6 +89,7 @@ public class DependencyRegistry {
             Dependency.JACKSON_ANNOTATIONS,
             Dependency.JACKSON_CORE,
             Dependency.JACKSON_DATABIND,
+            Dependency.JAKARTA_INJECT,
             Dependency.MOONSHINE_CORE,
             Dependency.MOONSHINE_INTERNAL,
             Dependency.MOONSHINE_STANDARD,

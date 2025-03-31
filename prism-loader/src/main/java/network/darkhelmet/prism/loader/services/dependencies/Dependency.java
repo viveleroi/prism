@@ -43,14 +43,14 @@ public enum Dependency {
     ASM(
         "org.ow2.asm",
         "asm",
-        "9.3",
-        "EmM2m1ninJQ5GN4R1tYVLi7GCFzmPlcQUW+MZ9No5Lw="
+        "9.8",
+        "h26raoPa7K1cpn65/KuwY8l7WuuM8fynqYns3hdSIFE="
     ),
     ASM_COMMONS(
         "org.ow2.asm",
         "asm-commons",
-        "9.3",
-        "o0fCRzLbKurRBrblmWoBWwaj74bnkKT3W2F2Hw0vfzk="
+        "9.8",
+        "MwGhwctMWfzFKSZI2sHXxa7UwPBn376IhzuM3+d0BPQ="
     ),
     JAR_RELOCATOR(
         "me.lucko",
@@ -59,88 +59,6 @@ public enum Dependency {
         "b30RhOF6kHiHl+O5suNLh/+eAr1iOFEFLXhwkHHDu4I="
     ),
 
-    ADVENTURE(
-        "net.kyori",
-        "adventure-api",
-        "4.11.0",
-        "0Qi0I7JqoMraFpx+/jF+WNA5vcd/5hMgD3mhAC6IaWU=",
-        Relocation.of("adventure", "net{}kyori{}adventure"),
-        Relocation.of("examination", "net{}kyori{}examination")
-    ),
-    ADVENTURE_KEY(
-        "net.kyori",
-        "adventure-key",
-        "4.11.0",
-        "cOLFKF2lI0NYV1sGWS76PCuWScqCzWxhdMEPtvboIRU=",
-        Relocation.of("adventure", "net{}kyori{}adventure"),
-        Relocation.of("examination", "net{}kyori{}examination")
-    ),
-    ADVENTURE_MINIMESSAGE(
-        "net.kyori",
-        "adventure-text-minimessage",
-        "4.11.0",
-        "1TBLc3uqrxeqLPkbHGy3zocRvkX97Waj46Hv3mLyzUw=",
-        Relocation.of("adventure", "net{}kyori{}adventure"),
-        Relocation.of("examination", "net{}kyori{}examination")
-    ),
-    ADVENTURE_NBT(
-        "net.kyori",
-        "adventure-nbt",
-        "4.11.0",
-        "oGVbavmJbQrqeURpK1SMMGFHoATdMgi9ttNUegGJGPA=",
-        Relocation.of("adventure", "net{}kyori{}adventure"),
-        Relocation.of("examination", "net{}kyori{}examination")
-    ),
-    ADVENTURE_PLATFORM(
-        "net.kyori",
-        "adventure-platform-api",
-        "4.1.1",
-        "spp6R94hDKkDyrW13o+bMavb7ZrcMH+lTqAFuc6rZuA=",
-        Relocation.of("adventure", "net{}kyori{}adventure")
-    ),
-    ADVENTURE_PLATFORM_FACET(
-        "net.kyori",
-        "adventure-platform-facet",
-        "4.1.1",
-        "WimYWl49bJwJI8QZVX55w79RKT25zJdwagYatcOidV0=",
-        Relocation.of("adventure", "net{}kyori{}adventure")
-    ),
-    ADVENTURE_PLATFORM_BUKKIT(
-        "net.kyori",
-        "adventure-platform-bukkit",
-        "4.1.2",
-        "zyChYbTEvOws4Pk2oVEyt4JkTsWhGAMUhQLdNklURo0=",
-        Relocation.of("adventure", "net{}kyori{}adventure"),
-        Relocation.of("viaversion", "com.viaversion")
-    ),
-    ADVENTURE_SERIALIZER_GSON(
-        "net.kyori",
-        "adventure-text-serializer-gson",
-        "4.11.0",
-        "gT2pfqvYUZfF+xJDT+KD93QFRkxi6we7v970o1nK1Jo=",
-        Relocation.of("adventure", "net{}kyori{}adventure")
-    ),
-    ADVENTURE_SERIALIZER_GSON_LEGACY(
-        "net.kyori",
-        "adventure-text-serializer-gson-legacy-impl",
-        "4.11.0",
-        "KWEk1YyDaqqM+TUD+fs+AKRHeBKmmkeQC/tiYda+Qf4=",
-        Relocation.of("adventure", "net{}kyori{}adventure")
-    ),
-    ADVENTURE_SERIALIZER_PLAIN(
-        "net.kyori",
-        "adventure-text-serializer-plain",
-        "4.11.0",
-        "M7IZ8Z92Qo2SpMhbRiA8XRuZgv1jta/t7MJBG7df3vw=",
-        Relocation.of("adventure", "net{}kyori{}adventure")
-    ),
-    ADVENTURE_SERIALIZER_LEGACY(
-        "net.kyori",
-        "adventure-text-serializer-legacy",
-        "4.11.0",
-        "T449DQv6Llbpe2OGJ78VJoSnnC+b/ZV6Xens9yuylUE=",
-        Relocation.of("adventure", "net{}kyori{}adventure")
-    ),
     AOPALLIANCE(
         "aopalliance",
         "aopalliance",
@@ -195,17 +113,19 @@ public enum Dependency {
     GUICE(
         "com{}google{}inject",
         "guice",
-        "5.1.0",
-        "QTDlC/rEgJnIYPDZA7kYYMgaJJyQ84JF+P7Vj8gXvCY=",
+        "7.0.0",
+        "3lsONZvXsDykKAazaIRu/ZVIQ4D+Ba4qTqcbwzjFnAA=",
         Relocation.of("inject", "com{}google{}inject"),
-        Relocation.of("aopalliance", "org{}aopalliance")
+        Relocation.of("aopalliance", "org{}aopalliance"),
+        Relocation.of("jakartainject", "jakarta{}inject")
     ),
     GUICE_ASSISTED(
         "com{}google{}inject{}extensions",
         "guice-assistedinject",
-        "5.1.0",
-        "b4dThU0xXaLrO5LhJKgmgtYpLNc63vEyndjsISUzPtM=",
-        Relocation.of("inject", "com{}google{}inject")
+        "7.0.0",
+        "wHEl//k3K9ZWLphryfMJJpTblkmnl2FoOtydpv/rM+Y=",
+        Relocation.of("inject", "com{}google{}inject"),
+        Relocation.of("jakartainject", "jakarta{}inject")
     ),
     H2_DRIVER(
         "com.h2database",
@@ -248,6 +168,13 @@ public enum Dependency {
         "2.18.3",
         "UQvdp1p6YYbFvzO4USOUiKFFCQauV1cSHy4cxIp+EI8=",
         Relocation.of("jackson", "com{}fasterxml{}jackson")
+    ),
+    JAKARTA_INJECT(
+        "jakarta{}inject",
+        "jakarta.inject-api",
+        "2.0.1",
+        "99yYBi/M8UEmq7dRtk+rEsMSVm6MvchINZi//OqTr3w=",
+        Relocation.of("jakartainject", "jakarta{}inject")
     ),
     JOOQ(
         "org.jooq",
@@ -298,8 +225,8 @@ public enum Dependency {
     NBT_API(
         "de.tr7zw",
         "item-nbt-api-plugin",
-        "2.10.0",
-        "LTEpEvChcqD2Fz7ddmcjthY2BRRPaow3/FB3+2/crKE=",
+        "2.14.1",
+        "P5s29Hyo5MI0q8fbnV8naqZ0FJ9gTjdv71EySN+PLNM=",
         EnumSet.of(DependencyRepository.CODEMC_DH, DependencyRepository.CODEMC),
         Relocation.of("nbtapi", "de{}tr7zw{}nbtapi"),
         Relocation.of("nbtinjector", "de.tr7zw.nbtinjector")

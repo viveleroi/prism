@@ -6,19 +6,15 @@ plugins {
 }
 
 dependencies {
-    compileOnly project.property('deps.adventure-api')
-    compileOnly project.property('deps.adventure-bukkit')
-    compileOnly project.property('deps.adventure-minimessage')
-    compileOnly project.property('deps.adventure-plain')
     compileOnly project.property('deps.log4j-api')
-    compileOnly project.property('deps.spigot-api')
+    compileOnly project.property('deps.paper-api')
     implementation project(':prism-loader')
 }
 
 bukkit {
     name = 'prism'
     main = 'network.darkhelmet.prism.PrismBukkitPluginLoader'
-    apiVersion = '1.17'
+    apiVersion = '1.21.4'
     authors = ['viveleroi']
     website = project.property('website')
     load = 'STARTUP'
@@ -36,7 +32,6 @@ shadowJar {
     relocate 'org.spongepowered.configurate', 'network.darkhelmet.prism.libs.configurate'
     relocate 'com.typesafe', 'network.darkhelmet.prism.libs.typesafe'
     relocate 'io.leangen.geantyref', 'network.darkhelmet.prism.libs.geantyref'
-    relocate 'net.kyori.adventure', 'network.darkhelmet.prism.libs.adventure'
     relocate 'net.kyori.examination', 'network.darkhelmet.prism.libs.examination'
 }
 
@@ -48,5 +43,5 @@ runServer {
     // Configure the Minecraft version for our task.
     // This is the only required configuration besides applying the plugin.
     // Your plugin's jar (or shadowJar if present) will be used automatically.
-    minecraftVersion('1.19.4')
+    minecraftVersion('1.21.4')
 }

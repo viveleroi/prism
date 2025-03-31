@@ -29,7 +29,6 @@ import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.annotation.SubCommand;
 
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -47,11 +46,6 @@ public class AboutCommand extends BaseCommand {
     private final MessageService messageService;
 
     /**
-     * The bukkit audiences.
-     */
-    private final BukkitAudiences audiences;
-
-    /**
      * The version.
      */
     private final String version;
@@ -60,16 +54,13 @@ public class AboutCommand extends BaseCommand {
      * Construct the about command.
      *
      * @param messageService The message service
-     * @param audiences The bukkit audiences
      * @param version The prism version
      */
     @Inject
     public AboutCommand(
             MessageService messageService,
-            BukkitAudiences audiences,
             @Named("version") String version) {
         this.messageService = messageService;
-        this.audiences = audiences;
         this.version = version;
     }
 
@@ -90,7 +81,7 @@ public class AboutCommand extends BaseCommand {
             .append(Component.text(" "))
             .append(link("Docs", "https://prism.readthedocs.io/")).build();
 
-        audiences.sender(sender).sendMessage(links);
+        sender.sendMessage(links);
     }
 
     /**

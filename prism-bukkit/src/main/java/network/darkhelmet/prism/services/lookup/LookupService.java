@@ -27,7 +27,6 @@ import com.google.inject.Singleton;
 
 import java.util.Optional;
 
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -64,11 +63,6 @@ public class LookupService {
     private final TranslationService translationService;
 
     /**
-     * The bukkit audiences.
-     */
-    private final BukkitAudiences audiences;
-
-    /**
      * The task chain provider.
      */
     private final TaskChainProvider taskChainProvider;
@@ -90,7 +84,6 @@ public class LookupService {
      * @param messageService The message service
      * @param storageAdapter The storage adapter
      * @param translationService The translation service
-     * @param audiences The audiences
      * @param taskChainProvider The task chain provider
      * @param loggingService The logging service
      */
@@ -100,13 +93,11 @@ public class LookupService {
             MessageService messageService,
             IStorageAdapter storageAdapter,
             TranslationService translationService,
-            BukkitAudiences audiences,
             TaskChainProvider taskChainProvider,
             LoggingService loggingService) {
         this.messageService = messageService;
         this.storageAdapter = storageAdapter;
         this.translationService = translationService;
-        this.audiences = audiences;
         this.taskChainProvider = taskChainProvider;
         this.loggingService = loggingService;
 
@@ -204,7 +195,7 @@ public class LookupService {
                         .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
                 }
 
-                audiences.sender(sender).sendMessage(prev.append(splitter).append(next));
+                sender.sendMessage(prev.append(splitter).append(next));
             }
         }
     }

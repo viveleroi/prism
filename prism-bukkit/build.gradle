@@ -3,18 +3,7 @@ plugins {
     id 'com.gradleup.shadow' version '9.0.0-beta11'
 }
 
-repositories {
-    maven {
-        name = "papermc"
-        url = "https://papermc.io/repo/repository/maven-public/"
-    }
-}
-
 dependencies {
-    compileOnly project.property('deps.adventure-api')
-    compileOnly project.property('deps.adventure-bukkit')
-    compileOnly project.property('deps.adventure-minimessage')
-    compileOnly project.property('deps.adventure-plain')
     compileOnly project.property('deps.caffeine')
     compileOnly project.property('deps.configurate-hocon')
     compileOnly project.property('deps.guice')
@@ -31,7 +20,6 @@ dependencies {
     compileOnly project.property('deps.p6spy')
     compileOnly project.property('deps.paper-api')
     compileOnly project.property('deps.taskchain')
-    implementation project.property('deps.paperlib')
     // included here as I'm too lazy to add snapshot support to the dep loader
     implementation project.property('deps.triumph-cmd-bukkit')
     implementation project(':prism-core')
@@ -42,7 +30,6 @@ dependencies {
 // "parameters" flag required for moonshine to work
 compileJava {
     options.compilerArgs += ["-parameters"]
-    options.fork = true
 }
 
 shadowJar {
@@ -61,7 +48,6 @@ shadowJar {
     relocate 'dev.triumphteam', 'network.darkhelmet.prism.libs.triumphteam'
     relocate 'io.leangen.geantyref', 'network.darkhelmet.prism.libs.geantyref'
     relocate 'io.papermc.lib', 'network.darkhelmet.prism.libs.paperlib'
-    relocate 'net.kyori.adventure', 'network.darkhelmet.prism.libs.adventure'
     relocate 'net.kyori.moonshine', 'network.darkhelmet.prism.libs.moonshine'
     relocate 'org.aopalliance', 'network.darkhelmet.prism.libs.aopalliance'
     relocate 'org.jooq', 'network.darkhelmet.prism.libs.jooq'
