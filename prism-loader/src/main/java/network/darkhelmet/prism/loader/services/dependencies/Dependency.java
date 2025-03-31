@@ -365,7 +365,6 @@ public enum Dependency {
     Dependency(String groupId, String artifactId, String version, String checksum, Relocation... relocations) {
         this(groupId, artifactId, version, checksum,
             EnumSet.of(
-                DependencyRepository.DH_MIRROR,
                 DependencyRepository.LUCK_MIRROR,
                 DependencyRepository.MAVEN_CENTRAL), relocations);
     }
