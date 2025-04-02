@@ -37,8 +37,3 @@ and require updating hashes for security.
 To check which gradle dependencies have updates, use:
 
 - `./gradlew dependencyUpdates`
-
-## Any contributions you make will be under the GNU GPL 3 Software License
-
-Changes you submit are automatically licensed under the GNU GPL 3 license the project uses. Any code taken
-from third party software needs to include their original license headers.
