@@ -1,4 +1,4 @@
-**Prism** is a change-tracking plugin for Bukkit-based servers. Supports rollbacks, restores, previews, 
+**Prism** is a change-tracking plugin for Paper-based servers. Supports rollbacks, restores, previews, 
 wands, and so much more.
 
 ## DEV NOTICE
