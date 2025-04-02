@@ -248,10 +248,10 @@ public class HikariConfigFactory {
     private static String tryDriverClassNames(String... driverClassNames) {
         for (String driverClassName : driverClassNames) {
             try {
-                Class.forName(driverClassName).newInstance();
+                Class.forName(driverClassName).getDeclaredConstructor().newInstance();
 
                 return driverClassName;
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            } catch (Exception e) {
                 // ignore
             }
         }
