@@ -35,6 +35,9 @@ public interface MessageService {
     @Message("rich.about")
     void about(CommandSender receiver, @Placeholder String version);
 
+    @Message("rich.error.insufficient-permission")
+    void errorInsufficientPermission(CommandSender receiver);
+
     @Message("rich.error.invalid-page")
     void errorInvalidPage(CommandSender receiver);
 

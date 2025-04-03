@@ -236,7 +236,8 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
             .clickEvent(ClickEvent.callback((audience) -> {
                 if (receiver instanceof Player player) {
                     World world = Bukkit.getServer().getWorld(worldCoordinate.world().uuid());
-                    Location location = new Location(world, worldCoordinate.x(), worldCoordinate.y(), worldCoordinate.z());
+                    Location location = new Location(world,
+                        worldCoordinate.x(), worldCoordinate.y(), worldCoordinate.z());
                     player.teleport(location);
                 }
             }))

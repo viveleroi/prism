@@ -68,7 +68,7 @@ public class ExtinguishCommand {
      * @param radius The radius
      */
     @Command(value = "extinguish", alias = {"ex"})
-    @Permission("prism.admin")
+    @Permission("prism.extinguish")
     public void onExtinguish(final Player player, @Optional Integer radius) {
         if (radius == null) {
             radius = configurationService.prismConfig().defaults().extinguishRadius();

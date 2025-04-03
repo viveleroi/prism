@@ -114,7 +114,7 @@ public class RestoreCommand {
      */
     @NamedArguments("query-parameters")
     @Command(value = "restore", alias = {"rs"})
-    @Permission("prism.admin")
+    @Permission("prism.restore")
     public void onRestore(final CommandSender sender, final Arguments arguments) {
         // Ensure a queue is free
         if (!modificationQueueService.queueAvailable()) {

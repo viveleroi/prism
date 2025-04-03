@@ -88,7 +88,7 @@ public class PurgeCommand {
      */
     @NamedArguments("query-parameters")
     @Command(value = "purge")
-    @Permission("prism.admin")
+    @Permission("prism.purge")
     public void onPurge(final CommandSender sender, final Arguments arguments) {
         if (!purgeService.queueFree()) {
             messageService.errorPurgeQueryNotFree(sender);

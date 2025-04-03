@@ -73,7 +73,7 @@ public class PageCommand {
      * @param page The new page
      */
     @Command(value = "page")
-    @Permission("prism.admin")
+    @Permission("prism.lookup")
     public void onPage(CommandSender sender, Integer page) {
         Optional<ActivityQuery> optionalQuery = lookupService.lastQuery(sender);
         if (optionalQuery.isEmpty()) {

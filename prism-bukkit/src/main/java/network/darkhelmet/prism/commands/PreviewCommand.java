@@ -120,6 +120,13 @@ public class PreviewCommand {
      */
     @Command(value = "preview-apply")
     public void onApply(final Player player) {
+        // Check permissions manually until command lib supports multiple permissions
+        if (!player.hasPermission("prism.rollback") && !player.hasPermission("prism.rollback")) {
+            messageService.errorInsufficientPermission(player);
+
+            return;
+        }
+
         Optional<IModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
         if (optionalQueue.isEmpty()) {
             messageService.errorQueueMissing(player);
@@ -139,6 +146,13 @@ public class PreviewCommand {
      */
     @Command(value = "preview-cancel")
     public void onCancel(final Player player) {
+        // Check permissions manually until command lib supports multiple permissions
+        if (!player.hasPermission("prism.rollback") && !player.hasPermission("prism.rollback")) {
+            messageService.errorInsufficientPermission(player);
+
+            return;
+        }
+
         Optional<IModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
         if (optionalQueue.isEmpty()) {
             messageService.errorQueueMissing(player);
@@ -159,7 +173,7 @@ public class PreviewCommand {
      */
     @NamedArguments("query-parameters")
     @Command(value = "preview-restore", alias = {"prs"})
-    @Permission("prism.admin")
+    @Permission("prism.restore")
     public void onPreviewRestore(final Player player, final Arguments arguments) {
         Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(player, arguments);
         if (builder.isPresent()) {
@@ -177,7 +191,7 @@ public class PreviewCommand {
      */
     @NamedArguments("query-parameters")
     @Command(value = "preview-rollback", alias = {"prb"})
-    @Permission("prism.admin")
+    @Permission("prism.rollback")
     public void onPreviewRollback(final Player player, final Arguments arguments) {
         Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(player, arguments);
         if (builder.isPresent()) {

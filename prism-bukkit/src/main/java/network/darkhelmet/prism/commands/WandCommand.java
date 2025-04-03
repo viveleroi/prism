@@ -22,18 +22,23 @@ package network.darkhelmet.prism.commands;
 
 import com.google.inject.Inject;
 
-import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Optional;
 
 import network.darkhelmet.prism.api.services.wands.IWand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
+import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.wands.WandService;
 
 import org.bukkit.entity.Player;
 
 @Command(value = "prism", alias = {"pr"})
 public class WandCommand {
+    /**
+     * The message service.
+     */
+    private final MessageService messageService;
+
     /**
      * The wand service.
      */
@@ -42,10 +47,12 @@ public class WandCommand {
     /**
      * Construct the wand command.
      *
+     * @param messageService The message service
      * @param wandService The wand service
      */
     @Inject
-    public WandCommand(WandService wandService) {
+    public WandCommand(MessageService messageService, WandService wandService) {
+        this.messageService = messageService;
         this.wandService = wandService;
     }
 
@@ -56,7 +63,6 @@ public class WandCommand {
      * @param wandMode The wand mode
      */
     @Command("wand")
-    @Permission("prism.admin")
     public void onWand(final Player player, @Optional WandMode wandMode) {
         // If no wand mode selected, yet player has an active wand, toggle it off
         if (wandMode == null && wandService.hasActiveWand(player)) {
@@ -67,6 +73,14 @@ public class WandCommand {
 
         // Set mode if none selected
         wandMode = wandMode == null ? WandMode.INSPECT : wandMode;
+
+        if ((wandMode == WandMode.INSPECT && !player.hasPermission("prism.lookup"))
+            || (wandMode == WandMode.ROLLBACK && !player.hasPermission("prism.rollback"))
+            || (wandMode == WandMode.RESTORE && !player.hasPermission("prism.restore"))) {
+            messageService.errorInsufficientPermission(player);
+
+            return;
+        }
 
         java.util.Optional<IWand> activeWand = wandService.getWand(player);
         if (activeWand.isPresent()) {

@@ -80,7 +80,7 @@ public class LookupCommand {
     @CommandFlags(key = "query-flags")
     @NamedArguments("query-parameters")
     @Command(value = "lookup", alias = {"l"})
-    @Permission("prism.admin")
+    @Permission("prism.lookup")
     public void onLookup(final CommandSender sender, final Arguments arguments) {
         Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(sender, arguments);
         if (builder.isPresent()) {

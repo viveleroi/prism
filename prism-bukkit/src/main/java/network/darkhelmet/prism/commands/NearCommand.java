@@ -66,7 +66,7 @@ public class NearCommand {
      * @param player The player
      */
     @Command("near")
-    @Permission("prism.admin")
+    @Permission("prism.lookup")
     public void onNear(final Player player) {
         Location loc = player.getLocation();
         Coordinate minCoordinate = LocationUtils

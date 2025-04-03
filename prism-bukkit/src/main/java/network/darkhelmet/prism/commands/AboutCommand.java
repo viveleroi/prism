@@ -67,7 +67,7 @@ public class AboutCommand {
      * @param sender The command sender
      */
     @Command
-    @Permission("prism.admin")
+    @Permission("prism.help")
     public void onDefault(final CommandSender sender) {
         messageService.about(sender, version);
 
@@ -86,7 +86,7 @@ public class AboutCommand {
      * @param sender The command sender
      */
     @Command("about")
-    @Permission("prism.admin")
+    @Permission("prism.help")
     public void onAbout(final CommandSender sender) {
         this.onDefault(sender);
     }
