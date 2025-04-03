@@ -24,6 +24,7 @@ import com.google.inject.Inject;
 
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
+import dev.triumphteam.cmd.core.annotations.CommandFlags;
 import dev.triumphteam.cmd.core.annotations.NamedArguments;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 
@@ -76,7 +77,8 @@ public class LookupCommand {
      * @param sender The command sender
      * @param arguments The arguments
      */
-    @NamedArguments("params")
+    @CommandFlags(key = "query-flags")
+    @NamedArguments("query-parameters")
     @Command(value = "lookup", alias = {"l"})
     @Permission("prism.admin")
     public void onLookup(final CommandSender sender, final Arguments arguments) {

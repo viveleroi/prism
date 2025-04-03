@@ -98,6 +98,11 @@ public class QueryService {
         ActivityQuery.ActivityQueryBuilder builder = ActivityQuery.builder();
         World world = referenceLocation != null ? referenceLocation.getWorld() : null;
 
+        // No-group flag
+        if (arguments.hasFlag("nogroup")) {
+            builder.grouped(false);
+        }
+
         // world: parameter
         if (arguments.getArgument("world", String.class).isPresent()) {
             String worldName = arguments.getArgument("world", String.class).get();

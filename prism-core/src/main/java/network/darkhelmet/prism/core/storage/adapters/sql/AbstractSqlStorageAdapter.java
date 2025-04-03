@@ -332,7 +332,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
      * @throws SQLException The database exception
      */
     protected void prepareSchema() throws Exception {
-        // Create the meta data table
+        // Create the metadata table
         create.createTableIfNotExists(PRISM_META)
             .column(PRISM_META.META_ID)
             .column(PRISM_META.K)
@@ -630,7 +630,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
                 timestamp = r.getValue(PRISM_ACTIVITIES.TIMESTAMP).longValue();
             }
 
-            if (!query.grouped()) {
+            if (!query.grouped() && query.modification()) {
                 long activityId = r.getValue(PRISM_ACTIVITIES.ACTIVITY_ID).longValue();
 
                 String materialData = r.getValue(PRISM_MATERIALS.DATA);
@@ -650,6 +650,24 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
                 ActionData actionData = new ActionData(
                     material, materialData, replacedMaterial, replacedMaterialData,
                     entityType, customData, descriptor, metadata, customDataVersion);
+
+                // Build the activity
+                try {
+                    IActivity activity = new Activity(activityId, actionType.createAction(actionData),
+                        coordinate, cause, player, timestamp);
+
+                    // Add to result list
+                    activities.add(activity);
+                } catch (Exception e) {
+                    loggingService.handleException(e);
+                }
+            } else if (!query.grouped()) {
+                long activityId = r.getValue(PRISM_ACTIVITIES.ACTIVITY_ID).longValue();
+
+                // Build the action data
+                ActionData actionData = new ActionData(
+                    material, null, null, null,
+                    entityType, null, descriptor, metadata, (short) 0);
 
                 // Build the activity
                 try {

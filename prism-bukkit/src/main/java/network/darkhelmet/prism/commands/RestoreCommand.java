@@ -112,7 +112,7 @@ public class RestoreCommand {
      *
      * @param sender The command sender
      */
-    @NamedArguments("params")
+    @NamedArguments("query-parameters")
     @Command(value = "restore", alias = {"rs"})
     @Permission("prism.admin")
     public void onRestore(final CommandSender sender, final Arguments arguments) {

@@ -29,6 +29,7 @@ import java.util.Map;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -43,11 +44,15 @@ import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.activities.IGroupedActivity;
 import network.darkhelmet.prism.api.util.NamedIdentity;
+import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.services.translation.TranslationService;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,6 +86,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         Component cause = cause(receiver, value.cause(), value.player());
         Component since = since(receiver, value.timestamp());
         Component descriptor = descriptor(receiver, value);
+        Component location = location(receiver, value.location());
 
         Component count = Component.text("1");
         if (value instanceof IGroupedActivity grouped) {
@@ -101,6 +107,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
             placeholderName + "_cause", Either.left(ConclusionValue.conclusionValue(cause)),
             placeholderName + "_count", Either.left(ConclusionValue.conclusionValue(count)),
             placeholderName + "_sign", Either.left(ConclusionValue.conclusionValue(sign)),
+            placeholderName + "_location", Either.left(ConclusionValue.conclusionValue(location)),
             placeholderName + "_since", Either.left(ConclusionValue.conclusionValue(since)),
             placeholderName + "_descriptor", Either.left(ConclusionValue.conclusionValue(descriptor)));
     }
@@ -210,8 +217,36 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
     }
 
     /**
+     * Get the location.
+     *
+     * @param receiver The receiver
+     * @param worldCoordinate The world coordinate
+     * @return The location
+     */
+    protected Component location(CommandSender receiver, WorldCoordinate worldCoordinate) {
+        Component hover = Component.text(translationService.messageOf(receiver, "text.click-to-teleport"));
+
+        return Component.text()
+            .append(Component.text((int) worldCoordinate.x()))
+            .append(Component.text(" "))
+            .append(Component.text((int) worldCoordinate.y()))
+            .append(Component.text(" "))
+            .append(Component.text((int) worldCoordinate.z()))
+            .hoverEvent(HoverEvent.showText(hover))
+            .clickEvent(ClickEvent.callback((audience) -> {
+                if (receiver instanceof Player player) {
+                    World world = Bukkit.getServer().getWorld(worldCoordinate.world().uuid());
+                    Location location = new Location(world, worldCoordinate.x(), worldCoordinate.y(), worldCoordinate.z());
+                    player.teleport(location);
+                }
+            }))
+            .build();
+    }
+
+    /**
      * Get the shorthand syntax for time since.
      *
+     * @param receiver The receiver
      * @param timestamp The timestamp
      * @return The time since
      */

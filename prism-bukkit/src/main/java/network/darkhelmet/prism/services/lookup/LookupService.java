@@ -136,7 +136,7 @@ public class LookupService {
     public void lookup(CommandSender sender, ActivityQuery query) {
         taskChainProvider.newChain().async(() -> {
             try {
-                show(sender, storageAdapter.queryActivitiesPaginated(query));
+                show(sender, storageAdapter.queryActivitiesPaginated(query), query);
 
                 // Cache this senders' most recent query
                 recentQueries.put(sender, query);
@@ -152,18 +152,27 @@ public class LookupService {
      *
      * @param sender The command sender
      * @param results The paginated results
+     * @param query The original query
      */
-    private void show(CommandSender sender, PaginatedResults<IActivity> results) {
+    private void show(CommandSender sender, PaginatedResults<IActivity> results, ActivityQuery query) {
         messageService.paginationHeader(sender, results);
 
         if (results.isEmpty()) {
             messageService.noResults(sender);
         } else {
             for (IActivity activity : results.results()) {
-                if (activity.action().descriptor() != null) {
-                    messageService.listActivityRow(sender, activity);
+                if (query.grouped()) {
+                    if (activity.action().descriptor() != null) {
+                        messageService.listActivityRowGrouped(sender, activity);
+                    } else {
+                        messageService.listActivityRowGroupedNoDescriptor(sender, activity);
+                    }
                 } else {
-                    messageService.listActivityRowNoDescriptor(sender, activity);
+                    if (activity.action().descriptor() != null) {
+                        messageService.listActivityRowSingle(sender, activity);
+                    } else {
+                        messageService.listActivityRowSingleNoDescriptor(sender, activity);
+                    }
                 }
             }
 

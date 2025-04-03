@@ -86,11 +86,17 @@ public interface MessageService {
     @Message("rich.error.reload-locale")
     void errorReloadLocale(CommandSender receiver);
 
-    @Message("rich.activity-row")
-    void listActivityRow(CommandSender receiver, @Placeholder IActivity activity);
+    @Message("rich.activity-row-grouped")
+    void listActivityRowGrouped(CommandSender receiver, @Placeholder IActivity activity);
 
-    @Message("rich.activity-row-no-descriptor")
-    void listActivityRowNoDescriptor(CommandSender receiver, @Placeholder IActivity activity);
+    @Message("rich.activity-row-grouped-no-descriptor")
+    void listActivityRowGroupedNoDescriptor(CommandSender receiver, @Placeholder IActivity activity);
+
+    @Message("rich.activity-row-single")
+    void listActivityRowSingle(CommandSender receiver, @Placeholder IActivity activity);
+
+    @Message("rich.activity-row-single-no-descriptor")
+    void listActivityRowSingleNoDescriptor(CommandSender receiver, @Placeholder IActivity activity);
 
     @Message("rich.modifications-applied")
     void modificationsApplied(CommandSender receiver, @Placeholder Integer count);

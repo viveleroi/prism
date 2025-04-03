@@ -86,7 +86,7 @@ public class PurgeCommand {
      * @param sender The command sender
      * @param arguments The arguments
      */
-    @NamedArguments("params")
+    @NamedArguments("query-parameters")
     @Command(value = "purge")
     @Permission("prism.admin")
     public void onPurge(final CommandSender sender, final Arguments arguments) {

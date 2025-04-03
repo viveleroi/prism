@@ -23,6 +23,8 @@ package network.darkhelmet.prism;
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import dev.triumphteam.cmd.core.argument.keyed.Argument;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
+import dev.triumphteam.cmd.core.argument.keyed.Flag;
+import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 
@@ -306,8 +308,10 @@ public class PrismBukkit implements IPrism {
             commandManager.registerSuggestion(SuggestionKey.of("ins"), (sender, context) ->
                 Arrays.asList("chunk", "world"));
 
+            commandManager.registerFlags(FlagKey.of("query-flags"), Flag.flag("ng").longFlag("nogroup").build());
+
             commandManager.registerNamedArguments(
-                ArgumentKey.of("params"),
+                ArgumentKey.of("query-parameters"),
                 Argument.forBoolean().name("reversed").build(),
                 Argument.forInt().name("r").build(),
                 Argument.forString().name("in").suggestion(SuggestionKey.of("ins")).build(),
@@ -320,7 +324,7 @@ public class PrismBukkit implements IPrism {
                 Argument.listOf(String.class).name("a").suggestion(SuggestionKey.of("actions")).build(),
                 Argument.listOf(Material.class).name("m").build(),
                 Argument.listOf(EntityType.class).name("e").build(),
-                    Argument.listOf(Player.class).name("p").build()
+                Argument.listOf(Player.class).name("p").build()
             );
 
             commandManager.registerCommand(injectorProvider.injector().getInstance(AboutCommand.class));
