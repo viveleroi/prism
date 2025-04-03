@@ -23,10 +23,8 @@ package network.darkhelmet.prism.commands;
 import com.google.inject.Inject;
 
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
-import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.annotation.Command;
-import dev.triumphteam.cmd.core.annotation.Optional;
-import dev.triumphteam.cmd.core.annotation.SubCommand;
+import dev.triumphteam.cmd.core.annotations.Command;
+import dev.triumphteam.cmd.core.annotations.Optional;
 
 import network.darkhelmet.prism.api.services.wands.IWand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
@@ -35,7 +33,7 @@ import network.darkhelmet.prism.services.wands.WandService;
 import org.bukkit.entity.Player;
 
 @Command(value = "prism", alias = {"pr"})
-public class WandCommand extends BaseCommand {
+public class WandCommand {
     /**
      * The wand service.
      */
@@ -57,7 +55,7 @@ public class WandCommand extends BaseCommand {
      * @param player The player
      * @param wandMode The wand mode
      */
-    @SubCommand("wand")
+    @Command("wand")
     @Permission("prism.admin")
     public void onWand(final Player player, @Optional WandMode wandMode) {
         // If no wand mode selected, yet player has an active wand, toggle it off

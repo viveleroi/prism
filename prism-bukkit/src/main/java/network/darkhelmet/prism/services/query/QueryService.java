@@ -22,7 +22,7 @@ package network.darkhelmet.prism.services.query;
 
 import com.google.inject.Inject;
 
-import dev.triumphteam.cmd.core.argument.named.Arguments;
+import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -99,8 +99,8 @@ public class QueryService {
         World world = referenceLocation != null ? referenceLocation.getWorld() : null;
 
         // world: parameter
-        if (arguments.get("world", String.class).isPresent()) {
-            String worldName = arguments.get("world", String.class).get();
+        if (arguments.getArgument("world", String.class).isPresent()) {
+            String worldName = arguments.getArgument("world", String.class).get();
 
             world = Bukkit.getServer().getWorld(worldName);
             if (world == null) {
@@ -113,14 +113,14 @@ public class QueryService {
         }
 
         // at: parameter
-        if (arguments.get("at", String.class).isPresent()) {
+        if (arguments.getArgument("at", String.class).isPresent()) {
             if (world == null) {
                 messageService.errorParamAtNoWorld(sender);
 
                 return Optional.empty();
             }
 
-            String at = arguments.get("at", String.class).get();
+            String at = arguments.getArgument("at", String.class).get();
 
             String[] segments = at.split(",");
             if (segments.length == 3) {
@@ -142,27 +142,27 @@ public class QueryService {
 
         // in: parameter
         String in = null;
-        if (arguments.get("in", String.class).isPresent()) {
+        if (arguments.getArgument("in", String.class).isPresent()) {
             if (referenceLocation == null) {
                 messageService.errorParamConsoleIn(sender);
 
                 return Optional.empty();
             }
 
-            in = arguments.get("in", String.class).get();
+            in = arguments.getArgument("in", String.class).get();
 
             parseIn(builder, referenceLocation, in);
         }
 
         // r: parameter
-        if (arguments.get("r", Integer.class).isPresent()) {
+        if (arguments.getArgument("r", Integer.class).isPresent()) {
             if (referenceLocation == null) {
                 messageService.errorParamConsoleRadius(sender);
 
                 return Optional.empty();
             }
 
-            Integer radius = arguments.get("r", Integer.class).get();
+            Integer radius = arguments.getArgument("r", Integer.class).get();
 
             if (in != null && in.equalsIgnoreCase("chunk")) {
                 messageService.errorParamRadiusAndChunk(sender);
@@ -174,14 +174,14 @@ public class QueryService {
         }
 
         // bounds: parameter
-        if (arguments.get("bounds", String.class).isPresent()) {
+        if (arguments.getArgument("bounds", String.class).isPresent()) {
             if (world == null) {
                 messageService.errorParamConsoleBounds(sender);
 
                 return Optional.empty();
             }
 
-            String at = arguments.get("bounds", String.class).get();
+            String at = arguments.getArgument("bounds", String.class).get();
             String[] segments = at.split("-");
             if (segments.length != 2) {
                 messageService.errorParamBoundsInvalid(sender);
@@ -218,35 +218,35 @@ public class QueryService {
         }
 
         // before: parameter
-        if (arguments.get("before", String.class).isPresent()) {
-            String before = arguments.get("before", String.class).get();
+        if (arguments.getArgument("before", String.class).isPresent()) {
+            String before = arguments.getArgument("before", String.class).get();
 
             parseBefore(builder, before);
         }
 
         // since: parameter
-        if (arguments.get("since", String.class).isPresent()) {
-            String since = arguments.get("since", String.class).get();
+        if (arguments.getArgument("since", String.class).isPresent()) {
+            String since = arguments.getArgument("since", String.class).get();
 
             parseSince(builder, since);
         }
 
         // cause: parameter
-        if (arguments.get("cause", String.class).isPresent()) {
-            builder.cause(arguments.get("cause", String.class).get());
+        if (arguments.getArgument("cause", String.class).isPresent()) {
+            builder.cause(arguments.getArgument("cause", String.class).get());
         }
 
         // a: parameter
-        if (arguments.getAsList("a", String.class).isPresent()) {
-            List<String> actions = arguments.getAsList("a", String.class).get();
+        if (arguments.getListArgument("a", String.class).isPresent()) {
+            List<String> actions = arguments.getListArgument("a", String.class).get();
 
             parseActions(builder, actions);
         }
 
         // m: parameter
-        if (arguments.getAsList("m", Material.class).isPresent()) {
+        if (arguments.getListArgument("m", Material.class).isPresent()) {
             List<String> finalMaterials = new ArrayList<>();
-            arguments.getAsList("m", Material.class).get().forEach(m -> {
+            arguments.getListArgument("m", Material.class).get().forEach(m -> {
                 finalMaterials.add(m.toString().toLowerCase(Locale.ENGLISH));
             });
 
@@ -254,9 +254,9 @@ public class QueryService {
         }
 
         // e: parameter
-        if (arguments.getAsList("e", EntityType.class).isPresent()) {
+        if (arguments.getListArgument("e", EntityType.class).isPresent()) {
             List<String> finalEntityTypes = new ArrayList<>();
-            arguments.getAsList("e", EntityType.class).get().forEach(e -> {
+            arguments.getListArgument("e", EntityType.class).get().forEach(e -> {
                 finalEntityTypes.add(e.toString());
             });
 
@@ -264,15 +264,15 @@ public class QueryService {
         }
 
         // p: parameter
-        if (arguments.getAsList("p", String.class).isPresent()) {
-            List<String> playerNames = arguments.getAsList("p", String.class).get();
+        if (arguments.getListArgument("p", String.class).isPresent()) {
+            List<String> playerNames = arguments.getListArgument("p", String.class).get();
 
             parsePlayers(builder, playerNames);
         }
 
         // reversed: parameter
-        if (arguments.get("reversed", Boolean.class).isPresent()) {
-            builder.reversed(arguments.get("reversed", Boolean.class).get());
+        if (arguments.getArgument("reversed", Boolean.class).isPresent()) {
+            builder.reversed(arguments.getArgument("reversed", Boolean.class).get());
         }
 
         return Optional.of(builder);

@@ -23,10 +23,8 @@ package network.darkhelmet.prism.commands;
 import com.google.inject.Inject;
 
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
-import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.annotation.Command;
-import dev.triumphteam.cmd.core.annotation.Optional;
-import dev.triumphteam.cmd.core.annotation.SubCommand;
+import dev.triumphteam.cmd.core.annotations.Command;
+import dev.triumphteam.cmd.core.annotations.Optional;
 
 import java.util.List;
 
@@ -40,7 +38,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
 
 @Command(value = "prism", alias = {"pr"})
-public class ExtinguishCommand extends BaseCommand {
+public class ExtinguishCommand {
     /**
      * The configuration service.
      */
@@ -69,7 +67,7 @@ public class ExtinguishCommand extends BaseCommand {
      * @param player The player
      * @param radius The radius
      */
-    @SubCommand(value = "extinguish", alias = {"ex"})
+    @Command(value = "extinguish", alias = {"ex"})
     @Permission("prism.admin")
     public void onExtinguish(final Player player, @Optional Integer radius) {
         if (radius == null) {

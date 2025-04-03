@@ -23,11 +23,9 @@ package network.darkhelmet.prism.commands;
 import com.google.inject.Inject;
 
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
-import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.annotation.Command;
-import dev.triumphteam.cmd.core.annotation.NamedArguments;
-import dev.triumphteam.cmd.core.annotation.SubCommand;
-import dev.triumphteam.cmd.core.argument.named.Arguments;
+import dev.triumphteam.cmd.core.annotations.Command;
+import dev.triumphteam.cmd.core.annotations.NamedArguments;
+import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 
 import java.util.Optional;
 
@@ -39,7 +37,7 @@ import network.darkhelmet.prism.services.query.QueryService;
 import org.bukkit.command.CommandSender;
 
 @Command(value = "prism", alias = {"pr"})
-public class LookupCommand extends BaseCommand {
+public class LookupCommand {
     /**
      * The configuration service.
      */
@@ -79,7 +77,7 @@ public class LookupCommand extends BaseCommand {
      * @param arguments The arguments
      */
     @NamedArguments("params")
-    @SubCommand(value = "lookup", alias = {"l"})
+    @Command(value = "lookup", alias = {"l"})
     @Permission("prism.admin")
     public void onLookup(final CommandSender sender, final Arguments arguments) {
         Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(sender, arguments);

@@ -24,10 +24,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
-import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.annotation.Command;
-import dev.triumphteam.cmd.core.annotation.Default;
-import dev.triumphteam.cmd.core.annotation.SubCommand;
+import dev.triumphteam.cmd.core.annotations.Command;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -39,7 +36,7 @@ import network.darkhelmet.prism.services.messages.MessageService;
 import org.bukkit.command.CommandSender;
 
 @Command(value = "prism", alias = {"pr"})
-public class AboutCommand extends BaseCommand {
+public class AboutCommand {
     /**
      * The message service.
      */
@@ -65,14 +62,13 @@ public class AboutCommand extends BaseCommand {
     }
 
     /**
-     * Run the about command, or default to this if prism is run with no subcommand.
+     * Default to this if prism is run with no subcommand.
      *
      * @param sender The command sender
      */
-    @Default
-    @SubCommand("about")
+    @Command
     @Permission("prism.admin")
-    public void onAbout(final CommandSender sender) {
+    public void onDefault(final CommandSender sender) {
         messageService.about(sender, version);
 
         Component links = Component.text()
@@ -82,6 +78,17 @@ public class AboutCommand extends BaseCommand {
             .append(link("Docs", "https://prism.readthedocs.io/")).build();
 
         sender.sendMessage(links);
+    }
+
+    /**
+     * Run the about command.
+     *
+     * @param sender The command sender
+     */
+    @Command("about")
+    @Permission("prism.admin")
+    public void onAbout(final CommandSender sender) {
+        this.onDefault(sender);
     }
 
     /**

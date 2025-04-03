@@ -21,8 +21,8 @@
 package network.darkhelmet.prism;
 
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
-import dev.triumphteam.cmd.core.argument.named.Argument;
-import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
+import dev.triumphteam.cmd.core.argument.keyed.Argument;
+import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 
 import java.util.ArrayList;

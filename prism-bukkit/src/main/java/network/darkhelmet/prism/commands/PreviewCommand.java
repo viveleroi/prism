@@ -23,11 +23,9 @@ package network.darkhelmet.prism.commands;
 import com.google.inject.Inject;
 
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
-import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.annotation.Command;
-import dev.triumphteam.cmd.core.annotation.NamedArguments;
-import dev.triumphteam.cmd.core.annotation.SubCommand;
-import dev.triumphteam.cmd.core.argument.named.Arguments;
+import dev.triumphteam.cmd.core.annotations.Command;
+import dev.triumphteam.cmd.core.annotations.NamedArguments;
+import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +48,7 @@ import network.darkhelmet.prism.services.query.QueryService;
 import org.bukkit.entity.Player;
 
 @Command(value = "prism", alias = {"pr"})
-public class PreviewCommand extends BaseCommand {
+public class PreviewCommand {
     /**
      * The configuration service.
      */
@@ -120,7 +118,7 @@ public class PreviewCommand extends BaseCommand {
      *
      * @param player The player
      */
-    @SubCommand(value = "preview-apply")
+    @Command(value = "preview-apply")
     public void onApply(final Player player) {
         Optional<IModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
         if (optionalQueue.isEmpty()) {
@@ -139,7 +137,7 @@ public class PreviewCommand extends BaseCommand {
      *
      * @param player The player
      */
-    @SubCommand(value = "preview-cancel")
+    @Command(value = "preview-cancel")
     public void onCancel(final Player player) {
         Optional<IModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
         if (optionalQueue.isEmpty()) {
@@ -160,7 +158,7 @@ public class PreviewCommand extends BaseCommand {
      * @param arguments The arguments
      */
     @NamedArguments("params")
-    @SubCommand(value = "preview-restore", alias = {"prs"})
+    @Command(value = "preview-restore", alias = {"prs"})
     @Permission("prism.admin")
     public void onPreviewRestore(final Player player, final Arguments arguments) {
         Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(player, arguments);
@@ -178,7 +176,7 @@ public class PreviewCommand extends BaseCommand {
      * @param arguments The arguments
      */
     @NamedArguments("params")
-    @SubCommand(value = "preview-rollback", alias = {"prb"})
+    @Command(value = "preview-rollback", alias = {"prb"})
     @Permission("prism.admin")
     public void onPreviewRollback(final Player player, final Arguments arguments) {
         Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(player, arguments);

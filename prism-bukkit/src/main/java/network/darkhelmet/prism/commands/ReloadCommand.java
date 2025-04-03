@@ -23,9 +23,7 @@ package network.darkhelmet.prism.commands;
 import com.google.inject.Inject;
 
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
-import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.annotation.Command;
-import dev.triumphteam.cmd.core.annotation.SubCommand;
+import dev.triumphteam.cmd.core.annotations.Command;
 
 import java.io.IOException;
 
@@ -37,7 +35,7 @@ import network.darkhelmet.prism.services.translation.TranslationService;
 import org.bukkit.command.CommandSender;
 
 @Command(value = "prism", alias = {"pr"})
-public class ReloadCommand extends BaseCommand {
+public class ReloadCommand {
     /**
      * The message service.
      */
@@ -83,7 +81,7 @@ public class ReloadCommand extends BaseCommand {
      *
      * @param sender The command sender
      */
-    @SubCommand("reloadconfig")
+    @Command("reloadconfig")
     @Permission("prism.admin")
     public void onReloadConfig(final CommandSender sender) {
         configurationService.loadConfigurations();
@@ -98,7 +96,7 @@ public class ReloadCommand extends BaseCommand {
      *
      * @param sender The command sender
      */
-    @SubCommand("reloadlocales")
+    @Command("reloadlocales")
     @Permission("prism.admin")
     public void onReloadLocales(final CommandSender sender) {
         try {
