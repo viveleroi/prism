@@ -43,5 +43,5 @@ public class DefaultsConfiguration {
     private int nearRadius = 5;
 
     @Comment("Limits how many results are shown \"per page\" when doing lookups.")
-    private int perPage = 5;
+    private int perPage = 10;
 }
