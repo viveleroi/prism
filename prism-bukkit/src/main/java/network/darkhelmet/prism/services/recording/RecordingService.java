@@ -148,7 +148,7 @@ public class RecordingService implements IRecordingService {
 
         if (recordMode.equals(RecordMode.NORMAL)) {
             task = Bukkit.getServer().getScheduler()
-                .runTaskLaterAsynchronously(PrismBukkit.getInstance().loaderPlugin(), recordingTask, delay);
+                .runTaskLaterAsynchronously(PrismBukkit.instance().loaderPlugin(), recordingTask, delay);
         }
     }
 }

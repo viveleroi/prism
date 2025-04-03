@@ -118,8 +118,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class PrismBukkit implements IPrism {
     /**
-     * Cache static instance.
+     *  Get this instance.
      */
+    @Getter
     private static PrismBukkit instance;
 
     /**
@@ -155,15 +156,6 @@ public class PrismBukkit implements IPrism {
      * The thread pool scheduler.
      */
     private final ThreadPoolScheduler threadPoolScheduler;
-
-    /**
-     * Get this instance.
-     *
-     * @return The plugin instance
-     */
-    public static PrismBukkit getInstance() {
-        return instance;
-    }
 
     /**
      * Constructor.

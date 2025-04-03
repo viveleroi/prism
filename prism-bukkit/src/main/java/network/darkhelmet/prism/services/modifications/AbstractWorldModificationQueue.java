@@ -219,7 +219,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
             }
 
             // Schedule a new sync task
-            JavaPlugin plugin = PrismBukkit.getInstance().loaderPlugin();
+            JavaPlugin plugin = PrismBukkit.instance().loaderPlugin();
             taskId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
                 loggingService.debug("New modification run beginning...");
 

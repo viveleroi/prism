@@ -41,7 +41,7 @@ public class TagLib {
         Material.WATER_BUCKET);
 
     static {
-        if (PrismBukkit.getInstance().serializerVersion() >= 119) {
+        if (PrismBukkit.instance().serializerVersion() >= 119) {
             WATER_BUCKETS.append(Material.TADPOLE_BUCKET);
         }
     }
