@@ -35,11 +35,17 @@ public interface MessageService {
     @Message("rich.about")
     void about(CommandSender receiver, @Placeholder String version);
 
+    @Message("rich.error.console-only")
+    void errorConsoleOnly(CommandSender receiver);
+
     @Message("rich.error.insufficient-permission")
     void errorInsufficientPermission(CommandSender receiver);
 
     @Message("rich.error.invalid-page")
     void errorInvalidPage(CommandSender receiver);
+
+    @Message("rich.error.invalid-parameter")
+    void errorInvalidParameter(CommandSender receiver);
 
     @Message("rich.error.no-blocks-removed")
     void errorNoBlocksRemoved(CommandSender receiver);
@@ -74,6 +80,9 @@ public interface MessageService {
     @Message("rich.error.param-r-and-in-chunk")
     void errorParamRadiusAndChunk(CommandSender receiver);
 
+    @Message("rich.error.player-only")
+    void errorPlayerOnly(CommandSender receiver);
+
     @Message("rich.error.purge-queue-not-free")
     void errorPurgeQueryNotFree(CommandSender receiver);
 
@@ -88,6 +97,9 @@ public interface MessageService {
 
     @Message("rich.error.reload-locale")
     void errorReloadLocale(CommandSender receiver);
+
+    @Message("rich.error.unknown-command")
+    void errorUnknownCommand(CommandSender receiver);
 
     @Message("rich.activity-row-grouped")
     void listActivityRowGrouped(CommandSender receiver, @Placeholder IActivity activity);

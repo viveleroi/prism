@@ -21,6 +21,7 @@
 package network.darkhelmet.prism;
 
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
+import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.core.argument.keyed.Argument;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
 import dev.triumphteam.cmd.core.argument.keyed.Flag;
@@ -108,6 +109,7 @@ import network.darkhelmet.prism.loader.services.dependencies.DependencyService;
 import network.darkhelmet.prism.loader.services.dependencies.loader.PluginLoader;
 import network.darkhelmet.prism.loader.services.scheduler.ThreadPoolScheduler;
 import network.darkhelmet.prism.providers.InjectorProvider;
+import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.recording.RecordingService;
 
 import org.bukkit.Bukkit;
@@ -282,6 +284,37 @@ public class PrismBukkit implements IPrism {
             // Register commands
             BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(loaderPlugin(),
                 CommandOptions.Builder::suggestLowercaseEnum);
+
+            // Customize command messages
+            var messagingService =  injectorProvider.injector().getInstance(MessageService.class);
+
+            commandManager.registerMessage(BukkitMessageKey.CONSOLE_ONLY, (sender, context) -> {
+                messagingService.errorConsoleOnly(sender);
+            });
+
+            commandManager.registerMessage(BukkitMessageKey.INVALID_ARGUMENT, (sender, context) -> {
+                messagingService.errorInvalidParameter(sender);
+            });
+
+            commandManager.registerMessage(BukkitMessageKey.NO_PERMISSION, (sender, context) -> {
+                messagingService.errorInsufficientPermission(sender);
+            });
+
+            commandManager.registerMessage(BukkitMessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> {
+                messagingService.errorUnknownCommand(sender);
+            });
+
+            commandManager.registerMessage(BukkitMessageKey.PLAYER_ONLY, (sender, context) -> {
+                messagingService.errorPlayerOnly(sender);
+            });
+
+            commandManager.registerMessage(BukkitMessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> {
+                messagingService.errorUnknownCommand(sender);
+            });
+
+            commandManager.registerMessage(BukkitMessageKey.UNKNOWN_COMMAND, (sender, context) -> {
+                messagingService.errorUnknownCommand(sender);
+            });
 
             // Register action types auto-suggest
             commandManager.registerSuggestion(SuggestionKey.of("actions"), (sender, context) -> {
