@@ -20,11 +20,11 @@ dependencies {
     compileOnly project.property('deps.p6spy')
     compileOnly project.property('deps.paper-api')
     compileOnly project.property('deps.taskchain')
-    // included here as I'm too lazy to add snapshot support to the dep loader
-    implementation project.property('deps.triumph-cmd-bukkit')
-    implementation project(':prism-core')
     compileOnly project(':prism-api')
     compileOnly project(':prism-loader')
+
+    implementation project.property('deps.triumph-cmd-bukkit')
+    implementation project(':prism-core')
 }
 
 // "parameters" flag required for moonshine to work
@@ -44,7 +44,7 @@ shadowJar {
     relocate 'com.p6spy.engine', 'network.darkhelmet.prism.libs.p6spy'
     relocate 'com.typesafe.config', 'network.darkhelmet.prism.libs.hocon'
     relocate 'com.zaxxer.hikari', 'network.darkhelmet.prism.libs.hikari'
-    relocate 'de.tr7zw.nbtapi', 'network.darkhelmet.prism.libs.nbtapi'
+    relocate 'de.tr7zw.changeme.nbtapi', 'network.darkhelmet.prism.libs.nbtapi'
     relocate 'dev.triumphteam', 'network.darkhelmet.prism.libs.triumphteam'
     relocate 'io.leangen.geantyref', 'network.darkhelmet.prism.libs.geantyref'
     relocate 'io.papermc.lib', 'network.darkhelmet.prism.libs.paperlib'

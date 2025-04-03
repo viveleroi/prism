@@ -20,7 +20,7 @@
 
 package network.darkhelmet.prism.actions.types;
 
-import de.tr7zw.nbtapi.NBTContainer;
+import de.tr7zw.changeme.nbtapi.NBTContainer;
 
 import java.util.Locale;
 

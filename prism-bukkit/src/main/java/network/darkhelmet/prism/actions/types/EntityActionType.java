@@ -20,7 +20,7 @@
 
 package network.darkhelmet.prism.actions.types;
 
-import de.tr7zw.nbtapi.NBTContainer;
+import de.tr7zw.changeme.nbtapi.NBTContainer;
 
 import network.darkhelmet.prism.actions.EntityAction;
 import network.darkhelmet.prism.api.actions.ActionData;

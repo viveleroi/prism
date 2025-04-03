@@ -20,8 +20,8 @@
 
 package network.darkhelmet.prism.actions;
 
-import de.tr7zw.nbtapi.NBTContainer;
-import de.tr7zw.nbtapi.NBTEntity;
+import de.tr7zw.changeme.nbtapi.NBTContainer;
+import de.tr7zw.changeme.nbtapi.NBTEntity;
 
 import java.util.Locale;
 import java.util.UUID;
