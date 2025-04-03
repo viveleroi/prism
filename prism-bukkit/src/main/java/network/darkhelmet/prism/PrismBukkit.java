@@ -23,6 +23,7 @@ package network.darkhelmet.prism;
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import dev.triumphteam.cmd.core.argument.keyed.Argument;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
+import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 
 import java.util.ArrayList;
@@ -277,7 +278,8 @@ public class PrismBukkit implements IPrism {
             registerEvent(VehicleExitListener.class);
 
             // Register commands
-            BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(loaderPlugin());
+            BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(loaderPlugin(),
+                CommandOptions.Builder::suggestLowercaseEnum);
 
             // Register action types auto-suggest
             commandManager.registerSuggestion(SuggestionKey.of("actions"), (sender, context) -> {
