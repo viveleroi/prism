@@ -292,16 +292,6 @@ public class PrismBukkit implements IPrism {
                 return actionFamilies;
             });
 
-            // Register online player auto-suggest
-            commandManager.registerSuggestion(SuggestionKey.of("players"), (sender, context) -> {
-                List<String> players = new ArrayList<>();
-                for (Player player : loaderPlugin().getServer().getOnlinePlayers()) {
-                    players.add(player.getName());
-                }
-
-                return players;
-            });
-
             // Register world auto-suggest
             commandManager.registerSuggestion(SuggestionKey.of("worlds"), (sender, context) -> {
                 List<String> worlds = new ArrayList<>();
@@ -330,7 +320,7 @@ public class PrismBukkit implements IPrism {
                 Argument.listOf(String.class).name("a").suggestion(SuggestionKey.of("actions")).build(),
                 Argument.listOf(Material.class).name("m").build(),
                 Argument.listOf(EntityType.class).name("e").build(),
-                Argument.listOf(String.class).name("p").suggestion(SuggestionKey.of("players")).build()
+                    Argument.listOf(Player.class).name("p").build()
             );
 
             commandManager.registerCommand(injectorProvider.injector().getInstance(AboutCommand.class));
