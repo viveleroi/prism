@@ -34,7 +34,10 @@ import network.darkhelmet.prism.loader.services.configuration.FilterConfiguartio
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.utils.MaterialTag;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Tag;
 
 @Singleton
 public class FilterService implements IFilterService {
@@ -89,19 +92,64 @@ public class FilterService implements IFilterService {
             // to monitor world load/unload events.
             // Unfortunately that also means we can't error when an invalid world is configured.
             List<String> worldNames = config.worlds();
+            boolean conditionExists = !config.worlds().isEmpty();
+
+            var materialTags = new ArrayList<Tag<Material>>();
 
             // Materials
-            MaterialTag materialTag = new MaterialTag();
-            for (String materialKey : config.materials()) {
-                try {
-                    Material material = Material.valueOf(materialKey.toUpperCase(Locale.ENGLISH));
-                    materialTag.append(material);
-                } catch (IllegalArgumentException e) {
-                    loggingService.logger().warn("Filter error: No material matching {}", materialKey);
+            if (!config.materials().isEmpty()) {
+                MaterialTag materialTag = new MaterialTag();
+                for (String materialKey : config.materials()) {
+                    try {
+                        Material material = Material.valueOf(materialKey.toUpperCase(Locale.ENGLISH));
+                        materialTag.append(material);
+                    } catch (IllegalArgumentException e) {
+                        loggingService.logger().warn("Filter error: No material matching {}", materialKey);
+                    }
                 }
+
+                conditionExists = true;
+                materialTags.add(materialTag);
             }
 
-            filters.add(new ActivityFilter(config.behavior(), worldNames, config.actions(), materialTag));
+            // Block material tags
+            for (String blockTag : config.blockTags()) {
+                var namespacedKey = NamespacedKey.fromString(blockTag);
+                if (namespacedKey != null) {
+                    var tag = Bukkit.getTag("blocks", namespacedKey, Material.class);
+                    if (tag != null) {
+                        conditionExists = true;
+                        materialTags.add(tag);
+
+                        continue;
+                    }
+                }
+
+                loggingService.logger().warn("Filter error: Invalid block tag {}", blockTag);
+            }
+
+            // Item material tags
+            for (String itemTag : config.itemTags()) {
+                var namespacedKey = NamespacedKey.fromString(itemTag);
+                if (namespacedKey != null) {
+                    var tag = Bukkit.getTag("items", namespacedKey, Material.class);
+
+                    if (tag != null) {
+                        conditionExists = true;
+                        materialTags.add(tag);
+
+                        continue;
+                    }
+                }
+
+                loggingService.logger().warn("Filter error: Invalid item tag {}", itemTag);
+            }
+
+            if (conditionExists) {
+                filters.add(new ActivityFilter(config.behavior(), worldNames, config.actions(), materialTags));
+            } else {
+                loggingService.logger().warn("Filter error: Not enough conditions");
+            }
         }
     }
 
@@ -113,7 +161,7 @@ public class FilterService implements IFilterService {
      */
     public boolean allows(IActivity activity) {
         for (ActivityFilter filter : filters) {
-            // If any filter rejects this activity, it's done for.
+            // If any filter rejects this activity... fatality!
             if (!filter.allows(activity)) {
                 return false;
             }

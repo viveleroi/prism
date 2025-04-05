@@ -38,9 +38,9 @@ public class FilterConfiguartion {
     private List<String> actions = new ArrayList<>();
 
     /**
-     * Worlds.
+     * The filter behavior.
      */
-    private List<String> worlds = new ArrayList<>();
+    private FilterBehavior behavior;
 
     /**
      * Materials.
@@ -48,7 +48,17 @@ public class FilterConfiguartion {
     private List<String> materials = new ArrayList<>();
 
     /**
-     * The filter behavior.
+     * Block tags.
      */
-    private FilterBehavior behavior;
+    private List<String> blockTags = new ArrayList<>();
+
+    /**
+     * Item tags.
+     */
+    private List<String> itemTags = new ArrayList<>();
+
+    /**
+     * Worlds.
+     */
+    private List<String> worlds = new ArrayList<>();
 }

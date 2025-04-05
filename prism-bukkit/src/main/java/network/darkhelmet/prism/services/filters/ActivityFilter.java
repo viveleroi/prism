@@ -25,7 +25,9 @@ import java.util.List;
 import network.darkhelmet.prism.actions.MaterialAction;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.filters.FilterBehavior;
-import network.darkhelmet.prism.utils.MaterialTag;
+
+import org.bukkit.Material;
+import org.bukkit.Tag;
 
 public class ActivityFilter {
     /**
@@ -46,7 +48,7 @@ public class ActivityFilter {
     /**
      * The material tag.
      */
-    private final MaterialTag materialTag;
+    private final List<Tag<Material>> materialTags;
 
     /**
      * Construct a new activity filter.
@@ -54,17 +56,17 @@ public class ActivityFilter {
      * @param behavior The behavior
      * @param worldNames The world names
      * @param actions The actions
-     * @param materialTag The material tag
+     * @param materialTags The material tags
      */
     public ActivityFilter(
             FilterBehavior behavior,
             List<String> worldNames,
             List<String> actions,
-            MaterialTag materialTag) {
+            List<Tag<Material>> materialTags) {
         this.behavior = behavior;
         this.worldNames = worldNames;
         this.actions = actions;
-        this.materialTag = materialTag;
+        this.materialTags = materialTags;
     }
 
     /**
@@ -76,7 +78,7 @@ public class ActivityFilter {
     public boolean allows(IActivity activity) {
         boolean actionMatched = actionsMatch(activity);
         boolean worldMatched = worldsMatch(activity);
-        boolean materialMatched = materialsMatch(activity);
+        boolean materialMatched = materialsMatched(activity);
 
         // If this filter exists we're guaranteed to require matches.
         // The filter can be either "ALLOW" or "IGNORE" but not both.
@@ -141,11 +143,22 @@ public class ActivityFilter {
      * @param activity The activity
      * @return True if action material matches
      */
-    private boolean materialsMatch(IActivity activity) {
-        if (activity.action() instanceof MaterialAction materialAction) {
-            return materialTag.isTagged(materialAction.material());
+    private boolean materialsMatched(IActivity activity) {
+        if (materialTags.isEmpty()) {
+            return true;
         }
 
-        return true;
+        if (activity.action() instanceof MaterialAction materialAction) {
+            for (Tag<Material> materialTag : materialTags) {
+                System.out.println("comparing tag " + materialTag.getKey() + " to " + materialAction.material());
+                if (materialTag.isTagged(materialAction.material())) {
+                    return true;
+                }
+            }
+
+            return false;
+        } else {
+            return true;
+        }
     }
 }

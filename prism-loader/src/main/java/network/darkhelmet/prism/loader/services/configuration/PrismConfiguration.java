@@ -56,8 +56,11 @@ public class PrismConfiguration {
 
     private DefaultsConfiguration defaults = new DefaultsConfiguration();
 
-    @Comment("Filters allow fine-grained control over what prism records.\n"
-        + "See the wiki for documentation.")
+    @Comment("""
+            Filters allow fine-grained control over what prism records.
+            See the wiki for documentation.
+            https://prism.readthedocs.io
+            """)
     private List<FilterConfiguartion> filters = new ArrayList<>();
 
     @Comment("Configure rules for modifications (rollbacks/restores).")
