@@ -114,6 +114,7 @@ import network.darkhelmet.prism.services.recording.RecordingService;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
@@ -327,6 +328,16 @@ public class PrismBukkit implements IPrism {
                 return actionFamilies;
             });
 
+            // Register tags auto-suggest
+            commandManager.registerSuggestion(SuggestionKey.of("blocktags"), (sender, context) -> {
+                List<String> tags = new ArrayList<>();
+                for (Tag<Material> tag : Bukkit.getTags("blocks", Material.class)) {
+                    tags.add(tag.getKey().toString());
+                }
+
+                return tags;
+            });
+
             // Register world auto-suggest
             commandManager.registerSuggestion(SuggestionKey.of("worlds"), (sender, context) -> {
                 List<String> worlds = new ArrayList<>();
@@ -357,6 +368,7 @@ public class PrismBukkit implements IPrism {
                 Argument.forString().name("at").build(),
                 Argument.forString().name("bounds").build(),
                 Argument.listOf(String.class).name("a").suggestion(SuggestionKey.of("actions")).build(),
+                Argument.listOf(String.class).name("btag").suggestion(SuggestionKey.of("blocktags")).build(),
                 Argument.listOf(Material.class).name("m").build(),
                 Argument.listOf(EntityType.class).name("e").build(),
                 Argument.listOf(Player.class).name("p").build()

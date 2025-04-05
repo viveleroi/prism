@@ -77,6 +77,12 @@ public interface MessageService {
     @Message("rich.error.param-console-radius")
     void errorParamConsoleRadius(CommandSender receiver);
 
+    @Message("rich.error.param-invalid-block-tag")
+    void errorParamInvalidBlockTag(CommandSender receiver);
+
+    @Message("rich.error.param-invalid-namespace")
+    void errorParamInvalidNamespace(CommandSender receiver);
+
     @Message("rich.error.param-invalid-world")
     void errorParamInvalidWorld(CommandSender receiver);
 

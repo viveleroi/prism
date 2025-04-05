@@ -47,6 +47,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
@@ -368,9 +369,43 @@ public class QueryService {
             builder.defaultUsed("m:" + materialString);
         }
 
-        // Attempt to resolve to an activity
+        // Read "btag" parameter from arguments or defaults
+        final List<String> blockTags = new ArrayList<>();
+        if (arguments.getListArgument("btag", String.class).isPresent()) {
+            blockTags.addAll(arguments.getListArgument("btag", String.class).get());
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("btag")) {
+            String blockTagString = configurationService.prismConfig().defaults().parameters().get("btag");
+            Collections.addAll(blockTags, blockTagString.split(","));
+
+            builder.defaultUsed("btag:" + blockTagString);
+        }
+
+        // Attempt to resolve to block tags
+        if (!blockTags.isEmpty()) {
+            for (String blockTag : blockTags) {
+                var namespacedKey = NamespacedKey.fromString(blockTag);
+                if (namespacedKey == null) {
+                    messageService.errorParamInvalidNamespace(sender);
+
+                    return Optional.empty();
+                }
+
+                var tag = Bukkit.getTag("blocks", namespacedKey, Material.class);
+                if (tag == null) {
+                    messageService.errorParamInvalidBlockTag(sender);
+
+                    return Optional.empty();
+                }
+
+                tag.getValues().forEach(material -> {
+                    m.add(material.toString().toLowerCase(Locale.ENGLISH));
+                });
+            }
+        }
+
         if (!m.isEmpty()) {
-            parseMaterials(builder, m);
+            builder.materials(m);
         }
 
         // Read "e" parameter from arguments or defaults
@@ -484,16 +519,6 @@ public class QueryService {
 
             builder.boundingCoordinates(chunkMin, chunkMax).worldUuid(referenceLocation.getWorld().getUID());
         }
-    }
-
-    /**
-     * Parse and apply the "material" parameter to a query builder.
-     *
-     * @param builder The builder
-     * @param materials The materials parameter
-     */
-    protected void parseMaterials(ActivityQuery.ActivityQueryBuilder builder, List<String> materials) {
-        builder.materials(materials);
     }
 
     /**
