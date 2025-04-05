@@ -26,7 +26,7 @@ import dev.triumphteam.cmd.core.argument.keyed.Argument;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
 import dev.triumphteam.cmd.core.argument.keyed.Flag;
 import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
-import dev.triumphteam.cmd.core.extention.CommandOptions;
+import dev.triumphteam.cmd.core.extension.CommandOptions;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 
 import java.util.ArrayList;
