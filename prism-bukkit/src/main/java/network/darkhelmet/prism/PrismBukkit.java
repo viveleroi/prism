@@ -341,7 +341,9 @@ public class PrismBukkit implements IPrism {
             commandManager.registerSuggestion(SuggestionKey.of("ins"), (sender, context) ->
                 Arrays.asList("chunk", "world"));
 
-            commandManager.registerFlags(FlagKey.of("query-flags"), Flag.flag("ng").longFlag("nogroup").build());
+            commandManager.registerFlags(FlagKey.of("query-flags"),
+                Flag.flag("nd").longFlag("nodefaults").build(),
+                Flag.flag("ng").longFlag("nogroup").build());
 
             commandManager.registerNamedArguments(
                 ArgumentKey.of("query-parameters"),

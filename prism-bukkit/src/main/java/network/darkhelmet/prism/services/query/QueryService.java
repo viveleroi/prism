@@ -128,7 +128,8 @@ public class QueryService {
         String worldName = null;
         if (arguments.getArgument("world", String.class).isPresent()) {
             worldName = arguments.getArgument("world", String.class).get();
-        } else if (configurationService.prismConfig().defaults().parameters().containsKey("world")) {
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("world")) {
             worldName = configurationService.prismConfig().defaults().parameters().get("world");
 
             builder.defaultUsed("world:" + worldName);
@@ -151,7 +152,8 @@ public class QueryService {
         String at = null;
         if (arguments.getArgument("at", String.class).isPresent()) {
             at = arguments.getArgument("at", String.class).get();
-        } else if (configurationService.prismConfig().defaults().parameters().containsKey("at")) {
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("at")) {
             at = configurationService.prismConfig().defaults().parameters().get("at");
 
             builder.defaultUsed("at:" + at);
@@ -183,7 +185,8 @@ public class QueryService {
         String in = null;
         if (arguments.getArgument("in", String.class).isPresent()) {
             in = arguments.getArgument("in", String.class).get();
-        } else if (configurationService.prismConfig().defaults().parameters().containsKey("in")) {
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("in")) {
             in = configurationService.prismConfig().defaults().parameters().get("in");
 
             builder.defaultUsed("in:" + in);
@@ -204,7 +207,8 @@ public class QueryService {
         Integer r = null;
         if (arguments.getArgument("r", Integer.class).isPresent()) {
             r = arguments.getArgument("r", Integer.class).get();
-        } else if (configurationService.prismConfig().defaults().parameters().containsKey("r")) {
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("r")) {
             r = Integer.parseInt(configurationService.prismConfig().defaults().parameters().get("r"));
 
             builder.defaultUsed("r:" + r);
@@ -231,7 +235,8 @@ public class QueryService {
         String bounds = null;
         if (arguments.getArgument("bounds", String.class).isPresent()) {
             bounds = arguments.getArgument("bounds", String.class).get();
-        } else if (configurationService.prismConfig().defaults().parameters().containsKey("bounds")) {
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("bounds")) {
             bounds = configurationService.prismConfig().defaults().parameters().get("bounds");
 
             builder.defaultUsed("bounds:" + bounds);
@@ -288,7 +293,8 @@ public class QueryService {
         String before = null;
         if (arguments.getArgument("before", String.class).isPresent()) {
             before = arguments.getArgument("before", String.class).get();
-        } else if (configurationService.prismConfig().defaults().parameters().containsKey("before")) {
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("before")) {
             before = configurationService.prismConfig().defaults().parameters().get("before");
 
             builder.defaultUsed("before:" + before);
@@ -303,7 +309,8 @@ public class QueryService {
         String since = null;
         if (arguments.getArgument("since", String.class).isPresent()) {
             since = arguments.getArgument("since", String.class).get();
-        } else if (configurationService.prismConfig().defaults().parameters().containsKey("since")) {
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("since")) {
             since = configurationService.prismConfig().defaults().parameters().get("since");
 
             builder.defaultUsed("since:" + since);
@@ -318,7 +325,8 @@ public class QueryService {
         String cause = null;
         if (arguments.getArgument("cause", String.class).isPresent()) {
             cause = arguments.getArgument("cause", String.class).get();
-        } else if (configurationService.prismConfig().defaults().parameters().containsKey("cause")) {
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("cause")) {
             cause = configurationService.prismConfig().defaults().parameters().get("cause");
 
             builder.defaultUsed("cause:" + cause);
@@ -333,7 +341,8 @@ public class QueryService {
         List<String> a = new ArrayList<>();
         if (arguments.getListArgument("a", String.class).isPresent()) {
             a = arguments.getListArgument("a", String.class).get();
-        } else if (configurationService.prismConfig().defaults().parameters().containsKey("a")) {
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("a")) {
             String activityString = configurationService.prismConfig().defaults().parameters().get("a");
             a = Arrays.stream(activityString.split(",")).toList();
 
@@ -351,7 +360,8 @@ public class QueryService {
             arguments.getListArgument("m", Material.class).get().forEach(material -> {
                 m.add(material.toString().toLowerCase(Locale.ENGLISH));
             });
-        } else if (configurationService.prismConfig().defaults().parameters().containsKey("m")) {
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("m")) {
             String materialString = configurationService.prismConfig().defaults().parameters().get("m");
             Collections.addAll(m, materialString.split(","));
 
@@ -369,7 +379,8 @@ public class QueryService {
             arguments.getListArgument("e", EntityType.class).get().forEach(entity -> {
                 e.add(entity.toString().toLowerCase(Locale.ENGLISH));
             });
-        } else if (configurationService.prismConfig().defaults().parameters().containsKey("e")) {
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("e")) {
             String entityString = configurationService.prismConfig().defaults().parameters().get("e");
             Collections.addAll(e, entityString.split(","));
 
@@ -387,7 +398,8 @@ public class QueryService {
             arguments.getListArgument("p", Player.class).get().forEach(player -> {
                 p.add(player.toString());
             });
-        } else if (configurationService.prismConfig().defaults().parameters().containsKey("p")) {
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("p")) {
             String playerString = configurationService.prismConfig().defaults().parameters().get("p");
             Collections.addAll(p, playerString.split(","));
 
@@ -408,7 +420,8 @@ public class QueryService {
         Boolean reversed = null;
         if (arguments.getArgument("reversed", Boolean.class).isPresent()) {
             reversed = arguments.getArgument("reversed", Boolean.class).get();
-        } else if (configurationService.prismConfig().defaults().parameters().containsKey("reversed")) {
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("reversed")) {
             reversed = configurationService.prismConfig()
                 .defaults().parameters().get("reversed").equalsIgnoreCase("true");
 
