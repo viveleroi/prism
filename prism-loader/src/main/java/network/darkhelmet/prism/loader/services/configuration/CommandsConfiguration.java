@@ -54,6 +54,20 @@ public class CommandsConfiguration {
     private List<String> blockTagWhitelist = new ArrayList<>();
 
     @Comment("""
+            Enable the entity type tag whitelist. If disabled, values will be ignored.
+            """)
+    private boolean entityTypeTagWhitelistEnabled = false;
+
+    @Comment("""
+            Define entity type tags allowed in the btag parameter (and auto-suggestions).
+            These must include the tag namespace, e.g. `minecraft:aquatic`, but can
+            include any tag - even custom ones.
+            https://minecraft.wiki/w/Entity_type_tag_(Java_Edition)
+            Note: All Minecraft tags will be excluded if `allowMinecraftTags` is false.
+            """)
+    private List<String> entityTypeTagWhitelist = new ArrayList<>();
+
+    @Comment("""
             Enable the item tag whitelist. If disabled, values will be ignored.
             """)
     private boolean itemTagWhitelistEnabled = false;

@@ -80,6 +80,9 @@ public interface MessageService {
     @Message("rich.error.param-invalid-block-tag")
     void errorParamInvalidBlockTag(CommandSender receiver);
 
+    @Message("rich.error.param-invalid-entity-type-tag")
+    void errorParamInvalidEntityTypeTag(CommandSender receiver);
+
     @Message("rich.error.param-invalid-item-tag")
     void errorParamInvalidItemTag(CommandSender receiver);
 

@@ -413,7 +413,7 @@ public class QueryService {
         } else if (!arguments.hasFlag("nodefaults")
                 && configurationService.prismConfig().defaults().parameters().containsKey("itag")) {
             String itemTagString = configurationService.prismConfig().defaults().parameters().get("itag");
-            Collections.addAll(blockTags, itemTagString.split(","));
+            Collections.addAll(itemTags, itemTagString.split(","));
 
             builder.defaultUsed("itag:" + itemTagString);
         }
@@ -446,22 +446,57 @@ public class QueryService {
         }
 
         // Read "e" parameter from arguments or defaults
-        final List<String> e = new ArrayList<>();
+        final Set<String> entityTypes = new HashSet<>();
         if (arguments.getListArgument("e", EntityType.class).isPresent()) {
             arguments.getListArgument("e", EntityType.class).get().forEach(entity -> {
-                e.add(entity.toString().toLowerCase(Locale.ENGLISH));
+                entityTypes.add(entity.toString().toLowerCase(Locale.ENGLISH));
             });
         } else if (!arguments.hasFlag("nodefaults")
                 && configurationService.prismConfig().defaults().parameters().containsKey("e")) {
             String entityString = configurationService.prismConfig().defaults().parameters().get("e");
-            Collections.addAll(e, entityString.split(","));
+            Collections.addAll(entityTypes, entityString.split(","));
 
             builder.defaultUsed("e:" + entityString);
         }
 
-        // Attempt to resolve to an entity
-        if (!e.isEmpty()) {
-            parseEntityTypes(builder, e);
+        // Read "etag" parameter from arguments or defaults
+        final List<String> entityTypeTags = new ArrayList<>();
+        if (arguments.getListArgument("etag", String.class).isPresent()) {
+            entityTypeTags.addAll(arguments.getListArgument("etag", String.class).get());
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("etag")) {
+            String entityTypeTagString = configurationService.prismConfig().defaults().parameters().get("etag");
+            Collections.addAll(entityTypeTags, entityTypeTagString.split(","));
+
+            builder.defaultUsed("etag:" + entityTypeTagString);
+        }
+
+        // Attempt to resolve to entity type tags
+        if (!entityTypeTags.isEmpty()) {
+            for (String entityTypeTag : entityTypeTags) {
+                var namespacedKey = NamespacedKey.fromString(entityTypeTag);
+                if (namespacedKey == null) {
+                    messageService.errorParamInvalidNamespace(sender);
+
+                    return Optional.empty();
+                }
+
+                var tag = Bukkit.getTag("entity_types", namespacedKey, EntityType.class);
+                if (tag == null) {
+                    messageService.errorParamInvalidEntityTypeTag(sender);
+
+                    return Optional.empty();
+                }
+
+                tag.getValues().forEach(entityType -> {
+                    entityTypes.add(entityType.toString().toLowerCase(Locale.ENGLISH));
+                });
+            }
+        }
+
+        // Add entity types
+        if (!entityTypes.isEmpty()) {
+            builder.entityTypes(entityTypes);
         }
 
         // Read "p" parameter from arguments or defaults
@@ -528,16 +563,6 @@ public class QueryService {
                 query.actionTypes(actionTypes);
             }
         }
-    }
-
-    /**
-     * Parse and apply the entity types parameter to a query builder.
-     *
-     * @param builder The builder
-     * @param entityTypes The entity types parameter
-     */
-    protected void parseEntityTypes(ActivityQuery.ActivityQueryBuilder builder, List<String> entityTypes) {
-        builder.entityTypes(entityTypes);
     }
 
     /**

@@ -376,6 +376,31 @@ public class PrismBukkit implements IPrism {
                 return tags;
             });
 
+            // Register entity tags auto-suggest
+            commandManager.registerSuggestion(SuggestionKey.of("entitytypetags"),
+                    (sender, context) -> {
+                    var entityTypeTagWhitelistEnabled = configurationService.prismConfig()
+                        .commands().entityTypeTagWhitelistEnabled();
+                    var entityTypeTagWhitelist = configurationService.prismConfig().commands().entityTypeTagWhitelist();
+
+                    List<String> tags = new ArrayList<>();
+                    for (Tag<EntityType> tag : Bukkit.getTags("entity_types", EntityType.class)) {
+                        var tagString = tag.getKey().toString();
+
+                        if (tagString.contains("minecraft:")
+                                && !configurationService.prismConfig().commands().allowMinecraftTags()) {
+                            continue;
+                        }
+
+                        if (entityTypeTagWhitelist.isEmpty()
+                                || !entityTypeTagWhitelistEnabled || entityTypeTagWhitelist.contains(tagString)) {
+                            tags.add(tagString);
+                        }
+                    }
+
+                    return tags;
+                });
+
             // Register world auto-suggest
             commandManager.registerSuggestion(SuggestionKey.of("worlds"), (sender, context) -> {
                 List<String> worlds = new ArrayList<>();
@@ -407,6 +432,7 @@ public class PrismBukkit implements IPrism {
                 Argument.forString().name("bounds").build(),
                 Argument.listOf(String.class).name("a").suggestion(SuggestionKey.of("actions")).build(),
                 Argument.listOf(String.class).name("btag").suggestion(SuggestionKey.of("blocktags")).build(),
+                Argument.listOf(String.class).name("etag").suggestion(SuggestionKey.of("entitytypetags")).build(),
                 Argument.listOf(String.class).name("itag").suggestion(SuggestionKey.of("itemtags")).build(),
                 Argument.listOf(Material.class).name("m").build(),
                 Argument.listOf(EntityType.class).name("e").build(),
