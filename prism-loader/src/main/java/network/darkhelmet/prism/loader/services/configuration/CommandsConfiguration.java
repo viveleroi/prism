@@ -64,6 +64,13 @@ public class CommandsConfiguration {
         blockTagWhitelist.add("minecraft:gold_ores");
         blockTagWhitelist.add("minecraft:iron_ores");
         blockTagWhitelist.add("minecraft:lapis_ores");
+        blockTagWhitelist.add("minecraft:logs_that_burn");
+        blockTagWhitelist.add("minecraft:beacon_base_blocks");
+        blockTagWhitelist.add("minecraft:mineable/axe");
+        blockTagWhitelist.add("minecraft:mineable/hoe");
+        blockTagWhitelist.add("minecraft:mineable/pickaxe");
+        blockTagWhitelist.add("minecraft:mineable/shovel");
         blockTagWhitelist.add("minecraft:redstone_ores");
+        blockTagWhitelist.add("prism:all_ores");
     }
 }
