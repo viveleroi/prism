@@ -49,6 +49,8 @@ public class PrismConfiguration {
             """)
     private CacheConfiguration cache = new CacheConfiguration();
 
+    private CommandsConfiguration commands = new CommandsConfiguration();
+
     @Comment("Enable plugin debug mode. Produces extra logging to help diagnose issues.")
     private boolean debug = false;
 

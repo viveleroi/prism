@@ -104,6 +104,7 @@ import network.darkhelmet.prism.listeners.sponge.SpongeAbsorbListener;
 import network.darkhelmet.prism.listeners.structure.StructureGrowListener;
 import network.darkhelmet.prism.listeners.vehicle.VehicleEnterListener;
 import network.darkhelmet.prism.listeners.vehicle.VehicleExitListener;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.dependencies.Dependency;
 import network.darkhelmet.prism.loader.services.dependencies.DependencyService;
 import network.darkhelmet.prism.loader.services.dependencies.loader.PluginLoader;
@@ -288,6 +289,7 @@ public class PrismBukkit implements IPrism {
 
             // Customize command messages
             var messagingService =  injectorProvider.injector().getInstance(MessageService.class);
+            var configurationService =  injectorProvider.injector().getInstance(ConfigurationService.class);
 
             commandManager.registerMessage(BukkitMessageKey.CONSOLE_ONLY, (sender, context) -> {
                 messagingService.errorConsoleOnly(sender);
@@ -330,9 +332,22 @@ public class PrismBukkit implements IPrism {
 
             // Register tags auto-suggest
             commandManager.registerSuggestion(SuggestionKey.of("blocktags"), (sender, context) -> {
+                var blockTagWhitelistEnabled = configurationService.prismConfig().commands().blockTagWhitelistEnabled();
+                var blockTagWhitelist = configurationService.prismConfig().commands().blockTagWhitelist();
+
                 List<String> tags = new ArrayList<>();
                 for (Tag<Material> tag : Bukkit.getTags("blocks", Material.class)) {
-                    tags.add(tag.getKey().toString());
+                    var tagString = tag.getKey().toString();
+
+                    if (tagString.contains("minecraft:")
+                            && !configurationService.prismConfig().commands().allowMinecraftTags()) {
+                        continue;
+                    }
+
+                    if (blockTagWhitelist.isEmpty()
+                            || !blockTagWhitelistEnabled || blockTagWhitelist.contains(tagString)) {
+                        tags.add(tagString);
+                    }
                 }
 
                 return tags;
