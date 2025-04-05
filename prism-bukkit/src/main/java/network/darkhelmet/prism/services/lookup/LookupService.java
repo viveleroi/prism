@@ -157,6 +157,10 @@ public class LookupService {
     private void show(CommandSender sender, PaginatedResults<IActivity> results, ActivityQuery query) {
         messageService.paginationHeader(sender, results);
 
+        if (!query.defaultsUsed().isEmpty()) {
+            messageService.defaultsUsed(sender, String.join(" ", query.defaultsUsed()));
+        }
+
         if (results.isEmpty()) {
             messageService.noResults(sender);
         } else {

@@ -35,6 +35,9 @@ public interface MessageService {
     @Message("rich.about")
     void about(CommandSender receiver, @Placeholder String version);
 
+    @Message("rich.defaults-used")
+    void defaultsUsed(CommandSender receiver, @Placeholder String defaults);
+
     @Message("rich.error.console-only")
     void errorConsoleOnly(CommandSender receiver);
 

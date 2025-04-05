@@ -66,6 +66,12 @@ public final class ActivityQuery {
     private String cause;
 
     /**
+     * The default parameters used.
+     */
+    @Singular("defaultUsed")
+    private Collection<String> defaultsUsed;
+
+    /**
      * The entity types.
      */
     @Singular
@@ -122,6 +128,12 @@ public final class ActivityQuery {
     private Collection<String> playerNames;
 
     /**
+     * The reference coordinate.
+     * If defined, this location will be used as the center for the Radius, In, and World parameters.
+     */
+    private Coordinate referenceCoordinate;
+
+    /**
      * The reversed state.
      */
     private Boolean reversed;
@@ -159,7 +171,7 @@ public final class ActivityQuery {
          *
          * @param minCoordinate The min coordinate
          * @param maxCoordinate The max coordinate
-         * @return The query
+         * @return The builder
          */
         public ActivityQueryBuilder boundingCoordinates(Coordinate minCoordinate, Coordinate maxCoordinate) {
             this.minCoordinate = minCoordinate;
@@ -184,15 +196,52 @@ public final class ActivityQuery {
         }
 
         /**
+         * Use the reference coordinate as the search location.
+         *
+         * @return The builder
+         */
+        public ActivityQueryBuilder locationFromReferenceCoordinate() {
+            location(new WorldCoordinate(
+                new NamedIdentity(worldUuid, "empty"),
+                referenceCoordinate.x(),
+                referenceCoordinate.y(),
+                referenceCoordinate.z()));
+
+            return this;
+        }
+
+        /**
          * Indicate this query is for use with modifiers.
          *
          * <p>Sets lookup and grouped to false.</p>
          *
-         * @return The query
+         * @return The builder
          */
         public ActivityQueryBuilder modification() {
             this.lookup(false);
             this.grouped(false);
+
+            return this;
+        }
+
+        /**
+         * Set the radius around the current reference coordinate.
+         *
+         * @param radius The radius
+         * @return The builder
+         */
+        public ActivityQueryBuilder radius(int radius) {
+            Coordinate minCoordinate = new Coordinate(
+                referenceCoordinate.intX() - radius,
+                referenceCoordinate.intY() - radius,
+                referenceCoordinate.intZ() - radius);
+
+            Coordinate maxCoordinate = new Coordinate(
+                referenceCoordinate.intX() + radius,
+                referenceCoordinate.intY() + radius,
+                referenceCoordinate.intZ() + radius);
+
+            this.boundingCoordinates(minCoordinate, maxCoordinate);
 
             return this;
         }
@@ -204,7 +253,7 @@ public final class ActivityQuery {
          * sort direction to ascending,
          * reversed boolean to true.</p>
          *
-         * @return The query
+         * @return The builder
          */
         public ActivityQueryBuilder restore() {
             this.lookup(false);
@@ -222,7 +271,7 @@ public final class ActivityQuery {
          * sort direction to descending,
          * reversed boolean to false.</p>
          *
-         * @return The query
+         * @return The builder
          */
         public ActivityQueryBuilder rollback() {
             this.lookup(false);

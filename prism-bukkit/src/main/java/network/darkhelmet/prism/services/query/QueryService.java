@@ -25,8 +25,10 @@ import com.google.inject.Inject;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -37,6 +39,7 @@ import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.util.Coordinate;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.utils.LocationUtils;
 
@@ -56,6 +59,11 @@ public class QueryService {
     private final ActionTypeRegistry actionRegistry;
 
     /**
+     * The configuration service.
+     */
+    private final ConfigurationService configurationService;
+
+    /**
      * The message service.
      */
     private final MessageService messageService;
@@ -66,8 +74,12 @@ public class QueryService {
      * @param actionRegistry The action registry
      */
     @Inject
-    public QueryService(ActionTypeRegistry actionRegistry, MessageService messageService) {
+    public QueryService(
+            ActionTypeRegistry actionRegistry,
+            ConfigurationService configurationService,
+            MessageService messageService) {
         this.actionRegistry = actionRegistry;
+        this.configurationService = configurationService;
         this.messageService = messageService;
     }
 
@@ -96,36 +108,62 @@ public class QueryService {
     public Optional<ActivityQuery.ActivityQueryBuilder> queryFromArguments(
             CommandSender sender, Arguments arguments, Location referenceLocation) {
         ActivityQuery.ActivityQueryBuilder builder = ActivityQuery.builder();
-        World world = referenceLocation != null ? referenceLocation.getWorld() : null;
+        World world = null;
+
+        if (referenceLocation != null) {
+            world = referenceLocation.getWorld();
+
+            // Default world/referenceLocation
+            builder.worldUuid(world.getUID());
+            builder.referenceCoordinate(
+                new Coordinate(referenceLocation.getX(), referenceLocation.getY(), referenceLocation.getZ()));
+        }
 
         // No-group flag
         if (arguments.hasFlag("nogroup")) {
             builder.grouped(false);
         }
 
-        // world: parameter
+        // Read "world" parameter from arguments or defaults
+        String worldName = null;
         if (arguments.getArgument("world", String.class).isPresent()) {
-            String worldName = arguments.getArgument("world", String.class).get();
+            worldName = arguments.getArgument("world", String.class).get();
+        } else if (configurationService.prismConfig().defaults().parameters().containsKey("world")) {
+            worldName = configurationService.prismConfig().defaults().parameters().get("world");
 
+            builder.defaultUsed("world:" + worldName);
+        }
+
+        // Attempt to resolve world name into server world
+        if (worldName != null) {
             world = Bukkit.getServer().getWorld(worldName);
-            if (world == null) {
+
+            if (world != null) {
+                builder.worldUuid(world.getUID());
+            } else {
                 messageService.errorParamInvalidWorld(sender);
 
                 return Optional.empty();
             }
-
-            builder.worldUuid(world.getUID());
         }
 
-        // at: parameter
+        // Read "at" parameter from arguments or defaults
+        String at = null;
         if (arguments.getArgument("at", String.class).isPresent()) {
+            at = arguments.getArgument("at", String.class).get();
+        } else if (configurationService.prismConfig().defaults().parameters().containsKey("at")) {
+            at = configurationService.prismConfig().defaults().parameters().get("at");
+
+            builder.defaultUsed("at:" + at);
+        }
+
+        // Attempt to resolve at to a location
+        if (at != null) {
             if (world == null) {
                 messageService.errorParamAtNoWorld(sender);
 
                 return Optional.empty();
             }
-
-            String at = arguments.getArgument("at", String.class).get();
 
             String[] segments = at.split(",");
             if (segments.length == 3) {
@@ -133,7 +171,7 @@ public class QueryService {
                 int y = Integer.parseInt(segments[1]);
                 int z = Integer.parseInt(segments[2]);
 
-                referenceLocation = new Location(world, x, y, z);
+                builder.referenceCoordinate(new Coordinate(x, y, z));
             } else {
                 messageService.errorParamAtInvalidLocation(sender);
 
@@ -141,33 +179,44 @@ public class QueryService {
             }
         }
 
-        if (referenceLocation != null) {
-            world = referenceLocation.getWorld();
-        }
-
-        // in: parameter
+        // Read "in" parameter from arguments or defaults
         String in = null;
         if (arguments.getArgument("in", String.class).isPresent()) {
-            if (referenceLocation == null) {
+            in = arguments.getArgument("in", String.class).get();
+        } else if (configurationService.prismConfig().defaults().parameters().containsKey("in")) {
+            in = configurationService.prismConfig().defaults().parameters().get("in");
+
+            builder.defaultUsed("in:" + in);
+        }
+
+        // Attempt to resolve to a region
+        if (in != null) {
+            if (referenceLocation == null && at == null) {
                 messageService.errorParamConsoleIn(sender);
 
                 return Optional.empty();
             }
 
-            in = arguments.getArgument("in", String.class).get();
-
             parseIn(builder, referenceLocation, in);
         }
 
-        // r: parameter
+        // Read "r" parameter from arguments or defaults
+        Integer r = null;
         if (arguments.getArgument("r", Integer.class).isPresent()) {
-            if (referenceLocation == null) {
+            r = arguments.getArgument("r", Integer.class).get();
+        } else if (configurationService.prismConfig().defaults().parameters().containsKey("r")) {
+            r = Integer.parseInt(configurationService.prismConfig().defaults().parameters().get("r"));
+
+            builder.defaultUsed("r:" + r);
+        }
+
+        // Attempt to resolve to a location
+        if (r != null) {
+            if (referenceLocation == null && at == null) {
                 messageService.errorParamConsoleRadius(sender);
 
                 return Optional.empty();
             }
-
-            Integer radius = arguments.getArgument("r", Integer.class).get();
 
             if (in != null && in.equalsIgnoreCase("chunk")) {
                 messageService.errorParamRadiusAndChunk(sender);
@@ -175,19 +224,28 @@ public class QueryService {
                 return Optional.empty();
             }
 
-            parseRadius(builder, referenceLocation, radius);
+            builder.radius(r);
         }
 
-        // bounds: parameter
+        // Read "bounds" parameter from arguments or defaults
+        String bounds = null;
         if (arguments.getArgument("bounds", String.class).isPresent()) {
+            bounds = arguments.getArgument("bounds", String.class).get();
+        } else if (configurationService.prismConfig().defaults().parameters().containsKey("bounds")) {
+            bounds = configurationService.prismConfig().defaults().parameters().get("bounds");
+
+            builder.defaultUsed("bounds:" + bounds);
+        }
+
+        // Attempt to resolve to a boundary
+        if (bounds != null) {
             if (world == null) {
                 messageService.errorParamConsoleBounds(sender);
 
                 return Optional.empty();
             }
 
-            String at = arguments.getArgument("bounds", String.class).get();
-            String[] segments = at.split("-");
+            String[] segments = bounds.split("-");
             if (segments.length != 2) {
                 messageService.errorParamBoundsInvalid(sender);
 
@@ -222,62 +280,144 @@ public class QueryService {
             builder.boundingCoordinates(min, max);
         }
 
-        // before: parameter
-        if (arguments.getArgument("before", String.class).isPresent()) {
-            String before = arguments.getArgument("before", String.class).get();
+        if (at != null && r == null && in == null && bounds == null) {
+            builder.locationFromReferenceCoordinate();
+        }
 
+        // Read "before" parameter from arguments or defaults
+        String before = null;
+        if (arguments.getArgument("before", String.class).isPresent()) {
+            before = arguments.getArgument("before", String.class).get();
+        } else if (configurationService.prismConfig().defaults().parameters().containsKey("before")) {
+            before = configurationService.prismConfig().defaults().parameters().get("before");
+
+            builder.defaultUsed("before:" + before);
+        }
+
+        // Attempt to resolve to a timestamp
+        if (before != null) {
             parseBefore(builder, before);
         }
 
-        // since: parameter
+        // Read "since" parameter from arguments or defaults
+        String since = null;
         if (arguments.getArgument("since", String.class).isPresent()) {
-            String since = arguments.getArgument("since", String.class).get();
+            since = arguments.getArgument("since", String.class).get();
+        } else if (configurationService.prismConfig().defaults().parameters().containsKey("since")) {
+            since = configurationService.prismConfig().defaults().parameters().get("since");
 
+            builder.defaultUsed("since:" + since);
+        }
+
+        // Attempt to resolve to a timestamp
+        if (since != null) {
             parseSince(builder, since);
         }
 
-        // cause: parameter
+        // Read "cause" parameter from arguments or defaults
+        String cause = null;
         if (arguments.getArgument("cause", String.class).isPresent()) {
-            builder.cause(arguments.getArgument("cause", String.class).get());
+            cause = arguments.getArgument("cause", String.class).get();
+        } else if (configurationService.prismConfig().defaults().parameters().containsKey("cause")) {
+            cause = configurationService.prismConfig().defaults().parameters().get("cause");
+
+            builder.defaultUsed("cause:" + cause);
         }
 
-        // a: parameter
+        // Attempt to resolve to a timestamp
+        if (cause != null) {
+            builder.cause(cause);
+        }
+
+        // Read "a" parameter from arguments or defaults
+        List<String> a = new ArrayList<>();
         if (arguments.getListArgument("a", String.class).isPresent()) {
-            List<String> actions = arguments.getListArgument("a", String.class).get();
+            a = arguments.getListArgument("a", String.class).get();
+        } else if (configurationService.prismConfig().defaults().parameters().containsKey("a")) {
+            String activityString = configurationService.prismConfig().defaults().parameters().get("a");
+            a = Arrays.stream(activityString.split(",")).toList();
 
-            parseActions(builder, actions);
+            builder.defaultUsed("a:" + activityString);
         }
 
-        // m: parameter
+        // Attempt to resolve to an activity
+        if (!a.isEmpty()) {
+            parseActions(builder, a);
+        }
+
+        // Read "m" parameter from arguments or defaults
+        final List<String> m = new ArrayList<>();
         if (arguments.getListArgument("m", Material.class).isPresent()) {
-            List<String> finalMaterials = new ArrayList<>();
-            arguments.getListArgument("m", Material.class).get().forEach(m -> {
-                finalMaterials.add(m.toString().toLowerCase(Locale.ENGLISH));
+            arguments.getListArgument("m", Material.class).get().forEach(material -> {
+                m.add(material.toString().toLowerCase(Locale.ENGLISH));
             });
+        } else if (configurationService.prismConfig().defaults().parameters().containsKey("m")) {
+            String materialString = configurationService.prismConfig().defaults().parameters().get("m");
+            Collections.addAll(m, materialString.split(","));
 
-            parseMaterials(builder, finalMaterials);
+            builder.defaultUsed("m:" + materialString);
         }
 
-        // e: parameter
+        // Attempt to resolve to an activity
+        if (!m.isEmpty()) {
+            parseMaterials(builder, m);
+        }
+
+        // Read "e" parameter from arguments or defaults
+        final List<String> e = new ArrayList<>();
         if (arguments.getListArgument("e", EntityType.class).isPresent()) {
-            List<String> finalEntityTypes = new ArrayList<>();
-            arguments.getListArgument("e", EntityType.class).get().forEach(e -> {
-                finalEntityTypes.add(e.toString());
+            arguments.getListArgument("e", EntityType.class).get().forEach(entity -> {
+                e.add(entity.toString().toLowerCase(Locale.ENGLISH));
             });
+        } else if (configurationService.prismConfig().defaults().parameters().containsKey("e")) {
+            String entityString = configurationService.prismConfig().defaults().parameters().get("e");
+            Collections.addAll(e, entityString.split(","));
 
-            parseEntityTypes(builder, finalEntityTypes);
+            builder.defaultUsed("e:" + entityString);
         }
 
-        // p: parameter
-        if (arguments.getListArgument("p", String.class).isPresent()) {
-            List<String> playerNames = arguments.getListArgument("p", String.class).get();
+        // Attempt to resolve to an entity
+        if (!e.isEmpty()) {
+            parseEntityTypes(builder, e);
+        }
 
-            parsePlayers(builder, playerNames);
+        // Read "p" parameter from arguments or defaults
+        final List<String> p = new ArrayList<>();
+        if (arguments.getListArgument("p", Player.class).isPresent()) {
+            arguments.getListArgument("p", Player.class).get().forEach(player -> {
+                p.add(player.toString());
+            });
+        } else if (configurationService.prismConfig().defaults().parameters().containsKey("p")) {
+            String playerString = configurationService.prismConfig().defaults().parameters().get("p");
+            Collections.addAll(p, playerString.split(","));
+
+            builder.defaultUsed("p:" + playerString);
+        }
+
+        // Attempt to resolve to players
+        if (!p.isEmpty()) {
+            parsePlayers(builder, p);
         }
 
         // reversed: parameter
         if (arguments.getArgument("reversed", Boolean.class).isPresent()) {
             builder.reversed(arguments.getArgument("reversed", Boolean.class).get());
+        }
+
+        // Read "reversed" parameter from arguments or defaults
+        Boolean reversed = null;
+        if (arguments.getArgument("reversed", Boolean.class).isPresent()) {
+            reversed = arguments.getArgument("reversed", Boolean.class).get();
+        } else if (configurationService.prismConfig().defaults().parameters().containsKey("reversed")) {
+            reversed = configurationService.prismConfig()
+                .defaults().parameters().get("reversed").equalsIgnoreCase("true");
+
+            builder.defaultUsed("reversed:" + reversed);
+        }
+
+        // Attempt to resolve to a boolean
+        if (reversed != null) {
+            builder.reversed(reversed);
         }
 
         return Optional.of(builder);
@@ -330,8 +470,6 @@ public class QueryService {
             Coordinate chunkMax = LocationUtils.getChunkMaxCoordinate(chunk);
 
             builder.boundingCoordinates(chunkMin, chunkMax).worldUuid(referenceLocation.getWorld().getUID());
-        } else if (in.equalsIgnoreCase("world")) {
-            builder.worldUuid(referenceLocation.getWorld().getUID());
         }
     }
 
@@ -355,21 +493,6 @@ public class QueryService {
         for (String playerName : playerNames) {
             builder.playerName(playerName);
         }
-    }
-
-    /**
-     * Parse and apply the "radius" parameter to a query builder.
-     *
-     * @param builder The builder
-     * @param referenceLocation The reference location
-     * @param radius The radius
-     */
-    protected void parseRadius(ActivityQuery.ActivityQueryBuilder builder, Location referenceLocation, Integer radius) {
-        Coordinate minCoordinate = LocationUtils.getMinCoordinate(referenceLocation, radius);
-        Coordinate maxCoordinate = LocationUtils.getMaxCoordinate(referenceLocation, radius);
-
-        builder.boundingCoordinates(minCoordinate, maxCoordinate)
-            .worldUuid(referenceLocation.getWorld().getUID());
     }
 
     /**
@@ -404,7 +527,7 @@ public class QueryService {
      * @return The timestamp
      */
     public static Long parseTimestamp(String value) {
-        final Pattern pattern = Pattern.compile("([0-9]+)(s|h|m|d|w)");
+        final Pattern pattern = Pattern.compile("([0-9]+)([shmdw])");
         final Matcher matcher = pattern.matcher(value);
 
         final Calendar cal = Calendar.getInstance();

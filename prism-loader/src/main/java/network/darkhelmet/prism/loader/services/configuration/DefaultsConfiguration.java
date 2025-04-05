@@ -20,7 +20,9 @@
 
 package network.darkhelmet.prism.loader.services.configuration;
 
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import lombok.Getter;
 
@@ -39,9 +41,20 @@ public class DefaultsConfiguration {
             """)
     private Locale defaultLocale = Locale.US;
 
+    @Comment("Default parameters for lookups, rollbacks, restores. Leave empty for none.")
+    private Map<String, String> parameters = new LinkedHashMap<>();
+
     @Comment("Sets the default radius to use when searching for nearby activity.")
     private int nearRadius = 5;
 
     @Comment("Limits how many results are shown \"per page\" when doing lookups.")
     private int perPage = 10;
+
+    /**
+     * Constructor.
+     */
+    public DefaultsConfiguration() {
+        parameters.put("r", "32");
+        parameters.put("since", "3d");
+    }
 }
