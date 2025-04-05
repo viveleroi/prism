@@ -330,7 +330,7 @@ public class PrismBukkit implements IPrism {
                 return actionFamilies;
             });
 
-            // Register tags auto-suggest
+            // Register block tags auto-suggest
             commandManager.registerSuggestion(SuggestionKey.of("blocktags"), (sender, context) -> {
                 var blockTagWhitelistEnabled = configurationService.prismConfig().commands().blockTagWhitelistEnabled();
                 var blockTagWhitelist = configurationService.prismConfig().commands().blockTagWhitelist();
@@ -346,6 +346,29 @@ public class PrismBukkit implements IPrism {
 
                     if (blockTagWhitelist.isEmpty()
                             || !blockTagWhitelistEnabled || blockTagWhitelist.contains(tagString)) {
+                        tags.add(tagString);
+                    }
+                }
+
+                return tags;
+            });
+
+            // Register item tags auto-suggest
+            commandManager.registerSuggestion(SuggestionKey.of("itemtags"), (sender, context) -> {
+                var itemTagWhitelistEnabled = configurationService.prismConfig().commands().itemTagWhitelistEnabled();
+                var itemTagWhitelist = configurationService.prismConfig().commands().itemTagWhitelist();
+
+                List<String> tags = new ArrayList<>();
+                for (Tag<Material> tag : Bukkit.getTags("items", Material.class)) {
+                    var tagString = tag.getKey().toString();
+
+                    if (tagString.contains("minecraft:")
+                            && !configurationService.prismConfig().commands().allowMinecraftTags()) {
+                        continue;
+                    }
+
+                    if (itemTagWhitelist.isEmpty()
+                            || !itemTagWhitelistEnabled || itemTagWhitelist.contains(tagString)) {
                         tags.add(tagString);
                     }
                 }
@@ -384,6 +407,7 @@ public class PrismBukkit implements IPrism {
                 Argument.forString().name("bounds").build(),
                 Argument.listOf(String.class).name("a").suggestion(SuggestionKey.of("actions")).build(),
                 Argument.listOf(String.class).name("btag").suggestion(SuggestionKey.of("blocktags")).build(),
+                Argument.listOf(String.class).name("itag").suggestion(SuggestionKey.of("itemtags")).build(),
                 Argument.listOf(Material.class).name("m").build(),
                 Argument.listOf(EntityType.class).name("e").build(),
                 Argument.listOf(Player.class).name("p").build()

@@ -42,15 +42,30 @@ public class CommandsConfiguration {
     @Comment("""
             Enable the block tag whitelist. If disabled, values will be ignored.
             """)
-    private boolean blockTagWhitelistEnabled = true;
+    private boolean blockTagWhitelistEnabled = false;
 
     @Comment("""
             Define block tags allowed in the btag parameter (and auto-suggestions).
             These must include the tag namespace, e.g. `minecraft:dirt`, but can
             include any tag - even custom ones.
+            https://minecraft.wiki/w/Block_tag_(Java_Edition)
             Note: All Minecraft tags will be excluded if `allowMinecraftTags` is false.
             """)
     private List<String> blockTagWhitelist = new ArrayList<>();
+
+    @Comment("""
+            Enable the item tag whitelist. If disabled, values will be ignored.
+            """)
+    private boolean itemTagWhitelistEnabled = false;
+
+    @Comment("""
+            Define item tags allowed in the btag parameter (and auto-suggestions).
+            These must include the tag namespace, e.g. `minecraft:dirt`, but can
+            include any tag - even custom ones.
+            https://minecraft.wiki/w/Item_tag_(Java_Edition)
+            Note: All Minecraft tags will be excluded if `allowMinecraftTags` is false.
+            """)
+    private List<String> itemTagWhitelist = new ArrayList<>();
 
     /**
      * Constructor.
@@ -72,5 +87,26 @@ public class CommandsConfiguration {
         blockTagWhitelist.add("minecraft:mineable/shovel");
         blockTagWhitelist.add("minecraft:redstone_ores");
         blockTagWhitelist.add("prism:all_ores");
+
+        itemTagWhitelist.add("minecraft:axes");
+        itemTagWhitelist.add("minecraft:beacon_payment_item");
+        itemTagWhitelist.add("minecraft:bundles");
+        itemTagWhitelist.add("minecraft:chest_armor");
+        itemTagWhitelist.add("minecraft:coal_ores");
+        itemTagWhitelist.add("minecraft:copper_ores");
+        itemTagWhitelist.add("minecraft:diamond_ores");
+        itemTagWhitelist.add("minecraft:emerald_ores");
+        itemTagWhitelist.add("minecraft:foot_armor");
+        itemTagWhitelist.add("minecraft:gold_ores");
+        itemTagWhitelist.add("minecraft:head_armor");
+        itemTagWhitelist.add("minecraft:hoes");
+        itemTagWhitelist.add("minecraft:iron_ores");
+        itemTagWhitelist.add("minecraft:lapis_ores");
+        itemTagWhitelist.add("minecraft:leg_armor");
+        itemTagWhitelist.add("minecraft:pickaxes");
+        itemTagWhitelist.add("minecraft:redstone_ores");
+        itemTagWhitelist.add("minecraft:shovels");
+        itemTagWhitelist.add("prism:all_armor");
+        itemTagWhitelist.add("prism:all_ores");
     }
 }

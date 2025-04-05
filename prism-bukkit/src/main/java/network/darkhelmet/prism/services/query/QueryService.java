@@ -29,9 +29,11 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -356,15 +358,15 @@ public class QueryService {
         }
 
         // Read "m" parameter from arguments or defaults
-        final List<String> m = new ArrayList<>();
+        final Set<String> materials = new HashSet<>();
         if (arguments.getListArgument("m", Material.class).isPresent()) {
             arguments.getListArgument("m", Material.class).get().forEach(material -> {
-                m.add(material.toString().toLowerCase(Locale.ENGLISH));
+                materials.add(material.toString().toLowerCase(Locale.ENGLISH));
             });
         } else if (!arguments.hasFlag("nodefaults")
                 && configurationService.prismConfig().defaults().parameters().containsKey("m")) {
             String materialString = configurationService.prismConfig().defaults().parameters().get("m");
-            Collections.addAll(m, materialString.split(","));
+            Collections.addAll(materials, materialString.split(","));
 
             builder.defaultUsed("m:" + materialString);
         }
@@ -399,13 +401,48 @@ public class QueryService {
                 }
 
                 tag.getValues().forEach(material -> {
-                    m.add(material.toString().toLowerCase(Locale.ENGLISH));
+                    materials.add(material.toString().toLowerCase(Locale.ENGLISH));
                 });
             }
         }
 
-        if (!m.isEmpty()) {
-            builder.materials(m);
+        // Read "itag" parameter from arguments or defaults
+        final List<String> itemTags = new ArrayList<>();
+        if (arguments.getListArgument("itag", String.class).isPresent()) {
+            itemTags.addAll(arguments.getListArgument("itag", String.class).get());
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("itag")) {
+            String itemTagString = configurationService.prismConfig().defaults().parameters().get("itag");
+            Collections.addAll(blockTags, itemTagString.split(","));
+
+            builder.defaultUsed("itag:" + itemTagString);
+        }
+
+        // Attempt to resolve to item tags
+        if (!itemTags.isEmpty()) {
+            for (String itemTag : itemTags) {
+                var namespacedKey = NamespacedKey.fromString(itemTag);
+                if (namespacedKey == null) {
+                    messageService.errorParamInvalidNamespace(sender);
+
+                    return Optional.empty();
+                }
+
+                var tag = Bukkit.getTag("items", namespacedKey, Material.class);
+                if (tag == null) {
+                    messageService.errorParamInvalidItemTag(sender);
+
+                    return Optional.empty();
+                }
+
+                tag.getValues().forEach(material -> {
+                    materials.add(material.toString().toLowerCase(Locale.ENGLISH));
+                });
+            }
+        }
+
+        if (!materials.isEmpty()) {
+            builder.materials(materials);
         }
 
         // Read "e" parameter from arguments or defaults
