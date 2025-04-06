@@ -500,12 +500,9 @@ public class PrismBukkit implements IPrism {
     public void onDisable() {
         IRecordingService recordingService = injectorProvider.injector().getInstance(IRecordingService.class);
         if (!recordingService.queue().isEmpty()) {
-            loader().loggingService().logger().info(
-                "Blocking shut down to try to fully drain prism recording queue...");
-
-            recordingService.drainSync();
-
-            loader().loggingService().logger().info("Recording queue now empty.");
+            loader().loggingService().logger().warn(
+                String.format("Server is shutting down yet there are %d activities in the queue",
+                    recordingService.queue().size()));
         }
 
         if (storageAdapter != null) {
