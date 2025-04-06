@@ -116,4 +116,9 @@ public abstract class Action implements IAction {
     public IActionType type() {
         return type;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Action{type=%s,descriptor=%s}", type, descriptor);
+    }
 }

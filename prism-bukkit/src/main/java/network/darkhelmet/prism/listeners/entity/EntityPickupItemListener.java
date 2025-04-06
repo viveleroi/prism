@@ -65,7 +65,7 @@ public class EntityPickupItemListener extends AbstractListener implements Listen
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityPickupItem(final EntityPickupItemEvent event) {
         // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().itemDrop()) {
+        if (!configurationService.prismConfig().actions().itemPickup()) {
             return;
         }
 

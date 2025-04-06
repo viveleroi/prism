@@ -176,4 +176,9 @@ public class EntityAction extends Action implements IEntityAction {
             ModificationQueueMode mode) {
         return ModificationResult.builder().activity(activityContext).build();
     }
+
+    @Override
+    public String toString() {
+        return String.format("EntityAction{type=%s}", type);
+    }
 }

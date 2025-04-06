@@ -132,4 +132,9 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
             ModificationQueueMode mode) {
         return ModificationResult.builder().activity(activityContext).build();
     }
+
+    @Override
+    public String toString() {
+        return String.format("BlockAction{type=%s,material=%s,itemStack=%s}", type, material, itemStack);
+    }
 }

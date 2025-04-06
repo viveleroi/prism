@@ -54,6 +54,9 @@ public class PrismConfiguration {
     @Comment("Enable plugin debug mode. Produces extra logging to help diagnose issues.")
     private boolean debug = false;
 
+    @Comment("Enable filter debug mode. Logs details about every event and filter matching.")
+    private boolean debugFilters = false;
+
     private DefaultsConfiguration defaults = new DefaultsConfiguration();
 
     @Comment("""

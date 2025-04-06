@@ -101,4 +101,9 @@ public abstract class ActionType implements IActionType {
     public boolean reversible() {
         return reversible;
     }
+
+    @Override
+    public String toString() {
+        return String.format("ActionType{key=%s,resultType=%s,reversible=%s}", key, resultType, reversible);
+    }
 }

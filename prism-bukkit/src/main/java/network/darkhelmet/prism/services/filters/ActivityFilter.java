@@ -25,72 +25,110 @@ import java.util.List;
 import network.darkhelmet.prism.actions.MaterialAction;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.filters.FilterBehavior;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 
 public class ActivityFilter {
-    /**
-     * The behavior of this filter.
-     */
-    private FilterBehavior behavior;
-
-    /**
-     * All world UUIDs.
-     */
-    private final List<String> worldNames;
-
     /**
      * Actions.
      */
     private final List<String> actions;
 
     /**
-     * The material tag.
+     * The behavior of this filter.
+     */
+    private final FilterBehavior behavior;
+
+    /**
+     * The material tags (materials, block-tags, item-tags).
      */
     private final List<Tag<Material>> materialTags;
+
+    /**
+     * All permissions.
+     */
+    private final List<String> permissions;
+
+    /**
+     * All world names.
+     */
+    private final List<String> worldNames;
 
     /**
      * Construct a new activity filter.
      *
      * @param behavior The behavior
-     * @param worldNames The world names
      * @param actions The actions
      * @param materialTags The material tags
+     * @param permissions The permissions
+     * @param worldNames The world names
      */
     public ActivityFilter(
             FilterBehavior behavior,
-            List<String> worldNames,
             List<String> actions,
-            List<Tag<Material>> materialTags) {
-        this.behavior = behavior;
-        this.worldNames = worldNames;
+            List<Tag<Material>> materialTags,
+            List<String> permissions,
+            List<String> worldNames) {
         this.actions = actions;
+        this.behavior = behavior;
+        this.permissions = permissions;
         this.materialTags = materialTags;
+        this.worldNames = worldNames;
     }
 
     /**
      * Check if this filter allows the activity.
      *
      * @param activity The activity
+     * @param loggingService The logging service
+     * @param debug Whether filters are in debug mode
      * @return True if the filter allows it
      */
-    public boolean allows(IActivity activity) {
-        boolean actionMatched = actionsMatch(activity);
-        boolean worldMatched = worldsMatch(activity);
-        boolean materialMatched = materialsMatched(activity);
-
-        // If this filter exists we're guaranteed to require matches.
-        // The filter can be either "ALLOW" or "IGNORE" but not both.
-        // If any of the criteria are empty, they automatically match.
-        // If any criteria were set, we compare against the activity for a match.
-        if (allowing()) {
-            // If ALLOW mode, all filters must match to approve this
-            return worldMatched && actionMatched && materialMatched;
-        } else {
-            // If IGNORE mode, we *reject* this if all filters match
-            return !(worldMatched && actionMatched && materialMatched);
+    public boolean shouldRecord(IActivity activity, LoggingService loggingService, boolean debug) {
+        if (debug) {
+            loggingService.debug("Filter Check for Activity: %s", activity);
+            loggingService.debug("Behavior: %s", behavior);
         }
+
+        var actionResult = actionsMatch(activity);
+        if (debug) {
+            loggingService.debug("Action result: %s", actionResult);
+        }
+
+        var materialsResult = materialsMatched(activity);
+        if (debug) {
+            loggingService.debug("Materials result: %s", materialsResult);
+        }
+
+        var permissionResult = permissionsMatch(activity);
+        if (debug) {
+            loggingService.debug("Permission result: %s", permissionResult);
+        }
+
+        var worldsResult = worldsMatch(activity);
+        if (debug) {
+            loggingService.debug("Worlds result: %s", worldsResult);
+        }
+
+        var finalDecision = true;
+
+        if (!actionResult.equals(ConditionResult.NOT_MATCHED)
+            && !materialsResult.equals(ConditionResult.NOT_MATCHED)
+            && !permissionResult.equals(ConditionResult.NOT_MATCHED)
+            && !worldsResult.equals(ConditionResult.NOT_MATCHED)) {
+            finalDecision = allowing();
+        } else {
+            finalDecision = ignoring();
+        }
+
+        if (debug) {
+            loggingService.debug("Final decision: %s", finalDecision);
+        }
+
+        return finalDecision;
     }
 
     /**
@@ -112,27 +150,23 @@ public class ActivityFilter {
     }
 
     /**
-     * Check if any worlds match the activity.
-     *
-     * <p>If none listed, the filter will match all.</p>
-     *
-     * @param activity The activity
-     * @return True if world name matched
-     */
-    private boolean worldsMatch(IActivity activity) {
-        return worldNames.isEmpty() || worldNames.contains(activity.location().world().name());
-    }
-
-    /**
      * Check if any actions match the activity action.
      *
      * <p>If none listed, the filter will match all.</p>
      *
      * @param activity The activity
-     * @return True if action key matches
+     * @return ConditionResult
      */
-    private boolean actionsMatch(IActivity activity) {
-        return actions.isEmpty() || actions.contains(activity.action().type().key());
+    private ConditionResult actionsMatch(IActivity activity) {
+        if (actions.isEmpty()) {
+            return ConditionResult.NOT_APPLICABLE;
+        }
+
+        if (actions.contains(activity.action().type().key())) {
+            return ConditionResult.MATCHED;
+        }
+
+        return ConditionResult.NOT_MATCHED;
     }
 
     /**
@@ -141,24 +175,72 @@ public class ActivityFilter {
      * <p>If none listed, the filter will match all. Ignores non-material actions.</p>
      *
      * @param activity The activity
-     * @return True if action material matches
+     * @return ConditionResult
      */
-    private boolean materialsMatched(IActivity activity) {
+    private ConditionResult materialsMatched(IActivity activity) {
         if (materialTags.isEmpty()) {
-            return true;
+            return ConditionResult.NOT_APPLICABLE;
         }
 
         if (activity.action() instanceof MaterialAction materialAction) {
             for (Tag<Material> materialTag : materialTags) {
-                System.out.println("comparing tag " + materialTag.getKey() + " to " + materialAction.material());
                 if (materialTag.isTagged(materialAction.material())) {
-                    return true;
+                    return ConditionResult.MATCHED;
                 }
             }
 
-            return false;
+            return ConditionResult.NOT_MATCHED;
         } else {
-            return true;
+            return ConditionResult.NOT_APPLICABLE;
         }
+    }
+
+    /**
+     * Check if any permissions match a player in the activity.
+     *
+     * <p>If none listed, the filter will match all.</p>
+     *
+     * @param activity The activity
+     * @return ConditionResult
+     */
+    private ConditionResult permissionsMatch(IActivity activity) {
+        if (permissions.isEmpty()) {
+            return ConditionResult.NOT_APPLICABLE;
+        }
+
+        var playerIdentity = activity.player();
+
+        if (playerIdentity != null) {
+            var player = Bukkit.getServer().getPlayer(playerIdentity.uuid());
+            if (player != null) {
+                for (String permission : permissions) {
+                    if (player.hasPermission(permission)) {
+                        return ConditionResult.MATCHED;
+                    }
+                }
+            }
+        }
+
+        return ConditionResult.NOT_MATCHED;
+    }
+
+    /**
+     * Check if any worlds match the activity.
+     *
+     * <p>If none listed, the filter will match all.</p>
+     *
+     * @param activity The activity
+     * @return ConditionResult
+     */
+    private ConditionResult worldsMatch(IActivity activity) {
+        if (worldNames.isEmpty()) {
+            return ConditionResult.NOT_APPLICABLE;
+        }
+
+        if (worldNames.contains(activity.location().world().name())) {
+            return ConditionResult.MATCHED;
+        }
+
+        return ConditionResult.NOT_MATCHED;
     }
 }

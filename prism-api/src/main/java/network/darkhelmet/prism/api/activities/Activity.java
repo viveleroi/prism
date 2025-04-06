@@ -76,6 +76,12 @@ public final class Activity extends AbstractActivity implements ISingleActivity 
         this.primaryKey = primaryKey;
     }
 
+    @Override
+    public String toString() {
+        return String.format("Activity{action=%s,cause=%s,player=%s,location=%s,timestamp=%s}",
+            action, cause, player == null ? "null" : player.name(), location, timestamp);
+    }
+
     public static class ActivityBuilder {
         /**
          * Set the location.

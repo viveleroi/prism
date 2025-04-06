@@ -86,13 +86,18 @@ public class FilterService implements IFilterService {
                 continue;
             }
 
+            boolean conditionExists = false;
+
             // Worlds
             // Note: Worlds may not be loaded here and users type world names so we'll
             // just rely on the name for comparison. No need for UUIDs otherwise we'd need
             // to monitor world load/unload events.
             // Unfortunately that also means we can't error when an invalid world is configured.
             List<String> worldNames = config.worlds();
-            boolean conditionExists = !config.worlds().isEmpty();
+
+            if (!worldNames.isEmpty() || !config.permissions().isEmpty() || !config.actions().isEmpty()) {
+                conditionExists = true;
+            }
 
             var materialTags = new ArrayList<Tag<Material>>();
 
@@ -146,7 +151,12 @@ public class FilterService implements IFilterService {
             }
 
             if (conditionExists) {
-                filters.add(new ActivityFilter(config.behavior(), worldNames, config.actions(), materialTags));
+                filters.add(new ActivityFilter(
+                    config.behavior(),
+                    config.actions(),
+                    materialTags,
+                    config.permissions(),
+                    worldNames));
             } else {
                 loggingService.logger().warn("Filter error: Not enough conditions");
             }
@@ -162,7 +172,7 @@ public class FilterService implements IFilterService {
     public boolean allows(IActivity activity) {
         for (ActivityFilter filter : filters) {
             // If any filter rejects this activity... fatality!
-            if (!filter.allows(activity)) {
+            if (!filter.shouldRecord(activity, loggingService, configurationService.prismConfig().debugFilters())) {
                 return false;
             }
         }

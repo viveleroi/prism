@@ -272,4 +272,10 @@ public class BlockAction extends MaterialAction implements IBlockAction {
 
         return new BlockStateChange(oldState, block.getState());
     }
+
+    @Override
+    public String toString() {
+        return String.format("BlockAction{type=%s,material=%s,blockData=%s,replacedMaterial=%s,replacedBlockData=%s}",
+            type, material, blockData, replacedMaterial, replacedBlockData);
+    }
 }

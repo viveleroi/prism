@@ -58,6 +58,11 @@ public class FilterConfiguartion {
     private List<String> itemTags = new ArrayList<>();
 
     /**
+     * Permissions.
+     */
+    private List<String> permissions = new ArrayList<>();
+
+    /**
      * Worlds.
      */
     private List<String> worlds = new ArrayList<>();
