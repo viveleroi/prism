@@ -20,7 +20,8 @@
 
 package network.darkhelmet.prism.actions.types;
 
-import de.tr7zw.changeme.nbtapi.NBTContainer;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 
 import network.darkhelmet.prism.actions.EntityAction;
 import network.darkhelmet.prism.api.actions.ActionData;
@@ -44,13 +45,13 @@ public class EntityActionType extends ActionType {
 
     @Override
     public IAction createAction(ActionData actionData) {
-        NBTContainer container = new NBTContainer();
+        ReadWriteNBT readWriteNbt = null;
         if (actionData.customData() != null && actionData.customDataVersion() > 0) {
-            container = new NBTContainer(actionData.customData());
+            readWriteNbt = NBT.parseNBT(actionData.customData());
         }
 
         EntityType type = EntityType.valueOf(actionData.entityType());
 
-        return new EntityAction(this, type, container, actionData.descriptor());
+        return new EntityAction(this, type, readWriteNbt, actionData.descriptor());
     }
 }

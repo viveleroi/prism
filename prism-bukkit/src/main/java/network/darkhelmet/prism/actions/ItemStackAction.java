@@ -20,8 +20,8 @@
 
 package network.darkhelmet.prism.actions;
 
-import de.tr7zw.changeme.nbtapi.NBTContainer;
-import de.tr7zw.changeme.nbtapi.NBTItem;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 
 import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.IItemAction;
@@ -49,12 +49,13 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
     private final ItemStack itemStack;
 
     /**
-     * The nbt container.
+     * The read/write nbt.
      */
-    private final NBTContainer nbtContainer;
+    private final ReadWriteNBT readWriteNbt;
 
     /**
      * Construct a new item stack action.
+     *
      * @param type The action type
      * @param itemStack The item stack
      */
@@ -78,17 +79,17 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
         super(type, itemStack.getType(), descriptor);
 
         this.itemStack = itemStack;
-        this.nbtContainer = NBTItem.convertItemtoNBT(itemStack);
+        this.readWriteNbt = NBT.itemStackToNBT(itemStack);
     }
 
     @Override
     public boolean hasCustomData() {
-        return this.nbtContainer != null;
+        return this.readWriteNbt != null;
     }
 
     @Override
     public @Nullable String serializeCustomData() {
-        return nbtContainer.toString();
+        return readWriteNbt.toString();
     }
 
     @Override

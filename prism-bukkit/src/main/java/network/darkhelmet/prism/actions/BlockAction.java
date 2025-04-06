@@ -20,8 +20,8 @@
 
 package network.darkhelmet.prism.actions;
 
-import de.tr7zw.changeme.nbtapi.NBTContainer;
-import de.tr7zw.changeme.nbtapi.NBTTileEntity;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 
 import java.util.Locale;
 
@@ -54,9 +54,9 @@ public class BlockAction extends MaterialAction implements IBlockAction {
     private final BlockData blockData;
 
     /**
-     * The nbt container.
+     * The read/write nbt.
      */
-    private final NBTContainer nbtContainer;
+    private final ReadWriteNBT readWriteNbt;
 
     /**
      * The replaced material.
@@ -81,10 +81,10 @@ public class BlockAction extends MaterialAction implements IBlockAction {
         // Set new block data
         this.blockData = blockState.getBlockData();
         if (blockState instanceof TileState) {
-            NBTTileEntity nbtTe = new NBTTileEntity(blockState);
-            this.nbtContainer = new NBTContainer(nbtTe.getCompound());
+            readWriteNbt = NBT.createNBTObject();
+            NBT.get(blockState, readWriteNbt::mergeCompound);
         } else {
-            this.nbtContainer = null;
+            this.readWriteNbt = null;
         }
 
         // Set old block data
@@ -109,7 +109,7 @@ public class BlockAction extends MaterialAction implements IBlockAction {
 
         // Set new block data
         this.blockData = blockData;
-        this.nbtContainer = null;
+        this.readWriteNbt = null;
 
         // Set old block data
         if (replacedBlockData != null) {
@@ -135,14 +135,14 @@ public class BlockAction extends MaterialAction implements IBlockAction {
             ActionType type,
             Material material,
             BlockData blockData,
-            NBTContainer teData,
+            ReadWriteNBT teData,
             Material replacedMaterial,
             BlockData replacedBlockData,
             String descriptor) {
         super(type, material, descriptor);
 
         this.blockData = blockData;
-        this.nbtContainer = teData;
+        this.readWriteNbt = teData;
         this.replacedMaterial = replacedMaterial;
         this.replacedBlockData = replacedBlockData;
     }
@@ -154,13 +154,13 @@ public class BlockAction extends MaterialAction implements IBlockAction {
 
     @Override
     public boolean hasCustomData() {
-        return this.nbtContainer != null;
+        return this.readWriteNbt != null;
     }
 
     @Override
     public @Nullable String serializeCustomData() {
-        if (this.nbtContainer != null) {
-            return this.nbtContainer.toString();
+        if (this.readWriteNbt != null) {
+            return this.readWriteNbt.toString();
         }
 
         return null;
@@ -202,7 +202,7 @@ public class BlockAction extends MaterialAction implements IBlockAction {
         StateChange<BlockState> stateChange = null;
         if (type().resultType().equals(ActionResultType.REMOVES)) {
             // If the action type removes a block, rollback means we re-set it
-            stateChange = setBlock(activityContext.location(), blockData, nbtContainer, owner, mode);
+            stateChange = setBlock(activityContext.location(), blockData, readWriteNbt, owner, mode);
         } else if (type().resultType().equals(ActionResultType.CREATES)) {
             // If the action type creates a block, rollback means we remove it
             stateChange = setBlock(
@@ -231,7 +231,7 @@ public class BlockAction extends MaterialAction implements IBlockAction {
         StateChange<BlockState> stateChange = null;
         if (type().resultType().equals(ActionResultType.CREATES)) {
             // If the action type creates a block, restore means we re-set it
-            stateChange = setBlock(activityContext.location(), blockData, nbtContainer, owner, mode);
+            stateChange = setBlock(activityContext.location(), blockData, readWriteNbt, owner, mode);
         } else if (type().resultType().equals(ActionResultType.REMOVES)) {
             // If the action type removes a block, restore means we remove it again
             stateChange = setBlock(
@@ -248,7 +248,7 @@ public class BlockAction extends MaterialAction implements IBlockAction {
     protected StateChange<BlockState> setBlock(
         WorldCoordinate coordinate,
         BlockData newBlockData,
-        NBTContainer newNbtContainer,
+        ReadWriteNBT readWriteNbt,
         Object owner,
         ModificationQueueMode mode
     ) {
@@ -266,8 +266,10 @@ public class BlockAction extends MaterialAction implements IBlockAction {
         }
 
         // Set NBT
-        if (mode.equals(ModificationQueueMode.COMPLETING) && newNbtContainer != null) {
-            new NBTTileEntity(block.getState()).mergeCompound(newNbtContainer);
+        if (mode.equals(ModificationQueueMode.COMPLETING) && readWriteNbt != null) {
+            NBT.modify(block.getState(), nbt -> {
+                nbt.mergeCompound(readWriteNbt);
+            });
         }
 
         return new BlockStateChange(oldState, block.getState());

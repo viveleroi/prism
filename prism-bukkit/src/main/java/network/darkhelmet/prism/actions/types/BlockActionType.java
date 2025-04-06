@@ -20,7 +20,8 @@
 
 package network.darkhelmet.prism.actions.types;
 
-import de.tr7zw.changeme.nbtapi.NBTContainer;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 
 import java.util.Locale;
 
@@ -59,9 +60,9 @@ public class BlockActionType extends ActionType {
             blockData = Bukkit.createBlockData(replacedBlockDataStr);
         }
 
-        NBTContainer nbtContainer = null;
+        ReadWriteNBT readWriteNbt = null;
         if (actionData.customData() != null && actionData.customDataVersion() > 0) {
-            nbtContainer = new NBTContainer(actionData.customData());
+            readWriteNbt = NBT.parseNBT(actionData.customData());
         }
 
         BlockData replacedBlockData = null;
@@ -82,6 +83,6 @@ public class BlockActionType extends ActionType {
         }
 
         return new BlockAction(
-            this, material, blockData, nbtContainer, replaced, replacedBlockData, actionData.descriptor());
+            this, material, blockData, readWriteNbt, replaced, replacedBlockData, actionData.descriptor());
     }
 }

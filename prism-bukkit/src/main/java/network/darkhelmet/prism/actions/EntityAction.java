@@ -20,8 +20,8 @@
 
 package network.darkhelmet.prism.actions;
 
-import de.tr7zw.changeme.nbtapi.NBTContainer;
-import de.tr7zw.changeme.nbtapi.NBTEntity;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 
 import java.util.Locale;
 import java.util.UUID;
@@ -46,9 +46,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class EntityAction extends Action implements IEntityAction {
     /**
-     * The nbt container.
+     * The read/write nbt.
      */
-    private final NBTContainer nbtContainer;
+    private final ReadWriteNBT readWriteNbt;
 
     /**
      * The entity type.
@@ -65,7 +65,9 @@ public class EntityAction extends Action implements IEntityAction {
         super(type);
 
         this.entityType = entity.getType();
-        this.nbtContainer = new NBTContainer(new NBTEntity(entity).getCompound().toString());
+
+        readWriteNbt = NBT.createNBTObject();
+        NBT.get(entity, readWriteNbt::mergeCompound);
 
         // Strip some data we don't want to track/rollback.
         String[] rejects = {
@@ -79,8 +81,9 @@ public class EntityAction extends Action implements IEntityAction {
             "WorldUUIDLeast",
             "WorldUUIDMost"
         };
+
         for (String reject : rejects) {
-            nbtContainer.removeKey(reject);
+            readWriteNbt.removeKey(reject);
         }
 
         if (entity instanceof Boat boat) {
@@ -96,14 +99,14 @@ public class EntityAction extends Action implements IEntityAction {
      *
      * @param type The action type
      * @param entityType The entity type
-     * @param container The nbt container
+     * @param readWriteNbt The read/write nbt
      * @param descriptor The descriptor
      */
-    public EntityAction(IActionType type, EntityType entityType, NBTContainer container, String descriptor) {
+    public EntityAction(IActionType type, EntityType entityType, ReadWriteNBT readWriteNbt, String descriptor) {
         super(type, descriptor, null);
 
         this.entityType = entityType;
-        this.nbtContainer = container;
+        this.readWriteNbt = readWriteNbt;
     }
 
     @Override
@@ -113,12 +116,12 @@ public class EntityAction extends Action implements IEntityAction {
 
     @Override
     public boolean hasCustomData() {
-        return this.nbtContainer != null;
+        return this.readWriteNbt != null;
     }
 
     @Override
     public @Nullable String serializeCustomData() {
-        return nbtContainer.toString();
+        return readWriteNbt.toString();
     }
 
     @Override
@@ -142,13 +145,16 @@ public class EntityAction extends Action implements IEntityAction {
             if (entityType.getEntityClass() != null) {
                 Location loc = LocationUtils.worldCoordToLocation(coordinate);
 
-                world.spawn(loc, entityType.getEntityClass(), entity ->
-                    new NBTEntity(entity).mergeCompound(nbtContainer));
+                world.spawn(loc, entityType.getEntityClass(), entity -> {
+                    NBT.modify(entity, nbt -> {
+                        nbt.mergeCompound(readWriteNbt);
+                    });
+                });
 
                 return ModificationResult.builder().activity(activityContext).applied().build();
             }
         } else {
-            UUID uuid = nbtContainer.getUUID("UUID");
+            UUID uuid = readWriteNbt.getUUID("UUID");
             if (uuid != null) {
                 Entity entity = world.getEntity(uuid);
                 if (entity != null) {
@@ -157,7 +163,9 @@ public class EntityAction extends Action implements IEntityAction {
 
                         return ModificationResult.builder().activity(activityContext).applied().build();
                     } else if (type().resultType().equals(ActionResultType.REPLACES)) {
-                        new NBTEntity(entity).mergeCompound(nbtContainer);
+                        NBT.modify(entity, nbt -> {
+                            nbt.mergeCompound(readWriteNbt);
+                        });
 
                         return ModificationResult.builder().activity(activityContext).applied().build();
                     }

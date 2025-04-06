@@ -20,8 +20,7 @@
 
 package network.darkhelmet.prism.actions.types;
 
-import de.tr7zw.changeme.nbtapi.NBTContainer;
-import de.tr7zw.changeme.nbtapi.NBTItem;
+import de.tr7zw.changeme.nbtapi.NBT;
 
 import network.darkhelmet.prism.actions.ItemStackAction;
 import network.darkhelmet.prism.api.actions.ActionData;
@@ -48,8 +47,7 @@ public class ItemActionType extends ActionType {
     public IAction createAction(ActionData actionData) {
         ItemStack itemStack;
         if (actionData.customData() != null && actionData.customDataVersion() > 0) {
-            NBTContainer container = new NBTContainer(actionData.customData());
-            itemStack = NBTItem.convertNBTtoItem(container);
+            itemStack = NBT.itemStackFromNBT(NBT.parseNBT(actionData.customData()));
         } else {
             Material material = Material.valueOf(actionData.material());
             itemStack = new ItemStack(material);
