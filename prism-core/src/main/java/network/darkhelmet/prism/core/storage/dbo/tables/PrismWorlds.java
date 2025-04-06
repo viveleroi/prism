@@ -85,7 +85,7 @@ public class PrismWorlds extends TableImpl<PrismWorldsRecord> {
      */
     public final TableField<PrismWorldsRecord, String> WORLD_UUID = createField(
         DSL.name("world_uuid"),
-        SQLDataType.VARCHAR(36).nullable(false),
+        SQLDataType.CHAR(36).nullable(false),
         this,
         "");
 

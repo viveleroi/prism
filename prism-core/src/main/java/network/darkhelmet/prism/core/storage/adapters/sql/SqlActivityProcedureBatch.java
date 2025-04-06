@@ -22,8 +22,8 @@ package network.darkhelmet.prism.core.storage.adapters.sql;
 
 import com.zaxxer.hikari.HikariDataSource;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
@@ -34,7 +34,6 @@ import network.darkhelmet.prism.api.actions.IMaterialAction;
 import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.storage.IActivityBatch;
 import network.darkhelmet.prism.api.util.NamedIdentity;
-import network.darkhelmet.prism.core.utils.TypeUtils;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 public class SqlActivityProcedureBatch implements IActivityBatch {
@@ -61,7 +60,7 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
     /**
      * The statement.
      */
-    private PreparedStatement statement;
+    private CallableStatement statement;
 
     /**
      * Construct a new batch handler.
@@ -82,7 +81,7 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
         connection = hikariDataSource.getConnection();
 
         statement = connection.prepareCall(
-            "{ CALL createActivity(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
+            "{ CALL createActivity(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
     }
 
     @Override
@@ -95,11 +94,9 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
 
         // Cause/player
         if (activity.player() != null) {
-            String uuidStr = TypeUtils.uuidToDbString(activity.player().uuid());
-
             statement.setNull(6, Types.VARCHAR);
             statement.setString(7, activity.player().name());
-            statement.setString(8, uuidStr);
+            statement.setString(8, activity.player().uuid().toString());
         } else {
             if (activity.cause() != null) {
                 statement.setString(6, activity.cause());
@@ -143,9 +140,8 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
 
         // World
         NamedIdentity world = activity.location().world();
-        String uuidStr = TypeUtils.uuidToDbString(world.uuid());
         statement.setString(14, world.name());
-        statement.setString(15, uuidStr);
+        statement.setString(15, world.uuid().toString());
 
         // Custom data
         if (activity.action() instanceof ICustomData) {

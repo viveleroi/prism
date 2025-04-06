@@ -1,1 +1,0 @@
-EXPLAIN SELECT cause_id FROM prism_causes WHERE player_id = 1;

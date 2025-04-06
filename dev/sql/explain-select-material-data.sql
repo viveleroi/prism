@@ -1,1 +1,0 @@
-EXPLAIN SELECT material_id FROM prism_materials WHERE material = "grass_block" AND data = "[snowy=false]";

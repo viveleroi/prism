@@ -141,9 +141,12 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
 
                 List<String> grants = create.fetch("SHOW GRANTS FOR CURRENT_USER();").into(String.class);
                 boolean canCreateRoutines = grants.get(0).contains("CREATE ROUTINE");
+                loggingService.logger().info(String.format("supports procedures: %b", supportsProcedures));
                 loggingService.logger().info(String.format("can create routines: %b", canCreateRoutines));
+                loggingService.logger().info(String.format("using stored procedures: %b", canCreateRoutines
+                    && configurationService.storageConfig().mysql().useStoredProcedures()));
 
-                if (supportsProcedures || !canCreateRoutines) {
+                if (!supportsProcedures || !canCreateRoutines) {
                     configurationService.storageConfig().mysql().disallowStoredProcedures();
                 }
             }
@@ -155,6 +158,12 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
 
             long innodbSizeMb = Long.parseLong(dbVars.get("innodb_buffer_pool_size")) / 1024 / 1024;
             loggingService.logger().info(String.format("innodb_buffer_pool_size: %d", innodbSizeMb));
+            if (innodbSizeMb < 1024) {
+                loggingService.logger().info("We recommend setting a higher innodb_buffer_pool_size.");
+                loggingService.logger().info(
+                    "See: https://prism.readthedocs.io/en/latest/purges.html#purges-and-databases");
+            }
+
             loggingService.logger().info(String.format("sql_mode: %s", dbVars.get("sql_mode")));
 
             if (!usingHikariProperties) {
@@ -261,10 +270,10 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
                     + "(IN `playerName` VARCHAR(16), IN `uuid` VARCHAR(55), OUT `playerId` INT) "
                     + "BEGIN "
                     + "    SELECT player_id INTO `playerId` FROM "
-                    + prefix + "players WHERE player_uuid = UNHEX(`uuid`); "
+                    + prefix + "players WHERE player_uuid = `uuid`; "
                     + "    IF `playerId` IS NULL THEN "
                     + "        INSERT INTO " + prefix + "players (`player`, `player_uuid`) "
-                    + "        VALUES (`playerName`, UNHEX(`uuid`)); "
+                    + "        VALUES (`playerName`, `uuid`); "
                     + "        SET `playerId` = LAST_INSERT_ID(); "
                     + "    END IF; "
                     + "END";
@@ -279,10 +288,10 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
                     + "(IN `worldName` VARCHAR(255), IN `uuid` VARCHAR(55), OUT `worldId` TINYINT) "
                     + "BEGIN "
                     + "    SELECT world_id INTO `worldId` FROM "
-                    + prefix + "worlds WHERE world_uuid = UNHEX(`uuid`); "
+                    + prefix + "worlds WHERE world_uuid = `uuid`; "
                     + "    IF `worldId` IS NULL THEN "
                     + "        INSERT INTO " + prefix + "worlds (`world`, `world_uuid`) "
-                    + "             VALUES (`worldName`, UNHEX(`uuid`)); "
+                    + "             VALUES (`worldName`, `uuid`); "
                     + "        SET `worldId` = LAST_INSERT_ID(); "
                     + "    END IF; "
                     + "END";
@@ -301,19 +310,19 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
                     + "IN `action` VARCHAR(25),"
                     + "IN `cause` VARCHAR(25),"
                     + "IN `player` VARCHAR(16),"
-                    + "IN `playerUuid` VARCHAR(55),"
+                    + "IN `playerUuid` CHAR(36),"
                     + "IN `entityType` VARCHAR(25),"
                     + "IN `material` VARCHAR(45),"
                     + "IN `blockData` VARCHAR(155),"
                     + "IN `oldMaterial` VARCHAR(45),"
                     + "IN `oldBlockData` VARCHAR(155),"
                     + "IN `world` VARCHAR(255),"
-                    + "IN `worldUuid` VARCHAR(55),"
+                    + "IN `worldUuid` CHAR(36),"
                     + "IN `customDataVersion` SMALLINT,"
                     + "IN `customData` TEXT,"
                     + "IN `descriptor` VARCHAR(255),"
-                    + "IN `metadata` VARCHAR(255),"
-                    + "OUT `activityId` INT) "
+                    + "IN `metadata` VARCHAR(255)"
+                    + ") "
                     + "BEGIN "
                     + "    SET @entityId = NULL;"
                     + "    SET @materialId = NULL;"
@@ -340,10 +349,10 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
                     + "    VALUES "
                     + "    (`timestamp`, @worldId, `x`, `y`, `z`, @actionId, @materialId, "
                     + "    @oldMaterialId, @entityId, @causeId, `descriptor`, `metadata`); "
-                    + "    SET `activityId` = LAST_INSERT_ID(); "
+                    + "    SET @activityId = LAST_INSERT_ID(); "
                     + "    IF `customData` IS NOT NULL THEN "
                     + "        INSERT INTO `" + prefix + "activities_custom_data` (`activity_id`, `version`, `data`) "
-                    + "        VALUES (`activityId`, `customDataVersion`, `customData`); "
+                    + "        VALUES (@activityId, `customDataVersion`, `customData`); "
                     + "    END IF; "
                     + "END";
                 stmt.execute(activityProcedure);
