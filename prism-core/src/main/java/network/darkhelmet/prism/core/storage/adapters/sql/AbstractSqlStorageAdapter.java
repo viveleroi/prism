@@ -355,7 +355,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
         } else {
             // Insert the schema version
             create.insertInto(PRISM_META, PRISM_META.K, PRISM_META.V)
-                .values("schema_ver", "v4")
+                .values("schema_ver", "400")
                 .execute();
         }
 
