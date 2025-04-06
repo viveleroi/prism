@@ -85,7 +85,7 @@ public class EntityAction extends Action implements IEntityAction {
             readWriteNbt.removeKey(reject);
         }
 
-        this.descriptor += entityType.toString().toLowerCase(Locale.ENGLISH).replace("_", " ");
+        this.descriptor = entityType.toString().toLowerCase(Locale.ENGLISH).replace("_", " ");
     }
 
     /**
