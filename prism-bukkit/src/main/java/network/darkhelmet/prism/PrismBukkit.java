@@ -20,6 +20,8 @@
 
 package network.darkhelmet.prism;
 
+import de.tr7zw.changeme.nbtapi.utils.DataFixerUtil;
+
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.core.argument.keyed.Argument;
@@ -54,7 +56,6 @@ import network.darkhelmet.prism.commands.ReloadCommand;
 import network.darkhelmet.prism.commands.RestoreCommand;
 import network.darkhelmet.prism.commands.RollbackCommand;
 import network.darkhelmet.prism.commands.WandCommand;
-import network.darkhelmet.prism.core.utils.VersionUtils;
 import network.darkhelmet.prism.listeners.block.BlockBreakListener;
 import network.darkhelmet.prism.listeners.block.BlockBurnListener;
 import network.darkhelmet.prism.listeners.block.BlockDispenseListener;
@@ -145,7 +146,7 @@ public class PrismBukkit implements IPrism {
      * Sets a numeric version we can use to handle differences between serialization formats.
      */
     @Getter
-    protected short serializerVersion;
+    protected int serializerVersion;
 
     /**
      * The storage adapter.
@@ -199,8 +200,7 @@ public class PrismBukkit implements IPrism {
         );
         dependencyService.loadAllDependencies(platformDependencies());
 
-        Short serializerVer = VersionUtils.minecraftVersion(Bukkit.getVersion());
-        serializerVersion = serializerVer != null ? serializerVer : -1;
+        serializerVersion = DataFixerUtil.getCurrentVersion();
         bootstrap.loggingService().logger().info(String.format("Serializer version: %d", serializerVersion));
 
         injectorProvider = new InjectorProvider(this, bootstrap.loggingService());

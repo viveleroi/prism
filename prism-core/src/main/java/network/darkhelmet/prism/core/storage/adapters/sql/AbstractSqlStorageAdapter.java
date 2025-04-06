@@ -140,7 +140,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
     /**
      * The serializer version.
      */
-    protected final short serializerVersion;
+    protected final int serializerVersion;
 
     /**
      * The logging service.
@@ -216,7 +216,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
             SqlSchemaUpdater schemaUpdater,
             ISqlActivityQueryBuilderFactory queryBuilderFactory,
             CacheService cacheService,
-            @Named("serializerVersion") short serializerVersion) {
+            @Named("serializerVersion") int serializerVersion) {
         this.loggingService = loggingService;
         this.configurationService = configurationService;
         this.actionRegistry = actionRegistry;

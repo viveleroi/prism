@@ -51,7 +51,7 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
     /**
      * The serializer version.
      */
-    private final short serializerVersion;
+    private final int serializerVersion;
 
     /**
      * The connection.
@@ -71,7 +71,7 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
     public SqlActivityProcedureBatch(
             LoggingService loggingService,
             HikariDataSource hikariDataSource,
-            short serializerVersion) {
+            int serializerVersion) {
         this.loggingService = loggingService;
         this.hikariDataSource = hikariDataSource;
         this.serializerVersion = serializerVersion;
@@ -149,7 +149,7 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
 
         // Custom data
         if (activity.action() instanceof ICustomData) {
-            statement.setShort(16, serializerVersion);
+            statement.setInt(16, serializerVersion);
 
             String customData = ((ICustomData) activity.action()).serializeCustomData();
             statement.setString(17, customData);

@@ -58,7 +58,7 @@ public class H2StorageAdapter extends AbstractSqlStorageAdapter {
             SqlSchemaUpdater schemaUpdater,
             IH2ActivityQueryBuilderFactory queryBuilderFactory,
             CacheService cacheService,
-            @Named("serializerVersion") short serializerVersion,
+            @Named("serializerVersion") int serializerVersion,
             Path dataPath) {
         super(
             loggingService,

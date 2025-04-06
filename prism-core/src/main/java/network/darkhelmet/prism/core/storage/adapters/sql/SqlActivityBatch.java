@@ -72,7 +72,7 @@ public class SqlActivityBatch implements IActivityBatch {
     /**
      * The serializer version.
      */
-    protected final short serializerVersion;
+    protected final int serializerVersion;
 
     /**
      * The cache service.
@@ -118,7 +118,7 @@ public class SqlActivityBatch implements IActivityBatch {
             LoggingService loggingService,
             HikariDataSource dataSource,
             DSLContext create,
-            short serializerVersion,
+            int serializerVersion,
             CacheService cacheService) {
         this.loggingService = loggingService;
         this.dataSource = dataSource;
@@ -585,7 +585,7 @@ public class SqlActivityBatch implements IActivityBatch {
                 String customData = customDataAction.serializeCustomData();
 
                 dataStatement.setInt(1, activityId);
-                dataStatement.setShort(2, serializerVersion);
+                dataStatement.setInt(2, serializerVersion);
                 dataStatement.setString(3, customData);
                 dataStatement.addBatch();
             }

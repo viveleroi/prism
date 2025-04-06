@@ -70,7 +70,7 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
             SqlSchemaUpdater schemaUpdater,
             ISqlActivityQueryBuilderFactory queryBuilderFactory,
             CacheService cacheService,
-            @Named("serializerVersion") short serializerVersion,
+            @Named("serializerVersion") int serializerVersion,
             Path dataPath) {
         super(
             loggingService,
