@@ -39,7 +39,6 @@ import network.darkhelmet.prism.utils.LocationUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
@@ -84,11 +83,6 @@ public class EntityAction extends Action implements IEntityAction {
 
         for (String reject : rejects) {
             readWriteNbt.removeKey(reject);
-        }
-
-        if (entity instanceof Boat boat) {
-            this.descriptor += boat.getBoatType().name()
-                .toLowerCase(Locale.ENGLISH).replace("_", " ") + " ";
         }
 
         this.descriptor += entityType.toString().toLowerCase(Locale.ENGLISH).replace("_", " ");
