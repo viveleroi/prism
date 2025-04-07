@@ -130,12 +130,8 @@ public class MariaDbStorageAdapter extends AbstractSqlStorageAdapter {
             int majorVersion = databaseMetaData.getDatabaseMajorVersion();
             int minorVersion = databaseMetaData.getDatabaseMinorVersion();
 
-            configurationService.storageConfig().mariadb().useDeprecated(majorVersion < 10 || minorVersion < 2);
-
-            if (configurationService.storageConfig().mariadb().useDeprecated()) {
-                String updateMsg = "Using older/deprecated database features. We strongly recommend using"
-                    + " MySQL 8+ or MariaDB 10.2+";
-                loggingService.logger().info(updateMsg);
+            if (majorVersion < 10 || (majorVersion == 10 && minorVersion < 2)) {
+                loggingService.logger().warn("Your database version appears to be older than prism supports.");
             }
 
             if (configurationService.storageConfig().mariadb().useStoredProcedures()) {

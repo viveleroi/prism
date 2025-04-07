@@ -33,7 +33,6 @@ import network.darkhelmet.prism.core.storage.dbo.records.PrismActivitiesRecord;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismMaterials;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.configuration.storage.StorageConfiguration;
-import network.darkhelmet.prism.loader.storage.StorageType;
 
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -154,11 +153,6 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
      * @return A list of DbRow results
      */
     public Result<Record> queryActivities(ActivityQuery query) {
-        boolean useDeprecated = ((storageConfiguration.primaryStorageType().equals(StorageType.MYSQL)
-            && storageConfiguration.mysql().useDeprecated())
-            || (storageConfiguration.primaryStorageType().equals(StorageType.MARIADB)
-            && storageConfiguration.mariadb().useDeprecated()));
-
         SelectQuery<org.jooq.Record> queryBuilder = create.selectQuery();
 
         // Add fields useful for all query types
@@ -175,10 +169,7 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
         if (query.lookup()) {
             queryBuilder.addSelect(PRISM_ACTIVITIES.DESCRIPTOR);
             queryBuilder.addSelect(PRISM_ACTIVITIES.METADATA);
-
-            if (!useDeprecated) {
-                queryBuilder.addSelect(count().over().as("totalrows"));
-            }
+            queryBuilder.addSelect(count().over().as("totalrows"));
         }
 
         if (query.grouped()) {
@@ -209,8 +200,6 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
                 OLD_MATERIALS.MATERIAL,
                 OLD_MATERIALS.DATA
             );
-        } else if (query.lookup() && useDeprecated) {
-            queryBuilder.addHint("SQL_CALC_FOUND_ROWS");
         }
 
         queryBuilder.addFrom(PRISM_ACTIVITIES);

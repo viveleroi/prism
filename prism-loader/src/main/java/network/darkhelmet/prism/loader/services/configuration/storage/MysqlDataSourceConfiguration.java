@@ -21,7 +21,6 @@
 package network.darkhelmet.prism.loader.services.configuration.storage;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
@@ -29,10 +28,6 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 @ConfigSerializable
 @Getter
 public class MysqlDataSourceConfiguration extends SqlDataSourceConfiguration {
-    // Deprecated configuration is managed automatically.
-    @Setter
-    private transient boolean useDeprecated = false;
-
     @Comment("Toggle recommended Hikari MySQL datasource optimizations.\n"
             + "You can read about these here: https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration")
     private boolean useHikariOptimizations = true;

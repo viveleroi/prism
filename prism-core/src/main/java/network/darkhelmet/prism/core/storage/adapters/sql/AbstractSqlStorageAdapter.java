@@ -75,7 +75,6 @@ import network.darkhelmet.prism.core.storage.dbo.tables.PrismPlayers;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismWorlds;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
-import network.darkhelmet.prism.loader.storage.StorageType;
 
 import org.jooq.DSLContext;
 import org.jooq.Index;
@@ -546,12 +545,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
 
         int totalResults = result.size();
         if (!result.isEmpty()) {
-            if (configurationService.storageConfig().primaryStorageType().equals(StorageType.MYSQL)
-                    && configurationService.storageConfig().mysql().useDeprecated()) {
-                totalResults = create.fetchOne("SELECT FOUND_ROWS();").into(Integer.class);
-            } else {
-                totalResults = result.get(0).getValue("totalrows", Integer.class);
-            }
+            totalResults = result.get(0).getValue("totalrows", Integer.class);
         }
 
         int currentPage = (query.offset() / query.limit()) + 1;

@@ -127,12 +127,10 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
             loggingService.logger().info(versionMsg);
 
             int majorVersion = databaseMetaData.getDatabaseMajorVersion();
-            configurationService.storageConfig().mysql().useDeprecated(majorVersion < 8);
+            int minorVersion = databaseMetaData.getDatabaseMinorVersion();
 
-            if (configurationService.storageConfig().mysql().useDeprecated()) {
-                String updateMsg = "Using older/deprecated database features. We strongly recommend using"
-                    + " MySQL 8+ or MariaDB 10.2+";
-                loggingService.logger().info(updateMsg);
+            if (majorVersion < 8 || (majorVersion == 8 && minorVersion < 20)) {
+                loggingService.logger().warn("Your database version appears to be older than prism supports.");
             }
 
             if (configurationService.storageConfig().mysql().useStoredProcedures()) {
