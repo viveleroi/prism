@@ -1,4 +1,4 @@
-CREATE PROCEDURE Prism_GetOrCreateAction
+CREATE PROCEDURE prism_get_or_create_action
     (IN `actionKey` VARCHAR(25), OUT `actionId` TINYINT)
 BEGIN
     SELECT action_id INTO `actionId` FROM %prefix%actions WHERE action = `actionKey`;

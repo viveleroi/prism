@@ -20,11 +20,33 @@
 
 package network.darkhelmet.prism.loader.services.configuration.storage;
 
+import lombok.Getter;
+
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
+
+@ConfigSerializable
+@Getter
 public class PostgresDataSourceConfiguration extends SqlDataSourceConfiguration {
+    @Comment("Enable stored procedures. Stored procedures allow Prism to modify database records\n"
+            + "more efficiently and with reduced network traffic.\n"
+            + "However, your postgres account must have privileges to `CREATE FUNCTION`.\n"
+            + "If you use a shared postgres database, you likely do NOT have such permission.\n"
+            + "If you're unsure, Prism tells you in the server console during server startup.\n"
+            + "Prism will force disable this setting if you do not have necessary permission.")
+    private boolean useStoredProcedures = true;
+
     /**
      * Constructor.
      */
     public PostgresDataSourceConfiguration() {
         super("5432", "postgres");
+    }
+
+    /**
+     * Disable the setting for using stored procedures.
+     */
+    public void disallowStoredProcedures() {
+        this.useStoredProcedures = false;
     }
 }

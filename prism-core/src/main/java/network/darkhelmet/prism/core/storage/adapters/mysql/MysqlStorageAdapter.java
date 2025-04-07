@@ -175,27 +175,25 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
     protected void prepareSchema() throws Exception {
         super.prepareSchema();
 
-        String prefix = configurationService.storageConfig().mysql().prefix();
-
         if (configurationService.storageConfig().mysql().useStoredProcedures()) {
             try (Connection connection = dataSource.getConnection(); Statement stmt = connection.createStatement()) {
                 // Drop procedures first because MySQL doesn't support OR REPLACE in CREATE PROCEDURE
-                stmt.execute("DROP PROCEDURE IF EXISTS Prism_GetOrCreateAction");
-                stmt.execute("DROP PROCEDURE IF EXISTS Prism_GetOrCreateCause");
-                stmt.execute("DROP PROCEDURE IF EXISTS Prism_GetOrCreateEntityType");
-                stmt.execute("DROP PROCEDURE IF EXISTS Prism_GetOrCreateMaterial");
-                stmt.execute("DROP PROCEDURE IF EXISTS Prism_GetOrCreatePlayer");
-                stmt.execute("DROP PROCEDURE IF EXISTS Prism_GetOrCreateWorld");
-                stmt.execute("DROP PROCEDURE IF EXISTS Prism_CreateActivity");
+                stmt.execute("DROP PROCEDURE IF EXISTS prism_create_activity");
+                stmt.execute("DROP PROCEDURE IF EXISTS prism_get_or_create_action");
+                stmt.execute("DROP PROCEDURE IF EXISTS prism_get_or_create_cause");
+                stmt.execute("DROP PROCEDURE IF EXISTS prism_get_or_create_entity_type");
+                stmt.execute("DROP PROCEDURE IF EXISTS prism_get_or_create_material");
+                stmt.execute("DROP PROCEDURE IF EXISTS prism_get_or_create_player");
+                stmt.execute("DROP PROCEDURE IF EXISTS prism_get_or_create_world");
 
                 // Create all procedures
-                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreateAction"));
-                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreateCause"));
-                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreateEntityType"));
-                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreateMaterial"));
-                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreatePlayer"));
-                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreateWorld"));
-                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_CreateActivity"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "prism_create_activity"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_action"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_cause"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_entity_type"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_material"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_player"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_world"));
             }
         }
     }

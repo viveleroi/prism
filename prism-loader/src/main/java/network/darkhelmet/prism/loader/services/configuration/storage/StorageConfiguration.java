@@ -57,7 +57,7 @@ public class StorageConfiguration {
     private MysqlDataSourceConfiguration mysql = new MysqlDataSourceConfiguration();
 
     @Comment("Settings for Postgres")
-    private SqlDataSourceConfiguration postgres = new PostgresDataSourceConfiguration();
+    private PostgresDataSourceConfiguration postgres = new PostgresDataSourceConfiguration();
 
     /**
      * Get the primary data source.

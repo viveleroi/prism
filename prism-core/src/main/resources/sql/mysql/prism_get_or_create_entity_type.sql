@@ -1,4 +1,4 @@
-CREATE PROCEDURE Prism_GetOrCreateEntityType
+CREATE PROCEDURE prism_get_or_create_entity_type
     (IN `entityType` VARCHAR(25), OUT `entityTypeId` SMALLINT)
 BEGIN
     SELECT entity_type_id INTO `entityTypeId` FROM

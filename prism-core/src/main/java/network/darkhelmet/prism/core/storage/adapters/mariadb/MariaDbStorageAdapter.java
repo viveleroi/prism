@@ -45,7 +45,6 @@ import network.darkhelmet.prism.core.storage.adapters.sql.SqlSchemaUpdater;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
-import org.intellij.lang.annotations.Language;
 import org.jooq.SQLDialect;
 
 @Singleton
@@ -139,9 +138,12 @@ public class MariaDbStorageAdapter extends AbstractSqlStorageAdapter {
 
                 List<String> grants = create.fetch("SHOW GRANTS FOR CURRENT_USER();").into(String.class);
                 boolean canCreateRoutines = grants.get(0).contains("CREATE ROUTINE");
+                loggingService.logger().info(String.format("supports procedures: %b", supportsProcedures));
                 loggingService.logger().info(String.format("can create routines: %b", canCreateRoutines));
+                loggingService.logger().info(String.format("using stored procedures: %b", canCreateRoutines
+                    && configurationService.storageConfig().mysql().useStoredProcedures()));
 
-                if (supportsProcedures || !canCreateRoutines) {
+                if (!supportsProcedures || !canCreateRoutines) {
                     configurationService.storageConfig().mariadb().disallowStoredProcedures();
                 }
             }
@@ -153,7 +155,11 @@ public class MariaDbStorageAdapter extends AbstractSqlStorageAdapter {
 
             long innodbSizeMb = Long.parseLong(dbVars.get("innodb_buffer_pool_size")) / 1024 / 1024;
             loggingService.logger().info(String.format("innodb_buffer_pool_size: %d", innodbSizeMb));
-            loggingService.logger().info(String.format("sql_mode: %s", dbVars.get("sql_mode")));
+            if (innodbSizeMb < 1024) {
+                loggingService.logger().info("We recommend setting a higher innodb_buffer_pool_size.");
+                loggingService.logger().info(
+                    "See: https://prism.readthedocs.io/en/latest/purges.html#purges-and-databases");
+            }
 
             if (!usingHikariProperties) {
                 boolean usrHikariOptimizations = configurationService.storageConfig()
@@ -168,27 +174,25 @@ public class MariaDbStorageAdapter extends AbstractSqlStorageAdapter {
     protected void prepareSchema() throws Exception {
         super.prepareSchema();
 
-        String prefix = configurationService.storageConfig().mariadb().prefix();
-
         if (configurationService.storageConfig().mariadb().useStoredProcedures()) {
             try (Connection connection = dataSource.getConnection(); Statement stmt = connection.createStatement()) {
                 // Drop procedures first because MySQL doesn't support OR REPLACE in CREATE PROCEDURE
-                stmt.execute("DROP PROCEDURE IF EXISTS Prism_GetOrCreateAction");
-                stmt.execute("DROP PROCEDURE IF EXISTS Prism_GetOrCreateCause");
-                stmt.execute("DROP PROCEDURE IF EXISTS Prism_GetOrCreateEntityType");
-                stmt.execute("DROP PROCEDURE IF EXISTS Prism_GetOrCreateMaterial");
-                stmt.execute("DROP PROCEDURE IF EXISTS Prism_GetOrCreatePlayer");
-                stmt.execute("DROP PROCEDURE IF EXISTS Prism_GetOrCreateWorld");
-                stmt.execute("DROP PROCEDURE IF EXISTS Prism_CreateActivity");
+                stmt.execute("DROP PROCEDURE IF EXISTS prism_create_activity");
+                stmt.execute("DROP PROCEDURE IF EXISTS prism_get_or_create_action");
+                stmt.execute("DROP PROCEDURE IF EXISTS prism_get_or_create_cause");
+                stmt.execute("DROP PROCEDURE IF EXISTS prism_get_or_create_entity_type");
+                stmt.execute("DROP PROCEDURE IF EXISTS prism_get_or_create_material");
+                stmt.execute("DROP PROCEDURE IF EXISTS prism_get_or_create_player");
+                stmt.execute("DROP PROCEDURE IF EXISTS prism_get_or_create_world");
 
-                // Create all procedures (we reuse MySQL sql here)
-                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreateAction"));
-                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreateCause"));
-                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreateEntityType"));
-                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreateMaterial"));
-                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreatePlayer"));
-                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreateWorld"));
-                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_CreateActivity"));
+                // Create all procedures
+                stmt.execute(loadSqlFromResourceFile("mysql", "prism_create_activity"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_action"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_cause"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_entity_type"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_material"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_player"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_world"));
             }
         }
     }

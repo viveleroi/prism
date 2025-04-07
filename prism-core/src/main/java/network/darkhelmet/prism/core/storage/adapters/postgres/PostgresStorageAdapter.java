@@ -27,6 +27,10 @@ import com.zaxxer.hikari.HikariConfig;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
 import network.darkhelmet.prism.core.injection.factories.ISqlActivityQueryBuilderFactory;
@@ -98,6 +102,48 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
             }
         } catch (Exception e) {
             loggingService.handleException(e);
+        }
+    }
+
+    @Override
+    protected void describeDatabase(boolean usingHikariProperties) throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+
+            String databaseProduct = databaseMetaData.getDatabaseProductName();
+            String databaseVersion = databaseMetaData.getDatabaseProductVersion();
+
+            String versionMsg = String.format("Database: %s %s", databaseProduct, databaseVersion);
+            loggingService.logger().info(versionMsg);
+
+            if (configurationService.storageConfig().postgres().useStoredProcedures()) {
+                boolean supportsProcedures = databaseMetaData.supportsStoredProcedures();
+
+                loggingService.logger().info(String.format("supports procedures: %b", supportsProcedures));
+                loggingService.logger().info("Prism does not yet verify your postgres database "
+                    + "user has create function permissions, so we assume you do.");
+
+                if (!supportsProcedures) {
+                    configurationService.storageConfig().postgres().disallowStoredProcedures();
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void prepareSchema() throws Exception {
+        super.prepareSchema();
+
+        if (configurationService.storageConfig().postgres().useStoredProcedures()) {
+            try (Connection connection = dataSource.getConnection(); Statement stmt = connection.createStatement()) {
+                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_action"));
+                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_cause"));
+                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_entity_type"));
+                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_material"));
+                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_player"));
+                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_world"));
+                stmt.execute(loadSqlFromResourceFile("postgres", "prism_create_activity"));
+            }
         }
     }
 }
