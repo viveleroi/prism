@@ -288,8 +288,9 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
             String msg = "Failed to connect to your database server. Please check:\n"
                 + "- the ip/address\n"
                 + "- the port\n"
+                + "- your username/password\n"
                 + "- any firewall rules\n"
-                + "- the db server is running\n";
+                + "- that the database server is running\n";
             loggingService.logger().warn(msg);
         }
 

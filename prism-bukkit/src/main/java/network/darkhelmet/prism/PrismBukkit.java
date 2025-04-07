@@ -143,6 +143,11 @@ public class PrismBukkit implements IPrism {
     private InjectorProvider injectorProvider;
 
     /**
+     * The recording service.
+     */
+    private IRecordingService recordingService;
+
+    /**
      * Sets a numeric version we can use to handle differences between serialization formats.
      */
     @Getter
@@ -230,7 +235,7 @@ public class PrismBukkit implements IPrism {
 
         if (loaderPlugin().isEnabled()) {
             // Initialize some classes
-            injectorProvider.injector().getInstance(RecordingService.class);
+            recordingService = injectorProvider.injector().getInstance(RecordingService.class);
 
             // Register event listeners
             registerEvent(BlockBreakListener.class);
@@ -491,6 +496,10 @@ public class PrismBukkit implements IPrism {
         threadPoolScheduler.shutdownScheduler();
         threadPoolScheduler.shutdownExecutor();
 
+        if (recordingService != null) {
+            recordingService.stop();
+        }
+
         bootstrap.loggingService().logger().error("Prism has to disable due to a fatal error.");
     }
 
@@ -498,11 +507,14 @@ public class PrismBukkit implements IPrism {
      * On disable.
      */
     public void onDisable() {
-        IRecordingService recordingService = injectorProvider.injector().getInstance(IRecordingService.class);
-        if (!recordingService.queue().isEmpty()) {
-            loader().loggingService().logger().warn(
-                String.format("Server is shutting down yet there are %d activities in the queue",
-                    recordingService.queue().size()));
+        if (recordingService != null) {
+            if (!recordingService.queue().isEmpty()) {
+                loader().loggingService().logger().warn(
+                    String.format("Server is shutting down yet there are %d activities in the queue",
+                        recordingService.queue().size()));
+            }
+
+            recordingService.stop();
         }
 
         if (storageAdapter != null) {

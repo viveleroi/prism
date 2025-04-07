@@ -58,4 +58,9 @@ public interface IRecordingService {
      * @param task The task
      */
     void queueNextRecording(Runnable task);
+
+    /**
+     * Stop the recording service.
+     */
+    void stop();
 }

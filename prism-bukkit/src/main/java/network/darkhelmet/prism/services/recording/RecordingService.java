@@ -70,7 +70,7 @@ public class RecordingService implements IRecordingService {
      * The drain mode.
      */
     private enum RecordMode {
-        NORMAL, DRAIN_SYNC
+        NORMAL, DRAIN_SYNC, STOPPED
     }
 
     /**
@@ -150,5 +150,12 @@ public class RecordingService implements IRecordingService {
             task = Bukkit.getServer().getScheduler()
                 .runTaskLaterAsynchronously(PrismBukkit.instance().loaderPlugin(), recordingTask, delay);
         }
+    }
+
+    @Override
+    public void stop() {
+        this.clearTask();
+
+        recordMode = RecordMode.STOPPED;
     }
 }
