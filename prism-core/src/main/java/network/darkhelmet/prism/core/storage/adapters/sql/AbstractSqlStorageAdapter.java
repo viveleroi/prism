@@ -25,6 +25,9 @@ import com.google.inject.name.Named;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Driver;
@@ -36,6 +39,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Scanner;
 import java.util.UUID;
 
 import network.darkhelmet.prism.api.PaginatedResults;
@@ -749,5 +753,42 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
     @Override
     public boolean ready() {
         return ready;
+    }
+
+    /**
+     * Loads sql files from the resource folder and replaces the prefix placeholder.
+     *
+     * @param sqlFileName - The file for the needed sql
+     * @return Sql statement string
+     * @throws IOException File exception
+     */
+    protected String loadSqlFromResourceFile(String sqlFileName) throws IOException {
+        var storageType = configurationService.storageConfig().primaryStorageType().toString().toLowerCase(Locale.ROOT);
+        var sql = loadResourceFileAsString(String.format("sql/%s/%s.sql", storageType, sqlFileName));
+        return sql.replaceAll("%prefix%", configurationService.storageConfig().primaryDataSource().prefix());
+    }
+
+    /**
+     * Loads a file from the resource path.
+     *
+     * @param filePath The file path
+     * @return The file contents as a string
+     * @throws IOException File exception
+     */
+    private String loadResourceFileAsString(String filePath) throws IOException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream(filePath);
+
+        if (inputStream == null) {
+            throw new IOException("Could not find resource file: " + filePath);
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        try (Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8)) {
+            while (scanner.hasNextLine()) {
+                stringBuilder.append(scanner.nextLine()).append("\n");
+            }
+        }
+        return stringBuilder.toString();
     }
 }

@@ -241,7 +241,7 @@ public enum Dependency {
         "org.postgresql",
         "postgresql",
         "42.7.5",
-        "/iW5wKLFlFhQTsiIYoU99SLuh/igJWSDXVN8Ka5MsSU=",
+        "aQILO9IJhFQ+gXOT8ubAGokO8uN6d90R1thQgYHQeas=",
         Relocation.of("postgresql", "org{}postgresql")
     ),
     // Jooq dep
