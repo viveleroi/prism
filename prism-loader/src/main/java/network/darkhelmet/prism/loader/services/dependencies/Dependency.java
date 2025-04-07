@@ -189,7 +189,7 @@ public enum Dependency {
         "org.mariadb.jdbc",
         "mariadb-java-client",
         "3.5.3",
-        "l3ynmAt3e1qo0yZ4IEKWoQjz6svE8hCIfjmxmGn60NM=",
+        "hcS6LyIdDf1DnCav+7KU94SWB2NUQmPGWrqcLHaFhwY=",
         Relocation.of("mariadb", "org{}mariadb")
     ),
     MOONSHINE_CORE(

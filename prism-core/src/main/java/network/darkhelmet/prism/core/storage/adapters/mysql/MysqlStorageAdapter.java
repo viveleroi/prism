@@ -189,13 +189,13 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
                 stmt.execute("DROP PROCEDURE IF EXISTS Prism_CreateActivity");
 
                 // Create all procedures
-                stmt.execute(loadSqlFromResourceFile("Prism_GetOrCreateAction"));
-                stmt.execute(loadSqlFromResourceFile("Prism_GetOrCreateCause"));
-                stmt.execute(loadSqlFromResourceFile("Prism_GetOrCreateEntityType"));
-                stmt.execute(loadSqlFromResourceFile("Prism_GetOrCreateMaterial"));
-                stmt.execute(loadSqlFromResourceFile("Prism_GetOrCreatePlayer"));
-                stmt.execute(loadSqlFromResourceFile("Prism_GetOrCreateWorld"));
-                stmt.execute(loadSqlFromResourceFile("Prism_CreateActivity"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreateAction"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreateCause"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreateEntityType"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreateMaterial"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreatePlayer"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_GetOrCreateWorld"));
+                stmt.execute(loadSqlFromResourceFile("mysql", "Prism_CreateActivity"));
             }
         }
     }

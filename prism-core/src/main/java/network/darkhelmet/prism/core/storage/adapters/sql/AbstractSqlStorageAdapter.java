@@ -752,12 +752,12 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
     /**
      * Loads sql files from the resource folder and replaces the prefix placeholder.
      *
-     * @param sqlFileName - The file for the needed sql
+     * @param storageType The storage type
+     * @param sqlFileName The file for the needed sql
      * @return Sql statement string
      * @throws IOException File exception
      */
-    protected String loadSqlFromResourceFile(String sqlFileName) throws IOException {
-        var storageType = configurationService.storageConfig().primaryStorageType().toString().toLowerCase(Locale.ROOT);
+    protected String loadSqlFromResourceFile(String storageType, String sqlFileName) throws IOException {
         var sql = loadResourceFileAsString(String.format("sql/%s/%s.sql", storageType, sqlFileName));
         return sql.replaceAll("%prefix%", configurationService.storageConfig().primaryDataSource().prefix());
     }
