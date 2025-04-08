@@ -1,4 +1,4 @@
-CREATE PROCEDURE prism_get_or_create_player
+CREATE PROCEDURE %prefix%get_or_create_player
     (IN `playerName` VARCHAR(16), IN `uuid` VARCHAR(55), OUT `playerId` INT)
 BEGIN
     SELECT player_id INTO `playerId` FROM

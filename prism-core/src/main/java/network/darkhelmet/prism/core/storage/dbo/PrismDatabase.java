@@ -24,7 +24,6 @@ import java.io.Serial;
 import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
-import org.jooq.Catalog;
 import org.jooq.Table;
 import org.jooq.impl.SchemaImpl;
 
@@ -43,15 +42,10 @@ public class PrismDatabase extends SchemaImpl {
      * @param database The database name
      * @param tables All tables
      */
-    public PrismDatabase(String database, List<Table<?>> tables) {
-        super(database, null);
+    public PrismDatabase(DefaultCatalog catalog, String database, List<Table<?>> tables) {
+        super(database, catalog);
 
         this.tables = tables;
-    }
-
-    @Override
-    public Catalog getCatalog() {
-        return DefaultCatalog.DEFAULT_CATALOG;
     }
 
     @Override

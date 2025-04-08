@@ -1,4 +1,4 @@
-CREATE PROCEDURE prism_get_or_create_material
+CREATE PROCEDURE %prefix%get_or_create_material
 (IN `materialKey` VARCHAR(45), IN `blockData` VARCHAR(155), OUT `materialId` SMALLINT)
 BEGIN
     IF blockData IS NOT NULL THEN

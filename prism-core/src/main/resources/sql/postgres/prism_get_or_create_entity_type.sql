@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION prism_get_or_create_entity_type(entityType VARCHAR(25))
+CREATE OR REPLACE FUNCTION %prefix%get_or_create_entity_type(entityType VARCHAR(25))
 RETURNS INTEGER AS $$
 DECLARE
     entityTypeId INTEGER;

@@ -1,4 +1,4 @@
-CREATE PROCEDURE prism_get_or_create_world
+CREATE PROCEDURE %prefix%get_or_create_world
     (IN `worldName` VARCHAR(255), IN `uuid` VARCHAR(55), OUT `worldId` TINYINT)
 BEGIN
     SELECT world_id INTO `worldId` FROM

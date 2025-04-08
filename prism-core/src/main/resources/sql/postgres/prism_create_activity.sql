@@ -1,5 +1,5 @@
-CREATE OR REPLACE FUNCTION prism_create_activity (
-    p_timestamp INTEGER,
+CREATE OR REPLACE FUNCTION %prefix%create_activity (
+    p_timestamp BIGINT,
     p_x INTEGER,
     p_y INTEGER,
     p_z INTEGER,
@@ -14,7 +14,7 @@ CREATE OR REPLACE FUNCTION prism_create_activity (
     p_oldBlockData VARCHAR(155),
     p_world VARCHAR(255),
     p_worldUuid CHAR(36),
-    p_customDataVersion SMALLINT,
+    p_customDataVersion INTEGER,
     p_customData TEXT,
     p_descriptor VARCHAR(255),
     p_metadata VARCHAR(255)
@@ -31,36 +31,36 @@ DECLARE
     v_activityId INTEGER;
 BEGIN
     -- Get or create action
-    SELECT prism_get_or_create_action(p_action) INTO v_actionId;
+    SELECT %prefix%get_or_create_action(p_action) INTO v_actionId;
 
     -- Get or create player
     IF p_playerUuid IS NOT NULL THEN
-        SELECT prism_get_or_create_player(p_player, p_playerUuid) INTO v_playerId;
+        SELECT %prefix%get_or_create_player(p_player, p_playerUuid) INTO v_playerId;
     END IF;
 
     -- Get or create cause
-    SELECT prism_get_or_create_cause(p_cause, v_playerId) INTO v_causeId;
+    SELECT %prefix%get_or_create_cause(p_cause, v_playerId) INTO v_causeId;
 
     -- Get or create world
-    SELECT prism_get_or_create_world(p_world, p_worldUuid) INTO v_worldId;
+    SELECT %prefix%get_or_create_world(p_world, p_worldUuid) INTO v_worldId;
 
     -- Get or create entity type
     IF p_entityType IS NOT NULL THEN
-        SELECT prism_get_or_create_entity_type(p_entityType) INTO v_entityTypeId;
+        SELECT %prefix%get_or_create_entity_type(p_entityType) INTO v_entityTypeId;
     END IF;
 
     -- Get or create material
     IF p_material IS NOT NULL THEN
-        SELECT prism_get_or_create_material(p_material, p_blockData) INTO v_materialId;
+        SELECT %prefix%get_or_create_material(p_material, p_blockData) INTO v_materialId;
     END IF;
 
     -- Get or create old material
     IF p_oldMaterial IS NOT NULL THEN
-        SELECT prism_get_or_create_material(p_oldMaterial, p_oldBlockData) INTO v_oldMaterialId;
+        SELECT %prefix%get_or_create_material(p_oldMaterial, p_oldBlockData) INTO v_oldMaterialId;
     END IF;
 
     -- Insert into activities table
-    INSERT INTO %prefix%_activities
+    INSERT INTO %prefix%activities
         ("timestamp", world_id, x, y, z, action_id, material_id,
          old_material_id, entity_type_id, cause_id, descriptor, metadata)
     VALUES
@@ -70,7 +70,7 @@ BEGIN
 
     -- Insert into custom data table
     IF p_customData IS NOT NULL THEN
-        INSERT INTO %prefix%_activities_custom_data (activity_id, version, data)
+        INSERT INTO %prefix%activities_custom_data (activity_id, version, data)
         VALUES (v_activityId, p_customDataVersion, p_customData);
     END IF;
 END;

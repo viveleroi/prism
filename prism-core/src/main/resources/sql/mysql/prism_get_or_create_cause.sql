@@ -1,4 +1,4 @@
-CREATE PROCEDURE prism_get_or_create_cause
+CREATE PROCEDURE %prefix%get_or_create_cause
     (IN `causeStr` VARCHAR(25), IN `playerId` INT, OUT `causeId` INT)
 BEGIN
     IF `playerId` IS NOT NULL THEN

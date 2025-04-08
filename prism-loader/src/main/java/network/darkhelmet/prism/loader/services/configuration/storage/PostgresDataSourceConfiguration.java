@@ -28,6 +28,13 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 @ConfigSerializable
 @Getter
 public class PostgresDataSourceConfiguration extends SqlDataSourceConfiguration {
+    @Comment("""
+            Set the schema for prism tables/functions to use.
+            The default is "public", but we recommend creating a schema "prism" for all prism entities.
+            https://neon.tech/postgresql/postgresql-administration/postgresql-create-schema
+            """)
+    public String schema = "public";
+
     @Comment("Enable stored procedures. Stored procedures allow Prism to modify database records\n"
             + "more efficiently and with reduced network traffic.\n"
             + "However, your postgres account must have privileges to `CREATE FUNCTION`.\n"

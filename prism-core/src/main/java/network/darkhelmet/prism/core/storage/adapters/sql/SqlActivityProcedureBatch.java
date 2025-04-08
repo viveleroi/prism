@@ -58,6 +58,11 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
     private Connection connection;
 
     /**
+     * The schema/table prefix.
+     */
+    private final String prefix;
+
+    /**
      * The statement.
      */
     private CallableStatement statement;
@@ -65,15 +70,20 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
     /**
      * Construct a new batch handler.
      *
+     * @param loggingService The logging service
+     * @param hikariDataSource The hikari datasource
      * @param serializerVersion The serializer version
+     * @param prefix The schema/table prefix
      */
     public SqlActivityProcedureBatch(
             LoggingService loggingService,
             HikariDataSource hikariDataSource,
-            int serializerVersion) {
+            int serializerVersion,
+            String prefix) {
         this.loggingService = loggingService;
         this.hikariDataSource = hikariDataSource;
         this.serializerVersion = serializerVersion;
+        this.prefix = prefix;
     }
 
     @Override
@@ -81,7 +91,7 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
         connection = hikariDataSource.getConnection();
 
         statement = connection.prepareCall(
-            "{ CALL prism_create_activity(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
+            "{ CALL " + prefix + "create_activity(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
     }
 
     @Override

@@ -33,16 +33,8 @@ public class DefaultCatalog extends CatalogImpl {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    /**
-     * The reference instance of <code>DEFAULT_CATALOG</code>.
-     */
-    public static final DefaultCatalog DEFAULT_CATALOG = new DefaultCatalog();
-
-    /**
-     * No further instances allowed.
-     */
-    private DefaultCatalog() {
-        super("");
+    public DefaultCatalog(String name) {
+        super(name);
     }
 
     @Override

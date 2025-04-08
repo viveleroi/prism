@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION prism_get_or_create_cause(causeStr VARCHAR(25), playerId INTEGER)
+CREATE OR REPLACE FUNCTION %prefix%get_or_create_cause(causeStr VARCHAR(25), playerId INTEGER)
 RETURNS INTEGER AS $$
 DECLARE
     causeId INTEGER;

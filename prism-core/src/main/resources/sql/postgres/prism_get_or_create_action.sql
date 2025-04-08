@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION prism_get_or_create_action(actionkey VARCHAR(25))
+CREATE OR REPLACE FUNCTION %prefix%get_or_create_action(actionkey VARCHAR(25))
 RETURNS SMALLINT AS $$
 DECLARE
     actionid SMALLINT;

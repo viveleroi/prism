@@ -36,4 +36,28 @@ public class DataSourceConfiguration {
 
     @Comment("Enter the prefix prism should use for database table names. i.e. prism_activities.")
     private String prefix = "prism_";
+
+    /**
+     * Get the catalog name.
+     * <p>
+     * In MySQL/MariaDB, "databases" are effectively both "catalog" and "schema", however that
+     * isn't the case in Postgres.
+     * </p>
+     * @return The catalog name
+     */
+    public String catalog() {
+        return "";
+    }
+
+    /**
+     * Get the schema name.
+     * <p>
+     * In MySQL/MariaDB, "databases" are effectively both "catalog" and "schema", however that
+     * isn't the case in Postgres.
+     * </p>
+     * @return The schema name
+     */
+    public String schema() {
+        return database;
+    }
 }

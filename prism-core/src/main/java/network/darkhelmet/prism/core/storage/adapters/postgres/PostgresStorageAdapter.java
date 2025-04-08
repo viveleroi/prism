@@ -33,10 +33,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
+import network.darkhelmet.prism.api.storage.IActivityBatch;
 import network.darkhelmet.prism.core.injection.factories.ISqlActivityQueryBuilderFactory;
 import network.darkhelmet.prism.core.services.cache.CacheService;
 import network.darkhelmet.prism.core.storage.HikariConfigFactory;
 import network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter;
+import network.darkhelmet.prism.core.storage.adapters.sql.SqlActivityProcedureBatch;
 import network.darkhelmet.prism.core.storage.adapters.sql.SqlSchemaUpdater;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
@@ -45,6 +47,11 @@ import org.jooq.SQLDialect;
 
 @Singleton
 public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
+    /**
+     * The schema/table prefix.
+     */
+    private String prefix;
+
     /**
      * Constructor.
      *
@@ -77,6 +84,8 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
             serializerVersion);
 
         try {
+            prefix = configurationService.storageConfig().postgres().prefix();
+
             // First, try to use any hikari.properties
             File hikariPropertiesFile = new File(dataPath.toFile(), "hikari.properties");
             if (hikariPropertiesFile.exists()) {
@@ -132,18 +141,38 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
 
     @Override
     protected void prepareSchema() throws Exception {
+        create.setSchema(configurationService.storageConfig().postgres().schema()).execute();
+
         super.prepareSchema();
 
         if (configurationService.storageConfig().postgres().useStoredProcedures()) {
             try (Connection connection = dataSource.getConnection(); Statement stmt = connection.createStatement()) {
-                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_action"));
-                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_cause"));
-                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_entity_type"));
-                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_material"));
-                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_player"));
-                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_world"));
-                stmt.execute(loadSqlFromResourceFile("postgres", "prism_create_activity"));
+                // Drop procedures just in case the parameters change, if so OR REPLACE won't work
+                stmt.execute(String.format("DROP FUNCTION IF EXISTS %screate_activity", prefix));
+                stmt.execute(String.format("DROP FUNCTION IF EXISTS %sget_or_create_action", prefix));
+                stmt.execute(String.format("DROP FUNCTION IF EXISTS %sget_or_create_cause", prefix));
+                stmt.execute(String.format("DROP FUNCTION IF EXISTS %sget_or_create_entity_type", prefix));
+                stmt.execute(String.format("DROP FUNCTION IF EXISTS %sget_or_create_material", prefix));
+                stmt.execute(String.format("DROP FUNCTION IF EXISTS %sget_or_create_player", prefix));
+                stmt.execute(String.format("DROP FUNCTION IF EXISTS %sget_or_create_world", prefix));
+
+                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_action", prefix));
+                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_cause", prefix));
+                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_entity_type", prefix));
+                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_material", prefix));
+                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_player", prefix));
+                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_world", prefix));
+                stmt.execute(loadSqlFromResourceFile("postgres", "prism_create_activity", prefix));
             }
         }
+    }
+
+    @Override
+    public IActivityBatch createActivityBatch() {
+        if (configurationService.storageConfig().mysql().useStoredProcedures()) {
+            return new SqlActivityProcedureBatch(loggingService, dataSource, serializerVersion, prefix);
+        }
+
+        return super.createActivityBatch();
     }
 }

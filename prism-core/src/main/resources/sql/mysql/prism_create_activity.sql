@@ -1,4 +1,4 @@
-CREATE PROCEDURE prism_create_activity (
+CREATE PROCEDURE %prefix%create_activity (
     IN `timestamp` INT,
     IN `x` INT,
     IN `y` INT,
@@ -24,20 +24,20 @@ BEGIN
     SET @materialId = NULL;
     SET @oldMaterialId = NULL;
     SET @playerId = NULL;
-    CALL prism_get_or_create_action(`action`, @actionId);
+    CALL %prefix%get_or_create_action(`action`, @actionId);
     IF `playerUuid` IS NOT NULL THEN
-        CALL prism_get_or_create_player(`player`, `playerUuid`, @playerId);
+        CALL %prefix%get_or_create_player(`player`, `playerUuid`, @playerId);
     END IF;
-    CALL prism_get_or_create_cause(`cause`, @playerId, @causeId);
-    CALL prism_get_or_create_world(`world`, `worldUuid`, @worldId);
+    CALL %prefix%get_or_create_cause(`cause`, @playerId, @causeId);
+    CALL %prefix%get_or_create_world(`world`, `worldUuid`, @worldId);
     IF `entityType` IS NOT NULL THEN
-        CALL prism_get_or_create_entity_type(entityType, @entityId);
+        CALL %prefix%get_or_create_entity_type(entityType, @entityId);
     END IF;
     IF `material` IS NOT NULL THEN
-        CALL prism_get_or_create_material(material, blockData, @materialId);
+        CALL %prefix%get_or_create_material(material, blockData, @materialId);
     END IF;
     IF `oldMaterial` IS NOT NULL THEN
-        CALL prism_get_or_create_material(oldMaterial, oldBlockData, @oldMaterialId);
+        CALL %prefix%get_or_create_material(oldMaterial, oldBlockData, @oldMaterialId);
     END IF;
     INSERT INTO `%prefix%activities`
     (`timestamp`, `world_id`, `x`, `y`, `z`, `action_id`, `material_id`,

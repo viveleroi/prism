@@ -58,6 +58,7 @@ import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.core.injection.factories.ISqlActivityQueryBuilderFactory;
 import network.darkhelmet.prism.core.services.cache.CacheService;
 import network.darkhelmet.prism.core.storage.HikariConfigFactory;
+import network.darkhelmet.prism.core.storage.dbo.DefaultCatalog;
 import network.darkhelmet.prism.core.storage.dbo.Indexes;
 import network.darkhelmet.prism.core.storage.dbo.PrismDatabase;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismActionsRecord;
@@ -196,6 +197,11 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
     protected final PrismMaterials OLD_MATERIALS;
 
     /**
+     * The schema/table prefix.
+     */
+    protected String prefix;
+
+    /**
      * Toggle whether this storage system is enabled and ready.
      */
     protected boolean ready = false;
@@ -228,7 +234,9 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
         this.queryBuilderFactory = queryBuilderFactory;
         this.serializerVersion = serializerVersion;
 
-        String prefix = configurationService.storageConfig().primaryDataSource().prefix();
+        this.prefix = configurationService.storageConfig().primaryDataSource().prefix();
+
+        var catalog = new DefaultCatalog(configurationService.storageConfig().primaryDataSource().catalog());
 
         // Initialize all of our DBOs
         PRISM_ACTIONS = new PrismActions(prefix);
@@ -241,7 +249,9 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
         PRISM_PLAYERS = new PrismPlayers(prefix);
         PRISM_WORLDS = new PrismWorlds(prefix);
         PRISM_DATABASE = new PrismDatabase(
-                configurationService.storageConfig().primaryDataSource().database(), Arrays.asList(
+                catalog,
+                configurationService.storageConfig().primaryDataSource().schema(),
+                Arrays.asList(
             PRISM_ACTIONS,
             PRISM_ACTIVITIES,
             PRISM_ACTIVITIES_CUSTOM_DATA,
@@ -256,7 +266,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
         // Table aliases
         OLD_MATERIALS = PRISM_MATERIALS.as("old_materials");
 
-        // Turn of jooq crap. Lame
+        // Turn off jooq crap. Lame
         System.setProperty("org.jooq.no-logo", "true");
         System.setProperty("org.jooq.no-tips", "true");
 
@@ -754,12 +764,13 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
      *
      * @param storageType The storage type
      * @param sqlFileName The file for the needed sql
+     * @param prefix The schema/table prefix
      * @return Sql statement string
      * @throws IOException File exception
      */
-    protected String loadSqlFromResourceFile(String storageType, String sqlFileName) throws IOException {
+    protected String loadSqlFromResourceFile(String storageType, String sqlFileName, String prefix) throws IOException {
         var sql = loadResourceFileAsString(String.format("sql/%s/%s.sql", storageType, sqlFileName));
-        return sql.replaceAll("%prefix%", configurationService.storageConfig().primaryDataSource().prefix());
+        return sql.replaceAll("%prefix%", prefix);
     }
 
     /**
