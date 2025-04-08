@@ -20,6 +20,8 @@
 
 package network.darkhelmet.prism.loader.services.configuration;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import lombok.Getter;
@@ -46,4 +48,13 @@ public class PurgeConfiguration {
             the purge queries over time, which helps avoid purges dominating the db.
             """)
     private DurationConfiguration cycleDelay = new DurationConfiguration(2, TimeUnit.SECONDS);
+
+    private List<CommandScheduleConfiguration> commandSchedules = new ArrayList<>();
+
+    /**
+     * Constructor.
+     */
+    public PurgeConfiguration() {
+        commandSchedules.add(new CommandScheduleConfiguration());
+    }
 }

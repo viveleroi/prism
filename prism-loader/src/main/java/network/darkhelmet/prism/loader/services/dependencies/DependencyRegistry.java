@@ -80,6 +80,7 @@ public class DependencyRegistry {
             Dependency.CAFFEINE,
             Dependency.CONFIGURATE_CORE,
             Dependency.CONFIGURATE_HOCON,
+            Dependency.CRON_UTILS,
             Dependency.EXAMINATION_API,
             Dependency.EXAMINATION_STRING,
             Dependency.GEANTYREF,
@@ -93,7 +94,8 @@ public class DependencyRegistry {
             Dependency.MOONSHINE_CORE,
             Dependency.MOONSHINE_INTERNAL,
             Dependency.MOONSHINE_STANDARD,
-            Dependency.P6SPY
+            Dependency.P6SPY,
+            Dependency.QUARTZ
         );
     }
 

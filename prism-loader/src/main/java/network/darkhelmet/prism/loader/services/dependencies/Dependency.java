@@ -89,6 +89,13 @@ public enum Dependency {
         Relocation.of("configurate", "org{}spongepowered{}configurate"),
         Relocation.of("hocon", "com{}typesafe{}config")
     ),
+    CRON_UTILS(
+        "com.cronutils",
+        "cron-utils",
+        "9.2.1",
+        "Aq8Oiy/pPJ+m7s+XtTs5+q4UxbmWNW7bEy6f5iABN0Q=",
+        Relocation.of("cronutils", "com{}cronutils")
+    ),
     EXAMINATION_API(
         "net.kyori",
         "examination-api",
@@ -243,6 +250,13 @@ public enum Dependency {
         "42.7.5",
         "aQILO9IJhFQ+gXOT8ubAGokO8uN6d90R1thQgYHQeas=",
         Relocation.of("postgresql", "org{}postgresql")
+    ),
+    QUARTZ(
+        "org.quartz-scheduler",
+        "quartz",
+        "2.5.0",
+        "7vPJGY4/NG6h2jhqC5QO1D15BM8hfsxXVfvn9HKfCAQ=",
+        Relocation.of("quartz", "org{}quartz")
     ),
     // Jooq dep
     R2DBC(

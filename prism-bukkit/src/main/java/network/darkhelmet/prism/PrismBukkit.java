@@ -114,6 +114,7 @@ import network.darkhelmet.prism.providers.InjectorProvider;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.recording.RecordingService;
 
+import network.darkhelmet.prism.services.scheduling.SchedulingService;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -236,6 +237,7 @@ public class PrismBukkit implements IPrism {
         if (loaderPlugin().isEnabled()) {
             // Initialize some classes
             recordingService = injectorProvider.injector().getInstance(RecordingService.class);
+            injectorProvider.injector().getInstance(SchedulingService.class);
 
             // Register event listeners
             registerEvent(BlockBreakListener.class);

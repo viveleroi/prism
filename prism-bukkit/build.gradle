@@ -6,6 +6,7 @@ plugins {
 dependencies {
     compileOnly project.property('deps.caffeine')
     compileOnly project.property('deps.configurate-hocon')
+    compileOnly project.property('deps.cronutils')
     compileOnly project.property('deps.guice')
     compileOnly project.property('deps.guice-assistedinject')
     compileOnly project.property('deps.jackson-core')
@@ -19,6 +20,7 @@ dependencies {
     compileOnly project.property('deps.nbt-api')
     compileOnly project.property('deps.p6spy')
     compileOnly project.property('deps.paper-api')
+    compileOnly project.property('deps.quartz')
     compileOnly project.property('deps.taskchain')
     compileOnly project(':prism-api')
     compileOnly project(':prism-loader')
@@ -36,6 +38,7 @@ shadowJar {
     archiveFileName = 'prism-bukkit.jarinjar'
 
     relocate 'co.aikar.taskchain', 'network.darkhelmet.prism.libs.taskchain'
+    relocate 'com.cronutils', 'network.darkhelmet.prism.libs.cronutils'
     relocate 'com.fasterxml.jackson', 'network.darkhelmet.prism.libs.jackson'
     relocate 'com.github.ben-manes.caffeine', 'network.darkhelmet.prism.libs.caffeine'
     relocate 'com.google.inject', 'network.darkhelmet.prism.libs.inject'
@@ -53,9 +56,8 @@ shadowJar {
     relocate 'org.jooq', 'network.darkhelmet.prism.libs.jooq'
     relocate 'org.mariadb', 'network.darkhelmet.prism.libs.mariadb'
     relocate 'org.postgresql', 'network.darkhelmet.prism.libs.postgresql'
+    relocate 'org.quartz', 'network.darkhelmet.prism.libs.quartz'
     relocate 'org.spongepowered.configurate', 'network.darkhelmet.prism.libs.configurate'
-    // org.jetbrains.annotations
-    // org.checkerframework
 }
 
 artifacts {

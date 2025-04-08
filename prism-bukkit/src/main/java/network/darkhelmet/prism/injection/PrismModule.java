@@ -91,6 +91,7 @@ import network.darkhelmet.prism.services.modifications.Rollback;
 import network.darkhelmet.prism.services.purge.PurgeQueue;
 import network.darkhelmet.prism.services.purge.PurgeService;
 import network.darkhelmet.prism.services.recording.RecordingService;
+import network.darkhelmet.prism.services.scheduling.SchedulingService;
 import network.darkhelmet.prism.services.translation.TranslationService;
 import network.darkhelmet.prism.services.wands.InspectionWand;
 import network.darkhelmet.prism.services.wands.RestoreWand;
@@ -246,6 +247,9 @@ public class PrismModule extends AbstractModule {
 
         // Service - Recording
         bind(IRecordingService.class).to(RecordingService.class).in(Singleton.class);
+
+        // Service - Scheduling
+        bind(SchedulingService.class).in(Singleton.class);
 
         // Service - Messages
         bind(MessageRenderer.class).in(Singleton.class);
