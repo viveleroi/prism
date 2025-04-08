@@ -113,8 +113,8 @@ import network.darkhelmet.prism.loader.services.scheduler.ThreadPoolScheduler;
 import network.darkhelmet.prism.providers.InjectorProvider;
 import network.darkhelmet.prism.services.messages.MessageService;
 import network.darkhelmet.prism.services.recording.RecordingService;
-
 import network.darkhelmet.prism.services.scheduling.SchedulingService;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Tag;
