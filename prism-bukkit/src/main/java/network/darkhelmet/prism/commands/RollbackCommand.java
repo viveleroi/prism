@@ -24,6 +24,7 @@ import com.google.inject.Inject;
 
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
+import dev.triumphteam.cmd.core.annotations.CommandFlags;
 import dev.triumphteam.cmd.core.annotations.NamedArguments;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 
@@ -113,6 +114,7 @@ public class RollbackCommand {
      * @param sender The command sender
      * @param arguments The arguments
      */
+    @CommandFlags(key = "query-flags")
     @NamedArguments("query-parameters")
     @Command(value = "rollback", alias = {"rb"})
     @Permission("prism.rollback")
