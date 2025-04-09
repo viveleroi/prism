@@ -31,7 +31,6 @@ artifacts {
     archives shadowJar
 }
 
-
 runServer {
     minecraftVersion("1.21.4")
     legacyPluginLoading()
