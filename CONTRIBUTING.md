@@ -18,12 +18,12 @@ A lot of `services` code inside the bukkit module will be eventually moved to co
 
 ## Development
 
-1. Inside the `prism-bukkit-loader` module, place a `run-spigot` directory with the necessary spigot.jar.
+1. Inside the `prism-bukkit-loader` module, create a `spigot-jars` directory with the necessary spigot jar.
 2. Verify or modify the version needed in `prism-bukkit-loader/build.gradle`.
 3. Use your IDE to run the `runServer` task. It will build the plugin and run the server with it.
 4. Or, use gradle: `./gradlew -p prism-bukkit-loader runServer`.
 
-Server files and plugin configs will be inside `prism-bukkit-loader/run-spigot`.
+Server files and plugin configs will be inside `prism-bukkit-loader/run`.
 
 ## Pull Requests
 

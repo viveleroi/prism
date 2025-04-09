@@ -34,7 +34,7 @@ artifacts {
 runServer {
     minecraftVersion("1.21.4")
     legacyPluginLoading()
-    serverJar(file("./run-spigot/spigot-1.21.4.jar"))
+    serverJar(file("./spigot-jars/spigot-1.21.4.jar"))
     jvmArgs("-Dcom.mojang.eula.agree=true")
 }
 
