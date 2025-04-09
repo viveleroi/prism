@@ -1,5 +1,5 @@
-**Prism** is a change-tracking plugin for Paper-based servers. Supports rollbacks, restores, previews, 
-wands, and so much more.
+**Prism** is an event logging and grief management plugin for Spigot and Paper-based servers.
+Supports rollbacks, restores, previews, wands, and much more.
 
 ## DEV NOTICE
 

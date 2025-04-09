@@ -3,7 +3,16 @@ plugins {
     id 'com.gradleup.shadow' version '9.0.0-beta11'
 }
 
+repositories {
+    // Spigot
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+}
+
 dependencies {
+    implementation project.property('deps.adventure-api')
+    implementation project.property('deps.adventure-bukkit')
+    implementation project.property('deps.adventure-minimessage')
+    implementation project.property('deps.adventure-plain')
     compileOnly project.property('deps.caffeine')
     compileOnly project.property('deps.configurate-hocon')
     compileOnly project.property('deps.cronutils')
@@ -19,7 +28,7 @@ dependencies {
     compileOnly project.property('deps.moonshine-standard')
     compileOnly project.property('deps.nbt-api')
     compileOnly project.property('deps.p6spy')
-    compileOnly project.property('deps.paper-api')
+    compileOnly project.property('deps.spigot-api')
     compileOnly project.property('deps.quartz')
     compileOnly project.property('deps.taskchain')
     compileOnly project(':prism-api')
@@ -50,7 +59,7 @@ shadowJar {
     relocate 'de.tr7zw.changeme.nbtapi', 'network.darkhelmet.prism.libs.nbtapi'
     relocate 'dev.triumphteam', 'network.darkhelmet.prism.libs.triumphteam'
     relocate 'io.leangen.geantyref', 'network.darkhelmet.prism.libs.geantyref'
-    relocate 'io.papermc.lib', 'network.darkhelmet.prism.libs.paperlib'
+    relocate 'net.kyori.adventure', 'network.darkhelmet.prism.libs.adventure'
     relocate 'net.kyori.moonshine', 'network.darkhelmet.prism.libs.moonshine'
     relocate 'org.aopalliance', 'network.darkhelmet.prism.libs.aopalliance'
     relocate 'org.jooq', 'network.darkhelmet.prism.libs.jooq'
