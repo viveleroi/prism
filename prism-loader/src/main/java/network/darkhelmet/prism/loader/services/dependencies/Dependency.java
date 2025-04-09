@@ -137,8 +137,8 @@ public enum Dependency {
     H2_DRIVER(
         "com.h2database",
         "h2",
-        "2.1.232",
-        "1iPNwPYdIYz1SajQnxw5H/kQlhFrIuJHVHX85PvnK9A=",
+        "2.3.232",
+        "ja5i0i24mCw9yzgm7bnHJ8XTAgY6Z+731j2C3kAfB9M=",
         Relocation.of("h2", "com{}h2database")
     ),
     HIKARI(
