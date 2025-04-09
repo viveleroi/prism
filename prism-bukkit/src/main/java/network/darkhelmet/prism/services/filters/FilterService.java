@@ -118,6 +118,22 @@ public class FilterService implements IFilterService {
                 entityTypeTags.add(entityTag);
             }
 
+            // Entity type tags
+            for (String entityTypeTag : config.entityTypesTags()) {
+                var namespacedKey = NamespacedKey.fromString(entityTypeTag);
+                if (namespacedKey != null) {
+                    var tag = Bukkit.getTag("entity_types", namespacedKey, EntityType.class);
+                    if (tag != null) {
+                        conditionExists = true;
+                        entityTypeTags.add(tag);
+
+                        continue;
+                    }
+                }
+
+                loggingService.logger().warn("Filter error: Invalid entity type tag {}", entityTypeTag);
+            }
+
             var materialTags = new ArrayList<Tag<Material>>();
 
             // Materials

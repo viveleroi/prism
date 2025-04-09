@@ -58,6 +58,11 @@ public class FilterConfiguartion {
     private List<String> entityTypes = new ArrayList<>();
 
     /**
+     * Entity Type Tags.
+     */
+    private List<String> entityTypesTags = new ArrayList<>();
+
+    /**
      * Item tags.
      */
     private List<String> itemTags = new ArrayList<>();
