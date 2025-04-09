@@ -37,11 +37,11 @@ import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.recording.RecordingService;
 import network.darkhelmet.prism.services.wands.WandService;
 import network.darkhelmet.prism.utils.LocationUtils;
-import network.darkhelmet.prism.utils.MaterialTag;
 import network.darkhelmet.prism.utils.TagLib;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Jukebox;
@@ -141,7 +141,7 @@ public class PlayerInteractListener extends AbstractListener implements Listener
         if (event.getAction().equals(Action.PHYSICAL) && block.getType().equals(Material.FARMLAND)) {
             // Record block break for crop
             Block blockAbove = block.getRelative(BlockFace.UP);
-            if (MaterialTag.CROPS.isTagged(blockAbove.getType())) {
+            if (Tag.CROPS.isTagged(blockAbove.getType())) {
                 processBlockBreak(blockAbove, event.getPlayer());
             }
 

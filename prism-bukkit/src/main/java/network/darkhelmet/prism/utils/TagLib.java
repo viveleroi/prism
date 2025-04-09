@@ -32,7 +32,7 @@ public class TagLib {
     /**
      * Buckets which produce a water block when emptied outside of water.
      */
-    public static final MaterialTag WATER_BUCKETS = new MaterialTag(
+    public static final CustomTag<Material> WATER_BUCKETS = new CustomTag<>(Material.class,
         Material.AXOLOTL_BUCKET,
         Material.COD_BUCKET,
         Material.PUFFERFISH_BUCKET,
@@ -49,7 +49,7 @@ public class TagLib {
     /**
      * Some blocks are always "waterlogged" and not actually subclasses of Waterlogged.
      */
-    public static final MaterialTag WATER_BLOCKS = new MaterialTag(
+    public static final CustomTag<Material> WATER_BLOCKS = new CustomTag<>(Material.class,
         Material.WATER,
         Material.BUBBLE_COLUMN,
         Material.KELP,
@@ -66,12 +66,12 @@ public class TagLib {
     /**
      * Buckets which produce a lava block when emptied outside of lava.
      */
-    public static final MaterialTag LAVA_BUCKETS = new MaterialTag(Material.LAVA_BUCKET);
+    public static final CustomTag<Material> LAVA_BUCKETS = new CustomTag<>(Material.class, Material.LAVA_BUCKET);
 
     /**
      * All plants that have a one-block structure.
      */
-    public static final MaterialTag PLANTS = new MaterialTag(
+    public static final CustomTag<Material> PLANTS = new CustomTag<>(Material.class,
         Material.FERN,
         Material.DEAD_BUSH,
         Material.DANDELION,
@@ -100,7 +100,7 @@ public class TagLib {
     /**
      * Plants that have a two-block structure.
      */
-    public static final MaterialTag TALL_PLANTS = new MaterialTag(
+    public static final CustomTag<Material> TALL_PLANTS = new CustomTag<>(Material.class,
         Material.SUNFLOWER,
         Material.LILAC,
         Material.ROSE_BUSH,
@@ -112,12 +112,12 @@ public class TagLib {
     /**
      * All plants (not counting crops).
      */
-    public static final MaterialTag ALL_PLANTS = new MaterialTag(PLANTS).append(TALL_PLANTS);
+    public static final CustomTag<Material> ALL_PLANTS = new CustomTag<>(Material.class, PLANTS).append(TALL_PLANTS);
 
     /**
      * All vegetation that can be grown.
      */
-    public static final MaterialTag GROWABLES = new MaterialTag(
+    public static final CustomTag<Material> GROWABLES = new CustomTag<>(Material.class,
         Material.BAMBOO,
         Material.CACTUS,
         Material.KELP,
@@ -130,34 +130,35 @@ public class TagLib {
     /**
      * All banners that are placed on the top of a block.
      */
-    public static final MaterialTag TOP_BANNERS = new MaterialTag(Tag.BANNERS)
-        .exclude("_WALL_", MaterialTag.MatchMode.CONTAINS);
+    public static final CustomTag<Material> TOP_BANNERS = new CustomTag<>(Material.class, Tag.BANNERS)
+        .exclude("_WALL_", CustomTag.MatchMode.CONTAINS);
 
     /**
      * Banners hung on a wall.
      */
-    public static final MaterialTag WALL_BANNERS = new MaterialTag(Tag.BANNERS).exclude(TOP_BANNERS);
+    public static final CustomTag<Material> WALL_BANNERS = new CustomTag<>(Material.class, Tag.BANNERS)
+        .exclude(TOP_BANNERS);
 
     /**
      * Materials that will fall due to physics if the supporting block is broken.
      */
-    public static final MaterialTag GRAVITY_AFFECTED = new MaterialTag(
+    public static final CustomTag<Material> GRAVITY_AFFECTED = new CustomTag<>(Material.class,
         Material.GRAVEL,
         Material.ANVIL,
         Material.DRAGON_EGG
-    ).append(Tag.SAND).append("_CONCRETE_POWDER", MaterialTag.MatchMode.SUFFIX);
+    ).append(Tag.SAND).append("_CONCRETE_POWDER", CustomTag.MatchMode.SUFFIX);
 
     /**
      * Materials that attach to any side of a block.
      */
-    public static final MaterialTag DETACHABLES = new MaterialTag(
+    public static final CustomTag<Material> DETACHABLES = new CustomTag<>(Material.class,
         Material.AMETHYST_CLUSTER,
         Material.CHORUS_PLANT);
 
     /**
      * Materials that attach to any side of a block, recursively.
      */
-    public static final MaterialTag RECURSIVE_DETACHABLES = new MaterialTag(
+    public static final CustomTag<Material> RECURSIVE_DETACHABLES = new CustomTag<>(Material.class,
         Material.CHORUS_PLANT,
         Material.END_PORTAL,
         Material.NETHER_PORTAL);
@@ -165,7 +166,7 @@ public class TagLib {
     /**
      * Materials that can have recursive attachments.
      */
-    public static final MaterialTag RECURSIVE_DETACHABLE_HOLDERS = new MaterialTag(
+    public static final CustomTag<Material> RECURSIVE_DETACHABLE_HOLDERS = new CustomTag<>(Material.class,
         Material.END_PORTAL_FRAME,
         Material.CHORUS_FLOWER,
         Material.CHORUS_PLANT,
@@ -174,7 +175,7 @@ public class TagLib {
     /**
      * All redstone-related items that detach when connected block is broken.
      */
-    public static final MaterialTag REDSTONE_DETACHABLE = new MaterialTag(
+    public static final CustomTag<Material> REDSTONE_DETACHABLE = new CustomTag<>(Material.class,
         Material.COMPARATOR,
         Material.LEVER,
         Material.REPEATER,
@@ -186,7 +187,7 @@ public class TagLib {
     /**
      * All materials that can attach to themselves on the bottom (breaks travel downward).
      */
-    public static final MaterialTag RECURSIVE_BOTTOM_DETACHABLES = new MaterialTag(
+    public static final CustomTag<Material> RECURSIVE_BOTTOM_DETACHABLES = new CustomTag<>(Material.class,
         Material.CHAIN,
         Material.POINTED_DRIPSTONE,
         Material.VINE,
@@ -197,7 +198,7 @@ public class TagLib {
     /**
      * Materials that attach to the bottom of a block.
      */
-    public static final MaterialTag BOTTOM_DETACHABLES = new MaterialTag(
+    public static final CustomTag<Material> BOTTOM_DETACHABLES = new CustomTag<>(Material.class,
         Material.SPORE_BLOSSOM,
         Material.LANTERN,
         Material.SOUL_LANTERN
@@ -206,7 +207,7 @@ public class TagLib {
     /**
      * All materials that can detach from the side of a block.
      */
-    public static final MaterialTag SIDE_DETACHABLES = new MaterialTag(
+    public static final CustomTag<Material> SIDE_DETACHABLES = new CustomTag<>(Material.class,
         // Pistons
         Material.STICKY_PISTON,
         Material.PISTON,
@@ -234,7 +235,7 @@ public class TagLib {
     /**
      * All materials that can attach to themselves on the top (breaks travel upward).
      */
-    public static final MaterialTag RECURSIVE_TOP_DETACHABLES = new MaterialTag(
+    public static final CustomTag<Material> RECURSIVE_TOP_DETACHABLES = new CustomTag<>(Material.class,
         Material.BAMBOO,
         Material.KELP_PLANT,
         Material.KELP,
@@ -248,7 +249,7 @@ public class TagLib {
     /**
      * All materials that can detach from the top of a block.
      */
-    public static final MaterialTag TOP_DETACHABLES = new MaterialTag(
+    public static final CustomTag<Material> TOP_DETACHABLES = new CustomTag<>(Material.class,
         Material.STICKY_PISTON,
         Material.DEAD_BUSH,
         Material.PISTON,
@@ -279,7 +280,7 @@ public class TagLib {
     /**
      * All wall-placeable skulls.
      */
-    public static final MaterialTag WALL_SKULLS = new MaterialTag(
+    public static final CustomTag<Material> WALL_SKULLS = new CustomTag<>(Material.class,
         Material.SKELETON_WALL_SKULL,
         Material.WITHER_SKELETON_WALL_SKULL,
         Material.CREEPER_WALL_HEAD,
@@ -290,7 +291,7 @@ public class TagLib {
     /**
      * All floor-placeable skulls.
      */
-    public static final MaterialTag FLOOR_SKULLS = new MaterialTag(
+    public static final CustomTag<Material> FLOOR_SKULLS = new CustomTag<>(Material.class,
         Material.SKELETON_SKULL,
         Material.WITHER_SKELETON_SKULL,
         Material.CREEPER_HEAD,
@@ -301,12 +302,13 @@ public class TagLib {
     /**
      * All skulls.
      */
-    public static final MaterialTag ALL_SKULLS = new MaterialTag(WALL_SKULLS).append(FLOOR_SKULLS);
+    public static final CustomTag<Material> ALL_SKULLS = new CustomTag<>(Material.class, WALL_SKULLS)
+        .append(FLOOR_SKULLS);
 
     /**
      * All materials that can be broken by fluid flowing.
      */
-    public static final MaterialTag FLUID_BREAKABLE = new MaterialTag(TOP_DETACHABLES)
+    public static final CustomTag<Material> FLUID_BREAKABLE = new CustomTag<>(Material.class, TOP_DETACHABLES)
         .append(Material.END_ROD)
         .append(Material.TRIPWIRE)
         .append(ALL_SKULLS);
@@ -314,7 +316,7 @@ public class TagLib {
     /**
      * All materials that can be "used" - opened but doesn't store inventory or performs some action.
      */
-    public static final MaterialTag USABLE = new MaterialTag(
+    public static final CustomTag<Material> USABLE = new CustomTag<>(Material.class,
         Material.ANVIL,
         Material.BELL,
         Material.CARTOGRAPHY_TABLE,

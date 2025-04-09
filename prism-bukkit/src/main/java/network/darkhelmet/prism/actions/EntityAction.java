@@ -103,6 +103,15 @@ public class EntityAction extends Action implements IEntityAction {
         this.readWriteNbt = readWriteNbt;
     }
 
+    /**
+     * Get the entity type.
+     *
+     * @return Entity type
+     */
+    public EntityType entityType() {
+        return entityType;
+    }
+
     @Override
     public String serializeEntityType() {
         return entityType.toString().toLowerCase(Locale.ENGLISH);

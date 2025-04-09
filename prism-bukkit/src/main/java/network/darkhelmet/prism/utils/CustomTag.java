@@ -24,16 +24,21 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
-import org.bukkit.Material;
+import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
 import org.jetbrains.annotations.NotNull;
 
-public class MaterialTag implements Tag<Material> {
+public class CustomTag<T extends Enum<T> & Keyed> implements Tag<T> {
     /**
-     * Cache all materials.
+     * Cache the generic class.
      */
-    private final EnumSet<Material> materials;
+    private final Class<T> clazz;
+
+    /**
+     * Cache all values.
+     */
+    private final EnumSet<T> values;
 
     /**
      * The namespaced key.
@@ -43,31 +48,38 @@ public class MaterialTag implements Tag<Material> {
     /**
      * Constructor.
      */
-    public MaterialTag() {
-        this.materials = EnumSet.noneOf(Material.class);
+    public CustomTag(Class<T> clazz) {
+        this.clazz = clazz;
+        this.values = EnumSet.noneOf(clazz);
     }
 
     /**
      * Constructor.
      *
-     * @param materialTags Tags
+     * @param tags Tags
      */
     @SafeVarargs
-    public MaterialTag(Tag<Material>... materialTags) {
-        this.materials = EnumSet.noneOf(Material.class);
-        append(materialTags);
+    public CustomTag(Class<T> clazz, Tag<T>... tags) {
+        this.clazz = clazz;
+        this.values = EnumSet.noneOf(clazz);
+        append(tags);
     }
 
     /**
      * Constructor.
      *
-     * @param materials Materials
+     * @param values Values
      */
-    public MaterialTag(Material... materials) {
-        this.materials = EnumSet.noneOf(Material.class);
-        append(materials);
+    public CustomTag(Class<T> clazz, T... values) {
+        this.clazz = clazz;
+        this.values = EnumSet.noneOf(clazz);
+        append(values);
     }
 
+    /**
+     * This returns null because it's never accessible to anyone but us,
+     * we have absolutely zero use for the namespace key right now.
+     */
     @NotNull
     @Override
     public NamespacedKey getKey() {
@@ -75,26 +87,27 @@ public class MaterialTag implements Tag<Material> {
     }
 
     /**
-     * Append materials.
+     * Append values.
      *
-     * @param materials The materials
-     * @return The material tag
+     * @param values The values
+     * @return The custom tag
      */
-    public MaterialTag append(Material... materials) {
-        this.materials.addAll(Arrays.asList(materials));
+    @SafeVarargs
+    public final CustomTag<T> append(T... values) {
+        this.values.addAll(Arrays.asList(values));
         return this;
     }
 
     /**
      * Add new Tags to the group.
      *
-     * @param materialTags Tag
-     * @return MaterialTag
+     * @param tags Tags
+     * @return The custom tag
      */
     @SafeVarargs
-    public final MaterialTag append(Tag<Material>... materialTags) {
-        for (Tag<Material> materialTag : materialTags) {
-            this.materials.addAll(materialTag.getValues());
+    public final CustomTag<T> append(Tag<T>... tags) {
+        for (Tag<T> tag : tags) {
+            this.values.addAll(tag.getValues());
         }
 
         return this;
@@ -105,32 +118,32 @@ public class MaterialTag implements Tag<Material> {
      *
      * @param segment String
      * @param mode MatchMode
-     * @return MaterialTag
+     * @return The custom tag
      */
-    public MaterialTag append(String segment, MatchMode mode) {
+    public CustomTag<T> append(String segment, MatchMode mode) {
         segment = segment.toUpperCase();
 
         switch (mode) {
             case PREFIX:
-                for (Material m : Material.values()) {
-                    if (m.name().startsWith(segment)) {
-                        materials.add(m);
+                for (var value : clazz.getEnumConstants()) {
+                    if (value.name().startsWith(segment)) {
+                        values.add(value);
                     }
                 }
                 break;
 
             case SUFFIX:
-                for (Material m : Material.values()) {
-                    if (m.name().endsWith(segment)) {
-                        materials.add(m);
+                for (var value : clazz.getEnumConstants()) {
+                    if (value.name().endsWith(segment)) {
+                        values.add(value);
                     }
                 }
                 break;
 
             case CONTAINS:
-                for (Material m : Material.values()) {
-                    if (m.name().contains(segment)) {
-                        materials.add(m);
+                for (var value : clazz.getEnumConstants()) {
+                    if (value.name().contains(segment)) {
+                        values.add(value);
                     }
                 }
                 break;
@@ -142,29 +155,29 @@ public class MaterialTag implements Tag<Material> {
     }
 
     /**
-     * Exclude certain materials.
+     * Exclude certain values.
      *
-     * @param materials Materials to exclude
-     * @return MaterialTag.
+     * @param values Values to exclude
+     * @return The custom tag.
      */
-    public MaterialTag exclude(Material... materials) {
-        for (Material m : materials) {
-            this.materials.remove(m);
+    public CustomTag<T> exclude(T... values) {
+        for (var value : values) {
+            this.values.remove(value);
         }
 
         return this;
     }
 
     /**
-     * Exclude certain materials.
+     * Exclude certain tags.
      *
-     * @param materialTags Materials to exclude
-     * @return MaterialTag.
+     * @param tags Tags to exclude
+     * @return The custom tag.
      */
     @SafeVarargs
-    public final MaterialTag exclude(Tag<Material>... materialTags) {
-        for (Tag<Material> materialTag : materialTags) {
-            this.materials.removeAll(materialTag.getValues());
+    public final CustomTag<T> exclude(Tag<T>... tags) {
+        for (var tag : tags) {
+            this.values.removeAll(tag.getValues());
         }
 
         return this;
@@ -177,30 +190,30 @@ public class MaterialTag implements Tag<Material> {
      * @param mode MatchMode
      * @return MaterialTag
      */
-    public MaterialTag exclude(String segment, MatchMode mode) {
+    public CustomTag<T> exclude(String segment, MatchMode mode) {
         segment = segment.toUpperCase();
 
         switch (mode) {
             case PREFIX:
-                for (Material m : Material.values()) {
-                    if (m.name().startsWith(segment)) {
-                        materials.remove(m);
+                for (var value : clazz.getEnumConstants()) {
+                    if (value.name().startsWith(segment)) {
+                        values.remove(value);
                     }
                 }
                 break;
 
             case SUFFIX:
-                for (Material m : Material.values()) {
-                    if (m.name().endsWith(segment)) {
-                        materials.remove(m);
+                for (var value : clazz.getEnumConstants()) {
+                    if (value.name().endsWith(segment)) {
+                        values.remove(value);
                     }
                 }
                 break;
 
             case CONTAINS:
-                for (Material m : Material.values()) {
-                    if (m.name().contains(segment)) {
-                        materials.remove(m);
+                for (var value : clazz.getEnumConstants()) {
+                    if (value.name().contains(segment)) {
+                        values.remove(value);
                     }
                 }
                 break;
@@ -213,18 +226,18 @@ public class MaterialTag implements Tag<Material> {
 
     @NotNull
     @Override
-    public Set<Material> getValues() {
-        return materials;
+    public Set<T> getValues() {
+        return values;
     }
 
     @Override
-    public boolean isTagged(@NotNull Material material) {
-        return materials.contains(material);
+    public boolean isTagged(@NotNull T value) {
+        return values.contains(value);
     }
 
     @Override
     public String toString() {
-        return materials.toString();
+        return values.toString();
     }
 
     public enum MatchMode {

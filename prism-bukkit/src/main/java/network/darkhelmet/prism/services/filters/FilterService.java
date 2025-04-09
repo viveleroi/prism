@@ -32,12 +32,13 @@ import network.darkhelmet.prism.api.services.filters.IFilterService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.configuration.FilterConfiguartion;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
-import network.darkhelmet.prism.utils.MaterialTag;
+import network.darkhelmet.prism.utils.CustomTag;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
+import org.bukkit.entity.EntityType;
 
 @Singleton
 public class FilterService implements IFilterService {
@@ -99,11 +100,29 @@ public class FilterService implements IFilterService {
                 conditionExists = true;
             }
 
+            var entityTypeTags = new ArrayList<Tag<EntityType>>();
+
+            // Entity Types
+            if (!config.entityTypes().isEmpty()) {
+                var entityTag = new CustomTag<>(EntityType.class);
+                for (String entityTypeKey : config.entityTypes()) {
+                    try {
+                        EntityType entityType = EntityType.valueOf(entityTypeKey.toUpperCase(Locale.ENGLISH));
+                        entityTag.append(entityType);
+                    } catch (IllegalArgumentException e) {
+                        loggingService.logger().warn("Filter error: No entity type matching {}", entityTypeKey);
+                    }
+                }
+
+                conditionExists = true;
+                entityTypeTags.add(entityTag);
+            }
+
             var materialTags = new ArrayList<Tag<Material>>();
 
             // Materials
             if (!config.materials().isEmpty()) {
-                MaterialTag materialTag = new MaterialTag();
+                CustomTag<Material> materialTag = new CustomTag<>(Material.class);
                 for (String materialKey : config.materials()) {
                     try {
                         Material material = Material.valueOf(materialKey.toUpperCase(Locale.ENGLISH));
@@ -155,6 +174,7 @@ public class FilterService implements IFilterService {
                     config.behavior(),
                     config.actions(),
                     config.causes(),
+                    entityTypeTags,
                     materialTags,
                     config.permissions(),
                     worldNames));

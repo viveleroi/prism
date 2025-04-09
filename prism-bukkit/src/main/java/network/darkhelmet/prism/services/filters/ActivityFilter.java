@@ -22,6 +22,7 @@ package network.darkhelmet.prism.services.filters;
 
 import java.util.List;
 
+import network.darkhelmet.prism.actions.EntityAction;
 import network.darkhelmet.prism.actions.MaterialAction;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.services.filters.FilterBehavior;
@@ -30,6 +31,7 @@ import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Tag;
+import org.bukkit.entity.EntityType;
 
 public class ActivityFilter {
     /**
@@ -46,6 +48,11 @@ public class ActivityFilter {
      * Causes.
      */
     private final List<String> causes;
+
+    /**
+     * The entity type tags (entity types, entity types tags).
+     */
+    private final List<Tag<EntityType>> entityTypeTags;
 
     /**
      * The material tags (materials, block-tags, item-tags).
@@ -68,6 +75,7 @@ public class ActivityFilter {
      * @param behavior The behavior
      * @param actions The actions
      * @param causes The causes
+     * @param entityTypeTags The entity type tags
      * @param materialTags The material tags
      * @param permissions The permissions
      * @param worldNames The world names
@@ -76,12 +84,14 @@ public class ActivityFilter {
             FilterBehavior behavior,
             List<String> actions,
             List<String> causes,
+            List<Tag<EntityType>> entityTypeTags,
             List<Tag<Material>> materialTags,
             List<String> permissions,
             List<String> worldNames) {
         this.actions = actions;
         this.behavior = behavior;
         this.causes = causes;
+        this.entityTypeTags = entityTypeTags;
         this.permissions = permissions;
         this.materialTags = materialTags;
         this.worldNames = worldNames;
@@ -111,6 +121,11 @@ public class ActivityFilter {
             loggingService.debug("Cause result: %s", causeResult);
         }
 
+        var entityTypeResult = entityTypesMatched(activity);
+        if (debug) {
+            loggingService.debug("Entity type result: %s", entityTypeResult);
+        }
+
         var materialsResult = materialsMatched(activity);
         if (debug) {
             loggingService.debug("Materials result: %s", materialsResult);
@@ -130,6 +145,7 @@ public class ActivityFilter {
 
         if (!actionResult.equals(ConditionResult.NOT_MATCHED)
             && !causeResult.equals(ConditionResult.NOT_MATCHED)
+            && !entityTypeResult.equals(ConditionResult.NOT_MATCHED)
             && !materialsResult.equals(ConditionResult.NOT_MATCHED)
             && !permissionResult.equals(ConditionResult.NOT_MATCHED)
             && !worldsResult.equals(ConditionResult.NOT_MATCHED)) {
@@ -201,6 +217,32 @@ public class ActivityFilter {
         }
 
         return ConditionResult.NOT_MATCHED;
+    }
+
+    /**
+     * Check if any entity types match the activity action.
+     *
+     * <p>If none listed, the filter will match all. Ignores non-entity actions.</p>
+     *
+     * @param activity The activity
+     * @return ConditionResult
+     */
+    private ConditionResult entityTypesMatched(IActivity activity) {
+        if (entityTypeTags.isEmpty()) {
+            return ConditionResult.NOT_APPLICABLE;
+        }
+
+        if (activity.action() instanceof EntityAction entityAction) {
+            for (Tag<EntityType> entityTypeTag : entityTypeTags) {
+                if (entityTypeTag.isTagged(entityAction.entityType())) {
+                    return ConditionResult.MATCHED;
+                }
+            }
+
+            return ConditionResult.NOT_MATCHED;
+        } else {
+            return ConditionResult.NOT_APPLICABLE;
+        }
     }
 
     /**

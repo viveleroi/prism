@@ -53,6 +53,11 @@ public class FilterConfiguartion {
     private List<String> causes = new ArrayList<>();
 
     /**
+     * Entity Types.
+     */
+    private List<String> entityTypes = new ArrayList<>();
+
+    /**
      * Item tags.
      */
     private List<String> itemTags = new ArrayList<>();
