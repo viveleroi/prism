@@ -43,6 +43,11 @@ public class ActivityFilter {
     private final FilterBehavior behavior;
 
     /**
+     * Causes.
+     */
+    private final List<String> causes;
+
+    /**
      * The material tags (materials, block-tags, item-tags).
      */
     private final List<Tag<Material>> materialTags;
@@ -62,6 +67,7 @@ public class ActivityFilter {
      *
      * @param behavior The behavior
      * @param actions The actions
+     * @param causes The causes
      * @param materialTags The material tags
      * @param permissions The permissions
      * @param worldNames The world names
@@ -69,11 +75,13 @@ public class ActivityFilter {
     public ActivityFilter(
             FilterBehavior behavior,
             List<String> actions,
+            List<String> causes,
             List<Tag<Material>> materialTags,
             List<String> permissions,
             List<String> worldNames) {
         this.actions = actions;
         this.behavior = behavior;
+        this.causes = causes;
         this.permissions = permissions;
         this.materialTags = materialTags;
         this.worldNames = worldNames;
@@ -98,6 +106,11 @@ public class ActivityFilter {
             loggingService.debug("Action result: %s", actionResult);
         }
 
+        var causeResult = causesMatch(activity);
+        if (debug) {
+            loggingService.debug("Cause result: %s", causeResult);
+        }
+
         var materialsResult = materialsMatched(activity);
         if (debug) {
             loggingService.debug("Materials result: %s", materialsResult);
@@ -116,6 +129,7 @@ public class ActivityFilter {
         var finalDecision = true;
 
         if (!actionResult.equals(ConditionResult.NOT_MATCHED)
+            && !causeResult.equals(ConditionResult.NOT_MATCHED)
             && !materialsResult.equals(ConditionResult.NOT_MATCHED)
             && !permissionResult.equals(ConditionResult.NOT_MATCHED)
             && !worldsResult.equals(ConditionResult.NOT_MATCHED)) {
@@ -163,6 +177,26 @@ public class ActivityFilter {
         }
 
         if (actions.contains(activity.action().type().key())) {
+            return ConditionResult.MATCHED;
+        }
+
+        return ConditionResult.NOT_MATCHED;
+    }
+
+    /**
+     * Check if any causes match the activity action.
+     *
+     * <p>If none listed, the filter will match all.</p>
+     *
+     * @param activity The activity
+     * @return ConditionResult
+     */
+    private ConditionResult causesMatch(IActivity activity) {
+        if (causes.isEmpty()) {
+            return ConditionResult.NOT_APPLICABLE;
+        }
+
+        if (causes.contains(activity.cause())) {
             return ConditionResult.MATCHED;
         }
 

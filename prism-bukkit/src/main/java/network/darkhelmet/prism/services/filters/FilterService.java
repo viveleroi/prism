@@ -154,6 +154,7 @@ public class FilterService implements IFilterService {
                 filters.add(new ActivityFilter(
                     config.behavior(),
                     config.actions(),
+                    config.causes(),
                     materialTags,
                     config.permissions(),
                     worldNames));

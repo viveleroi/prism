@@ -43,19 +43,24 @@ public class FilterConfiguartion {
     private FilterBehavior behavior;
 
     /**
-     * Materials.
-     */
-    private List<String> materials = new ArrayList<>();
-
-    /**
      * Block tags.
      */
     private List<String> blockTags = new ArrayList<>();
 
     /**
+     * Causes.
+     */
+    private List<String> causes = new ArrayList<>();
+
+    /**
      * Item tags.
      */
     private List<String> itemTags = new ArrayList<>();
+
+    /**
+     * Materials.
+     */
+    private List<String> materials = new ArrayList<>();
 
     /**
      * Permissions.
