@@ -25,17 +25,22 @@ shadowJar {
     relocate 'io.leangen.geantyref', 'network.darkhelmet.prism.libs.geantyref'
     relocate 'net.kyori.adventure', 'network.darkhelmet.prism.libs.adventure'
     relocate 'net.kyori.examination', 'network.darkhelmet.prism.libs.examination'
+    relocate 'net.kyori.option', 'network.darkhelmet.prism.libs.option'
 }
 
 artifacts {
     archives shadowJar
 }
 
+//runServer {
+//    minecraftVersion("1.21.4")
+//    legacyPluginLoading()
+//    serverJar(file("./spigot-jars/spigot-1.21.4.jar"))
+//    jvmArgs("-Dcom.mojang.eula.agree=true")
+//}
+
 runServer {
     minecraftVersion("1.21.4")
-    legacyPluginLoading()
-    serverJar(file("./spigot-jars/spigot-1.21.4.jar"))
-    jvmArgs("-Dcom.mojang.eula.agree=true")
 }
 
 bukkitPluginYaml {

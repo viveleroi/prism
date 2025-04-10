@@ -61,6 +61,7 @@ shadowJar {
     relocate 'io.leangen.geantyref', 'network.darkhelmet.prism.libs.geantyref'
     relocate 'net.kyori.adventure', 'network.darkhelmet.prism.libs.adventure'
     relocate 'net.kyori.moonshine', 'network.darkhelmet.prism.libs.moonshine'
+    relocate 'net.kyori.option', 'network.darkhelmet.prism.libs.option'
     relocate 'org.aopalliance', 'network.darkhelmet.prism.libs.aopalliance'
     relocate 'org.jooq', 'network.darkhelmet.prism.libs.jooq'
     relocate 'org.mariadb', 'network.darkhelmet.prism.libs.mariadb'
