@@ -67,22 +67,20 @@ public class PrismBukkitPluginLoader extends JavaPlugin implements PluginLoader 
 
     @Override
     public void onEnable() {
+        // Instantiate the loader
+        JarInJarClassLoader loader = new JarInJarClassLoader(getClass().getClassLoader(), JAR_NAME);
+
+        // Instantiate the bootstrapper (which then instantiates the actual Prism plugin)
+        this.prismBootstrap = loader.instantiatePlugin(BOOTSTRAP_CLASS, PluginLoader.class, this);
+
         // Initialize the config service and load config files
         configurationService = new ConfigurationService(getDataFolder().toPath());
 
         // Initialize the logger and logging service
         loggingService = new LoggingService(configurationService, LogManager.getLogger("prism"));
 
-        // Instantiate the loader
-        try (JarInJarClassLoader loader = new JarInJarClassLoader(getClass().getClassLoader(), JAR_NAME)) {
-            // Instantiate the bootstrapper (which then instantiates the actual Prism plugin)
-            this.prismBootstrap = loader.instantiatePlugin(BOOTSTRAP_CLASS, PluginLoader.class, this);
-
-            // Call onEnable in the bootstrapper
-            this.prismBootstrap.onEnable();
-        } catch (Exception e) {
-            loggingService.handleException(e);
-        }
+        // Call onEnable in the bootstrapper
+        this.prismBootstrap.onEnable();
     }
 
     @Override
