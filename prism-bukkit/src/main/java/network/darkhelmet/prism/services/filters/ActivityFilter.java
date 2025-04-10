@@ -143,7 +143,15 @@ public class ActivityFilter {
 
         var finalDecision = true;
 
-        if (!actionResult.equals(ConditionResult.NOT_MATCHED)
+        // If everything was not applicable, allow this.
+        if (actionResult.equals(ConditionResult.NOT_APPLICABLE)
+            && causeResult.equals(ConditionResult.NOT_APPLICABLE)
+            && entityTypeResult.equals(ConditionResult.NOT_APPLICABLE)
+            && materialsResult.equals(ConditionResult.NOT_APPLICABLE)
+            && permissionResult.equals(ConditionResult.NOT_APPLICABLE)
+            && worldsResult.equals(ConditionResult.NOT_APPLICABLE)) {
+            finalDecision = true;
+        } else if (!actionResult.equals(ConditionResult.NOT_MATCHED)
             && !causeResult.equals(ConditionResult.NOT_MATCHED)
             && !entityTypeResult.equals(ConditionResult.NOT_MATCHED)
             && !materialsResult.equals(ConditionResult.NOT_MATCHED)
