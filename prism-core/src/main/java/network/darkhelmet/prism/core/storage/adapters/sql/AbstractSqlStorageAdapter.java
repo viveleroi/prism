@@ -235,6 +235,10 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
         this.serializerVersion = serializerVersion;
 
         this.prefix = configurationService.storageConfig().primaryDataSource().prefix();
+        loggingService.logger().info(String.format("Catalog %s; Schema %s; Prefix %s",
+            configurationService.storageConfig().primaryDataSource().catalog(),
+            configurationService.storageConfig().primaryDataSource().schema(),
+            prefix));
 
         var catalog = new DefaultCatalog(configurationService.storageConfig().primaryDataSource().catalog());
 

@@ -51,6 +51,16 @@ public class PostgresDataSourceConfiguration extends SqlDataSourceConfiguration 
     }
 
     /**
+     * The catalog.
+     *
+     * @return The catalog
+     */
+    @Override
+    public String catalog() {
+        return database();
+    }
+
+    /**
      * Disable the setting for using stored procedures.
      */
     public void disallowStoredProcedures() {

@@ -18,8 +18,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.loader.storage;
+package network.darkhelmet.prism.loader.services.configuration.storage;
 
-public enum StorageType {
-    H2, MARIADB, MYSQL, POSTGRES, SQLITE
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+
+@ConfigSerializable
+public class SqliteDataSourceConfiguration extends DataSourceConfiguration {
+    /**
+     * Sqlite has no schema concept.
+     *
+     * @return The schema
+     */
+    @Override
+    public String schema() {
+        return "";
+    }
 }

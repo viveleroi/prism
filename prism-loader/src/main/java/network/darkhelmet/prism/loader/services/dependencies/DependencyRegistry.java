@@ -67,6 +67,12 @@ public class DependencyRegistry {
             Dependency.R2DBC,
             Dependency.REACTIVE_STREAMS,
             Dependency.POSTGRES_DRIVER)
+        .putAll(StorageType.SQLITE,
+            Dependency.HIKARI,
+            Dependency.JOOQ,
+            Dependency.R2DBC,
+            Dependency.REACTIVE_STREAMS,
+            Dependency.SQLITE_DRIVER)
         .build();
 
     /**

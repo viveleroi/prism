@@ -68,6 +68,7 @@ import network.darkhelmet.prism.core.storage.adapters.mysql.MysqlStorageAdapter;
 import network.darkhelmet.prism.core.storage.adapters.postgres.PostgresStorageAdapter;
 import network.darkhelmet.prism.core.storage.adapters.sql.SqlActivityQueryBuilder;
 import network.darkhelmet.prism.core.storage.adapters.sql.SqlSchemaUpdater;
+import network.darkhelmet.prism.core.storage.adapters.sqlite.SqliteStorageAdapter;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.loader.storage.StorageType;
@@ -304,6 +305,7 @@ public class PrismModule extends AbstractModule {
             case MARIADB -> bind(IStorageAdapter.class).to(MariaDbStorageAdapter.class).in(Singleton.class);
             case MYSQL -> bind(IStorageAdapter.class).to(MysqlStorageAdapter.class).in(Singleton.class);
             case POSTGRES -> bind(IStorageAdapter.class).to(PostgresStorageAdapter.class).in(Singleton.class);
+            case SQLITE -> bind(IStorageAdapter.class).to(SqliteStorageAdapter.class).in(Singleton.class);
             default -> {
                 // ignored
             }

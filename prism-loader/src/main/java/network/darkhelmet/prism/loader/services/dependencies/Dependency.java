@@ -274,6 +274,13 @@ public enum Dependency {
         "91yll3ibPaxY9hhXuawuEDSmj6Zy2zUFWo+0UJ4yXyg=",
         Relocation.of("reactivestreams", "org{}reactivestreams")
     ),
+    SQLITE_DRIVER(
+        "org.xerial",
+        "sqlite-jdbc",
+        "3.49.1.0",
+        "XIYJ0so0HeuMb3F3iXS1ukmVx9MtfHyJ2TkqPnLDkpE=",
+        Relocation.of("sqlite", "org{}xerial")
+    ),
     TASKCHAIN_BUKKIT(
         "co.aikar",
         "taskchain-bukkit",

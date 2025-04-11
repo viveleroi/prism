@@ -180,6 +180,31 @@ public class HikariConfigFactory {
     }
 
     /**
+     * Create a hikari configuration for sqlite databases.
+     *
+     * @param storageConfiguration The storage configuration
+     * @return The hikari configuration
+     */
+    public static HikariConfig sqlite(StorageConfiguration storageConfiguration, File sqliteFile) {
+        HikariConfig hikariConfig = createSharedConfig(storageConfiguration);
+
+        String jdbcUrl = "jdbc:" + (storageConfiguration.spy() ? "p6spy:" : "") + "sqlite:file:"
+            + sqliteFile.getAbsolutePath();
+
+        if (storageConfiguration.spy()) {
+            hikariConfig.setDriverClassName("com.p6spy.engine.spy.P6SpyDriver");
+            hikariConfig.setJdbcUrl(jdbcUrl);
+        } else {
+            tryDataSourceClassNames(hikariConfig, "org.sqlite.JdbcDataSource");
+            tryDriverClassNames("org.sqlite.JDBC");
+        }
+
+        hikariConfig.addDataSourceProperty("url", jdbcUrl);
+
+        return hikariConfig;
+    }
+
+    /**
      * Create a hikari config with common settings.
      *
      * @param storageConfiguration The storage configuration

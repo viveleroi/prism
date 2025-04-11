@@ -42,11 +42,11 @@ public class StorageConfiguration {
             NOTE: Only one storage system may be used at a time.
             Transferring data from one to another is not yet supported.
             """)
-    private StorageType primaryStorageType = StorageType.H2;
+    private StorageType primaryStorageType = StorageType.SQLITE;
 
     @Comment("""
-            Settings for H2 file-based databases. While supported, we do not recommend H2.
-            H2 databases will be stored in the prism configuration directory.
+            Settings for H2 file-based databases. File-based databases aren't generally
+            recommended but the pros/cons depend entirely on your usage and needs.
             """)
     private DataSourceConfiguration h2 = new DataSourceConfiguration();
 
@@ -59,6 +59,12 @@ public class StorageConfiguration {
     @Comment("Settings for Postgres")
     private PostgresDataSourceConfiguration postgres = new PostgresDataSourceConfiguration();
 
+    @Comment("""
+            Settings for sqlite file-based databases. File-based databases aren't generally
+            recommended but the pros/cons depend entirely on your usage and needs.
+            """)
+    private SqliteDataSourceConfiguration sqlite = new SqliteDataSourceConfiguration();
+
     /**
      * Get the primary data source.
      *
@@ -70,6 +76,7 @@ public class StorageConfiguration {
             case MARIADB -> mariadb;
             case MYSQL -> mysql;
             case POSTGRES -> postgres;
+            case SQLITE -> sqlite;
         };
     }
 }
