@@ -106,6 +106,7 @@ import network.darkhelmet.prism.listeners.projectile.ProjectileLaunchListener;
 import network.darkhelmet.prism.listeners.sheep.SheepDyeWoolListener;
 import network.darkhelmet.prism.listeners.sponge.SpongeAbsorbListener;
 import network.darkhelmet.prism.listeners.structure.StructureGrowListener;
+import network.darkhelmet.prism.listeners.vehicle.VehicleDestroyListener;
 import network.darkhelmet.prism.listeners.vehicle.VehicleEnterListener;
 import network.darkhelmet.prism.listeners.vehicle.VehicleExitListener;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
@@ -290,6 +291,7 @@ public class PrismBukkit implements IPrism {
             registerEvent(SpongeAbsorbListener.class);
             registerEvent(StructureGrowListener.class);
             registerEvent(TntPrimeListener.class);
+            registerEvent(VehicleDestroyListener.class);
             registerEvent(VehicleEnterListener.class);
             registerEvent(VehicleExitListener.class);
 

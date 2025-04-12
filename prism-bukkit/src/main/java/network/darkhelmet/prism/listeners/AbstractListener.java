@@ -47,6 +47,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class AbstractListener {
@@ -103,11 +104,13 @@ public class AbstractListener {
             } else {
                 finalCause = causeEntity.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
             }
+        } else if (cause instanceof EntityType causeEntityType) {
+            finalCause = causeEntityType.name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
         } else if (cause instanceof Block causeBlock) {
             finalCause = causeBlock.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
         } else if (cause instanceof BlockState causeBlockState) {
             finalCause = causeBlockState.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
-        }  else if (cause instanceof BlockIgniteEvent.IgniteCause igniteCause) {
+        } else if (cause instanceof BlockIgniteEvent.IgniteCause igniteCause) {
             finalCause = igniteCause.name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
         } else if (cause instanceof String causeStr) {
             finalCause = causeStr;
@@ -207,6 +210,52 @@ public class AbstractListener {
     }
 
     /**
+     * Record an item drop activity.
+     *
+     * @param location The location
+     * @param destroyer What or who destroyed the inventory
+     * @param itemStack The item stack
+     * @param amount The amount
+     */
+    protected void recordItemDropActivity(
+            Location location, Object destroyer, ItemStack itemStack, Integer amount) {
+        if (!configurationService.prismConfig().actions().itemDrop()) {
+            return;
+        }
+
+        Player player = null;
+        String cause = null;
+
+        if (destroyer instanceof Player _player) {
+            player = _player;
+        } else if (destroyer instanceof String _cause) {
+            cause = _cause;
+        }
+
+        recordItemActivity(ActionTypeRegistry.ITEM_DROP, location, player, cause, itemStack, amount, null);
+    }
+
+    /**
+     * Record item drops from a given inventory.
+     *
+     * @param inventory The inventory
+     * @param location The location
+     * @param destroyer What or who destroyed the inventory
+     */
+    protected void recordItemDropFromInventory(
+            Inventory inventory, Location location, Object destroyer) {
+        if (!configurationService.prismConfig().actions().itemDrop()) {
+            return;
+        }
+
+        for (ItemStack item : inventory.getContents()) {
+            if (item != null) {
+                recordItemDropActivity(location, destroyer, item, null);
+            }
+        }
+    }
+
+    /**
      * Record an item insert activity.
      *
      * @param location The location
@@ -216,8 +265,12 @@ public class AbstractListener {
      * @param slot The slot
      */
     protected void recordItemInsertActivity(
-            Location location, Player player, ItemStack itemStack, int amount, int slot) {
-        recordItemActivity(ActionTypeRegistry.ITEM_INSERT, location, player, itemStack, amount, slot);
+            Location location, Player player, ItemStack itemStack, Integer amount, Integer slot) {
+        if (!configurationService.prismConfig().actions().itemInsert()) {
+            return;
+        }
+
+        recordItemActivity(ActionTypeRegistry.ITEM_INSERT, location, player, null, itemStack, amount, slot);
     }
 
     /**
@@ -230,8 +283,12 @@ public class AbstractListener {
      * @param slot The slot
      */
     protected void recordItemRemoveActivity(
-            Location location, Player player, ItemStack itemStack, int amount, int slot) {
-        recordItemActivity(ActionTypeRegistry.ITEM_REMOVE, location, player, itemStack, amount, slot);
+            Location location, Player player, ItemStack itemStack, Integer amount, Integer slot) {
+        if (!configurationService.prismConfig().actions().itemInsert()) {
+            return;
+        }
+
+        recordItemActivity(ActionTypeRegistry.ITEM_REMOVE, location, player, null, itemStack, amount, slot);
     }
 
     /**
@@ -240,35 +297,43 @@ public class AbstractListener {
      * @param actionType The action type
      * @param location The location
      * @param player The player
+     * @param cause The cause
      * @param itemStack The item stack
      * @param amount The amount
      * @param slot The slot
      */
-    protected void recordItemActivity(
-            ActionType actionType, Location location, Player player, ItemStack itemStack, int amount, int slot) {
-        // Ignore if this event is disabled
-        if (actionType.equals(ActionTypeRegistry.ITEM_INSERT)
-                && !configurationService.prismConfig().actions().itemInsert()) {
-            return;
-        } else if (actionType.equals(ActionTypeRegistry.ITEM_REMOVE)
-                && !configurationService.prismConfig().actions().itemRemove()) {
-            return;
-        }
-
+    private void recordItemActivity(
+            ActionType actionType,
+            Location location,
+            Player player,
+            String cause,
+            ItemStack itemStack,
+            Integer amount,
+            Integer slot) {
         // Clone the item stack and set the quantity because
         // this is what we use to record the action
         ItemStack clonedStack = itemStack.clone();
-        clonedStack.setAmount(amount);
+
+        if (amount != null) {
+            clonedStack.setAmount(amount);
+        }
 
         // Build the action
         final IAction action = actionFactory.createItemStackAction(actionType, clonedStack);
 
         // Build the activity
-        final ISingleActivity activity = Activity.builder()
-            .action(action).player(player.getUniqueId(), player.getName())
-            .location(LocationUtils.locToWorldCoordinate(location))
-            .build();
+        var builder = Activity.builder()
+            .action(action)
+            .location(LocationUtils.locToWorldCoordinate(location));
 
-        recordingService.addToQueue(activity);
+        if (player != null) {
+            builder.player(player.getUniqueId(), player.getName());
+        }
+
+        if (cause != null) {
+            builder.cause(cause);
+        }
+
+        recordingService.addToQueue(builder.build());
     }
 }

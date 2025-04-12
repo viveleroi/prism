@@ -23,16 +23,10 @@ package network.darkhelmet.prism.listeners.player;
 import com.google.inject.Inject;
 
 import network.darkhelmet.prism.actions.ActionFactory;
-import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.listeners.AbstractListener;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.recording.RecordingService;
-import network.darkhelmet.prism.utils.LocationUtils;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -69,15 +63,7 @@ public class PlayerDropItemListener extends AbstractListener implements Listener
             return;
         }
 
-        // Build the action
-        final IAction action = actionFactory.createItemStackAction(ActionTypeRegistry.ITEM_DROP,
-            event.getItemDrop().getItemStack());
-
-        WorldCoordinate at = LocationUtils.locToWorldCoordinate(event.getPlayer().getLocation());
-
-        final ISingleActivity activity = Activity.builder()
-            .action(action).player(event.getPlayer().getUniqueId(), event.getPlayer().getName()).location(at).build();
-
-        recordingService.addToQueue(activity);
+        recordItemDropActivity(
+            event.getPlayer().getLocation(), event.getPlayer(), event.getItemDrop().getItemStack(), null);
     }
 }

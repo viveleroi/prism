@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.listeners.entity;
+package network.darkhelmet.prism.listeners.vehicle;
 
 import com.google.inject.Inject;
 
@@ -27,26 +27,21 @@ import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.listeners.AbstractListener;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
 import network.darkhelmet.prism.services.recording.RecordingService;
 import network.darkhelmet.prism.utils.LocationUtils;
 
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.ChestBoat;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByBlockEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.projectiles.BlockProjectileSource;
+import org.bukkit.event.vehicle.VehicleDestroyEvent;
 
-public class EntityDeathListener extends AbstractListener implements Listener {
+public class VehicleDestroyListener extends AbstractListener implements Listener {
     /**
      * Construct the listener.
      *
@@ -56,7 +51,7 @@ public class EntityDeathListener extends AbstractListener implements Listener {
      * @param recordingService The recording service
      */
     @Inject
-    public EntityDeathListener(
+    public VehicleDestroyListener(
             ConfigurationService configurationService,
             ActionFactory actionFactory,
             ExpectationService expectationService,
@@ -65,56 +60,49 @@ public class EntityDeathListener extends AbstractListener implements Listener {
     }
 
     /**
-     * Listen to entity death events.
+     * Listens for vehicle destroy events.
      *
      * @param event The event
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onEntityDeath(final EntityDeathEvent event) {
+    public void onVehicleDestroy(final VehicleDestroyEvent event) {
         // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().entityKill()) {
+        if (!configurationService.prismConfig().actions().vehicleBreak()) {
             return;
         }
 
-        final LivingEntity entity = event.getEntity();
-
-        // Resolve cause using last damage
-        Object cause = null;
-        EntityDamageEvent damageEvent = entity.getLastDamageCause();
-        if (damageEvent != null && !damageEvent.isCancelled()) {
-            if (damageEvent instanceof EntityDamageByEntityEvent) {
-                cause = ((EntityDamageByEntityEvent) damageEvent).getDamager();
-
-                if (cause instanceof Projectile) {
-                    cause = ((Projectile) cause).getShooter();
-
-                    if (cause instanceof BlockProjectileSource) {
-                        cause = ((BlockProjectileSource) cause).getBlock();
-                    }
-                }
-            } else if (damageEvent instanceof EntityDamageByBlockEvent) {
-                cause = ((EntityDamageByBlockEvent) damageEvent).getDamager();
-            }
-        }
-
-        final IAction action = actionFactory.createEntityAction(ActionTypeRegistry.ENTITY_KILL, entity);
-
-        WorldCoordinate at = LocationUtils.locToWorldCoordinate(entity.getLocation());
+        var location = event.getVehicle().getLocation();
+        final IAction action = actionFactory.createEntityAction(ActionTypeRegistry.VEHICLE_BREAK, event.getVehicle());
 
         // Build the activity
-        Activity.ActivityBuilder builder = Activity.builder();
-        builder.action(action).location(at);
+        var builder = Activity.builder();
+        builder.action(action).location(LocationUtils.locToWorldCoordinate(location));
 
-        if (cause != null) {
-            if (cause instanceof Player player) {
+        if (event.getAttacker() != null) {
+            if (event.getAttacker() instanceof Player player) {
                 builder.player(player.getUniqueId(), player.getName());
             } else {
-                builder.cause(nameFromCause(cause));
+                builder.cause(event.getAttacker().toString());
             }
+
+            ISingleActivity activity = builder.build();
+            recordingService.addToQueue(activity);
+        } else if (!event.getVehicle().getPassengers().isEmpty()) {
+            Entity passenger = event.getVehicle().getPassengers().getFirst();
+
+            if (passenger instanceof Player player) {
+                builder.player(player.getUniqueId(), player.getName());
+            } else {
+                builder.cause(passenger.toString());
+            }
+
+            ISingleActivity activity = builder.build();
+            recordingService.addToQueue(activity);
         }
 
-        ISingleActivity activity = builder.build();
-
-        recordingService.addToQueue(activity);
+        if (event.getVehicle() instanceof ChestBoat chestBoat) {
+            recordItemDropFromInventory(
+                chestBoat.getInventory(), location, nameFromCause(event.getVehicle().getType()));
+        }
     }
 }

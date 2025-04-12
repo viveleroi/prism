@@ -581,7 +581,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
             String actionKey = r.getValue(PRISM_ACTIONS.ACTION);
             Optional<IActionType> optionalActionType = actionRegistry.actionType(actionKey);
             if (optionalActionType.isEmpty()) {
-                String msg = "Failed to find action type. Type: %s";
+                String msg = "Failed to find action type: %s";
                 loggingService.logger().warn(String.format(msg, actionKey));
                 continue;
             }

@@ -145,6 +145,9 @@ public class ActionsConfiguration {
     @Comment("player-teleport is when a player teleports.")
     private boolean playerTeleport = true;
 
+    @Comment("vehicle-break is when something breaks a boat or minecart.")
+    private boolean vehicleBreak = true;
+
     @Comment("vehicle-enter is when an entity enters a boat or minecart.")
     private boolean vehicleEnter = true;
 
