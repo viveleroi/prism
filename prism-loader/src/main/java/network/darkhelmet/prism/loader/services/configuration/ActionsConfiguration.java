@@ -92,6 +92,9 @@ public class ActionsConfiguration {
     @Comment("entity-leash is when a player leashes an entity.")
     private boolean entityLeash = true;
 
+    @Comment("entity-place is when a player places an armor stand or end crystal.")
+    private boolean entityPlace = true;
+
     @Comment("entity-shear is when a player shears an entity.")
     private boolean entityShear = true;
 

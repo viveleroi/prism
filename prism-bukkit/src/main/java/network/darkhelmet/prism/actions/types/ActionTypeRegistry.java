@@ -66,6 +66,8 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         new EntityActionType("entity-kill", ActionResultType.REMOVES, true);
     public static final ActionType ENTITY_LEASH =
         new EntityActionType("entity-leash", ActionResultType.NONE, false);
+    public static final ActionType ENTITY_PLACE =
+        new EntityActionType("entity-place", ActionResultType.CREATES, true);
     public static final ActionType ENTITY_SHEAR =
         new EntityActionType("entity-shear", ActionResultType.CREATES, true);
     public static final ActionType ENTITY_UNLEASH =
@@ -129,6 +131,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(ENTITY_EAT);
         registerAction(ENTITY_KILL);
         registerAction(ENTITY_LEASH);
+        registerAction(ENTITY_PLACE);
         registerAction(ENTITY_SHEAR);
         registerAction(ENTITY_UNLEASH);
         registerAction(FLUID_FLOW);

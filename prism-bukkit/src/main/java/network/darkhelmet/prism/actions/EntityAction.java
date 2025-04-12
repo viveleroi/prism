@@ -133,6 +133,24 @@ public class EntityAction extends Action implements IEntityAction {
             Object owner,
             IActivity activityContext,
             ModificationQueueMode mode) {
+        return modifyEntity(true, modificationRuleset, owner, activityContext, mode);
+    }
+
+    @Override
+    public ModificationResult applyRestore(
+            ModificationRuleset modificationRuleset,
+            Object owner,
+            IActivity activityContext,
+            ModificationQueueMode mode) {
+        return modifyEntity(false, modificationRuleset, owner, activityContext, mode);
+    }
+
+    protected ModificationResult modifyEntity(
+            boolean isRollback,
+            ModificationRuleset modificationRuleset,
+            Object owner,
+            IActivity activityContext,
+            ModificationQueueMode mode) {
         // Skip if entity is in the blacklist
         if (modificationRuleset.entityBlacklistContainsAny(entityType.toString())) {
             return ModificationResult.builder().activity(activityContext).build();
@@ -144,7 +162,10 @@ public class EntityAction extends Action implements IEntityAction {
             return ModificationResult.builder().activity(activityContext).build();
         }
 
-        if (type().resultType().equals(ActionResultType.REMOVES)) {
+        boolean shouldSpawn = (isRollback && type().resultType().equals(ActionResultType.REMOVES))
+            || (!isRollback && type().resultType().equals(ActionResultType.CREATES));
+
+        if (shouldSpawn) {
             if (entityType.getEntityClass() != null) {
                 Location loc = LocationUtils.worldCoordToLocation(coordinate);
 
@@ -177,15 +198,6 @@ public class EntityAction extends Action implements IEntityAction {
             }
         }
 
-        return ModificationResult.builder().activity(activityContext).build();
-    }
-
-    @Override
-    public ModificationResult applyRestore(
-            ModificationRuleset modificationRuleset,
-            Object owner,
-            IActivity activityContext,
-            ModificationQueueMode mode) {
         return ModificationResult.builder().activity(activityContext).build();
     }
 

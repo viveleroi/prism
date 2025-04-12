@@ -82,6 +82,24 @@ public class EntityPlaceListener extends AbstractListener implements Listener {
                 .build();
 
             recordingService.addToQueue(activity);
+        } else {
+            // Ignore if this event is disabled
+            if (!configurationService.prismConfig().actions().entityPlace()) {
+                return;
+            }
+
+            // Build the action
+            final IAction action = actionFactory
+                .createEntityAction(ActionTypeRegistry.ENTITY_PLACE, event.getEntity());
+
+            // Build the activity
+            ISingleActivity activity = Activity.builder()
+                .action(action)
+                .player(event.getPlayer().getUniqueId(), event.getPlayer().getName())
+                .location(LocationUtils.locToWorldCoordinate(event.getEntity().getLocation()))
+                .build();
+
+            recordingService.addToQueue(activity);
         }
     }
 }
