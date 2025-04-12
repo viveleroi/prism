@@ -32,8 +32,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.NotNull;
 
 public class ActivityFilter {
+    /**
+     * The name.
+     */
+    private final String name;
+
     /**
      * Actions.
      */
@@ -81,13 +87,15 @@ public class ActivityFilter {
      * @param worldNames The world names
      */
     public ActivityFilter(
-            FilterBehavior behavior,
-            List<String> actions,
-            List<String> causes,
-            List<Tag<EntityType>> entityTypeTags,
-            List<Tag<Material>> materialTags,
-            List<String> permissions,
-            List<String> worldNames) {
+            @NotNull String name,
+            @NotNull FilterBehavior behavior,
+            @NotNull List<String> actions,
+            @NotNull List<String> causes,
+            @NotNull List<Tag<EntityType>> entityTypeTags,
+            @NotNull List<Tag<Material>> materialTags,
+            @NotNull List<String> permissions,
+            @NotNull List<String> worldNames) {
+        this.name = name;
         this.actions = actions;
         this.behavior = behavior;
         this.causes = causes;
@@ -107,7 +115,7 @@ public class ActivityFilter {
      */
     public boolean shouldRecord(IActivity activity, LoggingService loggingService, boolean debug) {
         if (debug) {
-            loggingService.debug("Filter Check for Activity: %s", activity);
+            loggingService.debug("Filter (%s) Check for Activity: %s", name, activity);
             loggingService.debug("Behavior: %s", behavior);
         }
 

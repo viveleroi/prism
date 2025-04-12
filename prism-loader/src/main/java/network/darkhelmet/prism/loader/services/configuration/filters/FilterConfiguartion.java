@@ -18,16 +18,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.api.services.filters;
+package network.darkhelmet.prism.loader.services.configuration.filters;
 
-import network.darkhelmet.prism.api.activities.IActivity;
+import lombok.Getter;
 
-public interface IFilterService {
+import network.darkhelmet.prism.api.services.filters.FilterBehavior;
+
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+
+@ConfigSerializable
+@Getter
+public class FilterConfiguartion {
     /**
-     * Check if any filters reject the activity.
-     *
-     * @param activity The activity
-     * @return True if no filter rejects the activity
+     * The name.
      */
-    boolean shouldRecord(IActivity activity);
+    private String name;
+
+    /**
+     * The filter behavior.
+     */
+    private FilterBehavior behavior;
+
+    /**
+     * Conditions.
+     */
+    private FilterConditionsConfiguration conditions = new FilterConditionsConfiguration();
 }

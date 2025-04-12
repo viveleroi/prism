@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.loader.services.configuration;
+package network.darkhelmet.prism.loader.services.configuration.filters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,54 +31,49 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
 @Getter
-public class FilterConfiguartion {
+public class FilterConditionsConfiguration {
     /**
      * Actions.
      */
-    private List<String> actions = new ArrayList<>();
-
-    /**
-     * The filter behavior.
-     */
-    private FilterBehavior behavior;
+    private List<String> actions = null;
 
     /**
      * Block tags.
      */
-    private List<String> blockTags = new ArrayList<>();
+    private List<String> blockTags = null;
 
     /**
      * Causes.
      */
-    private List<String> causes = new ArrayList<>();
+    private List<String> causes = null;
 
     /**
      * Entity Types.
      */
-    private List<String> entityTypes = new ArrayList<>();
+    private List<String> entityTypes;
 
     /**
      * Entity Type Tags.
      */
-    private List<String> entityTypesTags = new ArrayList<>();
+    private List<String> entityTypesTags;
 
     /**
      * Item tags.
      */
-    private List<String> itemTags = new ArrayList<>();
+    private List<String> itemTags;
 
     /**
      * Materials.
      */
-    private List<String> materials = new ArrayList<>();
+    private List<String> materials;
 
     /**
      * Permissions.
      */
-    private List<String> permissions = new ArrayList<>();
+    private List<String> permissions;
 
     /**
      * Worlds.
      */
-    private List<String> worlds = new ArrayList<>();
+    private List<String> worlds;
 }

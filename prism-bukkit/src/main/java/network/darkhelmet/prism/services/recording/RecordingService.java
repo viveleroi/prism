@@ -98,7 +98,7 @@ public class RecordingService implements IRecordingService {
             return false;
         }
 
-        if (!filterService.allows(activity)) {
+        if (!filterService.shouldRecord(activity)) {
             return false;
         }
 

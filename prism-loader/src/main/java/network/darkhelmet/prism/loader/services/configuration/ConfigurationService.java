@@ -41,12 +41,12 @@ public class ConfigurationService {
     /**
      * The primary plugin configuration.
      */
-    private PrismConfiguration prismConfiguration;
+    private PrismConfiguration prismConfiguration = new PrismConfiguration();
 
     /**
      * The storage configuration.
      */
-    private StorageConfiguration storageConfiguration;
+    private StorageConfiguration storageConfiguration = new StorageConfiguration();
 
     /**
      * Construct the configuration service.
@@ -98,7 +98,7 @@ public class ConfigurationService {
     public ConfigurationLoader<?> configurationLoader(final Path file) {
         HoconConfigurationLoader.Builder builder = HoconConfigurationLoader.builder();
         builder.prettyPrinting(true);
-        builder.defaultOptions(opts -> opts.shouldCopyDefaults(true).serializers(serializerBuilder ->
+        builder.defaultOptions(opts -> opts.shouldCopyDefaults(true).implicitInitialization(false).serializers(serializerBuilder ->
             serializerBuilder.register(Locale.class, new LocaleSerializerConfigurate())));
         builder.path(file);
         return builder
