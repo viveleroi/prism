@@ -38,7 +38,7 @@ public class StorageConfiguration {
 
     @Comment("""
             Set which storage system to use.
-            Available options: H2, MARIADB, MYSQL, POSTGRES
+            Available options: H2, MARIADB, MYSQL, POSTGRES, SQLITE
             NOTE: Only one storage system may be used at a time.
             Transferring data from one to another is not yet supported.
             """)
