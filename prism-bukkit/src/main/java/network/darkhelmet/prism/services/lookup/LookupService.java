@@ -25,7 +25,9 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
@@ -146,6 +148,26 @@ public class LookupService {
         taskChainProvider.newChain().async(() -> {
             try {
                 show(sender, storageAdapter.queryActivitiesPaginated(query), query);
+
+                // Cache this senders' most recent query
+                recentQueries.put(sender, query);
+            } catch (Exception ex) {
+                messageService.errorQueryExec(sender);
+                loggingService.handleException(ex);
+            }
+        }).execute();
+    }
+
+    /**
+     * Performs an async storage query and passes the result to the consumer.
+     *
+     * @param sender The command sender
+     * @param query The activity query
+     */
+    public void lookup(CommandSender sender, ActivityQuery query, Consumer<List<IActivity>> consumer) {
+        taskChainProvider.newChain().async(() -> {
+            try {
+                consumer.accept(storageAdapter.queryActivities(query));
 
                 // Cache this senders' most recent query
                 recentQueries.put(sender, query);

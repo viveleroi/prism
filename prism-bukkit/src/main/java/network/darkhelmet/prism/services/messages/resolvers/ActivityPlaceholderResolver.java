@@ -43,6 +43,7 @@ import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.activities.IGroupedActivity;
+import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.util.NamedIdentity;
 import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.services.translation.TranslationService;
@@ -93,6 +94,11 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
             count = Component.text(grouped.count());
         }
 
+        Component activityId = Component.empty();
+        if (value instanceof ISingleActivity single) {
+            activityId = Component.text(single.primaryKey().toString());
+        }
+
         Component sign;
         if (value.action().type().resultType().equals(ActionResultType.REMOVES)) {
             sign = MiniMessage.miniMessage().deserialize(
@@ -104,6 +110,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
 
         return Map.of(placeholderName + "_action_past_tense",
             Either.left(ConclusionValue.conclusionValue(actionPastTense)),
+            placeholderName + "_id", Either.left(ConclusionValue.conclusionValue(activityId)),
             placeholderName + "_cause", Either.left(ConclusionValue.conclusionValue(cause)),
             placeholderName + "_count", Either.left(ConclusionValue.conclusionValue(count)),
             placeholderName + "_sign", Either.left(ConclusionValue.conclusionValue(sign)),

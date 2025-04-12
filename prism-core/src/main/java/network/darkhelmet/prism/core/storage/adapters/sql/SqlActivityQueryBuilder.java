@@ -305,6 +305,11 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
     protected List<Condition> conditions(ActivityQuery query) {
         List<Condition> conditions = new ArrayList<>();
 
+        // Activity ID
+        if (query.activityId() != null) {
+            conditions.add(PRISM_ACTIVITIES.ACTIVITY_ID.equal(UInteger.valueOf(query.activityId())));
+        }
+
         // Locations
         if (query.location() != null) {
             conditions.add(PRISM_ACTIVITIES.X.equal(query.location().intX()));

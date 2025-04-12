@@ -57,6 +57,7 @@ import network.darkhelmet.prism.commands.PurgeCommand;
 import network.darkhelmet.prism.commands.ReloadCommand;
 import network.darkhelmet.prism.commands.RestoreCommand;
 import network.darkhelmet.prism.commands.RollbackCommand;
+import network.darkhelmet.prism.commands.TeleportCommand;
 import network.darkhelmet.prism.commands.WandCommand;
 import network.darkhelmet.prism.listeners.block.BlockBreakListener;
 import network.darkhelmet.prism.listeners.block.BlockBurnListener;
@@ -458,6 +459,7 @@ public class PrismBukkit implements IPrism {
             commandManager.registerCommand(injectorProvider.injector().getInstance(ReloadCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(RestoreCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(RollbackCommand.class));
+            commandManager.registerCommand(injectorProvider.injector().getInstance(TeleportCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(WandCommand.class));
         }
     }

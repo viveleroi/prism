@@ -51,6 +51,11 @@ public final class ActivityQuery {
     private Collection<IActionType> actionTypes;
 
     /**
+     * The activity id.
+     */
+    private Integer activityId;
+
+    /**
      * The lower-bound timestamp.
      */
     private Long after;

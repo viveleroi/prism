@@ -179,6 +179,13 @@ public interface MessageService {
     @Message("rich.removed-drops")
     void removedDrops(CommandSender receiver, @Placeholder Integer count);
 
+    @Message("rich.teleporting-to-activity")
+    void teleportingToActivity(CommandSender receiver, @Placeholder IActivity activity);
+
+    @Message("rich.teleporting-to")
+    void teleportingTo(CommandSender receiver,
+        @Placeholder String worldname, @Placeholder Integer x, @Placeholder Integer y, @Placeholder Integer z);
+
     @Message("rich.wand-activated")
     void wandActivated(Player player, @Placeholder WandMode wandmode);
 
