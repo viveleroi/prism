@@ -130,7 +130,7 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
                 loggingService.logger().info(String.format("supports procedures: %b", supportsProcedures));
 
                 var canCreateFunctions = create.fetchSingle(
-                    "SELECT bool_or(has_schema_privilege(n.oid, 'CREATE')) FROM pg_namespace;")
+                    "SELECT bool_or(has_schema_privilege(oid, 'CREATE')) FROM pg_catalog.pg_namespace;")
                         .into(Boolean.class);
                 loggingService.logger().info(String.format("can create functions: %b", canCreateFunctions));
 
