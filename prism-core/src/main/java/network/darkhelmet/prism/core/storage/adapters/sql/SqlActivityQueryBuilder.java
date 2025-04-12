@@ -229,6 +229,7 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
             queryBuilder.addGroupBy(
                 PRISM_ACTIONS.ACTION,
                 PRISM_WORLDS.WORLD_UUID,
+                PRISM_WORLDS.WORLD,
                 PRISM_ACTIVITIES.ACTION_ID,
                 PRISM_MATERIALS.MATERIAL,
                 PRISM_ENTITY_TYPES.ENTITY_TYPE,
