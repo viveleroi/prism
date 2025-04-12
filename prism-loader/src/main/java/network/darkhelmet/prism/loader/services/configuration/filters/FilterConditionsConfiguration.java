@@ -20,12 +20,9 @@
 
 package network.darkhelmet.prism.loader.services.configuration.filters;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Getter;
-
-import network.darkhelmet.prism.api.services.filters.FilterBehavior;
 
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 

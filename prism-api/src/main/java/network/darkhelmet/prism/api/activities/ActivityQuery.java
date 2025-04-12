@@ -31,8 +31,6 @@ import lombok.experimental.Tolerate;
 
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.util.Coordinate;
-import network.darkhelmet.prism.api.util.NamedIdentity;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
 
 @Builder(toBuilder = true)
 @Getter
@@ -94,9 +92,9 @@ public final class ActivityQuery {
     private int limit;
 
     /**
-     * The location.
+     * The coordinate.
      */
-    private WorldCoordinate location;
+    private Coordinate coordinate;
 
     /**
      * Is lookup.
@@ -188,15 +186,15 @@ public final class ActivityQuery {
          * Set the location.
          *
          * @param worldUuid The world uuid
-         * @param worldName The world name
          * @param x The x coordinate
          * @param y The y coordinate
          * @param z The z coordinate
          * @return The builder
          */
         @Tolerate
-        public ActivityQueryBuilder location(UUID worldUuid, String worldName, double x, double y, double z) {
-            this.location = new WorldCoordinate(new NamedIdentity(worldUuid, worldName), x, y, z);
+        public ActivityQueryBuilder location(UUID worldUuid, double x, double y, double z) {
+            this.coordinate = new Coordinate(x, y, z);
+            this.worldUuid = worldUuid;
             return this;
         }
 
@@ -206,11 +204,7 @@ public final class ActivityQuery {
          * @return The builder
          */
         public ActivityQueryBuilder locationFromReferenceCoordinate() {
-            location(new WorldCoordinate(
-                new NamedIdentity(worldUuid, "empty"),
-                referenceCoordinate.x(),
-                referenceCoordinate.y(),
-                referenceCoordinate.z()));
+            this.coordinate = referenceCoordinate;
 
             return this;
         }

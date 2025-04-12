@@ -311,10 +311,10 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
         }
 
         // Locations
-        if (query.location() != null) {
-            conditions.add(PRISM_ACTIVITIES.X.equal(query.location().intX()));
-            conditions.add(PRISM_ACTIVITIES.Y.equal(query.location().intY()));
-            conditions.add(PRISM_ACTIVITIES.Z.equal(query.location().intZ()));
+        if (query.coordinate() != null) {
+            conditions.add(PRISM_ACTIVITIES.X.equal(query.coordinate().intX()));
+            conditions.add(PRISM_ACTIVITIES.Y.equal(query.coordinate().intY()));
+            conditions.add(PRISM_ACTIVITIES.Z.equal(query.coordinate().intZ()));
         } else if (query.minCoordinate() != null && query.maxCoordinate() != null) {
             conditions.add(PRISM_ACTIVITIES.X
                 .between(query.minCoordinate().intX(), query.maxCoordinate().intX()));

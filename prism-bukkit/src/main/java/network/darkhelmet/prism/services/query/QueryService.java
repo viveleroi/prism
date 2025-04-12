@@ -111,16 +111,7 @@ public class QueryService {
     public Optional<ActivityQuery.ActivityQueryBuilder> queryFromArguments(
             CommandSender sender, Arguments arguments, Location referenceLocation) {
         ActivityQuery.ActivityQueryBuilder builder = ActivityQuery.builder();
-        World world = null;
-
-        if (referenceLocation != null) {
-            world = referenceLocation.getWorld();
-
-            // Default world/referenceLocation
-            builder.worldUuid(world.getUID());
-            builder.referenceCoordinate(
-                new Coordinate(referenceLocation.getX(), referenceLocation.getY(), referenceLocation.getZ()));
-        }
+        World world = referenceLocation != null ? referenceLocation.getWorld() : null;
 
         // No-group flag
         if (arguments.hasFlag("nogroup")) {
@@ -177,6 +168,7 @@ public class QueryService {
                 int z = Integer.parseInt(segments[2]);
 
                 builder.referenceCoordinate(new Coordinate(x, y, z));
+                builder.worldUuid(world.getUID());
             } else {
                 messageService.errorParamAtInvalidLocation(sender);
 
@@ -223,6 +215,9 @@ public class QueryService {
                 messageService.errorParamConsoleRadius(sender);
 
                 return Optional.empty();
+            } else if (referenceLocation != null && at == null) {
+                builder.referenceCoordinate(
+                    new Coordinate(referenceLocation.getX(), referenceLocation.getY(), referenceLocation.getZ()));
             }
 
             if (in != null && in.equalsIgnoreCase("chunk")) {
@@ -231,6 +226,7 @@ public class QueryService {
                 return Optional.empty();
             }
 
+            builder.worldUuid(world.getUID());
             builder.radius(r);
         }
 
@@ -579,6 +575,7 @@ public class QueryService {
             Coordinate chunkMin = LocationUtils.getChunkMinCoordinate(chunk);
             Coordinate chunkMax = LocationUtils.getChunkMaxCoordinate(chunk);
 
+            builder.worldUuid(referenceLocation.getWorld().getUID());
             builder.boundingCoordinates(chunkMin, chunkMax).worldUuid(referenceLocation.getWorld().getUID());
         }
     }
