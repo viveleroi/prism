@@ -46,7 +46,6 @@ import org.jooq.types.UInteger;
 
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
-import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES_CUSTOM_DATA;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_MATERIALS;
@@ -196,8 +195,8 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
         if (query.modification()) {
             queryBuilder.addSelect(
                 PRISM_MATERIALS.DATA,
-                PRISM_ACTIVITIES_CUSTOM_DATA.DATA,
-                coalesce(PRISM_ACTIVITIES_CUSTOM_DATA.VERSION, 1).as("version"),
+                PRISM_ACTIVITIES.SERIALIZED_DATA,
+                coalesce(PRISM_ACTIVITIES.SERIALIZER_VERSION, 1).as("serializer_version"),
                 OLD_MATERIALS.MATERIAL,
                 OLD_MATERIALS.DATA
             );
@@ -215,9 +214,6 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
             .equal(PRISM_CAUSES.PLAYER_ID));
 
         if (query.modification()) {
-            queryBuilder.addJoin(PRISM_ACTIVITIES_CUSTOM_DATA, JoinType.LEFT_OUTER_JOIN,
-                PRISM_ACTIVITIES_CUSTOM_DATA.ACTIVITY_ID.equal(PRISM_ACTIVITIES.ACTIVITY_ID));
-
             queryBuilder.addJoin(OLD_MATERIALS, JoinType.LEFT_OUTER_JOIN, OLD_MATERIALS.MATERIAL_ID
                 .equal(PRISM_ACTIVITIES.OLD_MATERIAL_ID));
         }

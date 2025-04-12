@@ -58,7 +58,7 @@ public class SqliteStorageAdapter extends AbstractSqlStorageAdapter {
             SqlSchemaUpdater schemaUpdater,
             ISqlActivityQueryBuilderFactory queryBuilderFactory,
             CacheService cacheService,
-            @Named("serializerVersion") int serializerVersion,
+            @Named("serializerVersion") short serializerVersion,
             Path dataPath) {
         super(
                 loggingService,

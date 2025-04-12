@@ -14,8 +14,8 @@ CREATE PROCEDURE %prefix%create_activity (
     IN `oldBlockData` VARCHAR(155),
     IN `world` VARCHAR(255),
     IN `worldUuid` CHAR(36),
-    IN `customDataVersion` SMALLINT,
-    IN `customData` TEXT,
+    IN `serializerVersion` SMALLINT,
+    IN `serializedData` TEXT,
     IN `descriptor` VARCHAR(255),
     IN `metadata` VARCHAR(255)
 )
@@ -41,13 +41,10 @@ BEGIN
     END IF;
     INSERT INTO `%prefix%activities`
     (`timestamp`, `world_id`, `x`, `y`, `z`, `action_id`, `material_id`,
-    `old_material_id`, `entity_type_id`, `cause_id`, `descriptor`, `metadata`)
+    `old_material_id`, `entity_type_id`, `cause_id`, `descriptor`, `metadata`, `serializer_version`, `serialized_data`)
     VALUES
     (`timestamp`, @worldId, `x`, `y`, `z`, @actionId, @materialId,
-    @oldMaterialId, @entityId, @causeId, `descriptor`, `metadata`);
+    @oldMaterialId, @entityId, @causeId, `descriptor`, `metadata`,
+     `serializerVersion`, `serializedData`);
     SET @activityId = LAST_INSERT_ID();
-    IF `customData` IS NOT NULL THEN
-       INSERT INTO `%prefix%activities_custom_data` (`activity_id`, `version`, `data`)
-        VALUES (@activityId, `customDataVersion`, `customData`);
-    END IF;
 END

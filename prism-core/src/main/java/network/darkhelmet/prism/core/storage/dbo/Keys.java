@@ -21,7 +21,6 @@
 package network.darkhelmet.prism.core.storage.dbo;
 
 import network.darkhelmet.prism.core.storage.dbo.records.PrismActionsRecord;
-import network.darkhelmet.prism.core.storage.dbo.records.PrismActivitiesCustomDataRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismActivitiesRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismCausesRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismEntityTypesRecord;
@@ -38,7 +37,6 @@ import org.jooq.impl.Internal;
 
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
-import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES_CUSTOM_DATA;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_MATERIALS;
@@ -63,12 +61,6 @@ public class Keys {
         DSL.name("KEY_prism_activities_PRIMARY"),
         new TableField[] { PRISM_ACTIVITIES.ACTIVITY_ID },
         true);
-    public static final UniqueKey<PrismActivitiesCustomDataRecord> KEY_PRISM_ACTIVITIES_CUSTOM_DATA_PRIMARY = Internal
-        .createUniqueKey(
-            PRISM_ACTIVITIES_CUSTOM_DATA,
-            DSL.name("KEY_prism_activities_custom_data_PRIMARY"),
-            new TableField[] { PRISM_ACTIVITIES_CUSTOM_DATA.EXTRA_ID },
-            true);
     public static final UniqueKey<PrismCausesRecord> KEY_PRISM_CAUSES_CAUSE = Internal.createUniqueKey(
         PRISM_CAUSES,
         DSL.name("KEY_prism_causes_cause"),
@@ -173,14 +165,6 @@ public class Keys {
         Keys.KEY_PRISM_WORLDS_PRIMARY,
         new TableField[] { PRISM_WORLDS.WORLD_ID },
         true);
-    public static final ForeignKey<PrismActivitiesCustomDataRecord, PrismActivitiesRecord> ACTIVITYID = Internal
-        .createForeignKey(
-            PRISM_ACTIVITIES_CUSTOM_DATA,
-            DSL.name("activityId"),
-            new TableField[] { PRISM_ACTIVITIES_CUSTOM_DATA.ACTIVITY_ID },
-            Keys.KEY_PRISM_ACTIVITIES_PRIMARY,
-            new TableField[] { PRISM_ACTIVITIES.ACTIVITY_ID },
-            true);
     public static final ForeignKey<PrismCausesRecord, PrismPlayersRecord> PLAYERID = Internal.createForeignKey(
         PRISM_CAUSES, DSL.name("playerId"),
         new TableField[] { PRISM_CAUSES.PLAYER_ID },

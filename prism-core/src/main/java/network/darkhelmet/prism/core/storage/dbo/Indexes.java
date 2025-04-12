@@ -26,7 +26,6 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.Internal;
 
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
-import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES_CUSTOM_DATA;
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Indexes {
@@ -34,11 +33,6 @@ public class Indexes {
         DSL.name("actionId"),
         PRISM_ACTIVITIES,
         new OrderField[] { PRISM_ACTIVITIES.ACTION_ID },
-        false);
-    public static final Index PRISM_ACTIVITIES_CUSTOM_DATA_ACTIVITYID = Internal.createIndex(
-        DSL.name("activityId"),
-        PRISM_ACTIVITIES_CUSTOM_DATA,
-        new OrderField[] { PRISM_ACTIVITIES_CUSTOM_DATA.ACTIVITY_ID },
         false);
     public static final Index PRISM_ACTIVITIES_CAUSEID = Internal.createIndex(
         DSL.name("causeId"),

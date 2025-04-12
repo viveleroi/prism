@@ -126,7 +126,7 @@ public class PrismModule extends AbstractModule {
     /**
      * The serializer version.
      */
-    private final int serializerVersion;
+    private final short serializerVersion;
 
     /**
      * Construct the module.
@@ -150,7 +150,7 @@ public class PrismModule extends AbstractModule {
 
     @Provides
     @Named("serializerVersion")
-    int serializerVersion() {
+    short serializerVersion() {
         return serializerVersion;
     }
 

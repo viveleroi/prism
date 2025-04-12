@@ -33,7 +33,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row14;
+import org.jooq.Row16;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -180,6 +180,24 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
     public final TableField<PrismActivitiesRecord, String> METADATA = createField(
         DSL.name("metadata"),
         SQLDataType.VARCHAR(255),
+        this,
+        "");
+
+    /**
+     * The column <code>prism_activities.serializer_version</code>.
+     */
+    public final TableField<PrismActivitiesRecord, UShort> SERIALIZER_VERSION = createField(
+        DSL.name("serializer_version"),
+        SQLDataType.SMALLINTUNSIGNED,
+        this,
+        "");
+
+    /**
+     * The column <code>prism_activities.serialized_data</code>.
+     */
+    public final TableField<PrismActivitiesRecord, String> SERIALIZED_DATA = createField(
+        DSL.name("serialized_data"),
+        SQLDataType.CLOB,
         this,
         "");
 
@@ -362,7 +380,7 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
     }
 
     @Override
-    public Row14<
+    public Row16<
         UInteger,
         UInteger,
         UByte,
@@ -375,8 +393,10 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         UShort,
         UInteger,
         String,
+        String,
+        Short,
         String,
         Boolean> fieldsRow() {
-        return (Row14) super.fieldsRow();
+        return (Row16) super.fieldsRow();
     }
 }

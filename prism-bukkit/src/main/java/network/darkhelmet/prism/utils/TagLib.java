@@ -22,8 +22,6 @@ package network.darkhelmet.prism.utils;
 
 import lombok.experimental.UtilityClass;
 
-import network.darkhelmet.prism.PrismBukkit;
-
 import org.bukkit.Material;
 import org.bukkit.Tag;
 
@@ -38,13 +36,8 @@ public class TagLib {
         Material.PUFFERFISH_BUCKET,
         Material.SALMON_BUCKET,
         Material.TROPICAL_FISH_BUCKET,
-        Material.WATER_BUCKET);
-
-    static {
-        if (PrismBukkit.instance().serializerVersion() >= 119) {
-            WATER_BUCKETS.append(Material.TADPOLE_BUCKET);
-        }
-    }
+        Material.WATER_BUCKET,
+        Material.TADPOLE_BUCKET);
 
     /**
      * Some blocks are always "waterlogged" and not actually subclasses of Waterlogged.

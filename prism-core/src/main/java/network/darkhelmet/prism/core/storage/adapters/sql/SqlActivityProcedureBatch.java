@@ -50,7 +50,7 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
     /**
      * The serializer version.
      */
-    private final int serializerVersion;
+    private final short serializerVersion;
 
     /**
      * The connection.
@@ -78,7 +78,7 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
     public SqlActivityProcedureBatch(
             LoggingService loggingService,
             HikariDataSource hikariDataSource,
-            int serializerVersion,
+            short serializerVersion,
             String prefix) {
         this.loggingService = loggingService;
         this.hikariDataSource = hikariDataSource;

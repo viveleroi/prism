@@ -156,7 +156,7 @@ public class PrismBukkit implements IPrism {
      * Sets a numeric version we can use to handle differences between serialization formats.
      */
     @Getter
-    protected int serializerVersion;
+    protected short serializerVersion;
 
     /**
      * The storage adapter.
@@ -210,7 +210,7 @@ public class PrismBukkit implements IPrism {
         );
         dependencyService.loadAllDependencies(platformDependencies());
 
-        serializerVersion = DataFixerUtil.getCurrentVersion();
+        serializerVersion = (short) DataFixerUtil.getCurrentVersion();
         bootstrap.loggingService().logger().info(String.format("Serializer version: %d", serializerVersion));
 
         injectorProvider = new InjectorProvider(this, bootstrap.loggingService());

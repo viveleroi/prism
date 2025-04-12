@@ -67,7 +67,6 @@ import network.darkhelmet.prism.core.storage.dbo.records.PrismMaterialsRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismWorldsRecord;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismActions;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismActivities;
-import network.darkhelmet.prism.core.storage.dbo.tables.PrismActivitiesCustomData;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismCauses;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismEntityTypes;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismMaterials;
@@ -84,6 +83,7 @@ import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.UInteger;
+import org.jooq.types.UShort;
 
 import static org.jooq.impl.DSL.avg;
 import static org.jooq.impl.DSL.constraint;
@@ -105,11 +105,6 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
      * The activities dbo.
      */
     public static PrismActivities PRISM_ACTIVITIES;
-
-    /**
-     * The custom data dbo.
-     */
-    public static PrismActivitiesCustomData PRISM_ACTIVITIES_CUSTOM_DATA;
 
     /**
      * The causes dbo.
@@ -144,7 +139,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
     /**
      * The serializer version.
      */
-    protected final int serializerVersion;
+    protected final short serializerVersion;
 
     /**
      * The logging service.
@@ -225,7 +220,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
             SqlSchemaUpdater schemaUpdater,
             ISqlActivityQueryBuilderFactory queryBuilderFactory,
             CacheService cacheService,
-            @Named("serializerVersion") int serializerVersion) {
+            @Named("serializerVersion") short serializerVersion) {
         this.loggingService = loggingService;
         this.configurationService = configurationService;
         this.actionRegistry = actionRegistry;
@@ -245,7 +240,6 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
         // Initialize all of our DBOs
         PRISM_ACTIONS = new PrismActions(prefix);
         PRISM_ACTIVITIES = new PrismActivities(prefix);
-        PRISM_ACTIVITIES_CUSTOM_DATA = new PrismActivitiesCustomData(prefix);
         PRISM_CAUSES = new PrismCauses(prefix);
         PRISM_ENTITY_TYPES = new PrismEntityTypes(prefix);
         PRISM_MATERIALS = new PrismMaterials(prefix);
@@ -258,7 +252,6 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
                 Arrays.asList(
             PRISM_ACTIONS,
             PRISM_ACTIVITIES,
-            PRISM_ACTIVITIES_CUSTOM_DATA,
             PRISM_CAUSES,
             PRISM_ENTITY_TYPES,
             PRISM_MATERIALS,
@@ -448,6 +441,8 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
             .column(PRISM_ACTIVITIES.CAUSE_ID)
             .column(PRISM_ACTIVITIES.DESCRIPTOR)
             .column(PRISM_ACTIVITIES.METADATA)
+            .column(PRISM_ACTIVITIES.SERIALIZER_VERSION)
+            .column(PRISM_ACTIVITIES.SERIALIZED_DATA)
             .column(PRISM_ACTIVITIES.REVERSED)
             .primaryKey(PRISM_ACTIVITIES.ACTIVITY_ID)
             .constraints(
@@ -472,19 +467,6 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
             create.createIndex("coordinate")
                 .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.X, PRISM_ACTIVITIES.Y, PRISM_ACTIVITIES.Z).execute();
         }
-
-        // Create the custom data table
-        create.createTableIfNotExists(PRISM_ACTIVITIES_CUSTOM_DATA)
-            .column(PRISM_ACTIVITIES_CUSTOM_DATA.EXTRA_ID)
-            .column(PRISM_ACTIVITIES_CUSTOM_DATA.ACTIVITY_ID)
-            .column(PRISM_ACTIVITIES_CUSTOM_DATA.VERSION)
-            .column(PRISM_ACTIVITIES_CUSTOM_DATA.DATA)
-            .primaryKey(PRISM_ACTIVITIES_CUSTOM_DATA.EXTRA_ID)
-            .constraints(
-                constraint("activityId").foreignKey(PRISM_ACTIVITIES_CUSTOM_DATA.ACTIVITY_ID)
-                    .references(PRISM_ACTIVITIES, PRISM_ACTIVITIES.ACTIVITY_ID).onDeleteCascade()
-            )
-            .execute();
     }
 
     /**
@@ -648,8 +630,8 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
                 long activityId = r.getValue(PRISM_ACTIVITIES.ACTIVITY_ID).longValue();
 
                 String materialData = r.getValue(PRISM_MATERIALS.DATA);
-                String customData = r.getValue(PRISM_ACTIVITIES_CUSTOM_DATA.DATA);
-                Short customDataVersion = r.getValue(PRISM_ACTIVITIES_CUSTOM_DATA.VERSION.as("version"));
+                String customData = r.getValue(PRISM_ACTIVITIES.SERIALIZED_DATA);
+                UShort customDataVersion = r.getValue(PRISM_ACTIVITIES.SERIALIZER_VERSION);
 
                 // Material/serialization data
                 String replacedMaterial = null;
@@ -663,7 +645,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
                 // Build the action data
                 ActionData actionData = new ActionData(
                     material, materialData, replacedMaterial, replacedMaterialData,
-                    entityType, customData, descriptor, metadata, customDataVersion);
+                    entityType, customData, descriptor, metadata, customDataVersion.shortValue());
 
                 // Build the activity
                 try {

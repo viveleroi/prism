@@ -27,8 +27,8 @@ import lombok.Getter;
 
 import network.darkhelmet.prism.loader.services.configuration.cache.CacheConfiguration;
 import network.darkhelmet.prism.loader.services.configuration.filters.FilterConfiguartion;
-
 import network.darkhelmet.prism.loader.services.configuration.purge.PurgeConfiguration;
+
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 

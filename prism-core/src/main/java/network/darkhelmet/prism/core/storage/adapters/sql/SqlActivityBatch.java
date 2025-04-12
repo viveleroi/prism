@@ -24,19 +24,15 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import network.darkhelmet.prism.api.actions.IBlockAction;
 import network.darkhelmet.prism.api.actions.ICustomData;
 import network.darkhelmet.prism.api.actions.IEntityAction;
 import network.darkhelmet.prism.api.actions.IMaterialAction;
-import network.darkhelmet.prism.api.activities.IActivity;
 import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.storage.IActivityBatch;
 import network.darkhelmet.prism.api.util.NamedIdentity;
@@ -51,7 +47,6 @@ import org.jooq.types.UShort;
 
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
-import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES_CUSTOM_DATA;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_MATERIALS;
@@ -72,7 +67,7 @@ public class SqlActivityBatch implements IActivityBatch {
     /**
      * The serializer version.
      */
-    protected final int serializerVersion;
+    protected final short serializerVersion;
 
     /**
      * The cache service.
@@ -95,19 +90,6 @@ public class SqlActivityBatch implements IActivityBatch {
     protected PreparedStatement statement;
 
     /**
-     * Cache a map of the activities with extra data.
-     *
-     * <p>The integer is "index" of the activity in this batch. Used to map
-     * generated keys to the activity when we need to write custom data.</p>
-     */
-    private final Map<Integer, IActivity> activitiesWithCustomData = new HashMap<>();
-
-    /**
-     * Count the "index" of the activities in this batch.
-     */
-    private int activityBatchIndex = 0;
-
-    /**
      * Construct a new batch handler.
      *
      * @param create The DSL context
@@ -118,7 +100,7 @@ public class SqlActivityBatch implements IActivityBatch {
             LoggingService loggingService,
             HikariDataSource dataSource,
             DSLContext create,
-            int serializerVersion,
+            short serializerVersion,
             CacheService cacheService) {
         this.loggingService = loggingService;
         this.dataSource = dataSource;
@@ -145,8 +127,11 @@ public class SqlActivityBatch implements IActivityBatch {
             PRISM_ACTIVITIES.WORLD_ID,
             PRISM_ACTIVITIES.CAUSE_ID,
             PRISM_ACTIVITIES.DESCRIPTOR,
-            PRISM_ACTIVITIES.METADATA
-        ).values((UInteger) null, null, null, null, null, null, null, null, null, null, null, null).getSQL();
+            PRISM_ACTIVITIES.METADATA,
+            PRISM_ACTIVITIES.SERIALIZER_VERSION,
+            PRISM_ACTIVITIES.SERIALIZED_DATA
+        ).values((UInteger) null, null, null, null, null, null, null, null, null, null, null, null, null, null)
+            .getSQL();
 
         statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
     }
@@ -225,13 +210,15 @@ public class SqlActivityBatch implements IActivityBatch {
             statement.setNull(12, Types.VARCHAR);
         }
 
-        if (activity.action() instanceof ICustomData) {
-            if (((ICustomData) activity.action()).hasCustomData()) {
-                activitiesWithCustomData.put(activityBatchIndex, activity);
+        if (activity.action() instanceof ICustomData customDataAction) {
+            if (customDataAction.hasCustomData()) {
+                statement.setShort(13, serializerVersion);
+                statement.setString(14, customDataAction.serializeCustomData());
+            } else {
+                statement.setNull(13, Types.SMALLINT);
+                statement.setNull(14, Types.VARCHAR);
             }
         }
-
-        activityBatchIndex++;
 
         statement.addBatch();
     }
@@ -547,53 +534,11 @@ public class SqlActivityBatch implements IActivityBatch {
         statement.executeBatch();
         connection.commit();
 
-        insertCustomData(statement.getGeneratedKeys());
-
-        // Clear queue data, reset just in case the batch is restarted.
-        activitiesWithCustomData.clear();
-        activityBatchIndex = 0;
-
         // Restore auto-commit
         connection.setAutoCommit(true);
 
         // Close stuff
         statement.close();
         connection.close();
-    }
-
-    /**
-     * Inserts additional activity data when necessary (tile entities, items, etc).
-     *
-     * @param keys The generate keys resultset from the parent activity batch insert
-     * @throws SQLException Database exception
-     */
-    private void insertCustomData(ResultSet keys) throws SQLException {
-        String insert = create.insertInto(PRISM_ACTIVITIES_CUSTOM_DATA,
-            PRISM_ACTIVITIES_CUSTOM_DATA.ACTIVITY_ID,
-            PRISM_ACTIVITIES_CUSTOM_DATA.VERSION,
-            PRISM_ACTIVITIES_CUSTOM_DATA.DATA).values((UInteger) null, null, null).getSQL();
-
-        PreparedStatement dataStatement = connection.prepareStatement(insert);
-
-        int i = 0;
-        while (keys.next()) {
-            if (activitiesWithCustomData.containsKey(i)) {
-                IActivity activity = activitiesWithCustomData.get(i);
-                ICustomData customDataAction = (ICustomData) activity.action();
-
-                int activityId = keys.getInt(1);
-                String customData = customDataAction.serializeCustomData();
-
-                dataStatement.setInt(1, activityId);
-                dataStatement.setInt(2, serializerVersion);
-                dataStatement.setString(3, customData);
-                dataStatement.addBatch();
-            }
-
-            i++;
-        }
-
-        dataStatement.executeBatch();
-        connection.commit();
     }
 }

@@ -14,8 +14,8 @@ CREATE OR REPLACE FUNCTION %prefix%create_activity (
     p_oldBlockData VARCHAR(155),
     p_world VARCHAR(255),
     p_worldUuid CHAR(36),
-    p_customDataVersion INTEGER,
-    p_customData TEXT,
+    p_serializerVersion INTEGER,
+    p_serializedData TEXT,
     p_descriptor VARCHAR(255),
     p_metadata VARCHAR(255)
 )
@@ -62,16 +62,10 @@ BEGIN
     -- Insert into activities table
     INSERT INTO %prefix%activities
         ("timestamp", world_id, x, y, z, action_id, material_id,
-         old_material_id, entity_type_id, cause_id, descriptor, metadata)
+         old_material_id, entity_type_id, cause_id, descriptor, metadata, serializer_version, serialized_data)
     VALUES
         (p_timestamp, v_worldId, p_x, p_y, p_z, v_actionId, v_materialId,
-         v_oldMaterialId, v_entityTypeId, v_causeId, p_descriptor, p_metadata)
+         v_oldMaterialId, v_entityTypeId, v_causeId, p_descriptor, p_metadata, p_serializerVersion, p_serializedData)
     RETURNING activity_id INTO v_activityId;
-
-    -- Insert into custom data table
-    IF p_customData IS NOT NULL THEN
-        INSERT INTO %prefix%activities_custom_data (activity_id, version, data)
-        VALUES (v_activityId, p_customDataVersion, p_customData);
-    END IF;
 END;
 $$ LANGUAGE plpgsql;

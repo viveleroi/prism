@@ -22,8 +22,8 @@ package network.darkhelmet.prism.core.storage.dbo.records;
 
 import org.jooq.Field;
 import org.jooq.Record1;
-import org.jooq.Record14;
-import org.jooq.Row14;
+import org.jooq.Record16;
+import org.jooq.Row16;
 import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
@@ -33,7 +33,7 @@ import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStor
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRecord> implements
-        Record14<
+        Record16<
             UInteger,
             UInteger,
             UByte,
@@ -46,6 +46,8 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
             UShort,
             UInteger,
             String,
+            String,
+            UShort,
             String,
             Boolean> {
     private static final long serialVersionUID = 1L;
@@ -246,10 +248,40 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
     }
 
     /**
+     * Setter for <code>prism_activities.serializer_version</code>.
+     */
+    public PrismActivitiesRecord setSerializerVersion(UShort value) {
+        set(13, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>prism_activities.serializer_version</code>.
+     */
+    public UShort getSerializerVersion() {
+        return (UShort) get(13);
+    }
+
+    /**
+     * Setter for <code>prism_activities.serialized_data</code>.
+     */
+    public PrismActivitiesRecord setSerializedData(String value) {
+        set(14, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>prism_activities.serialized_data</code>.
+     */
+    public String getSerializedData() {
+        return (String) get(14);
+    }
+
+    /**
      * Setter for <code>prism_activities.reversed</code>.
      */
     public PrismActivitiesRecord setReversed(Boolean value) {
-        set(12, value);
+        set(15, value);
         return this;
     }
 
@@ -257,7 +289,7 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
      * Getter for <code>prism_activities.reversed</code>.
      */
     public Boolean getReversed() {
-        return (Boolean) get(12);
+        return (Boolean) get(15);
     }
 
     // -------------------------------------------------------------------------
@@ -274,7 +306,7 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
     // -------------------------------------------------------------------------
 
     @Override
-    public Row14<
+    public Row16<
         UInteger,
         UInteger,
         UByte,
@@ -287,13 +319,15 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
         UShort,
         UInteger,
         String,
+        String,
+        UShort,
         String,
         Boolean> fieldsRow() {
-        return (Row14) super.fieldsRow();
+        return (Row16) super.fieldsRow();
     }
 
     @Override
-    public Row14<
+    public Row16<
         UInteger,
         UInteger,
         UByte,
@@ -306,9 +340,11 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
         UShort,
         UInteger,
         String,
+        String,
+        UShort,
         String,
         Boolean> valuesRow() {
-        return (Row14) super.valuesRow();
+        return (Row16) super.valuesRow();
     }
 
     @Override
@@ -377,7 +413,17 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
     }
 
     @Override
-    public Field<Boolean> field14() {
+    public Field<UShort> field14() {
+        return PRISM_ACTIVITIES.SERIALIZER_VERSION;
+    }
+
+    @Override
+    public Field<String> field15() {
+        return PRISM_ACTIVITIES.SERIALIZED_DATA;
+    }
+
+    @Override
+    public Field<Boolean> field16() {
         return PRISM_ACTIVITIES.REVERSED;
     }
 
@@ -447,7 +493,17 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
     }
 
     @Override
-    public Boolean component14() {
+    public UShort component14() {
+        return getSerializerVersion();
+    }
+
+    @Override
+    public String component15() {
+        return getSerializedData();
+    }
+
+    @Override
+    public Boolean component16() {
         return getReversed();
     }
 
@@ -595,12 +651,34 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
     }
 
     @Override
-    public Boolean value14() {
+    public UShort value14() {
+        return getSerializerVersion();
+    }
+
+    @Override
+    public PrismActivitiesRecord value14(UShort value) {
+        setSerializerVersion(value);
+        return this;
+    }
+
+    @Override
+    public String value15() {
+        return getSerializedData();
+    }
+
+    @Override
+    public PrismActivitiesRecord value15(String value) {
+        setSerializedData(value);
+        return this;
+    }
+
+    @Override
+    public Boolean value16() {
         return getReversed();
     }
 
     @Override
-    public PrismActivitiesRecord value14(Boolean value) {
+    public PrismActivitiesRecord value16(Boolean value) {
         setReversed(value);
         return this;
     }
@@ -620,7 +698,9 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
             UInteger value11,
             String value12,
             String value13,
-            Boolean value14) {
+            UShort value14,
+            String value15,
+            Boolean value16) {
         value1(value1);
         value2(value2);
         value3(value3);
@@ -635,6 +715,8 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
         value12(value12);
         value13(value13);
         value14(value14);
+        value15(value15);
+        value16(value16);
         return this;
     }
 
@@ -666,6 +748,8 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
             UInteger causeId,
             String descriptor,
             String metadata,
+            UShort serializerVersion,
+            String serializedData,
             Boolean reversed) {
         super(PRISM_ACTIVITIES);
 
@@ -682,6 +766,8 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
         setCauseId(causeId);
         setDescriptor(descriptor);
         setMetadata(metadata);
+        setSerializerVersion(serializerVersion);
+        setSerializedData(serializedData);
         setReversed(reversed);
     }
 }
