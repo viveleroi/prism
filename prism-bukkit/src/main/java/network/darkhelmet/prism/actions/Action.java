@@ -22,6 +22,8 @@ package network.darkhelmet.prism.actions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.Setter;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
@@ -39,6 +41,7 @@ public abstract class Action implements IAction {
     /**
      * The descriptor.
      */
+    @Setter
     protected String descriptor = "";
 
     /**

@@ -61,7 +61,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
     public static final ActionType ENTITY_DYE =
         new EntityActionType("entity-dye", ActionResultType.REPLACES, true);
     public static final ActionType ENTITY_EAT =
-        new BlockActionType("entity-eat", ActionResultType.CREATES, true);
+        new BlockActionType("entity-eat", ActionResultType.REMOVES, true);
     public static final ActionType ENTITY_KILL =
         new EntityActionType("entity-kill", ActionResultType.REMOVES, true);
     public static final ActionType ENTITY_LEASH =

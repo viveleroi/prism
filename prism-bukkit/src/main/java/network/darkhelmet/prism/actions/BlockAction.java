@@ -101,6 +101,21 @@ public class BlockAction extends MaterialAction implements IBlockAction {
      * Construct a block state action.
      *
      * @param type The action type
+     * @param material The material
+     * @param replacedMaterial The replaced material
+     */
+    public BlockAction(IActionType type, Material material, @Nullable Material replacedMaterial) {
+        super(type, material);
+        this.replacedMaterial = replacedMaterial;
+        this.blockData = null;
+        this.replacedBlockData = null;
+        this.readWriteNbt = null;
+    }
+
+    /**
+     * Construct a block state action.
+     *
+     * @param type The action type
      * @param blockData The block data
      * @param replacedBlockData The replaced block data
      */
@@ -149,7 +164,7 @@ public class BlockAction extends MaterialAction implements IBlockAction {
 
     @Override
     public @Nullable String serializeBlockData() {
-        return this.blockData.getAsString().replaceAll("^[^\\[]+", "");
+        return this.blockData != null ? this.blockData.getAsString().replaceAll("^[^\\[]+", "") : "";
     }
 
     @Override

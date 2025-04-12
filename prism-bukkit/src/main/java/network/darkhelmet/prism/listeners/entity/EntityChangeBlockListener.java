@@ -23,6 +23,7 @@ package network.darkhelmet.prism.listeners.entity;
 import com.google.inject.Inject;
 
 import network.darkhelmet.prism.actions.ActionFactory;
+import network.darkhelmet.prism.actions.BlockAction;
 import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.activities.Activity;
@@ -86,8 +87,9 @@ public class EntityChangeBlockListener extends AbstractListener implements Liste
                 return;
             }
 
-            IAction action = actionFactory.createBlockStateAction(
-                ActionTypeRegistry.ENTITY_EAT, newState, oldState);
+            // The event.getTo method return AIR for some insane reason. Since we know sheep can only
+            // turn grass into dirt, we'll just fake the "new" material.
+            var action = new BlockAction(ActionTypeRegistry.ENTITY_EAT, event.getBlock().getType(), Material.DIRT);
 
             // Build the block activity
             final ISingleActivity activity = Activity.builder()
