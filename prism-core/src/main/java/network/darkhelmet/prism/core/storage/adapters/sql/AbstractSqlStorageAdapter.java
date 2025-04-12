@@ -590,6 +590,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
 
             // World
             UUID worldUuid = UUID.fromString(r.getValue(PRISM_WORLDS.WORLD_UUID));
+            var world = new NamedIdentity(worldUuid, r.getValue(PRISM_WORLDS.WORLD));
 
             // Location
             int x = 0;
@@ -605,7 +606,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
                 z = r.getValue(PRISM_ACTIVITIES.Z);
             }
 
-            WorldCoordinate coordinate = new WorldCoordinate(new NamedIdentity(worldUuid, null), x, y, z);
+            WorldCoordinate coordinate = new WorldCoordinate(world, x, y, z);
 
             // Entity type
             String entityType = null;

@@ -3,7 +3,6 @@ plugins {
 }
 
 dependencies {
-    compileOnly project.property('deps.adventure-platform-api')
     compileOnly project.property('deps.guava')
     compileOnly project.property('deps.log4j-api')
     implementation project.property('deps.configurate-hocon')

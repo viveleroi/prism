@@ -158,6 +158,7 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
         // Add fields useful for all query types
         queryBuilder.addSelect(
             PRISM_WORLDS.WORLD_UUID,
+            PRISM_WORLDS.WORLD,
             PRISM_MATERIALS.MATERIAL,
             PRISM_ENTITY_TYPES.ENTITY_TYPE,
             PRISM_ACTIONS.ACTION,

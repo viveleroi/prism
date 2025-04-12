@@ -49,9 +49,7 @@ import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.services.translation.TranslationService;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -233,22 +231,25 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
     protected Component location(CommandSender receiver, WorldCoordinate worldCoordinate) {
         Component hover = Component.text(translationService.messageOf(receiver, "text.click-to-teleport"));
 
-        return Component.text()
+        var builder = Component.text()
             .append(Component.text((int) worldCoordinate.x()))
             .append(Component.text(" "))
             .append(Component.text((int) worldCoordinate.y()))
             .append(Component.text(" "))
             .append(Component.text((int) worldCoordinate.z()))
-            .hoverEvent(HoverEvent.showText(hover))
-            .clickEvent(ClickEvent.callback((audience) -> {
-                if (receiver instanceof Player player) {
-                    World world = Bukkit.getServer().getWorld(worldCoordinate.world().uuid());
-                    Location location = new Location(world,
-                        worldCoordinate.x(), worldCoordinate.y(), worldCoordinate.z());
-                    player.teleport(location);
-                }
-            }))
-            .build();
+            .hoverEvent(HoverEvent.showText(hover));
+
+        if (receiver instanceof Player player) {
+            var command = String.format("/prism teleport loc %s %s %d %d %d",
+                player.getName(),
+                worldCoordinate.world().name(),
+                worldCoordinate.intX(),
+                worldCoordinate.intY(),
+                worldCoordinate.intZ());
+            builder.clickEvent(ClickEvent.runCommand(command));
+        }
+
+        return builder.build();
     }
 
     /**
