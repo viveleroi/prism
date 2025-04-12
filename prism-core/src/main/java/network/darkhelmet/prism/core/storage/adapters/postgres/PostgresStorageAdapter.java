@@ -105,9 +105,9 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
                     describeDatabase(false);
                     prepareSchema();
                     prepareCache();
-                }
 
-                ready = true;
+                    ready = true;
+                }
             }
         } catch (Exception e) {
             loggingService.handleException(e);
