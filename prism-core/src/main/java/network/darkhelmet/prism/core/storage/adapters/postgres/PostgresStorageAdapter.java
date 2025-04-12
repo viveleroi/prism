@@ -127,12 +127,18 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
 
             if (configurationService.storageConfig().postgres().useStoredProcedures()) {
                 boolean supportsProcedures = databaseMetaData.supportsStoredProcedures();
-
                 loggingService.logger().info(String.format("supports procedures: %b", supportsProcedures));
-                loggingService.logger().info("Prism does not yet verify your postgres database "
-                    + "user has create function permissions, so we assume you do.");
 
-                if (!supportsProcedures) {
+                var canCreateFunctions = create.fetchSingle(
+                    "SELECT bool_or(has_schema_privilege(n.oid, 'CREATE')) FROM pg_namespace;")
+                        .into(Boolean.class);
+                loggingService.logger().info(String.format("can create functions: %b", canCreateFunctions));
+
+                var usingStoredProcedures = supportsProcedures && canCreateFunctions
+                    && configurationService.storageConfig().postgres().useStoredProcedures();
+                loggingService.logger().info(String.format("using stored procedures: %b", usingStoredProcedures));
+
+                if (!usingStoredProcedures) {
                     configurationService.storageConfig().postgres().disallowStoredProcedures();
                 }
             }

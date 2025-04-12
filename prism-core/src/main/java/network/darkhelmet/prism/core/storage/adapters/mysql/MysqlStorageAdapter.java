@@ -135,15 +135,20 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
 
             if (configurationService.storageConfig().mysql().useStoredProcedures()) {
                 boolean supportsProcedures = databaseMetaData.supportsStoredProcedures();
+                loggingService.logger().info(String.format("supports procedures: %b", supportsProcedures));
 
                 List<String> grants = create.fetch("SHOW GRANTS FOR CURRENT_USER();").into(String.class);
-                boolean canCreateRoutines = grants.get(0).contains("CREATE ROUTINE");
-                loggingService.logger().info(String.format("supports procedures: %b", supportsProcedures));
+                boolean canCreateRoutines = grants.get(0).contains("CREATE ROUTINE")
+                    || grants.get(0).contains("GRANT ALL PRIVILEGES ON *.*")
+                    || grants.get(0).contains("GRANT ALL PRIVILEGES ON "
+                        + configurationService.storageConfig().mysql().database());
                 loggingService.logger().info(String.format("can create routines: %b", canCreateRoutines));
-                loggingService.logger().info(String.format("using stored procedures: %b", canCreateRoutines
-                    && configurationService.storageConfig().mysql().useStoredProcedures()));
 
-                if (!supportsProcedures || !canCreateRoutines) {
+                var usingStoredProcedures = supportsProcedures && canCreateRoutines
+                    && configurationService.storageConfig().mysql().useStoredProcedures();
+                loggingService.logger().info(String.format("using stored procedures: %b", usingStoredProcedures));
+
+                if (!usingStoredProcedures) {
                     configurationService.storageConfig().mysql().disallowStoredProcedures();
                 }
             }
