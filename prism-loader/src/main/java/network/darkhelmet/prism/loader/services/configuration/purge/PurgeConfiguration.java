@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.loader.services.configuration;
+package network.darkhelmet.prism.loader.services.configuration.purge;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package network.darkhelmet.prism.loader.services.configuration;
+package network.darkhelmet.prism.loader.services.configuration.purge;
 
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
@@ -30,7 +30,7 @@ public class CommandScheduleConfiguration {
             Commands will be executed by the console and will effectively have OP permissions.
             The default command will purge all records more than six weeks old.
             """)
-    private String command = "prism purge before:6w -nodefaults";
+    private String command = "prism purge before:6w --nodefaults";
 
     @Comment("""
             Configure the execution time(s) of this command using cron syntax.

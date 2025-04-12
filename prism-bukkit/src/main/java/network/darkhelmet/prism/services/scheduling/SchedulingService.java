@@ -34,7 +34,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 
-import network.darkhelmet.prism.loader.services.configuration.CommandScheduleConfiguration;
+import network.darkhelmet.prism.loader.services.configuration.purge.CommandScheduleConfiguration;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
