@@ -170,7 +170,7 @@ public class PlayerInteractListener extends AbstractListener implements Listener
                 .build();
 
             recordingService.addToQueue(activity);
-        } else if (TagLib.USABLE.isTagged(event.getMaterial())) {
+        } else if (TagLib.USABLE.isTagged(event.getClickedBlock().getType())) {
             // Ignore if this event is disabled
             if (!configurationService.prismConfig().actions().blockUse()) {
                 return;
