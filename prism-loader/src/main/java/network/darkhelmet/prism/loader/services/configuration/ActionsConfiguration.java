@@ -38,7 +38,7 @@ public class ActionsConfiguration {
     private boolean blockFade = false;
 
     @Comment("block-form is when a block forms - concrete, snow, etc.")
-    private boolean blockForm = false;
+    private boolean blockForm = true;
 
     @Comment("block-harvest is when a player harvests a block without breaking it (sweet berries).")
     private boolean blockHarvest = true;
@@ -106,8 +106,8 @@ public class ActionsConfiguration {
 
     @Comment("""
             fluid-flow tracks the flow of water and lava. Even when this is false,
-            prism will record blocks broken by water/lava.
-            We strongly, strongly, strongly recommend leaving this false and using
+            prism will record blocks broken by either.
+            We very strongly recommend leaving this false and using
             a drain command instead. This produces an insane amount of activity data.
             """)
     private boolean fluidFlow = false;
@@ -152,7 +152,7 @@ public class ActionsConfiguration {
     private boolean playerTeleport = true;
 
     @Comment("sign-edit is when a player edits the text on a sign.")
-    private boolean signEdit = false;
+    private boolean signEdit = true;
 
     @Comment("vehicle-break is when something breaks a boat or minecart.")
     private boolean vehicleBreak = true;
