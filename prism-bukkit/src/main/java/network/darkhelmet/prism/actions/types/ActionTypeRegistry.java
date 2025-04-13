@@ -22,6 +22,7 @@ package network.darkhelmet.prism.actions.types;
 
 import com.google.inject.Singleton;
 
+import network.darkhelmet.prism.api.actions.metadata.ReasonMetadata;
 import network.darkhelmet.prism.api.actions.metadata.TeleportMetadata;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
@@ -70,6 +71,8 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         new EntityActionType("entity-place", ActionResultType.CREATES, true);
     public static final ActionType ENTITY_SHEAR =
         new EntityActionType("entity-shear", ActionResultType.CREATES, true);
+    public static final ActionType ENTITY_TRANSFORM =
+        new EntityActionType("entity-transform", ActionResultType.CREATES, false, ReasonMetadata.class);
     public static final ActionType ENTITY_UNLEASH =
         new EntityActionType("entity-unleash", ActionResultType.NONE, false);
     public static final ActionType FLUID_FLOW =
@@ -133,6 +136,7 @@ public class ActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(ENTITY_LEASH);
         registerAction(ENTITY_PLACE);
         registerAction(ENTITY_SHEAR);
+        registerAction(ENTITY_TRANSFORM);
         registerAction(ENTITY_UNLEASH);
         registerAction(FLUID_FLOW);
         registerAction(HANGING_BREAK);

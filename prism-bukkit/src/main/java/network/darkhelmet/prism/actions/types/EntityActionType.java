@@ -23,6 +23,8 @@ package network.darkhelmet.prism.actions.types;
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import network.darkhelmet.prism.actions.EntityAction;
 import network.darkhelmet.prism.api.actions.ActionData;
 import network.darkhelmet.prism.api.actions.IAction;
@@ -30,6 +32,8 @@ import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
 
 import org.bukkit.entity.EntityType;
+
+import static network.darkhelmet.prism.actions.Action.ObjectMapper;
 
 public class EntityActionType extends ActionType {
     /**
@@ -39,8 +43,22 @@ public class EntityActionType extends ActionType {
      * @param resultType The result type
      * @param reversible If action is reversible
      */
-    public EntityActionType(String key, ActionResultType resultType, boolean reversible) {
+    public EntityActionType(
+            String key, ActionResultType resultType, boolean reversible) {
         super(key, resultType, reversible);
+    }
+
+    /**
+     * Construct a new entity action type.
+     *
+     * @param key The key
+     * @param resultType The result type
+     * @param reversible If action is reversible
+     * @param metadataClass The metadata class
+     */
+    public EntityActionType(
+            String key, ActionResultType resultType, boolean reversible, Class<? extends Record> metadataClass) {
+        super(key, resultType, reversible, metadataClass);
     }
 
     @Override
@@ -52,6 +70,15 @@ public class EntityActionType extends ActionType {
 
         EntityType type = EntityType.valueOf(actionData.entityType());
 
-        return new EntityAction(this, type, readWriteNbt, actionData.descriptor());
+        Record metadata = null;
+        if (actionData.metadata() != null) {
+            try {
+                metadata = ObjectMapper.readValue(actionData.metadata(), metadataClass());
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return new EntityAction(this, type, readWriteNbt, actionData.descriptor(), metadata);
     }
 }

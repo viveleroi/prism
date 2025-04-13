@@ -98,6 +98,9 @@ public class ActionsConfiguration {
     @Comment("entity-shear is when a player shears an entity.")
     private boolean entityShear = true;
 
+    @Comment("entity-transform is for villager healing, tadpoles to frogs, etc.")
+    private boolean entityTransform = true;
+
     @Comment("entity-unleash is when a player or natural cause unleashes an entity.")
     private boolean entityUnleash = true;
 

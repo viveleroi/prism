@@ -28,6 +28,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import network.darkhelmet.prism.api.actions.IAction;
+import network.darkhelmet.prism.api.actions.metadata.ReasonMetadata;
 import network.darkhelmet.prism.api.actions.metadata.TeleportMetadata;
 import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.services.translation.ITranslationService;
@@ -36,7 +37,7 @@ public abstract class Action implements IAction {
     /**
      * The object mapper.
      */
-    protected static final ObjectMapper objectMapper = new ObjectMapper();
+    public static final ObjectMapper ObjectMapper = new ObjectMapper();
 
     /**
      * The descriptor.
@@ -105,6 +106,13 @@ public abstract class Action implements IAction {
                 .append(Component.text(using + ": ", NamedTextColor.GRAY))
                 .append(Component.text(teleportMetadata.using(), NamedTextColor.WHITE))
                 .build();
+        } else if (metadata instanceof ReasonMetadata reasonMetadata) {
+            String reason = translationService.translate(receiver, "text.metadata-hover-reason");
+
+            return Component.text()
+                .append(Component.text(reason + ": ", NamedTextColor.GRAY))
+                .append(Component.text(reasonMetadata.reason(), NamedTextColor.WHITE))
+                .build();
         }
 
         return null;
@@ -112,7 +120,7 @@ public abstract class Action implements IAction {
 
     @Override
     public String serializeMetadata() throws Exception {
-        return objectMapper.writeValueAsString(metadata);
+        return ObjectMapper.writeValueAsString(metadata);
     }
 
     @Override

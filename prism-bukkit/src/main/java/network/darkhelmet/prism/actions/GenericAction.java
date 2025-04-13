@@ -59,7 +59,7 @@ public class GenericAction extends Action implements IAction {
     public GenericAction(IActionType type, String descriptor, String metadata) throws Exception {
         super(type, descriptor);
 
-        this.metadata = objectMapper.readValue(metadata, type.metadataClass());
+        this.metadata = ObjectMapper.readValue(metadata, type.metadataClass());
     }
 
     @Override

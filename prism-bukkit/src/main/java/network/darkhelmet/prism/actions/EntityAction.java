@@ -59,6 +59,19 @@ public class EntityAction extends Action implements IEntityAction {
      *
      * @param type The action type
      * @param entity The entity
+     * @param metadata The metadata
+     */
+    public EntityAction(IActionType type, Entity entity, Record metadata) {
+        this(type, entity);
+
+        this.metadata = metadata;
+    }
+
+    /**
+     * Construct a new entity action.
+     *
+     * @param type The action type
+     * @param entity The entity
      */
     public EntityAction(IActionType type, Entity entity) {
         super(type);
@@ -95,9 +108,11 @@ public class EntityAction extends Action implements IEntityAction {
      * @param entityType The entity type
      * @param readWriteNbt The read/write nbt
      * @param descriptor The descriptor
+     * @param metadata The metadata
      */
-    public EntityAction(IActionType type, EntityType entityType, ReadWriteNBT readWriteNbt, String descriptor) {
-        super(type, descriptor, null);
+    public EntityAction(
+            IActionType type, EntityType entityType, ReadWriteNBT readWriteNbt, String descriptor, Record metadata) {
+        super(type, descriptor, metadata);
 
         this.entityType = entityType;
         this.readWriteNbt = readWriteNbt;
