@@ -1,0 +1,342 @@
+/*
+ * prism
+ *
+ * Copyright (c) 2022 M Botsko (viveleroi)
+ *                    Contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package network.darkhelmet.prism.bukkit.listeners;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import network.darkhelmet.prism.api.actions.IAction;
+import network.darkhelmet.prism.api.actions.IActionFactory;
+import network.darkhelmet.prism.api.actions.types.ActionType;
+import network.darkhelmet.prism.api.activities.Activity;
+import network.darkhelmet.prism.api.activities.ISingleActivity;
+import network.darkhelmet.prism.api.services.expectations.ExpectationType;
+import network.darkhelmet.prism.bukkit.actions.ActionFactory;
+import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
+import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
+import network.darkhelmet.prism.bukkit.utils.BlockUtils;
+import network.darkhelmet.prism.bukkit.utils.EntityUtils;
+import network.darkhelmet.prism.bukkit.utils.LocationUtils;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
+
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+
+public class AbstractListener {
+    /**
+     * The configuration service.
+     */
+    protected final ConfigurationService configurationService;
+
+    /**
+     * The action registry.
+     */
+    protected final IActionFactory<BlockState, BlockData, Entity, ItemStack> actionFactory;
+
+    /**
+     * The expectation service.
+     */
+    protected final ExpectationService expectationService;
+
+    /**
+     * The recording service.
+     */
+    protected final RecordingService recordingService;
+
+    /**
+     * Construct the listener.
+     *
+     * @param configurationService The configuration service
+     * @param actionFactory The action factory
+     * @param expectationService The expectation service
+     * @param recordingService The recording service
+     */
+    public AbstractListener(
+            ConfigurationService configurationService,
+            ActionFactory actionFactory,
+            ExpectationService expectationService,
+            RecordingService recordingService) {
+        this.configurationService = configurationService;
+        this.actionFactory = actionFactory;
+        this.expectationService = expectationService;
+        this.recordingService = recordingService;
+    }
+
+    /**
+     * Converts a cause to a string name.
+     *
+     * @param cause The cause
+     * @return The cause name
+     */
+    protected String nameFromCause(Object cause) {
+        String finalCause = null;
+        if (cause instanceof Entity causeEntity) {
+            if (causeEntity.getType().equals(EntityType.FALLING_BLOCK)) {
+                finalCause = "gravity";
+            } else {
+                finalCause = causeEntity.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+            }
+        } else if (cause instanceof EntityType causeEntityType) {
+            finalCause = causeEntityType.name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+        } else if (cause instanceof Block causeBlock) {
+            finalCause = causeBlock.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+        } else if (cause instanceof BlockState causeBlockState) {
+            finalCause = causeBlockState.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+        } else if (cause instanceof BlockIgniteEvent.IgniteCause igniteCause) {
+            finalCause = igniteCause.name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+        } else if (cause instanceof EntityDamageEvent.DamageCause damageCause) {
+            finalCause = damageCause.name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+        } else if (cause instanceof String causeStr) {
+            finalCause = causeStr;
+        }
+
+        return finalCause;
+    }
+
+    /**
+     * Process a block break. This looks for hanging items, detachables, etc.
+     *
+     * @param brokenBlock The block.
+     * @param cause The cause.
+     */
+    protected void processBlockBreak(Block brokenBlock, Object cause) {
+        final Block block = BlockUtils.rootBlock(brokenBlock);
+
+        // Find any hanging entities.
+        if (configurationService.prismConfig().actions().hangingBreak()) {
+            for (Entity hanging : EntityUtils.hangingEntities(block.getLocation(), 2)) {
+                expectationService.cacheFor(ExpectationType.DETACH).expect(hanging, cause);
+            }
+        }
+
+        // Ignore if this event is disabled
+        if (!configurationService.prismConfig().actions().blockBreak()) {
+            return;
+        }
+
+        // Record all blocks that will detach
+        for (Block detachable : BlockUtils.detachables(new ArrayList<>(), block)) {
+            recordBlockBreakAction(detachable, cause);
+        }
+
+        // Record this block
+        recordBlockBreakAction(block, cause);
+    }
+
+    /**
+     * Process explosions.
+     *
+     * <p>This skips detachable logic because the affected
+     * block lists will already include them.</p>
+     *
+     * <p>This skips checking for hanging items because
+     * they're AIR by now.</p>
+     *
+     * @param affectedBlocks A list of affected blocks
+     * @param cause The cause
+     */
+    protected void processExplosion(List<Block> affectedBlocks, Object cause) {
+        for (Block affectedBlock : affectedBlocks) {
+            final Block block = BlockUtils.rootBlock(affectedBlock);
+
+            // Ignore if this event is disabled
+            if (!configurationService.prismConfig().actions().blockBreak()) {
+                continue;
+            }
+
+            // Record all blocks that will fall
+            for (Block faller : BlockUtils.gravityAffectedBlocksAbove(new ArrayList<>(), block)) {
+                // Skip blocks already in the affected block list
+                if (affectedBlocks.contains(faller)) {
+                    continue;
+                }
+
+                recordBlockBreakAction(faller, cause);
+            }
+
+            // Record this block
+            recordBlockBreakAction(block, cause);
+        }
+    }
+
+    /**
+     * Convenience method for recording a block break action.
+     *
+     * @param block The block
+     * @param cause The cause
+     */
+    protected void recordBlockBreakAction(Block block, Object cause) {
+        // Build the action
+        final IAction action = actionFactory.createBlockStateAction(ActionTypeRegistry.BLOCK_BREAK, block.getState());
+
+        // Build the block break by player activity
+        Activity.ActivityBuilder builder = Activity.builder();
+        builder.action(action).location(LocationUtils.locToWorldCoordinate(block.getLocation()));
+
+        if (cause instanceof String) {
+            builder.cause((String) cause);
+        } else if (cause instanceof Player player) {
+            builder.player(player.getUniqueId(), player.getName());
+        }
+
+        ISingleActivity activity = builder.build();
+        recordingService.addToQueue(activity);
+    }
+
+    /**
+     * Record an item drop activity.
+     *
+     * @param location The location
+     * @param destroyer What or who destroyed the inventory
+     * @param itemStack The item stack
+     * @param amount The amount
+     */
+    protected void recordItemDropActivity(
+            Location location, Object destroyer, ItemStack itemStack, Integer amount) {
+        if (!configurationService.prismConfig().actions().itemDrop()) {
+            return;
+        }
+
+        Player player = null;
+        String cause = null;
+
+        if (destroyer instanceof Player _player) {
+            player = _player;
+        } else if (destroyer instanceof String _cause) {
+            cause = _cause;
+        }
+
+        recordItemActivity(ActionTypeRegistry.ITEM_DROP, location, player, cause, itemStack, amount, null);
+    }
+
+    /**
+     * Record item drops from a given inventory.
+     *
+     * @param inventory The inventory
+     * @param location The location
+     * @param destroyer What or who destroyed the inventory
+     */
+    protected void recordItemDropFromInventory(
+            Inventory inventory, Location location, Object destroyer) {
+        if (!configurationService.prismConfig().actions().itemDrop()) {
+            return;
+        }
+
+        for (ItemStack item : inventory.getContents()) {
+            if (item != null) {
+                recordItemDropActivity(location, destroyer, item, null);
+            }
+        }
+    }
+
+    /**
+     * Record an item insert activity.
+     *
+     * @param location The location
+     * @param player The player
+     * @param itemStack The item stack
+     * @param amount The amount
+     * @param slot The slot
+     */
+    protected void recordItemInsertActivity(
+            Location location, Player player, ItemStack itemStack, Integer amount, Integer slot) {
+        if (!configurationService.prismConfig().actions().itemInsert()) {
+            return;
+        }
+
+        recordItemActivity(ActionTypeRegistry.ITEM_INSERT, location, player, null, itemStack, amount, slot);
+    }
+
+    /**
+     * Record an item remove activity.
+     *
+     * @param location The location
+     * @param player The player
+     * @param itemStack The item stack
+     * @param amount The amount
+     * @param slot The slot
+     */
+    protected void recordItemRemoveActivity(
+            Location location, Player player, ItemStack itemStack, Integer amount, Integer slot) {
+        if (!configurationService.prismConfig().actions().itemInsert()) {
+            return;
+        }
+
+        recordItemActivity(ActionTypeRegistry.ITEM_REMOVE, location, player, null, itemStack, amount, slot);
+    }
+
+    /**
+     * Record AN item insert/remove activity.
+     *
+     * @param actionType The action type
+     * @param location The location
+     * @param player The player
+     * @param cause The cause
+     * @param itemStack The item stack
+     * @param amount The amount
+     * @param slot The slot
+     */
+    private void recordItemActivity(
+            ActionType actionType,
+            Location location,
+            Player player,
+            String cause,
+            ItemStack itemStack,
+            Integer amount,
+            Integer slot) {
+        // Clone the item stack and set the quantity because
+        // this is what we use to record the action
+        ItemStack clonedStack = itemStack.clone();
+
+        if (amount != null) {
+            clonedStack.setAmount(amount);
+        }
+
+        // Build the action
+        final IAction action = actionFactory.createItemStackAction(actionType, clonedStack);
+
+        // Build the activity
+        var builder = Activity.builder()
+            .action(action)
+            .location(LocationUtils.locToWorldCoordinate(location));
+
+        if (player != null) {
+            builder.player(player.getUniqueId(), player.getName());
+        }
+
+        if (cause != null) {
+            builder.cause(cause);
+        }
+
+        recordingService.addToQueue(builder.build());
+    }
+}

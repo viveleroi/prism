@@ -49,7 +49,7 @@ runServer {
 bukkitPluginYaml {
     name.set('prism')
     version.set(project.property('version'))
-    main.set('network.darkhelmet.prism.PrismBukkitPluginLoader')
+    main.set('network.darkhelmet.prism.bukkit.loader.PrismBukkitPluginLoader')
     apiVersion.set(project.property('spigot-api-version'))
     website.set(project.property('website'))
     authors.add("viveleroi")
