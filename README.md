@@ -40,6 +40,10 @@ Prism was originally started by viveleroi in 2012, briefly taken over by another
 
 A rewrite is always needed after a decade of evolution.
 
+This repository was split off of the original for a cleaner history.
+
+[Prism v3 Repository][prism3]
+
 ## Contributing
 
 Contributions are very welcome. Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for help.
@@ -56,3 +60,4 @@ Prism is not a commercial project. It takes significant investment of time and e
 [discord]: https://discord.gg/7FxZScH4EJ
 [docs]: https://prism.readthedocs.io/en/latest
 [ci]: https://ci.darkhelmet.network/job/Prism-v4/
+[prism3]: https://github.com/prism/PrismRefracted
