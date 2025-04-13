@@ -4,7 +4,7 @@
 
 Prism v4 is **in testing and should not be used in a real server yet**.
 
-![Prism](https://darkhelmet-minecraft.s3.us-west-2.amazonaws.com/prism_title_800.avif)
+![Prism](https://darkhelmet-minecraft.s3.us-west-2.amazonaws.com/prism_title_800.png)
 
 ## Features
 
