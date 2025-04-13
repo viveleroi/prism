@@ -220,7 +220,7 @@ public enum Dependency {
         "item-nbt-api",
         "2.14.1",
         "ARymC3sKBsLcO32sFqzAbWMgCyyU0bTSrLnbjHJKmqY=",
-        EnumSet.of(DependencyRepository.CODEMC_DH, DependencyRepository.CODEMC),
+        EnumSet.of(DependencyRepository.CODEMC),
         Relocation.of("nbtapi", "de{}tr7zw{}changeme{}nbtapi")
     ),
     P6SPY(
@@ -272,7 +272,7 @@ public enum Dependency {
         "taskchain-bukkit",
         "3.7.2",
         "B/O3+zWGalLs8otAr8tdNnIc/39FDRh6tN5qvNgfEaI=",
-        EnumSet.of(DependencyRepository.AIKAR_DH, DependencyRepository.AIKAR),
+        EnumSet.of(DependencyRepository.AIKAR),
         Relocation.of("taskchain", "co{}aikar{}taskchain")
     ),
     TASKCHAIN_CORE(
@@ -280,7 +280,7 @@ public enum Dependency {
         "taskchain-core",
         "3.7.2",
         "OpSCCN+7v6gqFpsU/LUNOOXzjImwjyE2ShHZ5xFUj/Q=",
-        EnumSet.of(DependencyRepository.AIKAR_DH, DependencyRepository.AIKAR),
+        EnumSet.of(DependencyRepository.AIKAR),
         Relocation.of("taskchain", "co{}aikar{}taskchain")
     );
 
@@ -298,6 +298,7 @@ public enum Dependency {
     Dependency(String groupId, String artifactId, String version, String checksum, Relocation... relocations) {
         this(groupId, artifactId, version, checksum,
             EnumSet.of(
+                DependencyRepository.DH_MIRROR,
                 DependencyRepository.LUCK_MIRROR,
                 DependencyRepository.MAVEN_CENTRAL), relocations);
     }

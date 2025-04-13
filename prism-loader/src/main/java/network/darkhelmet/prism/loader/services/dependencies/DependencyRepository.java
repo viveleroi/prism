@@ -47,7 +47,7 @@ public enum DependencyRepository {
      * <p>This is used to reduce the load on repo.maven.org - I'm told they
      * don't like being used as a CDN.</p>
      */
-    // Please ask viveleroi for permission to use this mirror in your own project
+    // Nexus mirror specifically for prism and other darkhelmet projects
     DH_MIRROR("https://nexus.darkhelmet.network/repository/maven-central/") {
         @Override
         protected URLConnection openConnection(Dependency dependency) throws IOException {
@@ -57,7 +57,7 @@ public enum DependencyRepository {
             connection.setRequestProperty("User-Agent", "prism");
 
             // Set a connect/read timeout, so if the mirror goes offline we can fallback
-            // to Maven Central within a reasonable time.
+            // to the next mirror within a reasonable time.
             connection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(5));
             connection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(10));
 
@@ -86,11 +86,9 @@ public enum DependencyRepository {
     MAVEN_CENTRAL("https://repo1.maven.org/maven2/"),
 
     // Aikar (taskchain)
-    AIKAR_DH("https://nexus.darkhelmet.network/repository/aikar/"),
     AIKAR("https://repo.aikar.co/content/groups/aikar/"),
 
     // CodeMC (nbt-api)
-    CODEMC_DH("https://nexus.darkhelmet.network/repository/codemd/"),
     CODEMC("https://repo.codemc.org/repository/maven-public/");
 
     private final String url;
