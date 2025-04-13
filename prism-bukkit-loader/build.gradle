@@ -29,7 +29,7 @@ shadowJar {
     relocate 'com.typesafe', 'network.darkhelmet.prism.libs.typesafe'
     relocate 'com.fasterxml.jackson', 'network.darkhelmet.prism.libs.jackson'
     relocate 'dev.triumphteam', 'network.darkhelmet.prism.libs.triumphteam'
-    relocate 'net.kyori.adventure', 'network.darkhelmet.prism.libs.adventure'
+    relocate 'net.kyori', 'network.darkhelmet.prism.libs.kyori'
     relocate 'org.objectweb.asm', 'network.darkhelmet.prism.asm'
     relocate 'org.spongepowered.configurate', 'network.darkhelmet.prism.libs.configurate'
     relocate 'io.leangen.geantyref', 'network.darkhelmet.prism.libs.geantyref'
