@@ -597,7 +597,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
                 entityType = entityTypeName.toUpperCase(Locale.ENGLISH);
             }
 
-            // Material/serialization data
+            // Material
             String material = null;
             String materialName = r.getValue(PRISM_MATERIALS.MATERIAL);
             if (materialName != null) {

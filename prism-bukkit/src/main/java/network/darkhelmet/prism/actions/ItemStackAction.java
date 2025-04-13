@@ -23,6 +23,8 @@ package network.darkhelmet.prism.actions;
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 
+import lombok.Getter;
+
 import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.IItemAction;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
@@ -47,6 +49,7 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
     /**
      * The item stack.
      */
+    @Getter
     private final ItemStack itemStack;
 
     /**

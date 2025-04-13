@@ -8,6 +8,14 @@ plugins {
 dependencies {
     compileOnly project.property('deps.log4j-api')
     compileOnly project.property('deps.spigot-api')
+
+    // Include kyori here as triumph gui uses it
+    implementation project.property('deps.adventure-api')
+    implementation project.property('deps.adventure-bukkit')
+    implementation(project.property('deps.triumph-gui')) {
+        exclude(group: "net.kyori")
+    }
+
     implementation project(':prism-loader')
 }
 
@@ -18,14 +26,13 @@ shadowJar {
         project(':prism-bukkit').tasks.shadowJar.archiveFile
     }
 
+    relocate 'com.typesafe', 'network.darkhelmet.prism.libs.typesafe'
     relocate 'com.fasterxml.jackson', 'network.darkhelmet.prism.libs.jackson'
+    relocate 'dev.triumphteam', 'network.darkhelmet.prism.libs.triumphteam'
+    relocate 'net.kyori.adventure', 'network.darkhelmet.prism.libs.adventure'
     relocate 'org.objectweb.asm', 'network.darkhelmet.prism.asm'
     relocate 'org.spongepowered.configurate', 'network.darkhelmet.prism.libs.configurate'
-    relocate 'com.typesafe', 'network.darkhelmet.prism.libs.typesafe'
     relocate 'io.leangen.geantyref', 'network.darkhelmet.prism.libs.geantyref'
-    relocate 'net.kyori.adventure', 'network.darkhelmet.prism.libs.adventure'
-    relocate 'net.kyori.examination', 'network.darkhelmet.prism.libs.examination'
-    relocate 'net.kyori.option', 'network.darkhelmet.prism.libs.option'
 }
 
 artifacts {

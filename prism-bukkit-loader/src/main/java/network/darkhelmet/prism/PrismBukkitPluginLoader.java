@@ -20,6 +20,8 @@
 
 package network.darkhelmet.prism;
 
+import dev.triumphteam.gui.TriumphGui;
+
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.dependencies.loader.JarInJarClassLoader;
 import network.darkhelmet.prism.loader.services.dependencies.loader.PluginLoader;
@@ -78,6 +80,8 @@ public class PrismBukkitPluginLoader extends JavaPlugin implements PluginLoader 
 
         // Initialize the logger and logging service
         loggingService = new LoggingService(configurationService, LogManager.getLogger("prism"));
+
+        TriumphGui.init(this);
 
         // Call onEnable in the bootstrapper
         this.prismBootstrap.onEnable();

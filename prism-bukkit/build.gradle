@@ -9,9 +9,8 @@ repositories {
 }
 
 dependencies {
-    implementation project.property('deps.adventure-api')
-    implementation project.property('deps.adventure-bukkit')
-    implementation project.property('deps.adventure-minimessage')
+    compileOnly project.property('deps.adventure-api')
+    compileOnly project.property('deps.adventure-bukkit')
     compileOnly project.property('deps.caffeine')
     compileOnly project.property('deps.configurate-hocon')
     compileOnly project.property('deps.cronutils')
@@ -30,9 +29,11 @@ dependencies {
     compileOnly project.property('deps.spigot-api')
     compileOnly project.property('deps.quartz')
     compileOnly project.property('deps.taskchain')
+    compileOnly project.property('deps.triumph-gui')
     compileOnly project(':prism-api')
     compileOnly project(':prism-loader')
 
+    implementation project.property('deps.adventure-minimessage')
     implementation project.property('deps.triumph-cmd-bukkit')
     implementation project(':prism-core')
 }
