@@ -136,6 +136,6 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
 
     @Override
     public String toString() {
-        return String.format("BlockAction{type=%s,material=%s,itemStack=%s}", type, material, itemStack);
+        return String.format("ItemStackAction{type=%s,material=%s,itemStack=%s}", type, material, itemStack);
     }
 }
