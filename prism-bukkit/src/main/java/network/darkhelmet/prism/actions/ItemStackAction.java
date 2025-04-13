@@ -32,6 +32,7 @@ import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.services.modifications.state.ItemStackStateChange;
+import network.darkhelmet.prism.utils.ItemUtils;
 import network.darkhelmet.prism.utils.LocationUtils;
 
 import org.bukkit.Bukkit;
@@ -60,7 +61,7 @@ public class ItemStackAction extends MaterialAction implements IItemAction {
      * @param itemStack The item stack
      */
     public ItemStackAction(IActionType type, ItemStack itemStack) {
-        this(type, itemStack, null);
+        this(type, itemStack, ItemUtils.getItemStackDescriptor(itemStack));
 
         // Fix descriptors to include the item stack quantity
         if (itemStack.getAmount() > 1) {
