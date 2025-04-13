@@ -117,7 +117,7 @@ public class RollbackCommand {
     @CommandFlags(key = "query-flags")
     @NamedArguments("query-parameters")
     @Command(value = "rollback", alias = {"rb"})
-    @Permission("prism.rollback")
+    @Permission("prism.modify")
     public void onRollback(final CommandSender sender, final Arguments arguments) {
         // Ensure a queue is free
         if (!modificationQueueService.queueAvailable()) {

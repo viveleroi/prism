@@ -75,8 +75,8 @@ public class WandCommand {
         wandMode = wandMode == null ? WandMode.INSPECT : wandMode;
 
         if ((wandMode == WandMode.INSPECT && !player.hasPermission("prism.lookup"))
-            || (wandMode == WandMode.ROLLBACK && !player.hasPermission("prism.rollback"))
-            || (wandMode == WandMode.RESTORE && !player.hasPermission("prism.restore"))) {
+            || (wandMode == WandMode.ROLLBACK && !player.hasPermission("prism.modify"))
+            || (wandMode == WandMode.RESTORE && !player.hasPermission("prism.modify"))) {
             messageService.errorInsufficientPermission(player);
 
             return;

@@ -63,7 +63,7 @@ public class ReportCommand {
     }
 
     @Command("report")
-    @Permission("prism.rollback")
+    @Permission("prism.modify")
     public class ReportSubCommand {
         /**
          * Run the modification skips report command.

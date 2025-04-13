@@ -119,14 +119,8 @@ public class PreviewCommand {
      * @param player The player
      */
     @Command(value = "preview-apply")
+    @Permission("prism.modify")
     public void onApply(final Player player) {
-        // Check permissions manually until command lib supports multiple permissions
-        if (!player.hasPermission("prism.rollback") && !player.hasPermission("prism.rollback")) {
-            messageService.errorInsufficientPermission(player);
-
-            return;
-        }
-
         Optional<IModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
         if (optionalQueue.isEmpty()) {
             messageService.errorQueueMissing(player);
@@ -145,14 +139,8 @@ public class PreviewCommand {
      * @param player The player
      */
     @Command(value = "preview-cancel")
+    @Permission("prism.modify")
     public void onCancel(final Player player) {
-        // Check permissions manually until command lib supports multiple permissions
-        if (!player.hasPermission("prism.rollback") && !player.hasPermission("prism.rollback")) {
-            messageService.errorInsufficientPermission(player);
-
-            return;
-        }
-
         Optional<IModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
         if (optionalQueue.isEmpty()) {
             messageService.errorQueueMissing(player);
@@ -173,7 +161,7 @@ public class PreviewCommand {
      */
     @NamedArguments("query-parameters")
     @Command(value = "preview-restore", alias = {"prs"})
-    @Permission("prism.restore")
+    @Permission("prism.modify")
     public void onPreviewRestore(final Player player, final Arguments arguments) {
         Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(player, arguments);
         if (builder.isPresent()) {
@@ -191,7 +179,7 @@ public class PreviewCommand {
      */
     @NamedArguments("query-parameters")
     @Command(value = "preview-rollback", alias = {"prb"})
-    @Permission("prism.rollback")
+    @Permission("prism.modify")
     public void onPreviewRollback(final Player player, final Arguments arguments) {
         Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(player, arguments);
         if (builder.isPresent()) {
