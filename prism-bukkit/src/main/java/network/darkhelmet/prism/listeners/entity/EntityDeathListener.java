@@ -26,8 +26,6 @@ import network.darkhelmet.prism.actions.ActionFactory;
 import network.darkhelmet.prism.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
 import network.darkhelmet.prism.listeners.AbstractListener;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.services.expectations.ExpectationService;
@@ -81,40 +79,37 @@ public class EntityDeathListener extends AbstractListener implements Listener {
         // Resolve cause using last damage
         Object cause = null;
         EntityDamageEvent damageEvent = entity.getLastDamageCause();
+
         if (damageEvent != null && !damageEvent.isCancelled()) {
-            if (damageEvent instanceof EntityDamageByEntityEvent) {
-                cause = ((EntityDamageByEntityEvent) damageEvent).getDamager();
+            if (damageEvent instanceof EntityDamageByEntityEvent entityDamageByEntityEvent) {
+                cause = entityDamageByEntityEvent.getDamager();
 
-                if (cause instanceof Projectile) {
-                    cause = ((Projectile) cause).getShooter();
+                if (cause instanceof Projectile projectile) {
+                    cause = projectile.getShooter();
 
-                    if (cause instanceof BlockProjectileSource) {
-                        cause = ((BlockProjectileSource) cause).getBlock();
+                    if (cause instanceof BlockProjectileSource blockProjectileSource) {
+                        cause = blockProjectileSource.getBlock();
                     }
                 }
             } else if (damageEvent instanceof EntityDamageByBlockEvent) {
                 cause = ((EntityDamageByBlockEvent) damageEvent).getDamager();
+            } else {
+                cause = nameFromCause(damageEvent.getCause());
             }
         }
 
         final IAction action = actionFactory.createEntityAction(ActionTypeRegistry.ENTITY_KILL, entity);
 
-        WorldCoordinate at = LocationUtils.locToWorldCoordinate(entity.getLocation());
-
         // Build the activity
         Activity.ActivityBuilder builder = Activity.builder();
-        builder.action(action).location(at);
+        builder.action(action).location(LocationUtils.locToWorldCoordinate(entity.getLocation()));
 
-        if (cause != null) {
-            if (cause instanceof Player player) {
-                builder.player(player.getUniqueId(), player.getName());
-            } else {
-                builder.cause(nameFromCause(cause));
-            }
+        if (cause instanceof Player player) {
+            builder.player(player.getUniqueId(), player.getName());
+        } else if (cause != null) {
+            builder.cause(nameFromCause(cause));
         }
 
-        ISingleActivity activity = builder.build();
-
-        recordingService.addToQueue(activity);
+        recordingService.addToQueue(builder.build());
     }
 }

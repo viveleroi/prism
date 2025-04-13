@@ -47,6 +47,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -112,6 +113,8 @@ public class AbstractListener {
             finalCause = causeBlockState.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
         } else if (cause instanceof BlockIgniteEvent.IgniteCause igniteCause) {
             finalCause = igniteCause.name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+        } else if (cause instanceof EntityDamageEvent.DamageCause damageCause) {
+            finalCause = damageCause.name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
         } else if (cause instanceof String causeStr) {
             finalCause = causeStr;
         }
