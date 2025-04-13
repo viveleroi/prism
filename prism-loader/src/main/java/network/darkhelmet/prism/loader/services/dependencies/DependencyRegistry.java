@@ -87,8 +87,6 @@ public class DependencyRegistry {
             Dependency.CONFIGURATE_CORE,
             Dependency.CONFIGURATE_HOCON,
             Dependency.CRON_UTILS,
-            Dependency.EXAMINATION_API,
-            Dependency.EXAMINATION_STRING,
             Dependency.GEANTYREF,
             Dependency.GUICE,
             Dependency.GUICE_ASSISTED,

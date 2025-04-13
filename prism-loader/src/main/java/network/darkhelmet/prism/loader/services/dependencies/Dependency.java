@@ -96,20 +96,6 @@ public enum Dependency {
         "Aq8Oiy/pPJ+m7s+XtTs5+q4UxbmWNW7bEy6f5iABN0Q=",
         Relocation.of("cronutils", "com{}cronutils")
     ),
-    EXAMINATION_API(
-        "net.kyori",
-        "examination-api",
-        "1.3.0",
-        "ySN//ssFQo9u/4YhYkascM4LR7BMCOp8o1Ag/eV/hJI=",
-        Relocation.of("examination", "net{}kyori{}examination")
-    ),
-    EXAMINATION_STRING(
-        "net.kyori",
-        "examination-string",
-        "1.3.0",
-        "fQH8JaS7OvDhZiaFRV9FQfv0YmIW6lhG5FXBSR4Va4w=",
-        Relocation.of("examination", "net{}kyori{}examination")
-    ),
     GEANTYREF(
         "io{}leangen{}geantyref",
         "geantyref",
@@ -204,7 +190,7 @@ public enum Dependency {
         "moonshine-core",
         "2.0.4",
         "YB1EB6/u6yXplav0Gm7r1hEL5EE6LLCi4XKqmhlh3Fc=",
-        Relocation.of("moonshine", "net{}kyori{}moonshine"),
+        Relocation.of("kyori.moonshine", "net{}kyori{}moonshine"),
         Relocation.of("geantyref", "io{}leangen{}geantyref")
     ),
     MOONSHINE_INTERNAL(
@@ -212,14 +198,14 @@ public enum Dependency {
         "moonshine-internal",
         "2.0.4",
         "ChnFoz57fYxREjrmBZkHHodKP6VrFe70VWKUbn/QVII=",
-        Relocation.of("moonshine", "net{}kyori{}moonshine")
+        Relocation.of("kyori.moonshine", "net{}kyori{}moonshine")
     ),
     MOONSHINE_STANDARD(
         "net{}kyori{}moonshine",
         "moonshine-standard",
         "2.0.4",
         "tAqZea9MiMPsjZvXBIlVULvxBQlzGpHWSIgk+9yDGOE=",
-        Relocation.of("moonshine", "net{}kyori{}moonshine"),
+        Relocation.of("kyori.moonshine", "net{}kyori{}moonshine"),
         Relocation.of("geantyref", "io{}leangen{}geantyref")
     ),
     MYSQL_DRIVER(
