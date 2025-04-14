@@ -22,10 +22,9 @@ package network.darkhelmet.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.event.EventHandler;
@@ -38,17 +37,15 @@ public class PlayerDropItemListener extends AbstractListener implements Listener
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     @Inject
     public PlayerDropItemListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+            BukkitRecordingService recordingService) {
+        super(configurationService, expectationService, recordingService);
     }
 
     /**

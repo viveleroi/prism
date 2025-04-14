@@ -24,7 +24,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 
-import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.activities.Activity;
 
 @Builder
 @Getter
@@ -32,7 +32,7 @@ public final class ModificationResult {
     /**
      * The original activity.
      */
-    @NonNull private final IActivity activity;
+    @NonNull private final Activity activity;
 
     /**
      * The state changes.

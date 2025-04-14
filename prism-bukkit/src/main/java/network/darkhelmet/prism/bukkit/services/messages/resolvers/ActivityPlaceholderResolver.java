@@ -26,6 +26,7 @@ import com.google.inject.Singleton;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Map;
+import java.util.UUID;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -40,13 +41,13 @@ import net.kyori.moonshine.placeholder.IPlaceholderResolver;
 import net.kyori.moonshine.util.Either;
 
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
-import network.darkhelmet.prism.api.actions.types.IActionType;
-import network.darkhelmet.prism.api.activities.IActivity;
-import network.darkhelmet.prism.api.activities.IGroupedActivity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.api.util.NamedIdentity;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
-import network.darkhelmet.prism.bukkit.services.translation.TranslationService;
+import network.darkhelmet.prism.api.actions.types.ActionType;
+import network.darkhelmet.prism.api.activities.AbstractActivity;
+import network.darkhelmet.prism.api.activities.Activity;
+import network.darkhelmet.prism.api.activities.GroupedActivity;
+import network.darkhelmet.prism.api.util.Coordinate;
+import network.darkhelmet.prism.api.util.Pair;
+import network.darkhelmet.prism.bukkit.services.translation.BukkitTranslationService;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -56,11 +57,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
-public class ActivityPlaceholderResolver implements IPlaceholderResolver<CommandSender, IActivity, Component> {
+public class ActivityPlaceholderResolver implements IPlaceholderResolver<CommandSender, AbstractActivity, Component> {
     /**
      * The translation service.
      */
-    private final TranslationService translationService;
+    private final BukkitTranslationService translationService;
 
     /**
      * Construct an activity placeholder resolver.
@@ -68,14 +69,14 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
      * @param translationService The translation service
      */
     @Inject
-    public ActivityPlaceholderResolver(TranslationService translationService) {
+    public ActivityPlaceholderResolver(BukkitTranslationService translationService) {
         this.translationService = translationService;
     }
 
     @Override
     public @NonNull Map<String, Either<ConclusionValue<? extends Component>, ContinuanceValue<?>>> resolve(
         final String placeholderName,
-        final IActivity value,
+        final AbstractActivity value,
         final CommandSender receiver,
         final Type owner,
         final Method method,
@@ -86,16 +87,16 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         Component cause = cause(receiver, value.cause(), value.player());
         Component since = since(receiver, value.timestamp());
         Component descriptor = descriptor(receiver, value);
-        Component location = location(receiver, value.location());
+        Component location = location(receiver, value.world(), value.coordinate());
 
         Component count = Component.text("1");
-        if (value instanceof IGroupedActivity grouped) {
+        if (value instanceof GroupedActivity grouped) {
             count = Component.text(grouped.count());
         }
 
         Component activityId = Component.empty();
-        if (value instanceof ISingleActivity single) {
-            activityId = Component.text(single.primaryKey().toString());
+        if (value instanceof Activity activity) {
+            activityId = Component.text(activity.primaryKey().toString());
         }
 
         Component sign;
@@ -125,7 +126,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
      * @param actionType The action type
      * @return The component
      */
-    protected Component actionPastTense(CommandSender receiver, IActionType actionType) {
+    protected Component actionPastTense(CommandSender receiver, ActionType actionType) {
         String pastTenseTranslationKey = actionType.pastTenseTranslationKey();
         String pastTense = translationService.messageOf(receiver, pastTenseTranslationKey);
 
@@ -149,9 +150,9 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
      * @param cause The cause
      * @return The cause name/string
      */
-    protected Component cause(CommandSender receiver, String cause, NamedIdentity player) {
+    protected Component cause(CommandSender receiver, String cause, Pair<UUID, String> player) {
         if (player != null) {
-            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.uuid());
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.key());
 
             Component playerHeading = MiniMessage.miniMessage().deserialize(
                 translationService.messageOf(receiver, "rich.player-hover-header"));
@@ -173,7 +174,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
                 .append(Component.text("\n"))
                 .append(uuid)
                 .append(Component.text(" "))
-                .append(Component.text(player.uuid().toString(), NamedTextColor.WHITE))
+                .append(Component.text(player.key().toString(), NamedTextColor.WHITE))
                 .append(Component.text("\n"))
                 .append(online)
                 .append(Component.text(" "))
@@ -185,7 +186,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
                 .build();
 
             return Component.text()
-                .append(Component.text(player.name()))
+                .append(Component.text(player.value()))
                 .hoverEvent(HoverEvent.showText(hover))
                 .build();
         }
@@ -207,7 +208,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
      * @param value The activity
      * @return The descriptor component
      */
-    protected Component descriptor(CommandSender receiver, IActivity value) {
+    protected Component descriptor(CommandSender receiver, AbstractActivity value) {
         Component descriptor = Component.empty();
         if (value.action().descriptor() != null) {
             TextComponent.Builder builder = Component.text().append(Component.text(value.action().descriptor()));
@@ -226,27 +227,28 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
      * Get the location.
      *
      * @param receiver The receiver
-     * @param worldCoordinate The world coordinate
+     * @param world The world
+     * @param coordinate The coordinate
      * @return The location
      */
-    protected Component location(CommandSender receiver, WorldCoordinate worldCoordinate) {
+    protected Component location(CommandSender receiver, Pair<UUID, String> world, Coordinate coordinate) {
         Component hover = Component.text(translationService.messageOf(receiver, "text.click-to-teleport"));
 
         var builder = Component.text()
-            .append(Component.text((int) worldCoordinate.x()))
+            .append(Component.text(coordinate.intX()))
             .append(Component.text(" "))
-            .append(Component.text((int) worldCoordinate.y()))
+            .append(Component.text(coordinate.intY()))
             .append(Component.text(" "))
-            .append(Component.text((int) worldCoordinate.z()))
+            .append(Component.text(coordinate.intZ()))
             .hoverEvent(HoverEvent.showText(hover));
 
         if (receiver instanceof Player player) {
             var command = String.format("/prism teleport loc %s %s %d %d %d",
                 player.getName(),
-                worldCoordinate.world().name(),
-                worldCoordinate.intX(),
-                worldCoordinate.intY(),
-                worldCoordinate.intZ());
+                world.value(),
+                coordinate.intX(),
+                coordinate.intY(),
+                coordinate.intZ());
             builder.clickEvent(ClickEvent.runCommand(command));
         }
 

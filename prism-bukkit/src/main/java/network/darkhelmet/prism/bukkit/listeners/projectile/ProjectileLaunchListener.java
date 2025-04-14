@@ -22,14 +22,12 @@ package network.darkhelmet.prism.bukkit.listeners.projectile;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.actions.GenericBukkitAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.entity.Player;
@@ -43,17 +41,15 @@ public class ProjectileLaunchListener extends AbstractListener implements Listen
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     @Inject
     public ProjectileLaunchListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+            BukkitRecordingService recordingService) {
+        super(configurationService, expectationService, recordingService);
     }
 
     /**
@@ -70,16 +66,11 @@ public class ProjectileLaunchListener extends AbstractListener implements Listen
 
         String entityThrown = nameFromCause(event.getEntity());
 
-        // Build the action
-        final IAction action = actionFactory.createAction(ActionTypeRegistry.ITEM_THROW, entityThrown);
+        var action = new GenericBukkitAction(BukkitActionTypeRegistry.ITEM_THROW, entityThrown);
 
-        // Build the activity
-        Activity.ActivityBuilder builder = Activity.builder()
-            .action(action)
-            .location(LocationUtils.locToWorldCoordinate(event.getLocation()));
-
+        var builder = BukkitActivity.builder().action(action).location(event.getLocation());
         if (event.getEntity().getShooter() instanceof Player player) {
-            builder.player(player.getUniqueId(), player.getName());
+            builder.player(player);
         } else {
             builder.cause(nameFromCause(event.getEntity().getShooter()));
         }

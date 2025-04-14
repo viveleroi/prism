@@ -27,9 +27,9 @@ import dev.triumphteam.cmd.core.annotations.Command;
 
 import java.io.IOException;
 
-import network.darkhelmet.prism.bukkit.services.filters.FilterService;
+import network.darkhelmet.prism.bukkit.services.filters.BukkitFilterService;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
-import network.darkhelmet.prism.bukkit.services.translation.TranslationService;
+import network.darkhelmet.prism.bukkit.services.translation.BukkitTranslationService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.command.CommandSender;
@@ -44,7 +44,7 @@ public class ReloadCommand {
     /**
      * The translation service.
      */
-    private final TranslationService translationService;
+    private final BukkitTranslationService translationService;
 
     /**
      * The configuration service.
@@ -54,7 +54,7 @@ public class ReloadCommand {
     /**
      * The filter service.
      */
-    private final FilterService filterService;
+    private final BukkitFilterService filterService;
 
     /**
      * Construct the reload command.
@@ -67,9 +67,9 @@ public class ReloadCommand {
     @Inject
     public ReloadCommand(
             MessageService messageService,
-            TranslationService translationService,
+            BukkitTranslationService translationService,
             ConfigurationService configurationService,
-            FilterService filterService) {
+            BukkitFilterService filterService) {
         this.messageService = messageService;
         this.translationService = translationService;
         this.configurationService = configurationService;

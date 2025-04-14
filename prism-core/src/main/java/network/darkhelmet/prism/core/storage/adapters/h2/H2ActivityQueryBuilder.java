@@ -42,7 +42,7 @@ import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStor
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
 
-public class H2ActivityQueryBuilder extends SqlActivityQueryBuilder implements IH2ActivityQueryBuilder {
+public class H2ActivityQueryBuilder extends SqlActivityQueryBuilder {
     /**
      * Construct a new query builder.
      *

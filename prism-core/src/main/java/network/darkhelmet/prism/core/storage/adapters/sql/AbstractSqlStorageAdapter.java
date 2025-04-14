@@ -38,24 +38,21 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Scanner;
 import java.util.UUID;
 
 import network.darkhelmet.prism.api.PaginatedResults;
 import network.darkhelmet.prism.api.actions.ActionData;
-import network.darkhelmet.prism.api.actions.types.IActionType;
-import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
+import network.darkhelmet.prism.api.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.api.activities.AbstractActivity;
 import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.activities.GroupedActivity;
-import network.darkhelmet.prism.api.activities.IActivity;
-import network.darkhelmet.prism.api.storage.IActivityBatch;
-import network.darkhelmet.prism.api.storage.IStorageAdapter;
-import network.darkhelmet.prism.api.util.NamedIdentity;
+import network.darkhelmet.prism.api.storage.ActivityBatch;
+import network.darkhelmet.prism.api.storage.StorageAdapter;
+import network.darkhelmet.prism.api.util.Coordinate;
 import network.darkhelmet.prism.api.util.Pair;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
-import network.darkhelmet.prism.core.injection.factories.ISqlActivityQueryBuilderFactory;
+import network.darkhelmet.prism.core.injection.factories.SqlActivityQueryBuilderFactory;
 import network.darkhelmet.prism.core.services.cache.CacheService;
 import network.darkhelmet.prism.core.storage.HikariConfigFactory;
 import network.darkhelmet.prism.core.storage.dbo.DefaultCatalog;
@@ -90,7 +87,7 @@ import static org.jooq.impl.DSL.constraint;
 import static org.jooq.impl.DSL.max;
 import static org.jooq.impl.DSL.min;
 
-public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
+public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
     /**
      * The prism database object model.
      */
@@ -154,7 +151,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
     /**
      * The action type registry.
      */
-    protected final IActionTypeRegistry actionRegistry;
+    protected final ActionTypeRegistry actionRegistry;
 
     /**
      * The schema updater.
@@ -164,7 +161,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
     /**
      * The query factory.
      */
-    protected final ISqlActivityQueryBuilderFactory queryBuilderFactory;
+    protected final SqlActivityQueryBuilderFactory queryBuilderFactory;
 
     /**
      * The query builder.
@@ -216,9 +213,9 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
     public AbstractSqlStorageAdapter(
             LoggingService loggingService,
             ConfigurationService configurationService,
-            IActionTypeRegistry actionRegistry,
+            ActionTypeRegistry actionRegistry,
             SqlSchemaUpdater schemaUpdater,
-            ISqlActivityQueryBuilderFactory queryBuilderFactory,
+            SqlActivityQueryBuilderFactory queryBuilderFactory,
             CacheService cacheService,
             @Named("serializerVersion") short serializerVersion) {
         this.loggingService = loggingService;
@@ -530,13 +527,21 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
     protected void updateSchemas(String schemaVersion) throws Exception {}
 
     @Override
-    public List<IActivity> queryActivities(ActivityQuery query) throws Exception {
-        Result<org.jooq.Record> results = queryBuilder.queryActivities(query);
-        return activityMapper(results, query);
+    public List<Activity> queryActivities(ActivityQuery query) throws Exception {
+        var results = activityMapper(queryBuilder.queryActivities(query), query);
+
+        List<Activity> activities = new ArrayList<>();
+        for (var result : results) {
+            if (result instanceof Activity activity) {
+                activities.add(activity);
+            }
+        }
+
+        return activities;
     }
 
     @Override
-    public PaginatedResults<IActivity> queryActivitiesPaginated(ActivityQuery query) throws Exception {
+    public PaginatedResults<AbstractActivity> queryActivitiesPaginated(ActivityQuery query) throws Exception {
         Result<org.jooq.Record> result = queryBuilder.queryActivities(query);
 
         int totalResults = result.size();
@@ -550,29 +555,29 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
     }
 
     /**
-     * Maps activity data to an action and IActivity.
+     * Maps activity data to an action and activity record.
      *
      * @param result The result
      * @param query The original query
      * @return The activity list
      */
-    protected List<IActivity> activityMapper(Result<org.jooq.Record> result, ActivityQuery query) {
-        List<IActivity> activities = new ArrayList<>();
+    protected List<AbstractActivity> activityMapper(Result<org.jooq.Record> result, ActivityQuery query) {
+        List<AbstractActivity> activities = new ArrayList<>();
 
         for (org.jooq.Record r : result) {
             String actionKey = r.getValue(PRISM_ACTIONS.ACTION);
-            Optional<IActionType> optionalActionType = actionRegistry.actionType(actionKey);
+            var optionalActionType = actionRegistry.actionType(actionKey);
             if (optionalActionType.isEmpty()) {
                 String msg = "Failed to find action type: %s";
                 loggingService.logger().warn(String.format(msg, actionKey));
                 continue;
             }
 
-            IActionType actionType = optionalActionType.get();
+            var actionType = optionalActionType.get();
 
             // World
             UUID worldUuid = UUID.fromString(r.getValue(PRISM_WORLDS.WORLD_UUID));
-            var world = new NamedIdentity(worldUuid, r.getValue(PRISM_WORLDS.WORLD));
+            var world = new Pair<>(worldUuid, r.getValue(PRISM_WORLDS.WORLD));
 
             // Location
             int x = 0;
@@ -588,7 +593,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
                 z = r.getValue(PRISM_ACTIVITIES.Z);
             }
 
-            WorldCoordinate coordinate = new WorldCoordinate(world, x, y, z);
+            var coordinate = new Coordinate(x, y, z);
 
             // Entity type
             String entityType = null;
@@ -606,14 +611,14 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
 
             // Cause
             String cause = r.getValue(PRISM_CAUSES.CAUSE);
-            NamedIdentity player = null;
+            Pair<UUID, String> player = null;
 
             // Player
             if (r.getValue(PRISM_PLAYERS.PLAYER_UUID) != null) {
                 String playerName = r.getValue(PRISM_PLAYERS.PLAYER);
                 UUID playerUuid = UUID.fromString(r.getValue(PRISM_PLAYERS.PLAYER_UUID));
 
-                player = new NamedIdentity(playerUuid, playerName);
+                player = new Pair<>(playerUuid, playerName);
             }
 
             String descriptor = query.lookup() ? r.getValue(PRISM_ACTIVITIES.DESCRIPTOR) : null;
@@ -649,8 +654,8 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
 
                 // Build the activity
                 try {
-                    IActivity activity = new Activity(activityId, actionType.createAction(actionData),
-                        coordinate, cause, player, timestamp);
+                    var activity = new Activity(activityId, actionType.createAction(actionData),
+                        world, coordinate, cause, player, timestamp);
 
                     // Add to result list
                     activities.add(activity);
@@ -667,8 +672,8 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
 
                 // Build the activity
                 try {
-                    IActivity activity = new Activity(activityId, actionType.createAction(actionData),
-                        coordinate, cause, player, timestamp);
+                    var activity = new Activity(activityId, actionType.createAction(actionData),
+                        world, coordinate, cause, player, timestamp);
 
                     // Add to result list
                     activities.add(activity);
@@ -686,8 +691,8 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
 
                 // Build the grouped activity
                 try {
-                    IActivity activity = new GroupedActivity(
-                        actionType.createAction(actionData), coordinate, cause, player, timestamp, count);
+                    var activity = new GroupedActivity(
+                        actionType.createAction(actionData), world, coordinate, cause, player, timestamp, count);
 
                     // Add to result list
                     activities.add(activity);
@@ -701,7 +706,7 @@ public abstract class AbstractSqlStorageAdapter implements IStorageAdapter {
     }
 
     @Override
-    public IActivityBatch createActivityBatch() {
+    public ActivityBatch createActivityBatch() {
         return new SqlActivityBatch(loggingService, dataSource, create, serializerVersion, cacheService);
     }
 

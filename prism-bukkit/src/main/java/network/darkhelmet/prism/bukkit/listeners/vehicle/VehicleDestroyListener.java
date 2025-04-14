@@ -22,15 +22,12 @@ package network.darkhelmet.prism.bukkit.listeners.vehicle;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.actions.BukkitEntityAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.entity.ChestBoat;
@@ -46,17 +43,15 @@ public class VehicleDestroyListener extends AbstractListener implements Listener
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     @Inject
     public VehicleDestroyListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+            BukkitRecordingService recordingService) {
+        super(configurationService, expectationService, recordingService);
     }
 
     /**
@@ -72,32 +67,27 @@ public class VehicleDestroyListener extends AbstractListener implements Listener
         }
 
         var location = event.getVehicle().getLocation();
-        final IAction action = actionFactory.createEntityAction(ActionTypeRegistry.VEHICLE_BREAK, event.getVehicle());
+        var action = new BukkitEntityAction(BukkitActionTypeRegistry.VEHICLE_BREAK, event.getVehicle());
 
-        // Build the activity
-        var builder = Activity.builder();
-        builder.action(action).location(LocationUtils.locToWorldCoordinate(location));
-
+        var builder = BukkitActivity.builder().action(action).location(location);
         if (event.getAttacker() != null) {
             if (event.getAttacker() instanceof Player player) {
-                builder.player(player.getUniqueId(), player.getName());
+                builder.player(player);
             } else {
                 builder.cause(event.getAttacker().toString());
             }
 
-            ISingleActivity activity = builder.build();
-            recordingService.addToQueue(activity);
+            recordingService.addToQueue(builder.build());
         } else if (!event.getVehicle().getPassengers().isEmpty()) {
             Entity passenger = event.getVehicle().getPassengers().getFirst();
 
             if (passenger instanceof Player player) {
-                builder.player(player.getUniqueId(), player.getName());
+                builder.player(player);
             } else {
                 builder.cause(passenger.toString());
             }
 
-            ISingleActivity activity = builder.build();
-            recordingService.addToQueue(activity);
+            recordingService.addToQueue(builder.build());
         }
 
         if (event.getVehicle() instanceof ChestBoat chestBoat) {

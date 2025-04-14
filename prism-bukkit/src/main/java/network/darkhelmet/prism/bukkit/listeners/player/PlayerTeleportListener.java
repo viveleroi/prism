@@ -22,16 +22,13 @@ package network.darkhelmet.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.metadata.TeleportMetadata;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.actions.GenericBukkitAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.Location;
@@ -45,17 +42,15 @@ public class PlayerTeleportListener extends AbstractListener implements Listener
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     @Inject
     public PlayerTeleportListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+            BukkitRecordingService recordingService) {
+        super(configurationService, expectationService, recordingService);
     }
 
     /**
@@ -73,21 +68,19 @@ public class PlayerTeleportListener extends AbstractListener implements Listener
         Location to = event.getTo();
 
         String descriptor = "to unknown";
-        if (to.getWorld() != null) {
+        if (to != null && to.getWorld() != null) {
             descriptor = String.format("%s %d,%d,%d",
                 to.getWorld().getName(), to.getBlockX(), to.getBlockY(), to.getBlockZ());
         }
 
         TeleportMetadata metadata = new TeleportMetadata(event.getCause().name().toLowerCase());
 
-        // Build the action
-        final IAction action = actionFactory.createAction(ActionTypeRegistry.PLAYER_TELEPORT, descriptor, metadata);
+        var action = new GenericBukkitAction(BukkitActionTypeRegistry.PLAYER_TELEPORT, descriptor, metadata);
 
-        // Build the activity
-        final ISingleActivity activity = Activity.builder()
+        var activity = BukkitActivity.builder()
             .action(action)
-            .location(LocationUtils.locToWorldCoordinate(event.getFrom()))
-            .player(event.getPlayer().getUniqueId(), event.getPlayer().getName())
+            .location(event.getFrom())
+            .player(event.getPlayer())
             .build();
 
         recordingService.addToQueue(activity);

@@ -50,7 +50,7 @@ public final class ModificationQueueResult {
     /**
      * The source queue.
      */
-    private IModificationQueue queue;
+    private ModificationQueue queue;
 
     /**
      * The count of blocks removed.

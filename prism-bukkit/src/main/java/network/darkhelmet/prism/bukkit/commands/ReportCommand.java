@@ -28,8 +28,8 @@ import dev.triumphteam.cmd.core.annotations.Command;
 import java.util.Locale;
 import java.util.Optional;
 
-import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueService;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResultStatus;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
@@ -46,7 +46,7 @@ public class ReportCommand {
     /**
      * The modification queue service.
      */
-    private final IModificationQueueService modificationQueueService;
+    private final ModificationQueueService modificationQueueService;
 
     /**
      * Construct the about command.
@@ -57,7 +57,7 @@ public class ReportCommand {
     @Inject
     public ReportCommand(
             MessageService messageService,
-            IModificationQueueService modificationQueueService) {
+            ModificationQueueService modificationQueueService) {
         this.messageService = messageService;
         this.modificationQueueService = modificationQueueService;
     }

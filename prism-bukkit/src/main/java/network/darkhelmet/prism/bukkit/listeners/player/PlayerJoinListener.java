@@ -22,15 +22,12 @@ package network.darkhelmet.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.actions.GenericBukkitAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.entity.Player;
@@ -44,17 +41,15 @@ public class PlayerJoinListener extends AbstractListener implements Listener {
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     @Inject
     public PlayerJoinListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+            BukkitRecordingService recordingService) {
+        super(configurationService, expectationService, recordingService);
     }
 
     /**
@@ -71,14 +66,12 @@ public class PlayerJoinListener extends AbstractListener implements Listener {
             return;
         }
 
-        // Build the action
-        final IAction action = actionFactory.createAction(ActionTypeRegistry.PLAYER_JOIN);
+        var action = new GenericBukkitAction(BukkitActionTypeRegistry.PLAYER_JOIN);
 
-        // Build the activity
-        final ISingleActivity activity = Activity.builder()
+        var activity = BukkitActivity.builder()
             .action(action)
-            .location(LocationUtils.locToWorldCoordinate(player.getLocation()))
-            .player(player.getUniqueId(), player.getName())
+            .location(player.getLocation())
+            .player(player)
             .build();
 
         recordingService.addToQueue(activity);

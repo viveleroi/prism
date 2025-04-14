@@ -23,7 +23,6 @@ package network.darkhelmet.prism.core.storage.adapters.sql;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import network.darkhelmet.prism.api.providers.IWorldIdentityProvider;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 @Singleton
@@ -34,18 +33,12 @@ public class SqlSchemaUpdater {
     private final LoggingService loggingService;
 
     /**
-     * The world identity provider.
-     */
-    private final IWorldIdentityProvider worldIdentityProvider;
-
-    /**
      * Construct the updater.
      *
      * @param loggingService The logging service
      */
     @Inject
-    public SqlSchemaUpdater(LoggingService loggingService, IWorldIdentityProvider worldIdentityProvider) {
+    public SqlSchemaUpdater(LoggingService loggingService) {
         this.loggingService = loggingService;
-        this.worldIdentityProvider = worldIdentityProvider;
     }
 }

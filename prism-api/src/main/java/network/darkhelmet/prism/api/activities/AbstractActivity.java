@@ -20,58 +20,88 @@
 
 package network.darkhelmet.prism.api.activities;
 
+import java.util.UUID;
+
+import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.util.NamedIdentity;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
+import network.darkhelmet.prism.api.actions.Action;
+import network.darkhelmet.prism.api.util.Coordinate;
+import network.darkhelmet.prism.api.util.Pair;
 
-public abstract class AbstractActivity implements IActivity {
+/**
+ * An abstract activity represents either an individual activity
+ * that's being recorded or read back from storage, or a grouped
+ * activity record being read from storage for display.
+ */
+@SuperBuilder
+@Getter
+public abstract class AbstractActivity {
     /**
      * The action.
      */
-    @Getter
-    protected final IAction action;
+    protected Action action;
 
     /**
      * The cause.
      */
-    @Getter
-    protected final String cause;
+    protected String cause;
 
     /**
-     * The world coordinate, if any.
+     * The coordinate, if any.
      */
-    @Getter
-    protected final WorldCoordinate location;
+    protected Coordinate coordinate;
 
     /**
      * The causing player.
      */
-    @Getter
-    protected final NamedIdentity player;
+    protected Pair<UUID, String> player;
 
     /**
      * The timestamp.
      */
-    @Getter
-    protected final long timestamp;
+    @Builder.Default
+    protected long timestamp = System.currentTimeMillis();
+
+    /**
+     * The world.
+     */
+    protected Pair<UUID, String> world;
 
     /**
      * Construct an activity.
      *
      * @param action The action
-     * @param location The world coordinate
+     * @param coordinate The coordinate
      * @param cause The cause
      * @param player The player
      * @param timestamp The timestamp (or average)
      */
     public AbstractActivity(
-            IAction action, WorldCoordinate location, String cause, NamedIdentity player, long timestamp) {
+            Action action,
+            Pair<UUID, String> world,
+            Coordinate coordinate,
+            String cause,
+            Pair<UUID, String> player,
+            Long timestamp) {
         this.action = action;
         this.cause = cause;
-        this.location = location;
+        this.coordinate = coordinate;
         this.player = player;
         this.timestamp = timestamp;
+        this.world = world;
     }
+
+    /**
+     * Get the world UUID.
+     *
+     * @return The world UUID
+     */
+    public UUID worldUuid() {
+        return world.key();
+    }
+
+    public abstract static class AbstractActivityBuilder
+        <C extends AbstractActivity, B extends AbstractActivityBuilder<C, B>> {}
 }

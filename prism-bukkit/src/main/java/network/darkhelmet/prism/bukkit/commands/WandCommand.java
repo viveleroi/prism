@@ -25,7 +25,7 @@ import com.google.inject.Inject;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Optional;
 
-import network.darkhelmet.prism.api.services.wands.IWand;
+import network.darkhelmet.prism.api.services.wands.Wand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
 import network.darkhelmet.prism.bukkit.services.wands.WandService;
@@ -82,7 +82,7 @@ public class WandCommand {
             return;
         }
 
-        java.util.Optional<IWand> activeWand = wandService.getWand(player);
+        java.util.Optional<Wand> activeWand = wandService.getWand(player);
         if (activeWand.isPresent()) {
             if (activeWand.get().mode().equals(wandMode)) {
                 // If the wand modes match, deactivate

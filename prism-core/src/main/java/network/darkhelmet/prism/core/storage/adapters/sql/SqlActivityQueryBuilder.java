@@ -26,9 +26,7 @@ import com.google.inject.assistedinject.Assisted;
 import java.util.ArrayList;
 import java.util.List;
 
-import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
-import network.darkhelmet.prism.api.storage.ISqlActivityQueryBuilder;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismActivitiesRecord;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismMaterials;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
@@ -55,7 +53,7 @@ import static org.jooq.impl.DSL.avg;
 import static org.jooq.impl.DSL.coalesce;
 import static org.jooq.impl.DSL.count;
 
-public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
+public class SqlActivityQueryBuilder {
     /**
      * The configuration service.
      */
@@ -335,7 +333,7 @@ public class SqlActivityQueryBuilder implements ISqlActivityQueryBuilder {
         // Action Types
         if (!query.actionTypes().isEmpty()) {
             List<String> actionTypeKeys = new ArrayList<>();
-            for (IActionType actionType : query.actionTypes()) {
+            for (var actionType : query.actionTypes()) {
                 if (query.lookup() || actionType.reversible()) {
                     actionTypeKeys.add(actionType.key());
                 }

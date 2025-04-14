@@ -25,17 +25,13 @@ import com.google.inject.Inject;
 import java.util.Locale;
 import java.util.Optional;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.services.expectations.ExpectationType;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.actions.BukkitEntityAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.entity.Entity;
@@ -51,17 +47,15 @@ public class HangingBreakListener extends AbstractListener implements Listener {
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     @Inject
     public HangingBreakListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+            BukkitRecordingService recordingService) {
+        super(configurationService, expectationService, recordingService);
     }
 
     /**
@@ -103,21 +97,15 @@ public class HangingBreakListener extends AbstractListener implements Listener {
      * @param cause The cause
      */
     protected void recordHangingBreak(Entity hanging, Object cause) {
-        final IAction action = actionFactory.createEntityAction(ActionTypeRegistry.HANGING_BREAK, hanging);
+        var action = new BukkitEntityAction(BukkitActionTypeRegistry.HANGING_BREAK, hanging);
 
-        WorldCoordinate at = LocationUtils.locToWorldCoordinate(hanging.getLocation());
-
-        // Build the activity
-        Activity.ActivityBuilder builder = Activity.builder();
-        builder.action(action).location(at);
-
+        var builder = BukkitActivity.builder().action(action).location(hanging.getLocation());
         if (cause instanceof Player player) {
-            builder.player(player.getUniqueId(), player.getName());
+            builder.player(player);
         } else {
             builder.cause(nameFromCause(cause));
         }
 
-        ISingleActivity activity = builder.build();
-        recordingService.addToQueue(activity);
+        recordingService.addToQueue(builder.build());
     }
 }

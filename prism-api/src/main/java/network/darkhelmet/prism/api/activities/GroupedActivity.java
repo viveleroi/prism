@@ -20,11 +20,20 @@
 
 package network.darkhelmet.prism.api.activities;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.util.NamedIdentity;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
+import lombok.Getter;
 
-public final class GroupedActivity extends AbstractActivity implements IGroupedActivity {
+import network.darkhelmet.prism.api.actions.Action;
+import network.darkhelmet.prism.api.util.Coordinate;
+import network.darkhelmet.prism.api.util.Pair;
+
+import java.util.UUID;
+
+/**
+ * A grouped activity represents multiple activities being read
+ * from storage and displayed to a user with a group count.
+ */
+@Getter
+public final class GroupedActivity extends AbstractActivity {
     /**
      * The count.
      */
@@ -34,25 +43,22 @@ public final class GroupedActivity extends AbstractActivity implements IGroupedA
      * Constructor.
      *
      * @param action The action
-     * @param worldCoordinate The world coordinate (or average)
+     * @param world The world
+     * @param coordinate The average coordinate
      * @param cause The cause
      * @param player The player
      * @param timestamp The timestamp
      * @param count The count
      */
     public GroupedActivity(
-            IAction action,
-            WorldCoordinate worldCoordinate,
+            Action action,
+            Pair<UUID, String> world,
+            Coordinate coordinate,
             String cause,
-            NamedIdentity player,
+            Pair<UUID, String> player,
             long timestamp,
             int count) {
-        super(action, worldCoordinate, cause, player, timestamp);
+        super(action, world, coordinate, cause, player, timestamp);
         this.count = count;
-    }
-
-    @Override
-    public int count() {
-        return count;
     }
 }

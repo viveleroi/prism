@@ -84,10 +84,12 @@ public class TeleportCommand {
 
                         messageService.teleportingToActivity(player, activity);
 
-                        World world = Bukkit.getServer().getWorld(activity.location().world().uuid());
+                        World world = Bukkit.getServer().getWorld(activity.world().key());
                         Bukkit.getServer().getScheduler().runTask(PrismBukkit.instance().loaderPlugin(), () -> {
                             player.teleport(new Location(world,
-                                activity.location().intX(), activity.location().intY(), activity.location().intZ()));
+                                activity.coordinate().intX(),
+                                activity.coordinate().intY(),
+                                activity.coordinate().intZ()));
                         });
                     }
                 });

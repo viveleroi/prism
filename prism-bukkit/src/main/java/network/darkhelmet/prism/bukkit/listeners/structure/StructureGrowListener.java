@@ -22,15 +22,12 @@ package network.darkhelmet.prism.bukkit.listeners.structure;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.actions.BukkitBlockAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.block.BlockState;
@@ -44,17 +41,15 @@ public class StructureGrowListener extends AbstractListener implements Listener 
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     @Inject
     public StructureGrowListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+            BukkitRecordingService recordingService) {
+        super(configurationService, expectationService, recordingService);
     }
 
     /**
@@ -70,17 +65,11 @@ public class StructureGrowListener extends AbstractListener implements Listener 
         }
 
         for (BlockState block : event.getBlocks()) {
-            // Build the action
-            final IAction action = actionFactory.createBlockStateAction(ActionTypeRegistry.BLOCK_PLACE, block);
+            var action = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_PLACE, block);
 
-            WorldCoordinate at = LocationUtils.locToWorldCoordinate(block.getLocation());
-
-            // Build the block place by player activity
-            Activity.ActivityBuilder builder = Activity.builder()
-                .action(action).location(at);
-
+            var builder = BukkitActivity.builder().action(action).location(block.getLocation());
             if (event.getPlayer() != null) {
-                builder.player(event.getPlayer().getUniqueId(), event.getPlayer().getName()).build();
+                builder.player(event.getPlayer()).build();
             } else {
                 builder.cause("nature");
             }

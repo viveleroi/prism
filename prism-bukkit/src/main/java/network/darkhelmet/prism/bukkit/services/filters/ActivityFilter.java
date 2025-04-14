@@ -22,10 +22,10 @@ package network.darkhelmet.prism.bukkit.services.filters;
 
 import java.util.List;
 
-import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.services.filters.FilterBehavior;
-import network.darkhelmet.prism.bukkit.actions.EntityAction;
-import network.darkhelmet.prism.bukkit.actions.MaterialAction;
+import network.darkhelmet.prism.bukkit.actions.BukkitEntityAction;
+import network.darkhelmet.prism.bukkit.actions.BukkitMaterialAction;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 import org.bukkit.Bukkit;
@@ -113,7 +113,7 @@ public class ActivityFilter {
      * @param debug Whether filters are in debug mode
      * @return True if the filter allows it
      */
-    public boolean shouldRecord(IActivity activity, LoggingService loggingService, boolean debug) {
+    public boolean shouldRecord(Activity activity, LoggingService loggingService, boolean debug) {
         if (debug) {
             loggingService.debug("Filter (%s) Check for Activity: %s", name, activity);
             loggingService.debug("Behavior: %s", behavior);
@@ -203,7 +203,7 @@ public class ActivityFilter {
      * @param activity The activity
      * @return ConditionResult
      */
-    private ConditionResult actionsMatch(IActivity activity) {
+    private ConditionResult actionsMatch(Activity activity) {
         if (actions.isEmpty()) {
             return ConditionResult.NOT_APPLICABLE;
         }
@@ -223,7 +223,7 @@ public class ActivityFilter {
      * @param activity The activity
      * @return ConditionResult
      */
-    private ConditionResult causesMatch(IActivity activity) {
+    private ConditionResult causesMatch(Activity activity) {
         if (causes.isEmpty()) {
             return ConditionResult.NOT_APPLICABLE;
         }
@@ -243,12 +243,12 @@ public class ActivityFilter {
      * @param activity The activity
      * @return ConditionResult
      */
-    private ConditionResult entityTypesMatched(IActivity activity) {
+    private ConditionResult entityTypesMatched(Activity activity) {
         if (entityTypeTags.isEmpty()) {
             return ConditionResult.NOT_APPLICABLE;
         }
 
-        if (activity.action() instanceof EntityAction entityAction) {
+        if (activity.action() instanceof BukkitEntityAction entityAction) {
             for (Tag<EntityType> entityTypeTag : entityTypeTags) {
                 if (entityTypeTag.isTagged(entityAction.entityType())) {
                     return ConditionResult.MATCHED;
@@ -269,12 +269,12 @@ public class ActivityFilter {
      * @param activity The activity
      * @return ConditionResult
      */
-    private ConditionResult materialsMatched(IActivity activity) {
+    private ConditionResult materialsMatched(Activity activity) {
         if (materialTags.isEmpty()) {
             return ConditionResult.NOT_APPLICABLE;
         }
 
-        if (activity.action() instanceof MaterialAction materialAction) {
+        if (activity.action() instanceof BukkitMaterialAction materialAction) {
             for (Tag<Material> materialTag : materialTags) {
                 if (materialTag.isTagged(materialAction.material())) {
                     return ConditionResult.MATCHED;
@@ -295,7 +295,7 @@ public class ActivityFilter {
      * @param activity The activity
      * @return ConditionResult
      */
-    private ConditionResult permissionsMatch(IActivity activity) {
+    private ConditionResult permissionsMatch(Activity activity) {
         if (permissions.isEmpty()) {
             return ConditionResult.NOT_APPLICABLE;
         }
@@ -303,7 +303,7 @@ public class ActivityFilter {
         var playerIdentity = activity.player();
 
         if (playerIdentity != null) {
-            var player = Bukkit.getServer().getPlayer(playerIdentity.uuid());
+            var player = Bukkit.getServer().getPlayer(playerIdentity.value());
             if (player != null) {
                 for (String permission : permissions) {
                     if (player.hasPermission(permission)) {
@@ -324,12 +324,12 @@ public class ActivityFilter {
      * @param activity The activity
      * @return ConditionResult
      */
-    private ConditionResult worldsMatch(IActivity activity) {
+    private ConditionResult worldsMatch(Activity activity) {
         if (worldNames.isEmpty()) {
             return ConditionResult.NOT_APPLICABLE;
         }
 
-        if (worldNames.contains(activity.location().world().name())) {
+        if (worldNames.contains(activity.world().value())) {
             return ConditionResult.MATCHED;
         }
 

@@ -26,28 +26,28 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import network.darkhelmet.prism.api.actions.types.IActionType;
-import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
+import network.darkhelmet.prism.api.actions.types.ActionType;
+import network.darkhelmet.prism.api.actions.types.ActionTypeRegistry;
 
-public class AbstractActionTypeRegistry implements IActionTypeRegistry {
+public class AbstractActionTypeRegistry implements ActionTypeRegistry {
     /**
      * Cache of action types by key.
      */
-    private final Map<String, IActionType> actionsTypes = new HashMap<>();
+    private final Map<String, ActionType> actionsTypes = new HashMap<>();
 
     @Override
-    public Collection<IActionType> actionTypes() {
+    public Collection<ActionType> actionTypes() {
         return actionsTypes.values();
     }
 
     @Override
-    public Collection<IActionType> actionTypesInFamily(String family) {
+    public Collection<ActionType> actionTypesInFamily(String family) {
         return actionsTypes.values().stream().filter(
             a -> a.familyKey().equalsIgnoreCase(family)).collect(Collectors.toList());
     }
 
     @Override
-    public void registerAction(IActionType actionType) {
+    public void registerAction(ActionType actionType) {
         if (actionsTypes.containsKey(actionType.key())) {
             throw new IllegalArgumentException("Registry already has an action type with that key.");
         }
@@ -56,7 +56,7 @@ public class AbstractActionTypeRegistry implements IActionTypeRegistry {
     }
 
     @Override
-    public Optional<IActionType> actionType(String key) {
+    public Optional<ActionType> actionType(String key) {
         if (actionsTypes.containsKey(key)) {
             return Optional.of(actionsTypes.get(key));
         }

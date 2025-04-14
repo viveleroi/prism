@@ -35,7 +35,7 @@ import net.kyori.moonshine.placeholder.IPlaceholderResolver;
 import net.kyori.moonshine.util.Either;
 
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
-import network.darkhelmet.prism.bukkit.services.translation.TranslationService;
+import network.darkhelmet.prism.bukkit.services.translation.BukkitTranslationService;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -47,7 +47,7 @@ public class ModificationQueueResultPlaceholderResolver
     /**
      * The translation service.
      */
-    private final TranslationService translationService;
+    private final BukkitTranslationService translationService;
 
     /**
      * Construct an activity placeholder resolver.
@@ -55,7 +55,7 @@ public class ModificationQueueResultPlaceholderResolver
      * @param translationService The translation service
      */
     @Inject
-    public ModificationQueueResultPlaceholderResolver(TranslationService translationService) {
+    public ModificationQueueResultPlaceholderResolver(BukkitTranslationService translationService) {
         this.translationService = translationService;
     }
 

@@ -36,12 +36,13 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import network.darkhelmet.prism.api.PaginatedResults;
+import network.darkhelmet.prism.api.activities.AbstractActivity;
+import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
-import network.darkhelmet.prism.api.activities.IActivity;
-import network.darkhelmet.prism.api.storage.IStorageAdapter;
+import network.darkhelmet.prism.api.storage.StorageAdapter;
 import network.darkhelmet.prism.bukkit.providers.TaskChainProvider;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
-import network.darkhelmet.prism.bukkit.services.translation.TranslationService;
+import network.darkhelmet.prism.bukkit.services.translation.BukkitTranslationService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.configuration.cache.CacheConfiguration;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
@@ -63,12 +64,12 @@ public class LookupService {
     /**
      * The storage adapter.
      */
-    private final IStorageAdapter storageAdapter;
+    private final StorageAdapter storageAdapter;
 
     /**
      * The translation service.
      */
-    private final TranslationService translationService;
+    private final BukkitTranslationService translationService;
 
     /**
      * The task chain provider.
@@ -101,8 +102,8 @@ public class LookupService {
             BukkitAudiences audiences,
             ConfigurationService configurationService,
             MessageService messageService,
-            IStorageAdapter storageAdapter,
-            TranslationService translationService,
+            StorageAdapter storageAdapter,
+            BukkitTranslationService translationService,
             TaskChainProvider taskChainProvider,
             LoggingService loggingService) {
         this.audiences = audiences;
@@ -164,7 +165,7 @@ public class LookupService {
      * @param sender The command sender
      * @param query The activity query
      */
-    public void lookup(CommandSender sender, ActivityQuery query, Consumer<List<IActivity>> consumer) {
+    public void lookup(CommandSender sender, ActivityQuery query, Consumer<List<Activity>> consumer) {
         taskChainProvider.newChain().async(() -> {
             try {
                 consumer.accept(storageAdapter.queryActivities(query));
@@ -185,7 +186,7 @@ public class LookupService {
      * @param results The paginated results
      * @param query The original query
      */
-    private void show(CommandSender sender, PaginatedResults<IActivity> results, ActivityQuery query) {
+    private void show(CommandSender sender, PaginatedResults<AbstractActivity> results, ActivityQuery query) {
         messageService.paginationHeader(sender, results);
 
         if (!query.defaultsUsed().isEmpty()) {
@@ -195,7 +196,7 @@ public class LookupService {
         if (results.isEmpty()) {
             messageService.noResults(sender);
         } else {
-            for (IActivity activity : results.results()) {
+            for (var activity : results.results()) {
                 if (query.grouped()) {
                     if (activity.action().descriptor() != null) {
                         messageService.listActivityRowGrouped(sender, activity);

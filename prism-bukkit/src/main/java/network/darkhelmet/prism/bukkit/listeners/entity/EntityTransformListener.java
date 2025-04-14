@@ -24,17 +24,13 @@ import com.google.inject.Inject;
 
 import java.util.Locale;
 
-import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.metadata.ReasonMetadata;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.EntityAction;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.actions.BukkitEntityAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.event.EventHandler;
@@ -47,17 +43,15 @@ public class EntityTransformListener extends AbstractListener implements Listene
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     @Inject
     public EntityTransformListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+            BukkitRecordingService recordingService) {
+        super(configurationService, expectationService, recordingService);
     }
 
     /**
@@ -74,15 +68,13 @@ public class EntityTransformListener extends AbstractListener implements Listene
 
         ReasonMetadata reason = new ReasonMetadata(event.getTransformReason().name().toLowerCase(Locale.ENGLISH));
 
-        // Build the action
-        final IAction action = new EntityAction(
-            ActionTypeRegistry.ENTITY_TRANSFORM, event.getTransformedEntity(), reason);
+        var action = new BukkitEntityAction(
+            BukkitActionTypeRegistry.ENTITY_TRANSFORM, event.getTransformedEntity(), reason);
 
-        // Build the activity
-        ISingleActivity activity = Activity.builder()
+        var activity = BukkitActivity.builder()
             .action(action)
             .cause(nameFromCause(event.getEntity()))
-            .location(LocationUtils.locToWorldCoordinate(event.getEntity().getLocation()))
+            .location(event.getEntity().getLocation())
             .build();
 
         recordingService.addToQueue(activity);

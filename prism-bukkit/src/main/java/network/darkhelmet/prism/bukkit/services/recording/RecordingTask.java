@@ -22,10 +22,9 @@ package network.darkhelmet.prism.bukkit.services.recording;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.api.services.recording.IRecordingService;
-import network.darkhelmet.prism.api.storage.IActivityBatch;
-import network.darkhelmet.prism.api.storage.IStorageAdapter;
+import network.darkhelmet.prism.api.services.recording.RecordingService;
+import network.darkhelmet.prism.api.storage.ActivityBatch;
+import network.darkhelmet.prism.api.storage.StorageAdapter;
 import network.darkhelmet.prism.loader.services.configuration.storage.StorageConfiguration;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
@@ -38,12 +37,12 @@ public class RecordingTask implements Runnable {
     /**
      * The storage adapter.
      */
-    private final IStorageAdapter storageAdapter;
+    private final StorageAdapter storageAdapter;
 
     /**
      * The recording manager.
      */
-    private final IRecordingService recordingService;
+    private final RecordingService recordingService;
 
     /**
      * The logging service.
@@ -61,8 +60,8 @@ public class RecordingTask implements Runnable {
     @Inject
     public RecordingTask(
             StorageConfiguration storageConfig,
-            IStorageAdapter storageAdapter,
-            IRecordingService recordingService,
+            StorageAdapter storageAdapter,
+            RecordingService recordingService,
             LoggingService loggingService) {
         this.storageConfig = storageConfig;
         this.storageAdapter = storageAdapter;
@@ -88,13 +87,12 @@ public class RecordingTask implements Runnable {
                 int batchCount = 0;
                 int batchMax = storageConfig.primaryDataSource().batchMax();
 
-                IActivityBatch batch = storageAdapter.createActivityBatch();
+                ActivityBatch batch = storageAdapter.createActivityBatch();
                 batch.startBatch();
 
                 while (!recordingService.queue().isEmpty()) {
                     batchCount++;
-                    final ISingleActivity activity = recordingService.queue().poll();
-                    batch.add(activity);
+                    batch.add(recordingService.queue().poll());
 
                     // Batch max exceeded, break
                     if (batchCount > batchMax) {

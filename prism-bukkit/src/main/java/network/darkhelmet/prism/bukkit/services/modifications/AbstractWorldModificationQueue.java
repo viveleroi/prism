@@ -29,9 +29,9 @@ import java.util.function.Consumer;
 
 import lombok.Getter;
 
+import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
-import network.darkhelmet.prism.api.activities.IActivity;
-import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueue;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
@@ -48,7 +48,7 @@ import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.BoundingBox;
 
-public abstract class AbstractWorldModificationQueue implements IModificationQueue {
+public abstract class AbstractWorldModificationQueue implements ModificationQueue {
     /**
      * The logging service.
      */
@@ -62,7 +62,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
     /**
      * Manage a queue of pending modifications.
      */
-    protected final List<IActivity> modificationsQueue = Collections.synchronizedList(new LinkedList<>());
+    protected final List<Activity> modificationsQueue = Collections.synchronizedList(new LinkedList<>());
 
     /**
      * The onEnd handler.
@@ -128,7 +128,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
             ModificationRuleset modificationRuleset,
             Object owner,
             ActivityQuery query,
-            final List<IActivity> modifications,
+            final List<Activity> modifications,
             Consumer<ModificationQueueResult> onEndCallback) {
         modificationsQueue.addAll(modifications);
         this.loggingService = loggingService;
@@ -144,7 +144,7 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
      * @param activity The activity
      * @return The modification result
      */
-    protected ModificationResult applyModification(IActivity activity) {
+    protected ModificationResult applyModification(Activity activity) {
         return ModificationResult.builder().status(ModificationResultStatus.SKIPPED).build();
     }
 
@@ -227,9 +227,9 @@ public abstract class AbstractWorldModificationQueue implements IModificationQue
                 final int currentQueueOffset = countModificationsRead;
 
                 if (currentQueueOffset < modificationsQueue.size()) {
-                    for (final Iterator<IActivity> iterator = modificationsQueue.listIterator(currentQueueOffset);
+                    for (final Iterator<Activity> iterator = modificationsQueue.listIterator(currentQueueOffset);
                          iterator.hasNext();) {
-                        final IActivity activity = iterator.next();
+                        final Activity activity = iterator.next();
 
                         // Simulate queue pointer advancement for previews
                         if (mode.equals(ModificationQueueMode.PLANNING)) {

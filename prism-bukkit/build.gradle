@@ -36,6 +36,7 @@ dependencies {
     implementation project.property('deps.adventure-minimessage')
     implementation project.property('deps.triumph-cmd-bukkit')
     implementation project(':prism-core')
+    implementation project(':prism-bukkit-api')
 }
 
 // "parameters" flag required for moonshine to work

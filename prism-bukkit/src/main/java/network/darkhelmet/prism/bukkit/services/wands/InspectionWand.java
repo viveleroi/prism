@@ -22,16 +22,18 @@ package network.darkhelmet.prism.bukkit.services.wands;
 
 import com.google.inject.Inject;
 
+import java.util.UUID;
+
 import network.darkhelmet.prism.api.activities.ActivityQuery;
-import network.darkhelmet.prism.api.services.wands.IWand;
+import network.darkhelmet.prism.api.services.wands.Wand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
+import network.darkhelmet.prism.api.util.Coordinate;
 import network.darkhelmet.prism.bukkit.services.lookup.LookupService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.command.CommandSender;
 
-public class InspectionWand implements IWand {
+public class InspectionWand implements Wand {
     /**
      * The configuration service.
      */
@@ -72,9 +74,9 @@ public class InspectionWand implements IWand {
     }
 
     @Override
-    public void use(WorldCoordinate at) {
-        final ActivityQuery query = ActivityQuery.builder().worldUuid(at.world().uuid())
-            .coordinate(at).limit(configurationService.prismConfig().defaults().perPage()).build();
+    public void use(UUID worldUuid, Coordinate coordinate) {
+        final ActivityQuery query = ActivityQuery.builder().worldUuid(worldUuid)
+            .coordinate(coordinate).limit(configurationService.prismConfig().defaults().perPage()).build();
 
         lookupService.lookup((CommandSender) owner, query);
     }

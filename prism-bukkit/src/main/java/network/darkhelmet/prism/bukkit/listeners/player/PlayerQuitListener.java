@@ -22,17 +22,14 @@ package network.darkhelmet.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueService;
+import network.darkhelmet.prism.bukkit.actions.GenericBukkitAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.bukkit.services.wands.WandService;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
 import network.darkhelmet.prism.core.services.cache.CacheService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
@@ -51,7 +48,7 @@ public class PlayerQuitListener extends AbstractListener implements Listener {
     /**
      * The modification queue service.
      */
-    private final IModificationQueueService modificationQueueService;
+    private final ModificationQueueService modificationQueueService;
 
     /**
      * The cache service.
@@ -62,7 +59,6 @@ public class PlayerQuitListener extends AbstractListener implements Listener {
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      * @param wandService The wand service
@@ -71,13 +67,12 @@ public class PlayerQuitListener extends AbstractListener implements Listener {
     @Inject
     public PlayerQuitListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService,
+            BukkitRecordingService recordingService,
             WandService wandService,
-            IModificationQueueService modificationQueueService,
+            ModificationQueueService modificationQueueService,
             CacheService cacheService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+        super(configurationService, expectationService, recordingService);
 
         this.wandService = wandService;
         this.modificationQueueService = modificationQueueService;
@@ -100,14 +95,12 @@ public class PlayerQuitListener extends AbstractListener implements Listener {
         wandService.deactivateWand(player);
 
         if (configurationService.prismConfig().actions().playerQuit()) {
-            // Build the action
-            final IAction action = actionFactory.createAction(ActionTypeRegistry.PLAYER_QUIT);
+            var action = new GenericBukkitAction(BukkitActionTypeRegistry.PLAYER_QUIT);
 
-            // Build the activity
-            final ISingleActivity activity = Activity.builder()
+            var activity = BukkitActivity.builder()
                 .action(action)
-                .location(LocationUtils.locToWorldCoordinate(player.getLocation()))
-                .player(player.getUniqueId(), player.getName())
+                .location(player.getLocation())
+                .player(player)
                 .build();
 
             recordingService.addToQueue(activity);

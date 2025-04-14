@@ -25,22 +25,22 @@ import com.google.inject.Singleton;
 
 import java.util.function.Consumer;
 
-import network.darkhelmet.prism.api.services.purges.IPurgeQueue;
 import network.darkhelmet.prism.api.services.purges.PurgeCycleResult;
+import network.darkhelmet.prism.api.services.purges.PurgeQueue;
 import network.darkhelmet.prism.api.services.purges.PurgeResult;
-import network.darkhelmet.prism.core.injection.factories.IPurgeQueueFactory;
+import network.darkhelmet.prism.core.injection.factories.PurgeQueueFactory;
 
 @Singleton
 public class PurgeService {
     /**
      * The purge queue factory.
      */
-    private final IPurgeQueueFactory purgeQueueFactory;
+    private final PurgeQueueFactory purgeQueueFactory;
 
     /**
      * Cache the current queue.
      */
-    private IPurgeQueue currentQueue;
+    private PurgeQueue currentQueue;
 
     /**
      * Constructor.
@@ -48,7 +48,7 @@ public class PurgeService {
      * @param purgeQueueFactory The purge queue factory
      */
     @Inject
-    public PurgeService(IPurgeQueueFactory purgeQueueFactory) {
+    public PurgeService(PurgeQueueFactory purgeQueueFactory) {
         this.purgeQueueFactory = purgeQueueFactory;
     }
 
@@ -58,7 +58,7 @@ public class PurgeService {
      * @param onCycle The cycle callback
      * @return The purge queue
      */
-    public IPurgeQueue newQueue(Consumer<PurgeCycleResult> onCycle, Consumer<PurgeResult> onEnd) {
+    public PurgeQueue newQueue(Consumer<PurgeCycleResult> onCycle, Consumer<PurgeResult> onEnd) {
         if (!queueFree()) {
             throw new IllegalStateException("Queue is not free.");
         }

@@ -29,13 +29,12 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.UUID;
 
-import network.darkhelmet.prism.api.actions.IBlockAction;
-import network.darkhelmet.prism.api.actions.ICustomData;
-import network.darkhelmet.prism.api.actions.IEntityAction;
-import network.darkhelmet.prism.api.actions.IMaterialAction;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.api.storage.IActivityBatch;
-import network.darkhelmet.prism.api.util.NamedIdentity;
+import network.darkhelmet.prism.api.actions.BlockAction;
+import network.darkhelmet.prism.api.actions.CustomData;
+import network.darkhelmet.prism.api.actions.EntityAction;
+import network.darkhelmet.prism.api.actions.MaterialAction;
+import network.darkhelmet.prism.api.activities.Activity;
+import network.darkhelmet.prism.api.storage.ActivityBatch;
 import network.darkhelmet.prism.core.services.cache.CacheService;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
@@ -53,7 +52,7 @@ import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStor
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
 
-public class SqlActivityBatch implements IActivityBatch {
+public class SqlActivityBatch implements ActivityBatch {
     /**
      * The logging service.
      */
@@ -137,31 +136,31 @@ public class SqlActivityBatch implements IActivityBatch {
     }
 
     @Override
-    public void add(ISingleActivity activity) throws SQLException {
+    public void add(Activity activity) throws SQLException {
         statement.setLong(1, activity.timestamp() / 1000);
-        statement.setInt(2, activity.location().intX());
-        statement.setInt(3, activity.location().intY());
-        statement.setInt(4, activity.location().intZ());
+        statement.setInt(2, activity.coordinate().intX());
+        statement.setInt(3, activity.coordinate().intY());
+        statement.setInt(4, activity.coordinate().intZ());
 
         // Set the action relationship
         byte actionId = getOrCreateActionId(activity.action().type().key());
         statement.setByte(5, actionId);
 
         // Set the entity relationship
-        if (activity.action() instanceof IEntityAction) {
-            int entityTypeId = getOrCreateEntityTypeId(((IEntityAction) activity.action()).serializeEntityType());
+        if (activity.action() instanceof EntityAction) {
+            int entityTypeId = getOrCreateEntityTypeId(((EntityAction) activity.action()).serializeEntityType());
             statement.setInt(6, entityTypeId);
         } else {
             statement.setNull(6, Types.INTEGER);
         }
 
         // Set the material relationship
-        if (activity.action() instanceof IMaterialAction) {
-            String material = ((IMaterialAction) activity.action()).serializeMaterial();
+        if (activity.action() instanceof MaterialAction) {
+            String material = ((MaterialAction) activity.action()).serializeMaterial();
             String data = null;
 
-            if (activity.action() instanceof IBlockAction) {
-                data = ((IBlockAction) activity.action()).serializeBlockData();
+            if (activity.action() instanceof BlockAction) {
+                data = ((BlockAction) activity.action()).serializeBlockData();
             }
 
             statement.setInt(7, getOrCreateMaterialId(material, data));
@@ -170,7 +169,7 @@ public class SqlActivityBatch implements IActivityBatch {
         }
 
         // Set the replaced material relationship
-        if (activity.action() instanceof IBlockAction blockAction) {
+        if (activity.action() instanceof BlockAction blockAction) {
             String replacedMaterial = blockAction.serializeReplacedMaterial();
             String replacedData = blockAction.serializeReplacedBlockData();
 
@@ -181,14 +180,13 @@ public class SqlActivityBatch implements IActivityBatch {
         }
 
         // Set the world relationship
-        NamedIdentity world = activity.location().world();
-        byte worldId = getOrCreateWorldId(world.uuid(), world.name());
+        byte worldId = getOrCreateWorldId(activity.world().key(), activity.world().value());
         statement.setByte(9, worldId);
 
         // Set the player relationship
         Long playerId = null;
         if (activity.player() != null) {
-            playerId = getOrCreatePlayerId(activity.player().uuid(), activity.player().name());
+            playerId = getOrCreatePlayerId(activity.player().key(), activity.player().value());
         }
 
         // Set the cause relationship
@@ -210,7 +208,7 @@ public class SqlActivityBatch implements IActivityBatch {
             statement.setNull(12, Types.VARCHAR);
         }
 
-        if (activity.action() instanceof ICustomData customDataAction) {
+        if (activity.action() instanceof CustomData customDataAction) {
             if (customDataAction.hasCustomData()) {
                 statement.setShort(13, serializerVersion);
                 statement.setString(14, customDataAction.serializeCustomData());

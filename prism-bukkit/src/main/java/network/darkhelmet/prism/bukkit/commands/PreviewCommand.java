@@ -30,17 +30,17 @@ import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import java.util.List;
 import java.util.Optional;
 
-import network.darkhelmet.prism.api.actions.IAction;
+import network.darkhelmet.prism.api.actions.Action;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
-import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
-import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
-import network.darkhelmet.prism.api.services.modifications.IPreviewable;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueue;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueService;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
-import network.darkhelmet.prism.api.storage.IStorageAdapter;
+import network.darkhelmet.prism.api.services.modifications.Previewable;
+import network.darkhelmet.prism.api.storage.StorageAdapter;
 import network.darkhelmet.prism.bukkit.providers.TaskChainProvider;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
-import network.darkhelmet.prism.bukkit.services.modifications.Restore;
-import network.darkhelmet.prism.bukkit.services.modifications.Rollback;
+import network.darkhelmet.prism.bukkit.services.modifications.BukkitRestore;
+import network.darkhelmet.prism.bukkit.services.modifications.BukkitRollback;
 import network.darkhelmet.prism.bukkit.services.query.QueryService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
@@ -57,7 +57,7 @@ public class PreviewCommand {
     /**
      * The storage adapter.
      */
-    private final IStorageAdapter storageAdapter;
+    private final StorageAdapter storageAdapter;
 
     /**
      * The message service.
@@ -67,7 +67,7 @@ public class PreviewCommand {
     /**
      * The modification queue service.
      */
-    private final IModificationQueueService modificationQueueService;
+    private final ModificationQueueService modificationQueueService;
 
     /**
      * The query service.
@@ -98,9 +98,9 @@ public class PreviewCommand {
     @Inject
     public PreviewCommand(
             ConfigurationService configurationService,
-            IStorageAdapter storageAdapter,
+            StorageAdapter storageAdapter,
             MessageService messageService,
-            IModificationQueueService modificationQueueService,
+            ModificationQueueService modificationQueueService,
             QueryService queryService,
             TaskChainProvider taskChainProvider,
             LoggingService loggingService) {
@@ -121,7 +121,7 @@ public class PreviewCommand {
     @Command(value = "preview-apply")
     @Permission("prism.modify")
     public void onApply(final Player player) {
-        Optional<IModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
+        Optional<ModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
         if (optionalQueue.isEmpty()) {
             messageService.errorQueueMissing(player);
 
@@ -141,7 +141,7 @@ public class PreviewCommand {
     @Command(value = "preview-cancel")
     @Permission("prism.modify")
     public void onCancel(final Player player) {
-        Optional<IModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
+        Optional<ModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
         if (optionalQueue.isEmpty()) {
             messageService.errorQueueMissing(player);
 
@@ -167,7 +167,7 @@ public class PreviewCommand {
         if (builder.isPresent()) {
             final ActivityQuery query = builder.get().modification().reversed(true).build();
 
-            preview(Restore.class, player, query);
+            preview(BukkitRestore.class, player, query);
         }
     }
 
@@ -185,7 +185,7 @@ public class PreviewCommand {
         if (builder.isPresent()) {
             final ActivityQuery query = builder.get().modification().reversed(false).build();
 
-            preview(Rollback.class, player, query);
+            preview(BukkitRollback.class, player, query);
         }
     }
 
@@ -196,7 +196,7 @@ public class PreviewCommand {
      * @param player The player
      * @param query The query
      */
-    protected void preview(Class<? extends IModificationQueue> clazz, final Player player, final ActivityQuery query) {
+    protected void preview(Class<? extends ModificationQueue> clazz, final Player player, final ActivityQuery query) {
         // Ensure a queue is free
         if (!modificationQueueService.queueAvailable()) {
             messageService.errorQueueNotFree(player);
@@ -213,7 +213,7 @@ public class PreviewCommand {
             }
 
             return null;
-        }).abortIfNull().<List<IAction>>sync(results -> {
+        }).abortIfNull().<List<Action>>sync(results -> {
             if (results.isEmpty()) {
                 messageService.noResults(player);
 
@@ -223,9 +223,9 @@ public class PreviewCommand {
             ModificationRuleset modificationRuleset = configurationService
                 .prismConfig().modifications().toRulesetBuilder().build();
 
-            IModificationQueue queue = modificationQueueService
+            ModificationQueue queue = modificationQueueService
                 .newQueue(clazz, modificationRuleset, player, query, results);
-            if (queue instanceof IPreviewable previewable) {
+            if (queue instanceof Previewable previewable) {
                 previewable.preview();
             } else {
                 messageService.errorNotPreviewable(player);

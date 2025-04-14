@@ -31,10 +31,10 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.bukkit.PrismBukkit;
-import network.darkhelmet.prism.bukkit.actions.ItemStackAction;
+import network.darkhelmet.prism.bukkit.actions.BukkitItemStackAction;
 import network.darkhelmet.prism.bukkit.services.lookup.LookupService;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
-import network.darkhelmet.prism.bukkit.services.translation.TranslationService;
+import network.darkhelmet.prism.bukkit.services.translation.BukkitTranslationService;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -54,7 +54,7 @@ public class PeekCommand {
     /**
      * The translation service.
      */
-    private final TranslationService translationService;
+    private final BukkitTranslationService translationService;
 
     /**
      * Construct the near command.
@@ -67,7 +67,7 @@ public class PeekCommand {
     public PeekCommand(
             LookupService lookupService,
             MessageService messageService,
-            TranslationService translationService) {
+            BukkitTranslationService translationService) {
         this.messageService = messageService;
         this.lookupService = lookupService;
         this.translationService = translationService;
@@ -93,7 +93,7 @@ public class PeekCommand {
                 var title = MiniMessage.miniMessage().deserialize(
                     translationService.messageOf(player, "rich.peek-gui-title"));
 
-                if (activity.action() instanceof ItemStackAction itemStackAction) {
+                if (activity.action() instanceof BukkitItemStackAction itemStackAction) {
                     Bukkit.getServer().getScheduler().runTask(PrismBukkit.instance().loaderPlugin(), () -> {
                         Gui gui = Gui.gui().title(title).disableAllInteractions().create();
                         gui.setItem(4, ItemBuilder.from(itemStackAction.itemStack()).asGuiItem());

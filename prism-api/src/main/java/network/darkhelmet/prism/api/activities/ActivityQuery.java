@@ -29,7 +29,7 @@ import lombok.Singular;
 import lombok.ToString;
 import lombok.experimental.Tolerate;
 
-import network.darkhelmet.prism.api.actions.types.IActionType;
+import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.api.util.Coordinate;
 
 @Builder(toBuilder = true)
@@ -46,7 +46,7 @@ public final class ActivityQuery {
      * The action types.
      */
     @Singular
-    private Collection<IActionType> actionTypes;
+    private Collection<ActionType> actionTypes;
 
     /**
      * The activity id.
@@ -183,18 +183,16 @@ public final class ActivityQuery {
         }
 
         /**
-         * Set the location.
+         * Set the coordinate.
          *
-         * @param worldUuid The world uuid
          * @param x The x coordinate
          * @param y The y coordinate
          * @param z The z coordinate
          * @return The builder
          */
         @Tolerate
-        public ActivityQueryBuilder location(UUID worldUuid, double x, double y, double z) {
+        public ActivityQueryBuilder coordinate(double x, double y, double z) {
             this.coordinate = new Coordinate(x, y, z);
-            this.worldUuid = worldUuid;
             return this;
         }
 
@@ -203,7 +201,7 @@ public final class ActivityQuery {
          *
          * @return The builder
          */
-        public ActivityQueryBuilder locationFromReferenceCoordinate() {
+        public ActivityQueryBuilder coordinateFromReferenceCoordinate() {
             this.coordinate = referenceCoordinate;
 
             return this;

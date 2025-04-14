@@ -38,27 +38,23 @@ import net.kyori.moonshine.exception.scan.UnscannableMethodException;
 import net.kyori.moonshine.strategy.StandardPlaceholderResolverStrategy;
 import net.kyori.moonshine.strategy.supertype.StandardSupertypeThenInterfaceSupertypeStrategy;
 
-import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
-import network.darkhelmet.prism.api.activities.IActivity;
-import network.darkhelmet.prism.api.providers.IWorldIdentityProvider;
-import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
-import network.darkhelmet.prism.api.services.modifications.IRestore;
-import network.darkhelmet.prism.api.services.modifications.IRollback;
+import network.darkhelmet.prism.api.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.api.activities.AbstractActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
-import network.darkhelmet.prism.api.services.purges.IPurgeQueue;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueService;
+import network.darkhelmet.prism.api.services.modifications.Restore;
+import network.darkhelmet.prism.api.services.modifications.Rollback;
 import network.darkhelmet.prism.api.services.purges.PurgeCycleResult;
-import network.darkhelmet.prism.api.services.recording.IRecordingService;
-import network.darkhelmet.prism.api.services.wands.IWand;
+import network.darkhelmet.prism.api.services.purges.PurgeQueue;
+import network.darkhelmet.prism.api.services.recording.RecordingService;
+import network.darkhelmet.prism.api.services.wands.Wand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
-import network.darkhelmet.prism.api.storage.ISqlActivityQueryBuilder;
-import network.darkhelmet.prism.api.storage.IStorageAdapter;
+import network.darkhelmet.prism.api.storage.StorageAdapter;
 import network.darkhelmet.prism.bukkit.PrismBukkit;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import network.darkhelmet.prism.bukkit.providers.TaskChainProvider;
-import network.darkhelmet.prism.bukkit.providers.WorldIdentityProvider;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.filters.FilterService;
+import network.darkhelmet.prism.bukkit.services.filters.BukkitFilterService;
 import network.darkhelmet.prism.bukkit.services.lookup.LookupService;
 import network.darkhelmet.prism.bukkit.services.messages.MessageRenderer;
 import network.darkhelmet.prism.bukkit.services.messages.MessageSender;
@@ -71,27 +67,26 @@ import network.darkhelmet.prism.bukkit.services.messages.resolvers.PaginatedResu
 import network.darkhelmet.prism.bukkit.services.messages.resolvers.PurgeCycleResultPlaceholderResolver;
 import network.darkhelmet.prism.bukkit.services.messages.resolvers.StringPlaceholderResolver;
 import network.darkhelmet.prism.bukkit.services.messages.resolvers.WandModePlaceholderResolver;
-import network.darkhelmet.prism.bukkit.services.modifications.ModificationQueueService;
-import network.darkhelmet.prism.bukkit.services.modifications.Restore;
-import network.darkhelmet.prism.bukkit.services.modifications.Rollback;
-import network.darkhelmet.prism.bukkit.services.purge.PurgeQueue;
+import network.darkhelmet.prism.bukkit.services.modifications.BukkitModificationQueueService;
+import network.darkhelmet.prism.bukkit.services.modifications.BukkitRestore;
+import network.darkhelmet.prism.bukkit.services.modifications.BukkitRollback;
+import network.darkhelmet.prism.bukkit.services.purge.BukkitPurgeQueue;
 import network.darkhelmet.prism.bukkit.services.purge.PurgeService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.bukkit.services.scheduling.SchedulingService;
-import network.darkhelmet.prism.bukkit.services.translation.TranslationService;
+import network.darkhelmet.prism.bukkit.services.translation.BukkitTranslationService;
 import network.darkhelmet.prism.bukkit.services.wands.InspectionWand;
 import network.darkhelmet.prism.bukkit.services.wands.RestoreWand;
 import network.darkhelmet.prism.bukkit.services.wands.RollbackWand;
 import network.darkhelmet.prism.bukkit.services.wands.WandService;
-import network.darkhelmet.prism.core.injection.factories.IH2ActivityQueryBuilderFactory;
-import network.darkhelmet.prism.core.injection.factories.IPurgeQueueFactory;
-import network.darkhelmet.prism.core.injection.factories.IRestoreFactory;
-import network.darkhelmet.prism.core.injection.factories.IRollbackFactory;
-import network.darkhelmet.prism.core.injection.factories.ISqlActivityQueryBuilderFactory;
+import network.darkhelmet.prism.core.injection.factories.H2ActivityQueryBuilderFactory;
+import network.darkhelmet.prism.core.injection.factories.PurgeQueueFactory;
+import network.darkhelmet.prism.core.injection.factories.RestoreFactory;
+import network.darkhelmet.prism.core.injection.factories.RollbackFactory;
+import network.darkhelmet.prism.core.injection.factories.SqlActivityQueryBuilderFactory;
 import network.darkhelmet.prism.core.services.cache.CacheService;
 import network.darkhelmet.prism.core.storage.adapters.h2.H2ActivityQueryBuilder;
 import network.darkhelmet.prism.core.storage.adapters.h2.H2StorageAdapter;
-import network.darkhelmet.prism.core.storage.adapters.h2.IH2ActivityQueryBuilder;
 import network.darkhelmet.prism.core.storage.adapters.mariadb.MariaDbStorageAdapter;
 import network.darkhelmet.prism.core.storage.adapters.mysql.MysqlStorageAdapter;
 import network.darkhelmet.prism.core.storage.adapters.postgres.PostgresStorageAdapter;
@@ -185,7 +180,7 @@ public class PrismModule extends AbstractModule {
     @Singleton
     @Inject
     public MessageService getMessageService(
-            TranslationService translationService,
+            BukkitTranslationService translationService,
             MessageRenderer messageRenderer,
             MessageSender messageSender,
             ActivityPlaceholderResolver activityPlaceholderResolver,
@@ -203,7 +198,7 @@ public class PrismModule extends AbstractModule {
                 .weightedPlaceholderResolver(Integer.class, new IntegerPlaceholderResolver(), 0)
                 .weightedPlaceholderResolver(String.class, new StringPlaceholderResolver(), 0)
                 .weightedPlaceholderResolver(PurgeCycleResult.class, new PurgeCycleResultPlaceholderResolver(), 0)
-                .weightedPlaceholderResolver(IActivity.class, activityPlaceholderResolver, 0)
+                .weightedPlaceholderResolver(AbstractActivity.class, activityPlaceholderResolver, 0)
                 .weightedPlaceholderResolver(WandMode.class, wandModePlaceholderResolver, 0)
                 .weightedPlaceholderResolver(
                     ModificationQueueResult.class, modificationQueueResultPlaceholderResolver, 0)
@@ -225,11 +220,7 @@ public class PrismModule extends AbstractModule {
         bind(TaskChainProvider.class).toInstance(new TaskChainProvider(prism.loader()));
 
         // Actions
-        bind(ActionFactory.class).in(Singleton.class);
-        bind(IActionTypeRegistry.class).to(ActionTypeRegistry.class).in(Singleton.class);
-
-        // Providers
-        bind(IWorldIdentityProvider.class).to(WorldIdentityProvider.class).in(Singleton.class);
+        bind(ActionTypeRegistry.class).to(BukkitActionTypeRegistry.class).in(Singleton.class);
 
         // Service - Cache
         bind(CacheService.class).in(Singleton.class);
@@ -241,7 +232,7 @@ public class PrismModule extends AbstractModule {
         bind(ExpectationService.class).in(Singleton.class);
 
         // Service - Filters
-        bind(FilterService.class).in(Singleton.class);
+        bind(BukkitFilterService.class).in(Singleton.class);
 
         // Service = Logging
         bind(LoggingService.class).toInstance(loggingService);
@@ -250,25 +241,25 @@ public class PrismModule extends AbstractModule {
         bind(LookupService.class).in(Singleton.class);
 
         // Service - Modifications
-        bind(IModificationQueueService.class).to(ModificationQueueService.class).in(Singleton.class);
+        bind(ModificationQueueService.class).to(BukkitModificationQueueService.class).in(Singleton.class);
 
         install(new FactoryModuleBuilder()
-            .implement(IRestore.class, Restore.class)
-            .build(IRestoreFactory.class));
+            .implement(Restore.class, BukkitRestore.class)
+            .build(RestoreFactory.class));
 
         install(new FactoryModuleBuilder()
-            .implement(IRollback.class, Rollback.class)
-            .build(IRollbackFactory.class));
+            .implement(Rollback.class, BukkitRollback.class)
+            .build(RollbackFactory.class));
 
         // Service - Purge
         bind(PurgeService.class).in(Singleton.class);
 
         install(new FactoryModuleBuilder()
-            .implement(IPurgeQueue.class, PurgeQueue.class)
-            .build(IPurgeQueueFactory.class));
+            .implement(PurgeQueue.class, BukkitPurgeQueue.class)
+            .build(PurgeQueueFactory.class));
 
         // Service - Recording
-        bind(IRecordingService.class).to(RecordingService.class).in(Singleton.class);
+        bind(RecordingService.class).to(BukkitRecordingService.class).in(Singleton.class);
 
         // Service - Scheduling
         bind(SchedulingService.class).in(Singleton.class);
@@ -279,11 +270,11 @@ public class PrismModule extends AbstractModule {
         bind(ActivityPlaceholderResolver.class).in(Singleton.class);
 
         // Service - Translation
-        bind(TranslationService.class).in(Singleton.class);
+        bind(BukkitTranslationService.class).in(Singleton.class);
 
         // Service - Wands
         bind(WandService.class).in(Singleton.class);
-        MapBinder<WandMode, IWand> wandBinder = MapBinder.newMapBinder(binder(), WandMode.class, IWand.class);
+        MapBinder<WandMode, Wand> wandBinder = MapBinder.newMapBinder(binder(), WandMode.class, Wand.class);
         wandBinder.addBinding(WandMode.INSPECT).to(InspectionWand.class);
         wandBinder.addBinding(WandMode.ROLLBACK).to(RollbackWand.class);
         wandBinder.addBinding(WandMode.RESTORE).to(RestoreWand.class);
@@ -296,21 +287,21 @@ public class PrismModule extends AbstractModule {
         // Install the correct query builder
         if (storageType.equals(StorageType.H2)) {
             install(new FactoryModuleBuilder()
-                .implement(IH2ActivityQueryBuilder.class, H2ActivityQueryBuilder.class)
-                .build(IH2ActivityQueryBuilderFactory.class));
+                .implement(SqlActivityQueryBuilder.class, H2ActivityQueryBuilder.class)
+                .build(H2ActivityQueryBuilderFactory.class));
         } else {
             install(new FactoryModuleBuilder()
-                .implement(ISqlActivityQueryBuilder.class, SqlActivityQueryBuilder.class)
-                .build(ISqlActivityQueryBuilderFactory.class));
+                .implement(SqlActivityQueryBuilder.class, SqlActivityQueryBuilder.class)
+                .build(SqlActivityQueryBuilderFactory.class));
         }
 
         // Bind the correct storage adapter
         switch (storageType) {
-            case H2 -> bind(IStorageAdapter.class).to(H2StorageAdapter.class).in(Singleton.class);
-            case MARIADB -> bind(IStorageAdapter.class).to(MariaDbStorageAdapter.class).in(Singleton.class);
-            case MYSQL -> bind(IStorageAdapter.class).to(MysqlStorageAdapter.class).in(Singleton.class);
-            case POSTGRES -> bind(IStorageAdapter.class).to(PostgresStorageAdapter.class).in(Singleton.class);
-            case SQLITE -> bind(IStorageAdapter.class).to(SqliteStorageAdapter.class).in(Singleton.class);
+            case H2 -> bind(StorageAdapter.class).to(H2StorageAdapter.class).in(Singleton.class);
+            case MARIADB -> bind(StorageAdapter.class).to(MariaDbStorageAdapter.class).in(Singleton.class);
+            case MYSQL -> bind(StorageAdapter.class).to(MysqlStorageAdapter.class).in(Singleton.class);
+            case POSTGRES -> bind(StorageAdapter.class).to(PostgresStorageAdapter.class).in(Singleton.class);
+            case SQLITE -> bind(StorageAdapter.class).to(SqliteStorageAdapter.class).in(Singleton.class);
             default -> {
                 // ignored
             }

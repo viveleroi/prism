@@ -20,42 +20,7 @@
 
 package network.darkhelmet.prism.api.util;
 
-import lombok.Getter;
-import lombok.ToString;
-
-@ToString
-public class Coordinate {
-    /**
-     * The x coordinate.
-     */
-    @Getter
-    private final double x;
-
-    /**
-     * The y coordinate.
-     */
-    @Getter
-    private final double y;
-
-    /**
-     * The z coordinate.
-     */
-    @Getter
-    private final double z;
-
-    /**
-     * Construct a new coordinate.
-     *
-     * @param x The x coordinate
-     * @param y The y coordinate
-     * @param z The z coordinate
-     */
-    public Coordinate(double x, double y, double z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
-
+public record Coordinate(double x, double y, double z) {
     /**
      * Get the x as an int.
      *

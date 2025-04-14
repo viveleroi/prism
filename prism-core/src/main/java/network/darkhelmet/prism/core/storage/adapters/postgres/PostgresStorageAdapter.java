@@ -32,9 +32,9 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
-import network.darkhelmet.prism.api.storage.IActivityBatch;
-import network.darkhelmet.prism.core.injection.factories.ISqlActivityQueryBuilderFactory;
+import network.darkhelmet.prism.api.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.api.storage.ActivityBatch;
+import network.darkhelmet.prism.core.injection.factories.SqlActivityQueryBuilderFactory;
 import network.darkhelmet.prism.core.services.cache.CacheService;
 import network.darkhelmet.prism.core.storage.HikariConfigFactory;
 import network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter;
@@ -68,9 +68,9 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
     public PostgresStorageAdapter(
             LoggingService loggingService,
             ConfigurationService configurationService,
-            IActionTypeRegistry actionRegistry,
+            ActionTypeRegistry actionRegistry,
             SqlSchemaUpdater schemaUpdater,
-            ISqlActivityQueryBuilderFactory queryBuilderFactory,
+            SqlActivityQueryBuilderFactory queryBuilderFactory,
             CacheService cacheService,
             @Named("serializerVersion") short serializerVersion,
             Path dataPath) {
@@ -174,7 +174,7 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
     }
 
     @Override
-    public IActivityBatch createActivityBatch() {
+    public ActivityBatch createActivityBatch() {
         if (configurationService.storageConfig().mysql().useStoredProcedures()) {
             return new SqlActivityProcedureBatch(loggingService, dataSource, serializerVersion, prefix);
         }

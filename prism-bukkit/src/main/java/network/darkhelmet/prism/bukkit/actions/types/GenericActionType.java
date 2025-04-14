@@ -20,11 +20,11 @@
 
 package network.darkhelmet.prism.bukkit.actions.types;
 
+import network.darkhelmet.prism.api.actions.Action;
 import network.darkhelmet.prism.api.actions.ActionData;
-import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
-import network.darkhelmet.prism.bukkit.actions.GenericAction;
+import network.darkhelmet.prism.bukkit.actions.GenericBukkitAction;
 
 public class GenericActionType extends ActionType {
     /**
@@ -52,11 +52,11 @@ public class GenericActionType extends ActionType {
     }
 
     @Override
-    public IAction createAction(ActionData actionData) throws Exception {
+    public Action createAction(ActionData actionData) throws Exception {
         if (this.metadataClass != null && actionData.metadata() != null) {
-            return new GenericAction(this, actionData.descriptor(), actionData.metadata());
+            return new GenericBukkitAction(this, actionData.descriptor(), actionData.metadata());
         } else {
-            return new GenericAction(this, actionData.descriptor());
+            return new GenericBukkitAction(this, actionData.descriptor());
         }
     }
 }

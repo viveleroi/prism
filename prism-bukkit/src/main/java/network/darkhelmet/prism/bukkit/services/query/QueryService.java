@@ -27,7 +27,6 @@ import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -37,10 +36,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import network.darkhelmet.prism.api.actions.types.IActionType;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.util.Coordinate;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
 import network.darkhelmet.prism.bukkit.utils.LocationUtils;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
@@ -59,7 +57,7 @@ public class QueryService {
     /**
      * The action registry.
      */
-    private final ActionTypeRegistry actionRegistry;
+    private final BukkitActionTypeRegistry actionRegistry;
 
     /**
      * The configuration service.
@@ -78,7 +76,7 @@ public class QueryService {
      */
     @Inject
     public QueryService(
-            ActionTypeRegistry actionRegistry,
+            BukkitActionTypeRegistry actionRegistry,
             ConfigurationService configurationService,
             MessageService messageService) {
         this.actionRegistry = actionRegistry;
@@ -285,7 +283,7 @@ public class QueryService {
         }
 
         if (at != null && r == null && in == null && bounds == null) {
-            builder.locationFromReferenceCoordinate();
+            builder.coordinateFromReferenceCoordinate();
         }
 
         // Read "before" parameter from arguments or defaults
@@ -548,15 +546,12 @@ public class QueryService {
     protected void parseActions(ActivityQuery.ActivityQueryBuilder query, List<String> actions) {
         for (String actionKey : actions) {
             if (actionKey.contains("-")) {
-                Optional<IActionType> optionalIActionType = actionRegistry
-                    .actionType(actionKey.toLowerCase(Locale.ENGLISH));
+                var optionalIActionType = actionRegistry.actionType(actionKey.toLowerCase(Locale.ENGLISH));
                 if (optionalIActionType.isPresent()) {
                     query.actionTypeKey(actionKey);
                 }
             } else {
-                Collection<IActionType> actionTypes = actionRegistry
-                    .actionTypesInFamily(actionKey.toLowerCase(Locale.ENGLISH));
-                query.actionTypes(actionTypes);
+                query.actionTypes(actionRegistry.actionTypesInFamily(actionKey.toLowerCase(Locale.ENGLISH)));
             }
         }
     }

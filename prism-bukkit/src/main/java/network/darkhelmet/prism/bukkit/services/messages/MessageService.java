@@ -24,7 +24,7 @@ import net.kyori.moonshine.annotation.Message;
 import net.kyori.moonshine.annotation.Placeholder;
 
 import network.darkhelmet.prism.api.PaginatedResults;
-import network.darkhelmet.prism.api.activities.IActivity;
+import network.darkhelmet.prism.api.activities.AbstractActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
 import network.darkhelmet.prism.api.services.purges.PurgeCycleResult;
 import network.darkhelmet.prism.api.services.wands.WandMode;
@@ -124,16 +124,16 @@ public interface MessageService {
     void errorUnknownCommand(CommandSender receiver);
 
     @Message("rich.activity-row-grouped")
-    void listActivityRowGrouped(CommandSender receiver, @Placeholder IActivity activity);
+    void listActivityRowGrouped(CommandSender receiver, @Placeholder AbstractActivity activity);
 
     @Message("rich.activity-row-grouped-no-descriptor")
-    void listActivityRowGroupedNoDescriptor(CommandSender receiver, @Placeholder IActivity activity);
+    void listActivityRowGroupedNoDescriptor(CommandSender receiver, @Placeholder AbstractActivity activity);
 
     @Message("rich.activity-row-single")
-    void listActivityRowSingle(CommandSender receiver, @Placeholder IActivity activity);
+    void listActivityRowSingle(CommandSender receiver, @Placeholder AbstractActivity activity);
 
     @Message("rich.activity-row-single-no-descriptor")
-    void listActivityRowSingleNoDescriptor(CommandSender receiver, @Placeholder IActivity activity);
+    void listActivityRowSingleNoDescriptor(CommandSender receiver, @Placeholder AbstractActivity activity);
 
     @Message("rich.modifications-applied")
     void modificationsApplied(CommandSender receiver, @Placeholder Integer count);
@@ -149,7 +149,7 @@ public interface MessageService {
 
     @Message("rich.modifications-report-skipped-activity")
     void modificationsReportSkippedActivity(
-        CommandSender receiver, @Placeholder IActivity activity, @Placeholder String skipreason);
+        CommandSender receiver, @Placeholder AbstractActivity activity, @Placeholder String skipreason);
 
     @Message("rich.modifications-skipped")
     void modificationsSkipped(CommandSender receiver, @Placeholder ModificationQueueResult result);
@@ -194,7 +194,7 @@ public interface MessageService {
     void removedDrops(CommandSender receiver, @Placeholder Integer count);
 
     @Message("rich.teleporting-to-activity")
-    void teleportingToActivity(CommandSender receiver, @Placeholder IActivity activity);
+    void teleportingToActivity(CommandSender receiver, @Placeholder AbstractActivity activity);
 
     @Message("rich.teleporting-to")
     void teleportingTo(CommandSender receiver,

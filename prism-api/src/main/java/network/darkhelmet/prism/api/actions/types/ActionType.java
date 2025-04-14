@@ -21,9 +21,13 @@
 package network.darkhelmet.prism.api.actions.types;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import network.darkhelmet.prism.api.actions.Action;
+import network.darkhelmet.prism.api.actions.ActionData;
 
+@Getter
 @EqualsAndHashCode
-public abstract class ActionType implements IActionType {
+public abstract class ActionType {
     /**
      * The key.
      */
@@ -71,38 +75,34 @@ public abstract class ActionType implements IActionType {
         this.metadataClass = metadataClass;
     }
 
-    @Override
-    public String key() {
-        return key;
-    }
-
-    @Override
+    /**
+     * Get the family key.
+     *
+     * @return The family key
+     */
     public String familyKey() {
         String[] segments = key.split("-");
         return segments[segments.length - 1];
     }
 
-    @Override
-    public Class<? extends Record> metadataClass() {
-        return metadataClass;
-    }
-
-    @Override
+    /**
+     * Get the past tense translation key.
+     *
+     * @return The key
+     */
     public String pastTenseTranslationKey() {
         return "text.past-tense." + key;
     }
 
-    @Override
-    public ActionResultType resultType() {
-        return resultType;
-    }
+    /**
+     * Create the action from this type.
+     *
+     * @param actionData The action data
+     * @return The action
+     * @throws Exception Exception
+     */
+    public abstract Action createAction(ActionData actionData) throws Exception;
 
-    @Override
-    public boolean reversible() {
-        return reversible;
-    }
-
-    @Override
     public String toString() {
         return String.format("ActionType{key=%s,resultType=%s,reversible=%s}", key, resultType, reversible);
     }

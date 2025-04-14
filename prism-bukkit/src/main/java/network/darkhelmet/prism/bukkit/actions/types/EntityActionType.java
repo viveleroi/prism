@@ -25,15 +25,15 @@ import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import network.darkhelmet.prism.api.actions.Action;
 import network.darkhelmet.prism.api.actions.ActionData;
-import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
-import network.darkhelmet.prism.bukkit.actions.EntityAction;
+import network.darkhelmet.prism.bukkit.actions.BukkitEntityAction;
 
 import org.bukkit.entity.EntityType;
 
-import static network.darkhelmet.prism.bukkit.actions.Action.ObjectMapper;
+import static network.darkhelmet.prism.bukkit.actions.BukkitAction.ObjectMapper;
 
 public class EntityActionType extends ActionType {
     /**
@@ -62,7 +62,7 @@ public class EntityActionType extends ActionType {
     }
 
     @Override
-    public IAction createAction(ActionData actionData) {
+    public Action createAction(ActionData actionData) {
         ReadWriteNBT readWriteNbt = null;
         if (actionData.customData() != null && actionData.customDataVersion() > 0) {
             readWriteNbt = NBT.parseNBT(actionData.customData());
@@ -79,6 +79,6 @@ public class EntityActionType extends ActionType {
             }
         }
 
-        return new EntityAction(this, type, readWriteNbt, actionData.descriptor(), metadata);
+        return new BukkitEntityAction(this, type, readWriteNbt, actionData.descriptor(), metadata);
     }
 }

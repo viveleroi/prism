@@ -25,15 +25,12 @@ import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.BlockAction;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.actions.BukkitBlockAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.block.sign.Side;
@@ -48,17 +45,15 @@ public class SignChangeListener extends AbstractListener implements Listener {
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     @Inject
     public SignChangeListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+            BukkitRecordingService recordingService) {
+        super(configurationService, expectationService, recordingService);
     }
 
     /**
@@ -75,8 +70,7 @@ public class SignChangeListener extends AbstractListener implements Listener {
 
         final Player player = event.getPlayer();
 
-        // Build the action
-        final var action = new BlockAction(ActionTypeRegistry.SIGN_EDIT, event.getBlock().getState(), null);
+        var action = new BukkitBlockAction(BukkitActionTypeRegistry.SIGN_EDIT, event.getBlock().getState(), null);
 
         // Because the block state doesn't have the new lines from a sign change event,
         // we need to fake it by merging in the text so it gets recorded.
@@ -86,10 +80,10 @@ public class SignChangeListener extends AbstractListener implements Listener {
             action.mergeCompound(String.format("{back_text:{messages:[%s]}}", linesToNbtMessages(event.getLines())));
         }
 
-        // Build the block activity
-        final ISingleActivity activity = Activity.builder()
-            .action(action).location(LocationUtils.locToWorldCoordinate(event.getBlock().getLocation()))
-                .player(player.getUniqueId(), player.getName()).build();
+        var activity = BukkitActivity.builder()
+            .action(action)
+            .location(event.getBlock().getLocation())
+            .player(player).build();
 
         recordingService.addToQueue(activity);
     }

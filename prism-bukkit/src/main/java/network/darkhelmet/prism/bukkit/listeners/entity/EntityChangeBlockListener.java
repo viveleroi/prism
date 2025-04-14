@@ -22,17 +22,13 @@ package network.darkhelmet.prism.bukkit.listeners.entity;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.BlockAction;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.api.actions.Action;
+import network.darkhelmet.prism.bukkit.actions.BukkitBlockAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.Material;
@@ -48,17 +44,15 @@ public class EntityChangeBlockListener extends AbstractListener implements Liste
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     @Inject
     public EntityChangeBlockListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+            BukkitRecordingService recordingService) {
+        super(configurationService, expectationService, recordingService);
     }
 
     /**
@@ -75,7 +69,6 @@ public class EntityChangeBlockListener extends AbstractListener implements Liste
             return;
         }
 
-        WorldCoordinate at = LocationUtils.locToWorldCoordinate(event.getBlock().getLocation());
         BlockState oldState = event.getBlock().getState();
         BlockState newState = event.getBlock().getState();
         newState.setType(event.getTo());
@@ -89,11 +82,12 @@ public class EntityChangeBlockListener extends AbstractListener implements Liste
 
             // The event.getTo method return AIR for some insane reason. Since we know sheep can only
             // turn grass into dirt, we'll just fake the "new" material.
-            var action = new BlockAction(ActionTypeRegistry.ENTITY_EAT, event.getBlock().getType(), Material.DIRT);
+            var action = new BukkitBlockAction(
+                BukkitActionTypeRegistry.ENTITY_EAT, event.getBlock().getType(), Material.DIRT);
 
-            // Build the block activity
-            final ISingleActivity activity = Activity.builder()
-                .action(action).location(at).cause(nameFromCause(event.getEntity())).build();
+            var activity = BukkitActivity.builder()
+                .action(action).location(event.getBlock().getLocation())
+                .cause(nameFromCause(event.getEntity())).build();
 
             recordingService.addToQueue(activity);
 
@@ -104,28 +98,25 @@ public class EntityChangeBlockListener extends AbstractListener implements Liste
         // - gravity breaking/placing blocks that fall
         // - enderman griefing
         // - etc
-        IAction action;
+        Action action;
         if (event.getTo().equals(Material.AIR)) {
             // Ignore if this event is disabled
             if (!configurationService.prismConfig().actions().blockBreak()) {
                 return;
             }
 
-            action = actionFactory.createBlockStateAction(
-                ActionTypeRegistry.BLOCK_BREAK, oldState);
+            action = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_BREAK, oldState);
         } else {
             // Ignore if this event is disabled
             if (!configurationService.prismConfig().actions().blockPlace()) {
                 return;
             }
 
-            action = actionFactory.createBlockStateAction(
-                ActionTypeRegistry.BLOCK_PLACE, newState);
+            action = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_PLACE, newState);
         }
 
-        // Build the block activity
-        final ISingleActivity activity = Activity.builder()
-            .action(action).location(at).cause(nameFromCause(event.getEntity())).build();
+        var activity = BukkitActivity.builder()
+            .action(action).location(event.getBlock().getLocation()).cause(nameFromCause(event.getEntity())).build();
 
         recordingService.addToQueue(activity);
     }

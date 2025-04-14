@@ -24,18 +24,17 @@ import com.google.inject.Inject;
 
 import java.util.Optional;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.api.services.wands.IWand;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.api.actions.Action;
+import network.darkhelmet.prism.api.services.wands.Wand;
+import network.darkhelmet.prism.api.util.Coordinate;
+import network.darkhelmet.prism.bukkit.actions.BukkitBlockAction;
+import network.darkhelmet.prism.bukkit.actions.BukkitItemStackAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.bukkit.services.wands.WandService;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
 import network.darkhelmet.prism.bukkit.utils.TagLib;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
@@ -50,7 +49,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
@@ -66,7 +64,6 @@ public class PlayerInteractListener extends AbstractListener implements Listener
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      * @param wandService The wand service
@@ -74,11 +71,10 @@ public class PlayerInteractListener extends AbstractListener implements Listener
     @Inject
     public PlayerInteractListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService,
+            BukkitRecordingService recordingService,
             WandService wandService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+        super(configurationService, expectationService, recordingService);
         this.wandService = wandService;
     }
 
@@ -100,17 +96,18 @@ public class PlayerInteractListener extends AbstractListener implements Listener
         }
 
         // Check if the player has a wand
-        Optional<IWand> wand = wandService.getWand(player);
+        Optional<Wand> wand = wandService.getWand(player);
         if (wand.isPresent()) {
             // Left click = block's location
             // Right click = location of block connected to the clicked block face
             Location targetLocation = block.getLocation();
-            if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+            if (event.getAction().equals(org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK)) {
                 targetLocation = block.getRelative(event.getBlockFace()).getLocation();
             }
 
             // Use the wand
-            wand.get().use(LocationUtils.locToWorldCoordinate(targetLocation));
+            wand.get().use(targetLocation.getWorld().getUID(),
+                new Coordinate(targetLocation.getX(), targetLocation.getY(), targetLocation.getZ()));
 
             // Cancel the event
             event.setCancelled(true);
@@ -138,7 +135,8 @@ public class PlayerInteractListener extends AbstractListener implements Listener
             return;
         }
 
-        if (event.getAction().equals(Action.PHYSICAL) && block.getType().equals(Material.FARMLAND)) {
+        if (event.getAction().equals(org.bukkit.event.block.Action.PHYSICAL)
+                && block.getType().equals(Material.FARMLAND)) {
             // Record block break for crop
             Block blockAbove = block.getRelative(BlockFace.UP);
             if (Tag.CROPS.isTagged(blockAbove.getType())) {
@@ -148,25 +146,21 @@ public class PlayerInteractListener extends AbstractListener implements Listener
             return;
         }
 
-        WorldCoordinate at = LocationUtils.locToWorldCoordinate(event.getClickedBlock().getLocation());
-
         if (event.getClickedBlock().getState() instanceof Jukebox jukebox) {
-            recordJukeboxActivity(jukebox, at, player);
+            recordJukeboxActivity(jukebox, event.getClickedBlock().getLocation(), player);
         } else if (event.getClickedBlock().getState() instanceof InventoryHolder) {
             // Ignore if this event is disabled
             if (!configurationService.prismConfig().actions().inventoryOpen()) {
                 return;
             }
 
-            // Build the action
-            final IAction action = actionFactory
-                .createBlockStateAction(ActionTypeRegistry.INVENTORY_OPEN, event.getClickedBlock().getState());
+            var action = new BukkitBlockAction(
+                BukkitActionTypeRegistry.INVENTORY_OPEN, event.getClickedBlock().getState());
 
-            // Build the activity
-            ISingleActivity activity = Activity.builder()
+            var activity = BukkitActivity.builder()
                 .action(action)
-                .player(player.getUniqueId(), player.getName())
-                .location(at)
+                .player(player)
+                .location(event.getClickedBlock().getLocation())
                 .build();
 
             recordingService.addToQueue(activity);
@@ -176,15 +170,13 @@ public class PlayerInteractListener extends AbstractListener implements Listener
                 return;
             }
 
-            // Build the action
-            final IAction action = actionFactory
-                .createBlockStateAction(ActionTypeRegistry.BLOCK_USE, event.getClickedBlock().getState());
+            var action = new BukkitBlockAction(
+                BukkitActionTypeRegistry.BLOCK_USE, event.getClickedBlock().getState());
 
-            // Build the activity
-            ISingleActivity activity = Activity.builder()
+            var activity = BukkitActivity.builder()
                 .action(action)
-                .player(player.getUniqueId(), player.getName())
-                .location(at)
+                .player(player)
+                .location(event.getClickedBlock().getLocation())
                 .build();
 
             recordingService.addToQueue(activity);
@@ -195,34 +187,33 @@ public class PlayerInteractListener extends AbstractListener implements Listener
      * Helper to record interactions with a jukebox.
      *
      * @param jukebox The jukebox
-     * @param at The location
+     * @param location The location
      * @param player The player
      */
-    private void recordJukeboxActivity(Jukebox jukebox, WorldCoordinate at, Player player) {
-        final IAction action;
+    private void recordJukeboxActivity(Jukebox jukebox, Location location, Player player) {
+        final Action action;
         if (jukebox.isPlaying()) {
             // Ignore if this event is disabled
             if (!configurationService.prismConfig().actions().itemRemove()) {
                 return;
             }
 
-            action = actionFactory.createItemStackAction(
-                ActionTypeRegistry.ITEM_REMOVE, new ItemStack(jukebox.getPlaying()));
+            action = new BukkitItemStackAction(
+                BukkitActionTypeRegistry.ITEM_REMOVE, new ItemStack(jukebox.getPlaying()));
         } else {
             // Ignore if this event is disabled
             if (!configurationService.prismConfig().actions().itemInsert()) {
                 return;
             }
 
-            action = actionFactory.createItemStackAction(
-                ActionTypeRegistry.ITEM_INSERT, player.getInventory().getItemInMainHand());
+            action = new BukkitItemStackAction(
+                BukkitActionTypeRegistry.ITEM_INSERT, player.getInventory().getItemInMainHand());
         }
 
-        // Build the activity
-        ISingleActivity activity = Activity.builder()
+        var activity = BukkitActivity.builder()
             .action(action)
-            .player(player.getUniqueId(), player.getName())
-            .location(at)
+            .player(player)
+            .location(location)
             .build();
 
         recordingService.addToQueue(activity);

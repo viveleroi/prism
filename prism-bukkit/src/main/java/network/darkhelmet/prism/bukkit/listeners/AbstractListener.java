@@ -24,25 +24,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.actions.IActionFactory;
 import network.darkhelmet.prism.api.actions.types.ActionType;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
 import network.darkhelmet.prism.api.services.expectations.ExpectationType;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.actions.BukkitBlockAction;
+import network.darkhelmet.prism.bukkit.actions.BukkitItemStackAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.bukkit.utils.BlockUtils;
 import network.darkhelmet.prism.bukkit.utils.EntityUtils;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -58,11 +54,6 @@ public class AbstractListener {
     protected final ConfigurationService configurationService;
 
     /**
-     * The action registry.
-     */
-    protected final IActionFactory<BlockState, BlockData, Entity, ItemStack> actionFactory;
-
-    /**
      * The expectation service.
      */
     protected final ExpectationService expectationService;
@@ -70,23 +61,20 @@ public class AbstractListener {
     /**
      * The recording service.
      */
-    protected final RecordingService recordingService;
+    protected final BukkitRecordingService recordingService;
 
     /**
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     public AbstractListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService) {
+            BukkitRecordingService recordingService) {
         this.configurationService = configurationService;
-        this.actionFactory = actionFactory;
         this.expectationService = expectationService;
         this.recordingService = recordingService;
     }
@@ -195,21 +183,16 @@ public class AbstractListener {
      * @param cause The cause
      */
     protected void recordBlockBreakAction(Block block, Object cause) {
-        // Build the action
-        final IAction action = actionFactory.createBlockStateAction(ActionTypeRegistry.BLOCK_BREAK, block.getState());
+        var action = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_BREAK, block.getState());
 
-        // Build the block break by player activity
-        Activity.ActivityBuilder builder = Activity.builder();
-        builder.action(action).location(LocationUtils.locToWorldCoordinate(block.getLocation()));
-
+        var builder = BukkitActivity.builder().action(action).location(block.getLocation());
         if (cause instanceof String) {
             builder.cause((String) cause);
         } else if (cause instanceof Player player) {
-            builder.player(player.getUniqueId(), player.getName());
+            builder.player(player);
         }
 
-        ISingleActivity activity = builder.build();
-        recordingService.addToQueue(activity);
+        recordingService.addToQueue(builder.build());
     }
 
     /**
@@ -235,7 +218,7 @@ public class AbstractListener {
             cause = _cause;
         }
 
-        recordItemActivity(ActionTypeRegistry.ITEM_DROP, location, player, cause, itemStack, amount, null);
+        recordItemActivity(BukkitActionTypeRegistry.ITEM_DROP, location, player, cause, itemStack, amount, null);
     }
 
     /**
@@ -273,7 +256,7 @@ public class AbstractListener {
             return;
         }
 
-        recordItemActivity(ActionTypeRegistry.ITEM_INSERT, location, player, null, itemStack, amount, slot);
+        recordItemActivity(BukkitActionTypeRegistry.ITEM_INSERT, location, player, null, itemStack, amount, slot);
     }
 
     /**
@@ -291,7 +274,7 @@ public class AbstractListener {
             return;
         }
 
-        recordItemActivity(ActionTypeRegistry.ITEM_REMOVE, location, player, null, itemStack, amount, slot);
+        recordItemActivity(BukkitActionTypeRegistry.ITEM_REMOVE, location, player, null, itemStack, amount, slot);
     }
 
     /**
@@ -321,16 +304,11 @@ public class AbstractListener {
             clonedStack.setAmount(amount);
         }
 
-        // Build the action
-        final IAction action = actionFactory.createItemStackAction(actionType, clonedStack);
+        var action = new BukkitItemStackAction(actionType, clonedStack);
 
-        // Build the activity
-        var builder = Activity.builder()
-            .action(action)
-            .location(LocationUtils.locToWorldCoordinate(location));
-
+        var builder = BukkitActivity.builder().action(action).location(location);
         if (player != null) {
-            builder.player(player.getUniqueId(), player.getName());
+            builder.player(player);
         }
 
         if (cause != null) {

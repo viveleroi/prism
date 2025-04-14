@@ -34,7 +34,7 @@ import net.kyori.moonshine.placeholder.IPlaceholderResolver;
 import net.kyori.moonshine.util.Either;
 
 import network.darkhelmet.prism.api.services.wands.WandMode;
-import network.darkhelmet.prism.bukkit.services.translation.TranslationService;
+import network.darkhelmet.prism.bukkit.services.translation.BukkitTranslationService;
 
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +44,7 @@ public class WandModePlaceholderResolver implements
     /**
      * The translation service.
      */
-    private final TranslationService translationService;
+    private final BukkitTranslationService translationService;
 
     /**
      * Construct a new translation string placeholder resolver.
@@ -52,7 +52,7 @@ public class WandModePlaceholderResolver implements
      * @param translationService The translation service
      */
     @Inject
-    public WandModePlaceholderResolver(TranslationService translationService) {
+    public WandModePlaceholderResolver(BukkitTranslationService translationService) {
         this.translationService = translationService;
     }
 

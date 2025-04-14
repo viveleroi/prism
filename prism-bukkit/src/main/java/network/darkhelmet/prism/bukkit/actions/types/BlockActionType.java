@@ -25,11 +25,11 @@ import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 
 import java.util.Locale;
 
+import network.darkhelmet.prism.api.actions.Action;
 import network.darkhelmet.prism.api.actions.ActionData;
-import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
-import network.darkhelmet.prism.bukkit.actions.BlockAction;
+import network.darkhelmet.prism.bukkit.actions.BukkitBlockAction;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -48,7 +48,7 @@ public class BlockActionType extends ActionType {
     }
 
     @Override
-    public IAction createAction(ActionData actionData) {
+    public Action createAction(ActionData actionData) {
         BlockData blockData = null;
         if (actionData.material() != null) {
             String replacedBlockDataStr = actionData.material().toLowerCase(Locale.ENGLISH);
@@ -82,7 +82,7 @@ public class BlockActionType extends ActionType {
             replaced = Material.valueOf(actionData.replacedMaterial());
         }
 
-        return new BlockAction(
+        return new BukkitBlockAction(
             this, material, blockData, readWriteNbt, replaced, replacedBlockData, actionData.descriptor());
     }
 }

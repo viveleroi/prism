@@ -23,13 +23,9 @@ package network.darkhelmet.prism.bukkit.utils;
 import lombok.experimental.UtilityClass;
 
 import network.darkhelmet.prism.api.util.Coordinate;
-import network.darkhelmet.prism.api.util.NamedIdentity;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.World;
 
 @UtilityClass
 public class LocationUtils {
@@ -79,28 +75,5 @@ public class LocationUtils {
      */
     public static Coordinate getMinCoordinate(Location location, int radius) {
         return new Coordinate(location.getX() - radius, location.getY() - radius, location.getZ() - radius);
-    }
-
-    /**
-     * Get a world coordinate from a location.
-     *
-     * @param location The location
-     * @return The world coordinate
-     */
-    public static WorldCoordinate locToWorldCoordinate(Location location) {
-        World world = location.getWorld();
-        NamedIdentity worldIdentity = new NamedIdentity(world.getUID(), world.getName());
-        return new WorldCoordinate(worldIdentity, location.getX(), location.getY(), location.getZ());
-    }
-
-    /**
-     * Get a location from a world coordinate.
-     *
-     * @param coordinate The coordinate
-     * @return The location
-     */
-    public static Location worldCoordToLocation(WorldCoordinate coordinate) {
-        World world = Bukkit.getWorld(coordinate.world().uuid());
-        return new Location(world, coordinate.x(), coordinate.y(), coordinate.z());
     }
 }

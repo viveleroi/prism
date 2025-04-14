@@ -41,12 +41,11 @@ import lombok.Getter;
 
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 
-import network.darkhelmet.prism.api.IPrism;
-import network.darkhelmet.prism.api.actions.types.IActionType;
-import network.darkhelmet.prism.api.actions.types.IActionTypeRegistry;
-import network.darkhelmet.prism.api.services.recording.IRecordingService;
-import network.darkhelmet.prism.api.storage.IStorageAdapter;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.api.Prism;
+import network.darkhelmet.prism.api.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.api.services.recording.RecordingService;
+import network.darkhelmet.prism.api.storage.StorageAdapter;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import network.darkhelmet.prism.bukkit.commands.AboutCommand;
 import network.darkhelmet.prism.bukkit.commands.ExtinguishCommand;
 import network.darkhelmet.prism.bukkit.commands.LookupCommand;
@@ -115,7 +114,7 @@ import network.darkhelmet.prism.bukkit.listeners.vehicle.VehicleEnterListener;
 import network.darkhelmet.prism.bukkit.listeners.vehicle.VehicleExitListener;
 import network.darkhelmet.prism.bukkit.providers.InjectorProvider;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.bukkit.services.scheduling.SchedulingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.dependencies.Dependency;
@@ -133,7 +132,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class PrismBukkit implements IPrism {
+public class PrismBukkit implements Prism {
     /**
      *  Get this instance.
      */
@@ -154,7 +153,7 @@ public class PrismBukkit implements IPrism {
     /**
      * The recording service.
      */
-    private IRecordingService recordingService;
+    private RecordingService recordingService;
 
     /**
      * Sets a numeric version we can use to handle differences between serialization formats.
@@ -166,13 +165,13 @@ public class PrismBukkit implements IPrism {
      * The storage adapter.
      */
     @Getter
-    private IStorageAdapter storageAdapter;
+    private StorageAdapter storageAdapter;
 
     /**
      * The action type registry.
      */
     @Getter
-    private IActionTypeRegistry actionTypeRegistry;
+    private ActionTypeRegistry actionTypeRegistry;
 
     /**
      * The thread pool scheduler.
@@ -221,7 +220,7 @@ public class PrismBukkit implements IPrism {
 
         // Choose and initialize the datasource
         try {
-            storageAdapter = injectorProvider.injector().getInstance(IStorageAdapter.class);
+            storageAdapter = injectorProvider.injector().getInstance(StorageAdapter.class);
             if (!storageAdapter.ready()) {
                 disable();
 
@@ -235,7 +234,7 @@ public class PrismBukkit implements IPrism {
             return;
         }
 
-        actionTypeRegistry = injectorProvider.injector().getInstance(IActionTypeRegistry.class);
+        actionTypeRegistry = injectorProvider.injector().getInstance(ActionTypeRegistry.class);
 
         String pluginName = this.loaderPlugin().getDescription().getName();
         String pluginVersion = this.loaderPlugin().getDescription().getVersion();
@@ -244,7 +243,7 @@ public class PrismBukkit implements IPrism {
 
         if (loaderPlugin().isEnabled()) {
             // Initialize some classes
-            recordingService = injectorProvider.injector().getInstance(RecordingService.class);
+            recordingService = injectorProvider.injector().getInstance(BukkitRecordingService.class);
             injectorProvider.injector().getInstance(SchedulingService.class);
 
             // Register event listeners
@@ -340,8 +339,8 @@ public class PrismBukkit implements IPrism {
             // Register action types auto-suggest
             commandManager.registerSuggestion(SuggestionKey.of("actions"), (sender, context) -> {
                 List<String> actionFamilies = new ArrayList<>();
-                for (IActionType actionType : injectorProvider.injector()
-                        .getInstance(ActionTypeRegistry.class).actionTypes()) {
+                for (var actionType : injectorProvider.injector()
+                        .getInstance(BukkitActionTypeRegistry.class).actionTypes()) {
                     actionFamilies.add(actionType.familyKey());
                 }
 

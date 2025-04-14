@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import network.darkhelmet.prism.api.services.wands.IWand;
+import network.darkhelmet.prism.api.services.wands.Wand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
 
@@ -39,7 +39,7 @@ public class WandService {
     /**
      * Cache all players with active wands.
      */
-    private final Map<Player, IWand> activeWands = new HashMap<>();
+    private final Map<Player, Wand> activeWands = new HashMap<>();
 
     /**
      * The message service.
@@ -49,7 +49,7 @@ public class WandService {
     /**
      * Wand providers.
      */
-    private final Map<WandMode, Provider<IWand>> wandProviders;
+    private final Map<WandMode, Provider<Wand>> wandProviders;
 
     /**
      * Construct the wand service.
@@ -58,7 +58,7 @@ public class WandService {
      * @param wandProviders The wand providers
      */
     @Inject
-    public WandService(MessageService messageService, Map<WandMode, Provider<IWand>> wandProviders) {
+    public WandService(MessageService messageService, Map<WandMode, Provider<Wand>> wandProviders) {
         this.messageService = messageService;
         this.wandProviders = wandProviders;
     }
@@ -76,7 +76,7 @@ public class WandService {
             messageService.wandActivated(player, wandMode);
         }
 
-        IWand wand = wandProviders.get(wandMode).get();
+        Wand wand = wandProviders.get(wandMode).get();
         wand.setOwner(player);
 
         activeWands.put(player, wand);
@@ -88,7 +88,7 @@ public class WandService {
      * @param player The player
      */
     public void deactivateWand(Player player) {
-        Optional<IWand> optionalWand = getWand(player);
+        Optional<Wand> optionalWand = getWand(player);
         if (optionalWand.isPresent()) {
             messageService.wandDeactivated(player, optionalWand.get().mode());
 
@@ -102,7 +102,7 @@ public class WandService {
      * @param player The player
      * @return The wand, if any.
      */
-    public Optional<IWand> getWand(Player player) {
+    public Optional<Wand> getWand(Player player) {
         return Optional.ofNullable(activeWands.get(player));
     }
 

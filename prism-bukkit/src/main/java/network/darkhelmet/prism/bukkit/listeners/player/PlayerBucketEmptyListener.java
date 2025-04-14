@@ -22,16 +22,14 @@ package network.darkhelmet.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.actions.BukkitBlockAction;
+import network.darkhelmet.prism.bukkit.actions.BukkitItemStackAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.bukkit.utils.BlockUtils;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
 import network.darkhelmet.prism.bukkit.utils.TagLib;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
@@ -39,7 +37,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Waterlogged;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -51,17 +48,15 @@ public class PlayerBucketEmptyListener extends AbstractListener implements Liste
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     @Inject
     public PlayerBucketEmptyListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+            BukkitRecordingService recordingService) {
+        super(configurationService, expectationService, recordingService);
     }
 
     /**
@@ -78,17 +73,13 @@ public class PlayerBucketEmptyListener extends AbstractListener implements Liste
             return;
         }
 
-        Player player = event.getPlayer();
+        var action = new BukkitItemStackAction(
+            BukkitActionTypeRegistry.BUCKET_EMPTY, new ItemStack(event.getBucket()));
 
-        // Build the bucket empty action
-        final IAction bucketEmptyAction = actionFactory.createItemStackAction(
-            ActionTypeRegistry.BUCKET_EMPTY, new ItemStack(event.getBucket()));
-
-        // Build the bucket empty activity
-        final ISingleActivity bucketEmptyActivity = Activity.builder()
-            .action(bucketEmptyAction)
-            .location(LocationUtils.locToWorldCoordinate(event.getBlock().getLocation()))
-            .player(player.getUniqueId(), player.getName())
+        var bucketEmptyActivity = BukkitActivity.builder()
+            .action(action)
+            .location(event.getBlock().getLocation())
+            .player(event.getPlayer())
             .build();
 
         recordingService.addToQueue(bucketEmptyActivity);
@@ -126,17 +117,14 @@ public class PlayerBucketEmptyListener extends AbstractListener implements Liste
             newData = Bukkit.createBlockData(newMaterial);
         }
 
-        // Build the block placement action
-        final IAction blockPlaceAction = actionFactory.createBlockDataAction(
-            ActionTypeRegistry.BLOCK_PLACE, newData, oldData);
+        var blockPlaceAction = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_PLACE, newData, oldData);
 
-        // Build the bucket empty activity
-        final ISingleActivity blockPlaceActivity = Activity.builder()
+        var activity = BukkitActivity.builder()
             .action(blockPlaceAction)
-            .location(LocationUtils.locToWorldCoordinate(event.getBlock().getLocation()))
-            .player(player.getUniqueId(), player.getName())
+            .location(event.getBlock().getLocation())
+            .player(event.getPlayer())
             .build();
 
-        recordingService.addToQueue(blockPlaceActivity);
+        recordingService.addToQueue(activity);
     }
 }

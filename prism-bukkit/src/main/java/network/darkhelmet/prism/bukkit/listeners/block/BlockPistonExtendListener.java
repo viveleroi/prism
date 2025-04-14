@@ -22,16 +22,13 @@ package network.darkhelmet.prism.bukkit.listeners.block;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.api.actions.Action;
+import network.darkhelmet.prism.bukkit.actions.BukkitBlockAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.bukkit.utils.TagLib;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
@@ -48,17 +45,15 @@ public class BlockPistonExtendListener extends AbstractListener implements Liste
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     @Inject
     public BlockPistonExtendListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+            BukkitRecordingService recordingService) {
+        super(configurationService, expectationService, recordingService);
     }
 
     /**
@@ -79,19 +74,16 @@ public class BlockPistonExtendListener extends AbstractListener implements Liste
             }
 
             Location newBlockLocation = block.getRelative(event.getDirection()).getLocation();
-            WorldCoordinate at = LocationUtils.locToWorldCoordinate(newBlockLocation);
 
-            IAction action;
+            Action action;
             if (TagLib.TOP_DETACHABLES.isTagged(block.getType())) {
-                action = actionFactory.createBlockStateAction(ActionTypeRegistry.BLOCK_BREAK, block.getState());
+                action = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_BREAK, block.getState());
             } else {
-                action = actionFactory.createBlockStateAction(
-                    ActionTypeRegistry.BLOCK_SHIFT, block.getState(), newBlockLocation.getBlock().getState());
+                action = new BukkitBlockAction(
+                    BukkitActionTypeRegistry.BLOCK_SHIFT, block.getState(), newBlockLocation.getBlock().getState());
             }
 
-            // Build the block activity
-            final ISingleActivity activity = Activity.builder()
-                .action(action).location(at).cause("piston").build();
+            var activity = BukkitActivity.builder().action(action).location(newBlockLocation).cause("piston").build();
 
             recordingService.addToQueue(activity);
         }

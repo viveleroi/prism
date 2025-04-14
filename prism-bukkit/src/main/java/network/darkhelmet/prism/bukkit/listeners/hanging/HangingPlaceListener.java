@@ -22,14 +22,12 @@ package network.darkhelmet.prism.bukkit.listeners.hanging;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.actions.BukkitEntityAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.event.EventHandler;
@@ -42,17 +40,15 @@ public class HangingPlaceListener extends AbstractListener implements Listener {
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     @Inject
     public HangingPlaceListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+            BukkitRecordingService recordingService) {
+        super(configurationService, expectationService, recordingService);
     }
 
     /**
@@ -67,17 +63,11 @@ public class HangingPlaceListener extends AbstractListener implements Listener {
             return;
         }
 
-        // Build the action
-        final IAction action = actionFactory.createEntityAction(
-            ActionTypeRegistry.HANGING_PLACE, event.getEntity());
-
-        // Build the activity
-        Activity.ActivityBuilder builder = Activity.builder()
-            .action(action)
-            .location(LocationUtils.locToWorldCoordinate(event.getEntity().getLocation()));
+        var action = new BukkitEntityAction(BukkitActionTypeRegistry.HANGING_PLACE, event.getEntity());
+        var builder = BukkitActivity.builder().action(action).location(event.getEntity().getLocation());
 
         if (event.getPlayer() != null) {
-            builder.player(event.getPlayer().getUniqueId(), event.getPlayer().getName());
+            builder.player(event.getPlayer());
         } else {
             builder.cause("unknown");
         }

@@ -22,14 +22,12 @@ package network.darkhelmet.prism.bukkit.listeners.block;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.actions.BukkitBlockAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.block.BlockState;
@@ -43,17 +41,15 @@ public class BlockFertilizeListener extends AbstractListener implements Listener
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     @Inject
     public BlockFertilizeListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+            BukkitRecordingService recordingService) {
+        super(configurationService, expectationService, recordingService);
     }
 
     /**
@@ -64,17 +60,14 @@ public class BlockFertilizeListener extends AbstractListener implements Listener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockFertilize(final BlockFertilizeEvent event) {
         if (configurationService.prismConfig().actions().bonemealUse()) {
-            // Build the action
-            final IAction action = actionFactory.createBlockStateAction(
-                ActionTypeRegistry.BONEMEAL_USE, event.getBlock().getState());
+            var action = new BukkitBlockAction(BukkitActionTypeRegistry.BONEMEAL_USE, event.getBlock().getState());
 
-            // Build the activity
-            Activity.ActivityBuilder builder = Activity.builder()
+            var builder = BukkitActivity.builder()
                 .action(action)
-                .location(LocationUtils.locToWorldCoordinate(event.getBlock().getLocation()));
+                .location(event.getBlock().getLocation());
 
             if (event.getPlayer() != null) {
-                builder.player(event.getPlayer().getUniqueId(), event.getPlayer().getName());
+                builder.player(event.getPlayer());
             } else {
                 builder.cause("unknown");
             }
@@ -95,17 +88,14 @@ public class BlockFertilizeListener extends AbstractListener implements Listener
         // When there's more than the origin block listed, it means bonemeal
         // affected a larger area and produced grass/flowers.
         for (BlockState blockState : event.getBlocks()) {
-            // Build the action
-            final IAction action = actionFactory.createBlockStateAction(
-                ActionTypeRegistry.BLOCK_PLACE, blockState);
+            var action = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_PLACE, blockState);
 
-            // Build the block place activity
-            Activity.ActivityBuilder builder = Activity.builder()
+            var builder = BukkitActivity.builder()
                 .action(action)
-                .location(LocationUtils.locToWorldCoordinate(event.getBlock().getLocation()));
+                .location(event.getBlock().getLocation());
 
             if (event.getPlayer() != null) {
-                builder.player(event.getPlayer().getUniqueId(), event.getPlayer().getName());
+                builder.player(event.getPlayer());
             } else {
                 builder.cause("unknown");
             }

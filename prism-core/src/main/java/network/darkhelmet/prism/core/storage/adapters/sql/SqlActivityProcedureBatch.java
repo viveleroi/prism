@@ -27,16 +27,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import network.darkhelmet.prism.api.actions.IBlockAction;
-import network.darkhelmet.prism.api.actions.ICustomData;
-import network.darkhelmet.prism.api.actions.IEntityAction;
-import network.darkhelmet.prism.api.actions.IMaterialAction;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.api.storage.IActivityBatch;
-import network.darkhelmet.prism.api.util.NamedIdentity;
+import network.darkhelmet.prism.api.actions.BlockAction;
+import network.darkhelmet.prism.api.actions.CustomData;
+import network.darkhelmet.prism.api.actions.EntityAction;
+import network.darkhelmet.prism.api.actions.MaterialAction;
+import network.darkhelmet.prism.api.activities.Activity;
+import network.darkhelmet.prism.api.storage.ActivityBatch;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
-public class SqlActivityProcedureBatch implements IActivityBatch {
+public class SqlActivityProcedureBatch implements ActivityBatch {
     /**
      * The logging service.
      */
@@ -95,18 +94,18 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
     }
 
     @Override
-    public void add(ISingleActivity activity) throws SQLException {
+    public void add(Activity activity) throws SQLException {
         statement.setLong(1, activity.timestamp() / 1000);
-        statement.setInt(2, activity.location().intX());
-        statement.setInt(3, activity.location().intY());
-        statement.setInt(4, activity.location().intZ());
+        statement.setInt(2, activity.coordinate().intX());
+        statement.setInt(3, activity.coordinate().intY());
+        statement.setInt(4, activity.coordinate().intZ());
         statement.setString(5, activity.action().type().key());
 
         // Cause/player
         if (activity.player() != null) {
             statement.setNull(6, Types.VARCHAR);
-            statement.setString(7, activity.player().name());
-            statement.setString(8, activity.player().uuid().toString());
+            statement.setString(7, activity.player().value());
+            statement.setString(8, activity.player().key().toString());
         } else {
             if (activity.cause() != null) {
                 statement.setString(6, activity.cause());
@@ -119,28 +118,28 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
         }
 
         // Entity
-        if (activity.action() instanceof IEntityAction) {
-            statement.setString(9, ((IEntityAction) activity.action()).serializeEntityType());
+        if (activity.action() instanceof EntityAction) {
+            statement.setString(9, ((EntityAction) activity.action()).serializeEntityType());
         } else {
             statement.setNull(9, Types.VARCHAR);
         }
 
         // Material
-        if (activity.action() instanceof IMaterialAction) {
-            statement.setString(10, ((IMaterialAction) activity.action()).serializeMaterial());
+        if (activity.action() instanceof MaterialAction) {
+            statement.setString(10, ((MaterialAction) activity.action()).serializeMaterial());
         } else {
             statement.setNull(10, Types.VARCHAR);
         }
 
         // Material data
-        if (activity.action() instanceof IBlockAction) {
-            statement.setString(11, ((IBlockAction) activity.action()).serializeBlockData());
+        if (activity.action() instanceof BlockAction) {
+            statement.setString(11, ((BlockAction) activity.action()).serializeBlockData());
         } else {
             statement.setNull(11, Types.VARCHAR);
         }
 
         // Replaced material & data
-        if (activity.action() instanceof IBlockAction blockAction) {
+        if (activity.action() instanceof BlockAction blockAction) {
             statement.setString(12, blockAction.serializeReplacedMaterial());
             statement.setString(13, blockAction.serializeReplacedBlockData());
         } else {
@@ -149,15 +148,14 @@ public class SqlActivityProcedureBatch implements IActivityBatch {
         }
 
         // World
-        NamedIdentity world = activity.location().world();
-        statement.setString(14, world.name());
-        statement.setString(15, world.uuid().toString());
+        statement.setString(14, activity.world().value());
+        statement.setString(15, activity.world().key().toString());
 
         // Custom data
-        if (activity.action() instanceof ICustomData) {
+        if (activity.action() instanceof CustomData) {
             statement.setInt(16, serializerVersion);
 
-            String customData = ((ICustomData) activity.action()).serializeCustomData();
+            String customData = ((CustomData) activity.action()).serializeCustomData();
             statement.setString(17, customData);
         } else {
             statement.setNull(16, Types.SMALLINT);

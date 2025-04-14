@@ -6,15 +6,27 @@ We welcome PRs or bug reports/features requests through our github repository.
 
 Prism is broken out into several modules:
 
-- `prism-api` - The interfaces and core classes that may be of used to 3rd party API users.
-- `prism-bukkit` - The core code for the bukkit/spigot platform version of Prism
-- `prism-bukkit-loader` - Minimal code for a "loader" plugin that can bootstrap prism on bukkit/spigot.
-- `prism-core` - The core code shared by all platform-specific versions.
-- `prism-loader` - The core code shared by all platform-specific loader plugins.
+The API:
+
+- `prism-api` - The Prism interfaces and core classes that may be of used to 3rd party API users.
+- `prism-bukkit-api` - The bukkit-specific Prism API classes.
+
+The core:
+
+- `prism-core` - The core code shared by all plugins.
+
+The loaders:
+
+- `prism-loader` - The core code shared by all loader plugins.
+- `prism-bukkit-loader` - Minimal code for a "loader" plugin that bootstraps prism on bukkit.
+
+The Bukkit Plugin:
+
+- `prism-bukkit` - The core code for the bukkit/spigot platform version of Prism.
 
 This approach was chosen to allow future development of prism for other platforms.
 
-A lot of `services` code inside the bukkit module will be eventually moved to core.
+A lot of `services` and related code inside the bukkit module will be eventually moved to core.
 
 ## Development
 

@@ -33,7 +33,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.moonshine.message.IMessageRenderer;
 
-import network.darkhelmet.prism.bukkit.services.translation.TranslationService;
+import network.darkhelmet.prism.bukkit.services.translation.BukkitTranslationService;
 
 import org.bukkit.command.CommandSender;
 
@@ -42,7 +42,7 @@ public class MessageRenderer implements IMessageRenderer<CommandSender, String, 
     /**
      * The translation service.
      */
-    private final TranslationService translationService;
+    private final BukkitTranslationService translationService;
 
     /**
      * Contruct the message renderer.
@@ -50,7 +50,7 @@ public class MessageRenderer implements IMessageRenderer<CommandSender, String, 
      * @param translationService The translation service
      */
     @Inject
-    public MessageRenderer(TranslationService translationService) {
+    public MessageRenderer(BukkitTranslationService translationService) {
         this.translationService = translationService;
     }
 

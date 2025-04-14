@@ -22,11 +22,11 @@ package network.darkhelmet.prism.bukkit.actions.types;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 
+import network.darkhelmet.prism.api.actions.Action;
 import network.darkhelmet.prism.api.actions.ActionData;
-import network.darkhelmet.prism.api.actions.IAction;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
-import network.darkhelmet.prism.bukkit.actions.ItemStackAction;
+import network.darkhelmet.prism.bukkit.actions.BukkitItemStackAction;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -44,7 +44,7 @@ public class ItemActionType extends ActionType {
     }
 
     @Override
-    public IAction createAction(ActionData actionData) {
+    public Action createAction(ActionData actionData) {
         ItemStack itemStack;
         if (actionData.customData() != null && actionData.customDataVersion() > 0) {
             itemStack = NBT.itemStackFromNBT(NBT.parseNBT(actionData.customData()));
@@ -53,6 +53,6 @@ public class ItemActionType extends ActionType {
             itemStack = new ItemStack(material);
         }
 
-        return new ItemStackAction(this, itemStack, actionData.descriptor());
+        return new BukkitItemStackAction(this, itemStack, actionData.descriptor());
     }
 }

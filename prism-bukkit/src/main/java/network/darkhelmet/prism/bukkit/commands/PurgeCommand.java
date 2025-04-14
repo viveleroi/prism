@@ -31,7 +31,7 @@ import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import java.util.Optional;
 
 import network.darkhelmet.prism.api.activities.ActivityQuery;
-import network.darkhelmet.prism.api.services.purges.IPurgeQueue;
+import network.darkhelmet.prism.api.services.purges.PurgeQueue;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
 import network.darkhelmet.prism.bukkit.services.purge.PurgeService;
 import network.darkhelmet.prism.bukkit.services.query.QueryService;
@@ -102,7 +102,7 @@ public class PurgeCommand {
                 .limit(configurationService.prismConfig().purges().limit())
                 .build();
 
-            IPurgeQueue purgeQueue = purgeService.newQueue(result -> {
+            PurgeQueue purgeQueue = purgeService.newQueue(result -> {
                 messageService.purgeCycle(sender, result);
             }, result -> messageService.purgeComplete(sender, result.deleted()));
 

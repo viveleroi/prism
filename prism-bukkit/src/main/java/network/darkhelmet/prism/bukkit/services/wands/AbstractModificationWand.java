@@ -23,10 +23,10 @@ package network.darkhelmet.prism.bukkit.services.wands;
 import com.google.inject.Inject;
 
 import network.darkhelmet.prism.api.activities.ActivityQuery;
-import network.darkhelmet.prism.api.services.modifications.IModificationQueue;
-import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueue;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueService;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
-import network.darkhelmet.prism.api.storage.IStorageAdapter;
+import network.darkhelmet.prism.api.storage.StorageAdapter;
 import network.darkhelmet.prism.bukkit.providers.TaskChainProvider;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
@@ -44,7 +44,7 @@ public abstract class AbstractModificationWand {
     /**
      * The storage adapter.
      */
-    protected final IStorageAdapter storageAdapter;
+    protected final StorageAdapter storageAdapter;
 
     /**
      * The message service.
@@ -54,7 +54,7 @@ public abstract class AbstractModificationWand {
     /**
      * The modification queue service.
      */
-    protected final IModificationQueueService modificationQueueService;
+    protected final ModificationQueueService modificationQueueService;
 
     /**
      * The task chain provider.
@@ -84,9 +84,9 @@ public abstract class AbstractModificationWand {
     @Inject
     public AbstractModificationWand(
             ConfigurationService configurationService,
-            IStorageAdapter storageAdapter,
+            StorageAdapter storageAdapter,
             MessageService messageService,
-            IModificationQueueService modificationQueueService,
+            ModificationQueueService modificationQueueService,
             TaskChainProvider taskChainProvider,
             LoggingService loggingService) {
         this.configurationService = configurationService;
@@ -103,7 +103,7 @@ public abstract class AbstractModificationWand {
      * @param query The query
      * @param clazz The modification class
      */
-    protected void use(ActivityQuery query, Class<? extends IModificationQueue> clazz) {
+    protected void use(ActivityQuery query, Class<? extends ModificationQueue> clazz) {
         // Ensure a queue is free
         if (!modificationQueueService.queueAvailable()) {
             messageService.errorQueueNotFree((CommandSender) owner);

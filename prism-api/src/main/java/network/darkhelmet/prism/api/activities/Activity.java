@@ -22,81 +22,76 @@ package network.darkhelmet.prism.api.activities;
 
 import java.util.UUID;
 
-import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import lombok.experimental.Tolerate;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.util.NamedIdentity;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
+import network.darkhelmet.prism.api.actions.Action;
+import network.darkhelmet.prism.api.util.Coordinate;
+import network.darkhelmet.prism.api.util.Pair;
 
-public final class Activity extends AbstractActivity implements ISingleActivity {
+/**
+ * An activity represents a single activity that's either being
+ * recorded to store or read back without grouping (e.g. modifications).
+ */
+@Getter
+@SuperBuilder()
+public class Activity extends AbstractActivity {
     /**
      * The storage engine primary key.
      */
-    @Getter
     private Object primaryKey;
-
-    /**
-     * Construct a new activity.
-     *
-     * @param action The action
-     * @param location The world coordinate
-     * @param cause The cause
-     * @param player The player
-     */
-    @Builder()
-    public Activity(
-            IAction action,
-            WorldCoordinate location,
-            String cause,
-            NamedIdentity player) {
-        super(action, location, cause, player, System.currentTimeMillis());
-    }
 
     /**
      * Construct a new activity.
      *
      * @param primaryKey The storage engine primary key
      * @param action The action
-     * @param location The world coordinate
+     * @param world The world
+     * @param coordinate The coordinate
      * @param cause The cause
      * @param player The player
      * @param timestamp The timestamp
      */
     public Activity(
             Object primaryKey,
-            IAction action,
-            WorldCoordinate location,
+            Action action,
+            Pair<UUID, String> world,
+            Coordinate coordinate,
             String cause,
-            NamedIdentity player,
+            Pair<UUID, String> player,
             long timestamp) {
-        super(action, location, cause, player, timestamp);
+        super(action, world, coordinate, cause, player, timestamp);
 
         this.primaryKey = primaryKey;
     }
 
     @Override
     public String toString() {
-        return String.format("Activity{action=%s,cause=%s,player=%s,location=%s,timestamp=%s}",
-            action, cause, player == null ? "null" : player.name(), location, timestamp);
+        return String.format("Activity{action=%s,cause=%s,player=%s,world=%s,coordinate=%s,timestamp=%s}",
+            action, cause, player, world, coordinate, timestamp);
     }
 
-    public static class ActivityBuilder {
+    public abstract static class ActivityBuilder<C extends Activity, B extends ActivityBuilder<C, B>>
+            extends AbstractActivityBuilder<C, B> {
+        @Tolerate
+        public B world(UUID worldUuid, String worldName) {
+            this.world(new Pair<>(worldUuid, worldName));
+            return self();
+        }
+
         /**
          * Set the location.
          *
-         * @param worldUuid The world uuid
-         * @param worldName The world name
          * @param x The x coordinate
          * @param y The y coordinate
          * @param z The z coordinate
          * @return The builder
          */
         @Tolerate
-        public ActivityBuilder location(UUID worldUuid, String worldName, double x, double y, double z) {
-            this.location = new WorldCoordinate(new NamedIdentity(worldUuid, worldName), x, y, z);
-            return this;
+        public B coordinate(double x, double y, double z) {
+            this.coordinate(new Coordinate(x, y, z));
+            return self();
         }
 
         /**
@@ -107,9 +102,9 @@ public final class Activity extends AbstractActivity implements ISingleActivity 
          * @return The builder
          */
         @Tolerate
-        public ActivityBuilder player(UUID playerUuid, String playerName) {
-            this.player = new NamedIdentity(playerUuid, playerName);
-            return this;
+        public B player(UUID playerUuid, String playerName) {
+            this.player(new Pair<>(playerUuid, playerName));
+            return self();
         }
     }
 }

@@ -31,9 +31,9 @@ import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import java.util.Optional;
 
 import network.darkhelmet.prism.api.activities.ActivityQuery;
-import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueService;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
-import network.darkhelmet.prism.api.storage.IStorageAdapter;
+import network.darkhelmet.prism.api.storage.StorageAdapter;
 import network.darkhelmet.prism.bukkit.providers.TaskChainProvider;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
 import network.darkhelmet.prism.bukkit.services.query.QueryService;
@@ -52,7 +52,7 @@ public class RestoreCommand {
     /**
      * The storage adapter.
      */
-    private final IStorageAdapter storageAdapter;
+    private final StorageAdapter storageAdapter;
 
     /**
      * The message service.
@@ -62,7 +62,7 @@ public class RestoreCommand {
     /**
      * The modification queue service.
      */
-    private final IModificationQueueService modificationQueueService;
+    private final ModificationQueueService modificationQueueService;
 
     /**
      * The query service.
@@ -93,9 +93,9 @@ public class RestoreCommand {
     @Inject
     public RestoreCommand(
             ConfigurationService configurationService,
-            IStorageAdapter storageAdapter,
+            StorageAdapter storageAdapter,
             MessageService messageService,
-            IModificationQueueService modificationQueueService,
+            ModificationQueueService modificationQueueService,
             QueryService queryService,
             TaskChainProvider taskChainProvider,
             LoggingService loggingService) {

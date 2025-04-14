@@ -1,0 +1,8 @@
+plugins {
+    id 'prism.java-conventions'
+}
+
+dependencies {
+    compileOnly project.property('deps.spigot-api')
+    implementation project(':prism-api')
+}

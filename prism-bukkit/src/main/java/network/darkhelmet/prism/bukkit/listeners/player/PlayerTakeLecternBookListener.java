@@ -22,15 +22,12 @@ package network.darkhelmet.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.api.actions.IAction;
-import network.darkhelmet.prism.api.activities.Activity;
-import network.darkhelmet.prism.api.activities.ISingleActivity;
-import network.darkhelmet.prism.bukkit.actions.ActionFactory;
-import network.darkhelmet.prism.bukkit.actions.types.ActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.actions.BukkitItemStackAction;
+import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
-import network.darkhelmet.prism.bukkit.services.recording.RecordingService;
-import network.darkhelmet.prism.bukkit.utils.LocationUtils;
+import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.event.EventHandler;
@@ -43,17 +40,15 @@ public class PlayerTakeLecternBookListener extends AbstractListener implements L
      * Construct the listener.
      *
      * @param configurationService The configuration service
-     * @param actionFactory The action factory
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     @Inject
     public PlayerTakeLecternBookListener(
             ConfigurationService configurationService,
-            ActionFactory actionFactory,
             ExpectationService expectationService,
-            RecordingService recordingService) {
-        super(configurationService, actionFactory, expectationService, recordingService);
+            BukkitRecordingService recordingService) {
+        super(configurationService, expectationService, recordingService);
     }
 
     /**
@@ -68,15 +63,12 @@ public class PlayerTakeLecternBookListener extends AbstractListener implements L
             return;
         }
 
-        // Build the action
-        final IAction action = actionFactory
-            .createItemStackAction(ActionTypeRegistry.ITEM_REMOVE, event.getBook());
+        var action = new BukkitItemStackAction(BukkitActionTypeRegistry.ITEM_REMOVE, event.getBook());
 
-        // Build the activity
-        ISingleActivity activity = Activity.builder()
+        var activity = BukkitActivity.builder()
             .action(action)
-            .location(LocationUtils.locToWorldCoordinate(event.getLectern().getLocation()))
-            .player(event.getPlayer().getUniqueId(), event.getPlayer().getName())
+            .location(event.getLectern().getLocation())
+            .player(event.getPlayer())
             .build();
 
         recordingService.addToQueue(activity);

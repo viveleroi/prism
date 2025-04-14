@@ -22,19 +22,21 @@ package network.darkhelmet.prism.bukkit.services.wands;
 
 import com.google.inject.Inject;
 
+import java.util.UUID;
+
 import network.darkhelmet.prism.api.activities.ActivityQuery;
-import network.darkhelmet.prism.api.services.modifications.IModificationQueueService;
-import network.darkhelmet.prism.api.services.wands.IWand;
+import network.darkhelmet.prism.api.services.modifications.ModificationQueueService;
+import network.darkhelmet.prism.api.services.wands.Wand;
 import network.darkhelmet.prism.api.services.wands.WandMode;
-import network.darkhelmet.prism.api.storage.IStorageAdapter;
-import network.darkhelmet.prism.api.util.WorldCoordinate;
+import network.darkhelmet.prism.api.storage.StorageAdapter;
+import network.darkhelmet.prism.api.util.Coordinate;
 import network.darkhelmet.prism.bukkit.providers.TaskChainProvider;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
-import network.darkhelmet.prism.bukkit.services.modifications.Rollback;
+import network.darkhelmet.prism.bukkit.services.modifications.BukkitRollback;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
-public class RollbackWand extends AbstractModificationWand implements IWand {
+public class RollbackWand extends AbstractModificationWand implements Wand {
     /**
      * Construct a new inspection wand.
      *
@@ -48,9 +50,9 @@ public class RollbackWand extends AbstractModificationWand implements IWand {
     @Inject
     public RollbackWand(
             ConfigurationService configurationService,
-            IStorageAdapter storageAdapter,
+            StorageAdapter storageAdapter,
             MessageService messageService,
-            IModificationQueueService modificationQueueService,
+            ModificationQueueService modificationQueueService,
             TaskChainProvider taskChainProvider,
             LoggingService loggingService) {
         super(
@@ -73,10 +75,10 @@ public class RollbackWand extends AbstractModificationWand implements IWand {
     }
 
     @Override
-    public void use(WorldCoordinate at) {
+    public void use(UUID worldUuid, Coordinate coordinate) {
         final ActivityQuery query = ActivityQuery.builder()
-            .worldUuid(at.world().uuid()).coordinate(at).limit(1).rollback().build();
+            .worldUuid(worldUuid).coordinate(coordinate).limit(1).rollback().build();
 
-        super.use(query, Rollback.class);
+        super.use(query, BukkitRollback.class);
     }
 }
