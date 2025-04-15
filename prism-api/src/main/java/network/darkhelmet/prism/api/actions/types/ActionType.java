@@ -22,6 +22,7 @@ package network.darkhelmet.prism.api.actions.types;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+
 import network.darkhelmet.prism.api.actions.Action;
 import network.darkhelmet.prism.api.actions.ActionData;
 

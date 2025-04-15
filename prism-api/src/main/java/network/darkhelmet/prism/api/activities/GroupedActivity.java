@@ -20,13 +20,13 @@
 
 package network.darkhelmet.prism.api.activities;
 
+import java.util.UUID;
+
 import lombok.Getter;
 
 import network.darkhelmet.prism.api.actions.Action;
 import network.darkhelmet.prism.api.util.Coordinate;
 import network.darkhelmet.prism.api.util.Pair;
-
-import java.util.UUID;
 
 /**
  * A grouped activity represents multiple activities being read
