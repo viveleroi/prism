@@ -334,5 +334,6 @@ public class TagLib {
     /**
      * Tag blocks which retain their inventory when broken.
      */
-    public static final CustomTag<Material> KEEPS_INVENTORY = new CustomTag<>(Material.class, Material.SHULKER_BOX);
+    public static final CustomTag<Material> KEEPS_INVENTORY = new CustomTag<>(Material.class, Material.SHULKER_BOX)
+        .append(Tag.SHULKER_BOXES);
 }
