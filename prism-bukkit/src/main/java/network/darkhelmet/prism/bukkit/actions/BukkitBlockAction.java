@@ -43,10 +43,14 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.TileState;
+import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Bed;
+import org.bukkit.block.data.type.Stairs;
+import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -240,12 +244,23 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
                 .activity(activityContext).skipReason(ModificationSkipReason.BLACKLISTED).build();
         }
 
+        var location = location(activityContext.worldUuid(), activityContext.coordinate());
+        var block = location.getWorld().getBlockAt(location);
+
         StateChange<BlockState> stateChange = null;
         if (type().resultType().equals(ActionResultType.REMOVES)) {
+            if (mode.equals(ModificationQueueMode.COMPLETING)) {
+                // If rolling back a removal, we need to place the top half of a bisected block
+                // This happens first otherwise the block will break again
+                if (blockData instanceof Bisected bisected) {
+                    setBisectedTop(block, bisected, bisected.getMaterial());
+                }
+            }
+
             // If the action type removes a block, rollback means we re-set it
             stateChange = setBlock(
-                activityContext.worldUuid(),
-                activityContext.coordinate(),
+                block,
+                location,
                 blockData,
                 replacedBlockData,
                 readWriteNbt,
@@ -253,8 +268,7 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
                 mode);
         } else if (type().resultType().equals(ActionResultType.CREATES)) {
             // If the action type creates a block, rollback means we remove it
-            stateChange = setBlock(activityContext.worldUuid(),
-                activityContext.coordinate(), replacedBlockData, blockData, null, owner, mode);
+            stateChange = setBlock(block, location, replacedBlockData, blockData, null, owner, mode);
         }
 
         return ModificationResult.builder()
@@ -278,37 +292,47 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
                 .activity(activityContext).skipReason(ModificationSkipReason.BLACKLISTED).build();
         }
 
+        var location = location(activityContext.worldUuid(), activityContext.coordinate());
+        var block = location.getWorld().getBlockAt(location);
+
         StateChange<BlockState> stateChange = null;
         if (type().resultType().equals(ActionResultType.CREATES)) {
+            if (mode.equals(ModificationQueueMode.COMPLETING)) {
+                // If rolling back a removal, we need to place the top half of a bisected block
+                // This happens first otherwise the block will break again
+                if (blockData instanceof Bisected bisected) {
+                    setBisectedTop(block, bisected, bisected.getMaterial());
+                }
+            }
+
             // If the action type creates a block, restore means we re-set it
-            stateChange = setBlock(activityContext.worldUuid(),
-                activityContext.coordinate(), blockData, replacedBlockData, readWriteNbt, owner, mode);
+            stateChange = setBlock(block, location, blockData, replacedBlockData, readWriteNbt, owner, mode);
         } else if (type().resultType().equals(ActionResultType.REMOVES)) {
             // If the action type removes a block, restore means we remove it again
-            stateChange = setBlock(activityContext.worldUuid(),
-                 activityContext.coordinate(), replacedBlockData, blockData, null, owner, mode);
+            stateChange = setBlock(block, location, replacedBlockData, blockData, null, owner, mode);
         }
 
         return ModificationResult.builder()
             .activity(activityContext).statusFromMode(mode).stateChange(stateChange).build();
     }
 
+    protected Location location(UUID worldUuid, Coordinate coordinate) {
+        World world = Bukkit.getWorld(worldUuid);
+        return new Location(world, coordinate.x(), coordinate.y(), coordinate.z());
+    }
+
     /**
      * Sets an in-world block to this block data.
      */
     protected StateChange<BlockState> setBlock(
-        UUID worldUuid,
-        Coordinate coordinate,
+        Block block,
+        Location location,
         BlockData newBlockData,
         BlockData oldBlockData,
         ReadWriteNBT readWriteNbt,
         Object owner,
         ModificationQueueMode mode
     ) {
-        World world = Bukkit.getWorld(worldUuid);
-        Location loc = new Location(world, coordinate.x(), coordinate.y(), coordinate.z());
-        final Block block = loc.getWorld().getBlockAt(loc);
-
         // Capture existing state for reporting/reversing needs
         final BlockState oldState = block.getState();
 
@@ -324,7 +348,7 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
 
         // Send block change or change world
         if (mode.equals(ModificationQueueMode.PLANNING) && owner instanceof Player player) {
-            player.sendBlockChange(loc, newBlockData);
+            player.sendBlockChange(location, newBlockData);
         } else if (mode.equals(ModificationQueueMode.COMPLETING)) {
             block.setBlockData(newBlockData);
         }
@@ -346,7 +370,7 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
      * @param bed The bed block data
      */
     protected void setBedHead(Block block, Bed bed) {
-        // Bed logs will always be the FOOT part
+        // Bed activities will always be the FOOT part
         Block relative = block.getRelative(bed.getFacing());
 
         if (type().resultType().equals(ActionResultType.CREATES)) {
@@ -358,6 +382,29 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
                 siblingBed.setPart(Bed.Part.HEAD);
                 relative.setBlockData(siblingBed);
             }
+        }
+    }
+
+    /**
+     * Set the TOP part of a bisected block.
+     *
+     * @param block The block being changed
+     * @param bisected The bisected block data
+     * @param material The material
+     */
+    protected void setBisectedTop(Block block, Bisected bisected, Material material) {
+        // Some bisected blocks don't need help
+        if (bisected instanceof Stairs || bisected instanceof TrapDoor) {
+            return;
+        }
+
+        // Bisected activities will always be the BOTTOM part
+        Block relative = block.getRelative(BlockFace.UP);
+
+        relative.setType(material);
+        if (relative.getBlockData().clone() instanceof Bisected siblingBisected) {
+            siblingBisected.setHalf(Bisected.Half.TOP);
+            relative.setBlockData(siblingBisected);
         }
     }
 
