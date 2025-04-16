@@ -95,6 +95,9 @@ public class ActionsConfiguration {
     @Comment("entity-place is when a player places an armor stand or end crystal.")
     private boolean entityPlace = true;
 
+    @Comment("entity-ride is when a player rides an entity.")
+    private boolean entityRide = true;
+
     @Comment("entity-shear is when a player shears an entity.")
     private boolean entityShear = true;
 

@@ -32,6 +32,7 @@ import network.darkhelmet.prism.loader.services.configuration.ConfigurationServi
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -61,20 +62,30 @@ public class VehicleEnterListener extends AbstractListener implements Listener {
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onVehicleEnter(final VehicleEnterEvent event) {
+        Vehicle vehicle = event.getVehicle();
+
+        var actionType = BukkitActionTypeRegistry.VEHICLE_ENTER;
+        if (vehicle instanceof Tameable) {
+            actionType = BukkitActionTypeRegistry.ENTITY_RIDE;
+        }
+
         // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().vehicleEnter()) {
+        if ((actionType.equals(BukkitActionTypeRegistry.VEHICLE_ENTER)
+                && !configurationService.prismConfig().actions().vehicleEnter()) ||
+                (actionType.equals(BukkitActionTypeRegistry.ENTITY_RIDE)
+                    && !configurationService.prismConfig().actions().entityRide())) {
             return;
         }
 
-        Vehicle vehicle = event.getVehicle();
         Entity entity = event.getEntered();
-        var action = new BukkitEntityAction(BukkitActionTypeRegistry.VEHICLE_ENTER, vehicle);
+
+        var action = new BukkitEntityAction(actionType, vehicle);
 
         var builder = BukkitActivity.builder().action(action).location(vehicle.getLocation());
         if (entity instanceof Player player) {
             builder.player(player);
         } else {
-            builder.cause(entity.toString());
+            builder.cause(nameFromCause(entity));
         }
 
         recordingService.addToQueue(builder.build());
