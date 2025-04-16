@@ -86,7 +86,7 @@ public class AbstractListener {
     /**
      * Converts a cause to a string name.
      *
-     * <p>Note: This if for non-players.</p>
+     * <p>Note: This is for non-players.</p>
      *
      * @param cause The cause
      * @return The cause name
