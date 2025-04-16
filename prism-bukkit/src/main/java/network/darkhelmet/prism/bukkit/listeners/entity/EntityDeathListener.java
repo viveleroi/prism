@@ -40,6 +40,7 @@ import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.projectiles.BlockProjectileSource;
 
 public class EntityDeathListener extends AbstractListener implements Listener {
@@ -61,12 +62,14 @@ public class EntityDeathListener extends AbstractListener implements Listener {
     /**
      * Listen to entity death events.
      *
+     * <p>Note: Player deaths are handled via the PlayerDeathListener.</p>
+     *
      * @param event The event
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityDeath(final EntityDeathEvent event) {
         // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().entityKill()) {
+        if (!configurationService.prismConfig().actions().entityKill() || event.getEntity() instanceof Player) {
             return;
         }
 
@@ -104,5 +107,12 @@ public class EntityDeathListener extends AbstractListener implements Listener {
         }
 
         recordingService.addToQueue(builder.build());
+
+        // Log inventory drops
+        // While event.getDrops() would include these items, it would also list loot which we do not track
+        if (entity instanceof InventoryHolder inventoryHolder) {
+            recordItemDropFromInventory(
+                inventoryHolder.getInventory(), event.getEntity().getLocation(), event.getEntity());
+        }
     }
 }

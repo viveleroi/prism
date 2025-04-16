@@ -86,6 +86,8 @@ public class AbstractListener {
     /**
      * Converts a cause to a string name.
      *
+     * <p>Note: This if for non-players.</p>
+     *
      * @param cause The cause
      * @return The cause name
      */
@@ -204,6 +206,17 @@ public class AbstractListener {
      * @param location The location
      * @param cause The cause (Player or a named cause string)
      * @param itemStack The item stack
+     */
+    protected void recordItemDropActivity(Location location, Object cause, ItemStack itemStack) {
+        recordItemDropActivity(location, cause, itemStack, itemStack.getAmount());
+    }
+
+    /**
+     * Record an item drop activity.
+     *
+     * @param location The location
+     * @param cause The cause (Player or a named cause string)
+     * @param itemStack The item stack
      * @param amount The amount
      */
     protected void recordItemDropActivity(
@@ -217,10 +230,9 @@ public class AbstractListener {
 
         if (cause instanceof Player _player) {
             player = _player;
-        } else if (cause instanceof String _cause) {
-            namedCause = _cause;
+        } else  {
+            namedCause = nameFromCause(cause);
         }
-
         recordItemActivity(BukkitActionTypeRegistry.ITEM_DROP, location, player, namedCause, itemStack, amount, null);
     }
 

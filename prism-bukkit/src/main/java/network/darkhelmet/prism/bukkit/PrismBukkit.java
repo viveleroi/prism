@@ -91,6 +91,7 @@ import network.darkhelmet.prism.bukkit.listeners.leaves.LeavesDecayListener;
 import network.darkhelmet.prism.bukkit.listeners.player.PlayerBedEnterListener;
 import network.darkhelmet.prism.bukkit.listeners.player.PlayerBucketEmptyListener;
 import network.darkhelmet.prism.bukkit.listeners.player.PlayerBucketFillListener;
+import network.darkhelmet.prism.bukkit.listeners.player.PlayerDeathListener;
 import network.darkhelmet.prism.bukkit.listeners.player.PlayerDropItemListener;
 import network.darkhelmet.prism.bukkit.listeners.player.PlayerEggThrowListener;
 import network.darkhelmet.prism.bukkit.listeners.player.PlayerExpChangeListener;
@@ -277,6 +278,7 @@ public class PrismBukkit implements Prism {
             registerEvent(PlayerBedEnterListener.class);
             registerEvent(PlayerBucketEmptyListener.class);
             registerEvent(PlayerBucketFillListener.class);
+            registerEvent(PlayerDeathListener.class);
             registerEvent(PlayerDropItemListener.class);
             registerEvent(PlayerEggThrowListener.class);
             registerEvent(PlayerExpChangeListener.class);

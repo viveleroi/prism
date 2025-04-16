@@ -142,6 +142,9 @@ public class ActionsConfiguration {
     @Comment("item-throw is when a player throws an item.")
     private boolean itemThrow = true;
 
+    @Comment("player-death is when a player dies.")
+    private boolean playerDeath = true;
+
     @Comment("player-join is when a player connects to the server.")
     private boolean playerJoin = false;
 
