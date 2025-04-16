@@ -66,6 +66,7 @@ public class ModificationConfiguration {
 
         removeBlocks.add("tnt");
         removeBlocks.add("fire");
+        removeBlocks.add("lava");
     }
 
     /**
