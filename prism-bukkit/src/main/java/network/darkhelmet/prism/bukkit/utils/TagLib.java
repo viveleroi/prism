@@ -233,6 +233,7 @@ public class TagLib {
         Material.KELP_PLANT,
         Material.KELP,
         Material.CACTUS,
+        Material.POINTED_DRIPSTONE,
         Material.SCAFFOLDING,
         Material.SUGAR_CANE,
         Material.TWISTING_VINES,
