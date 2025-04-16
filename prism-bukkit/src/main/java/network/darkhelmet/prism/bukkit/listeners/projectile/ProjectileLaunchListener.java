@@ -22,7 +22,9 @@ package network.darkhelmet.prism.bukkit.listeners.projectile;
 
 import com.google.inject.Inject;
 
+import network.darkhelmet.prism.api.actions.Action;
 import network.darkhelmet.prism.bukkit.actions.BukkitItemStackAction;
+import network.darkhelmet.prism.bukkit.actions.GenericBukkitAction;
 import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
@@ -65,18 +67,21 @@ public class ProjectileLaunchListener extends AbstractListener implements Listen
             return;
         }
 
+        Action action = null;
         if (event.getEntity() instanceof ThrowableProjectile throwableProjectile) {
-            var action = new BukkitItemStackAction(BukkitActionTypeRegistry.ITEM_THROW, throwableProjectile.getItem());
-
-            var builder = BukkitActivity.builder().action(action).location(event.getLocation());
-
-            if (event.getEntity().getShooter() instanceof Player player) {
-                builder.player(player);
-            } else {
-                builder.cause(nameFromCause(event.getEntity().getShooter()));
-            }
-
-            recordingService.addToQueue(builder.build());
+            action = new BukkitItemStackAction(BukkitActionTypeRegistry.ITEM_THROW, throwableProjectile.getItem());
+        } else {
+            action = new GenericBukkitAction(BukkitActionTypeRegistry.ITEM_THROW, nameFromCause(event.getEntity()));
         }
+
+        var builder = BukkitActivity.builder().action(action).location(event.getLocation());
+
+        if (event.getEntity().getShooter() instanceof Player player) {
+            builder.player(player);
+        } else {
+            builder.cause(nameFromCause(event.getEntity().getShooter()));
+        }
+
+        recordingService.addToQueue(builder.build());
     }
 }

@@ -95,8 +95,9 @@ public class BukkitActionTypeRegistry extends AbstractActionTypeRegistry {
         new ItemActionType("item-pickup", ActionResultType.NONE, false);
     public static final ActionType ITEM_REMOVE =
         new ItemActionType("item-remove", ActionResultType.REMOVES, true);
+    // This is a generic action type because a. it can be an item or entity and b. it can't be modified
     public static final ActionType ITEM_THROW =
-        new ItemActionType("item-throw", ActionResultType.NONE, false);
+        new GenericActionType("item-throw", ActionResultType.NONE, false);
     public static final ActionType PLAYER_DEATH =
         new GenericActionType("player-death", ActionResultType.NONE, false);
     public static final ActionType PLAYER_JOIN =

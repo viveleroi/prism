@@ -216,6 +216,9 @@ public class SqlActivityBatch implements ActivityBatch {
                 statement.setNull(13, Types.SMALLINT);
                 statement.setNull(14, Types.VARCHAR);
             }
+        } else {
+            statement.setNull(13, Types.SMALLINT);
+            statement.setNull(14, Types.VARCHAR);
         }
 
         statement.addBatch();
