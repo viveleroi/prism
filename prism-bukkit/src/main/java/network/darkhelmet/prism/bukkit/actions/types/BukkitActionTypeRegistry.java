@@ -96,7 +96,7 @@ public class BukkitActionTypeRegistry extends AbstractActionTypeRegistry {
     public static final ActionType ITEM_REMOVE =
         new ItemActionType("item-remove", ActionResultType.REMOVES, true);
     public static final ActionType ITEM_THROW =
-        new GenericActionType("item-throw", ActionResultType.NONE, false);
+        new ItemActionType("item-throw", ActionResultType.NONE, false);
     public static final ActionType PLAYER_DEATH =
         new GenericActionType("player-death", ActionResultType.NONE, false);
     public static final ActionType PLAYER_JOIN =

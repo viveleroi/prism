@@ -22,7 +22,7 @@ package network.darkhelmet.prism.bukkit.listeners.projectile;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.bukkit.actions.GenericBukkitAction;
+import network.darkhelmet.prism.bukkit.actions.BukkitItemStackAction;
 import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
@@ -31,6 +31,7 @@ import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.entity.Player;
+import org.bukkit.entity.ThrowableProjectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -64,17 +65,18 @@ public class ProjectileLaunchListener extends AbstractListener implements Listen
             return;
         }
 
-        String entityThrown = nameFromCause(event.getEntity());
+        if (event.getEntity() instanceof ThrowableProjectile throwableProjectile) {
+            var action = new BukkitItemStackAction(BukkitActionTypeRegistry.ITEM_THROW, throwableProjectile.getItem());
 
-        var action = new GenericBukkitAction(BukkitActionTypeRegistry.ITEM_THROW, entityThrown);
+            var builder = BukkitActivity.builder().action(action).location(event.getLocation());
 
-        var builder = BukkitActivity.builder().action(action).location(event.getLocation());
-        if (event.getEntity().getShooter() instanceof Player player) {
-            builder.player(player);
-        } else {
-            builder.cause(nameFromCause(event.getEntity().getShooter()));
+            if (event.getEntity().getShooter() instanceof Player player) {
+                builder.player(player);
+            } else {
+                builder.cause(nameFromCause(event.getEntity().getShooter()));
+            }
+
+            recordingService.addToQueue(builder.build());
         }
-
-        recordingService.addToQueue(builder.build());
     }
 }
