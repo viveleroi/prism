@@ -157,26 +157,23 @@ public class AbstractListener {
      * @param cause The cause
      */
     protected void processExplosion(List<Block> affectedBlocks, Object cause) {
-        for (Block affectedBlock : affectedBlocks) {
-            final Block block = BlockUtils.rootBlock(affectedBlock);
+        if (configurationService.prismConfig().actions().blockBreak()) {
+            for (Block affectedBlock : affectedBlocks) {
+                final Block block = BlockUtils.rootBlock(affectedBlock);
 
-            // Ignore if this event is disabled
-            if (!configurationService.prismConfig().actions().blockBreak()) {
-                continue;
-            }
+                // Record all blocks that will fall
+                for (Block faller : BlockUtils.gravityAffectedBlocksAbove(new ArrayList<>(), block)) {
+                    // Skip blocks already in the affected block list
+                    if (affectedBlocks.contains(faller)) {
+                        continue;
+                    }
 
-            // Record all blocks that will fall
-            for (Block faller : BlockUtils.gravityAffectedBlocksAbove(new ArrayList<>(), block)) {
-                // Skip blocks already in the affected block list
-                if (affectedBlocks.contains(faller)) {
-                    continue;
+                    recordBlockBreakAction(faller, cause);
                 }
 
-                recordBlockBreakAction(faller, cause);
+                // Record this block
+                recordBlockBreakAction(block, cause);
             }
-
-            // Record this block
-            recordBlockBreakAction(block, cause);
         }
     }
 
