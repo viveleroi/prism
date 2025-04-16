@@ -181,7 +181,6 @@ public class TagLib {
      * All materials that can attach to themselves on the bottom (breaks travel downward).
      */
     public static final CustomTag<Material> RECURSIVE_BOTTOM_DETACHABLES = new CustomTag<>(Material.class,
-        Material.CHAIN,
         Material.POINTED_DRIPSTONE,
         Material.VINE,
         Material.WEEPING_VINES,
@@ -258,7 +257,6 @@ public class TagLib {
         Material.BEACON,
         Material.ITEM_FRAME,
         Material.LANTERN,
-        Material.CHAIN,
         Material.CONDUIT,
         Material.BELL)
         .append(
