@@ -163,14 +163,14 @@ public class ActionsConfiguration {
     @Comment("vehicle-break is when something breaks a boat or minecart.")
     private boolean vehicleBreak = true;
 
-    @Comment("vehicle-enter is when an entity enters a boat or minecart.")
-    private boolean vehicleEnter = true;
-
     @Comment("vehicle-exit is when an entity exits a boat or minecart.")
     private boolean vehicleExit = true;
 
     @Comment("vehicle-place is when a player places a boat or minecart.")
     private boolean vehiclePlace = true;
+
+    @Comment("vehicle-ride is when an entity enters a boat or minecart.")
+    private boolean vehicleRide = true;
 
     @Comment("xp-pickup is when a player picks up XP orbs.")
     private boolean xpPickup = false;

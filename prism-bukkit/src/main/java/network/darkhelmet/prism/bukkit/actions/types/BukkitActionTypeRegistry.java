@@ -72,7 +72,7 @@ public class BukkitActionTypeRegistry extends AbstractActionTypeRegistry {
     public static final ActionType ENTITY_SHEAR =
         new EntityActionType("entity-shear", ActionResultType.CREATES, true);
     public static final ActionType ENTITY_RIDE =
-      new EntityActionType("entity-ride", ActionResultType.NONE, false);
+        new EntityActionType("entity-ride", ActionResultType.NONE, false);
     public static final ActionType ENTITY_TRANSFORM =
         new EntityActionType("entity-transform", ActionResultType.CREATES, false, ReasonMetadata.class);
     public static final ActionType ENTITY_UNLEASH =
@@ -109,12 +109,12 @@ public class BukkitActionTypeRegistry extends AbstractActionTypeRegistry {
         new BlockActionType("sign-edit", ActionResultType.CREATES, false);
     public static final ActionType VEHICLE_BREAK =
         new EntityActionType("vehicle-break", ActionResultType.REMOVES, true);
-    public static final ActionType VEHICLE_ENTER =
-        new EntityActionType("vehicle-enter", ActionResultType.NONE, false);
     public static final ActionType VEHICLE_EXIT =
         new EntityActionType("vehicle-exit", ActionResultType.NONE, false);
     public static final ActionType VEHICLE_PLACE =
         new EntityActionType("vehicle-place", ActionResultType.CREATES, true);
+    public static final ActionType VEHICLE_RIDE =
+        new EntityActionType("vehicle-ride", ActionResultType.NONE, false);
     public static final ActionType XP_PICKUP =
         new GenericActionType("xp-pickup", ActionResultType.NONE, false);
 
@@ -161,9 +161,9 @@ public class BukkitActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(PLAYER_TELEPORT);
         registerAction(SIGN_EDIT);
         registerAction(VEHICLE_BREAK);
-        registerAction(VEHICLE_ENTER);
         registerAction(VEHICLE_EXIT);
         registerAction(VEHICLE_PLACE);
+        registerAction(VEHICLE_RIDE);
         registerAction(XP_PICKUP);
     }
 }

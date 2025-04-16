@@ -64,15 +64,15 @@ public class VehicleEnterListener extends AbstractListener implements Listener {
     public void onVehicleEnter(final VehicleEnterEvent event) {
         Vehicle vehicle = event.getVehicle();
 
-        var actionType = BukkitActionTypeRegistry.VEHICLE_ENTER;
+        var actionType = BukkitActionTypeRegistry.VEHICLE_RIDE;
         if (vehicle instanceof Tameable) {
             actionType = BukkitActionTypeRegistry.ENTITY_RIDE;
         }
 
         // Ignore if this event is disabled
-        if ((actionType.equals(BukkitActionTypeRegistry.VEHICLE_ENTER)
-                && !configurationService.prismConfig().actions().vehicleEnter()) ||
-                (actionType.equals(BukkitActionTypeRegistry.ENTITY_RIDE)
+        if ((actionType.equals(BukkitActionTypeRegistry.VEHICLE_RIDE)
+                && !configurationService.prismConfig().actions().vehicleRide())
+                || (actionType.equals(BukkitActionTypeRegistry.ENTITY_RIDE)
                     && !configurationService.prismConfig().actions().entityRide())) {
             return;
         }
