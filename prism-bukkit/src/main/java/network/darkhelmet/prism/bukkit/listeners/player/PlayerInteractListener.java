@@ -148,9 +148,15 @@ public class PlayerInteractListener extends AbstractListener implements Listener
 
         if (event.getClickedBlock().getState() instanceof Jukebox jukebox) {
             recordJukeboxActivity(jukebox, event.getClickedBlock().getLocation(), player);
-        } else if (event.getClickedBlock().getState() instanceof InventoryHolder) {
+        } else if (event.getClickedBlock().getState() instanceof InventoryHolder inventoryHolder) {
             // Ignore if this event is disabled
             if (!configurationService.prismConfig().actions().inventoryOpen()) {
+                return;
+            }
+
+            // Ignore inventory holders that don't open (chiseled bookshelf, decorated pot)
+            if (inventoryHolder.getInventory().getType() == null
+                    || inventoryHolder.getInventory().getType().getMenuType() == null) {
                 return;
             }
 
