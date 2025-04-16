@@ -88,6 +88,7 @@ import network.darkhelmet.prism.bukkit.listeners.hanging.HangingPlaceListener;
 import network.darkhelmet.prism.bukkit.listeners.inventory.InventoryClickListener;
 import network.darkhelmet.prism.bukkit.listeners.inventory.InventoryDragListener;
 import network.darkhelmet.prism.bukkit.listeners.leaves.LeavesDecayListener;
+import network.darkhelmet.prism.bukkit.listeners.player.PlayerArmorStandManipulateListener;
 import network.darkhelmet.prism.bukkit.listeners.player.PlayerBedEnterListener;
 import network.darkhelmet.prism.bukkit.listeners.player.PlayerBucketEmptyListener;
 import network.darkhelmet.prism.bukkit.listeners.player.PlayerBucketFillListener;
@@ -275,6 +276,7 @@ public class PrismBukkit implements Prism {
             registerEvent(InventoryClickListener.class);
             registerEvent(InventoryDragListener.class);
             registerEvent(LeavesDecayListener.class);
+            registerEvent(PlayerArmorStandManipulateListener.class);
             registerEvent(PlayerBedEnterListener.class);
             registerEvent(PlayerBucketEmptyListener.class);
             registerEvent(PlayerBucketFillListener.class);
