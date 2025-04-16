@@ -330,4 +330,9 @@ public class TagLib {
         .append(Tag.TRAPDOORS)
         .append(Tag.FENCE_GATES)
         .append(Tag.PRESSURE_PLATES);
+
+    /**
+     * Tag blocks which retain their inventory when broken.
+     */
+    public static final CustomTag<Material> KEEPS_INVENTORY = new CustomTag<>(Material.class, Material.SHULKER_BOX);
 }

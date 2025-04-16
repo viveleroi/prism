@@ -256,7 +256,6 @@ public final class ActivityQuery {
             this.lookup(false);
             this.grouped(false);
             this.sort(Sort.ASCENDING);
-            this.reversed(true);
 
             return this;
         }
@@ -274,7 +273,6 @@ public final class ActivityQuery {
             this.lookup(false);
             this.grouped(false);
             this.sort(Sort.DESCENDING);
-            this.reversed(false);
 
             return this;
         }

@@ -34,17 +34,21 @@ import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
 import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.bukkit.utils.BlockUtils;
 import network.darkhelmet.prism.bukkit.utils.EntityUtils;
+import network.darkhelmet.prism.bukkit.utils.TagLib;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.type.Chest;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 public class AbstractListener {
@@ -185,6 +189,8 @@ public class AbstractListener {
     protected void recordBlockBreakAction(Block block, Object cause) {
         var action = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_BREAK, block.getState());
 
+        recordItemDropFromBlockContents(block);
+
         var builder = BukkitActivity.builder().action(action).location(block.getLocation());
         if (cause instanceof String) {
             builder.cause((String) cause);
@@ -199,26 +205,66 @@ public class AbstractListener {
      * Record an item drop activity.
      *
      * @param location The location
-     * @param destroyer What or who destroyed the inventory
+     * @param cause The cause (Player or a named cause string)
      * @param itemStack The item stack
      * @param amount The amount
      */
     protected void recordItemDropActivity(
-            Location location, Object destroyer, ItemStack itemStack, Integer amount) {
+            Location location, Object cause, ItemStack itemStack, Integer amount) {
         if (!configurationService.prismConfig().actions().itemDrop()) {
             return;
         }
 
         Player player = null;
-        String cause = null;
+        String namedCause = null;
 
-        if (destroyer instanceof Player _player) {
+        if (cause instanceof Player _player) {
             player = _player;
-        } else if (destroyer instanceof String _cause) {
-            cause = _cause;
+        } else if (cause instanceof String _cause) {
+            namedCause = _cause;
         }
 
-        recordItemActivity(BukkitActionTypeRegistry.ITEM_DROP, location, player, cause, itemStack, amount, null);
+        recordItemActivity(BukkitActionTypeRegistry.ITEM_DROP, location, player, namedCause, itemStack, amount, null);
+    }
+
+    /**
+     * Record inventory item drops from a block break. Ignores blocks without an inventory.
+     *
+     * @param block The block
+     */
+    protected void recordItemDropFromBlockContents(Block block) {
+        if (TagLib.KEEPS_INVENTORY.isTagged(block.getType())) {
+            return;
+        }
+
+        if (block.getState() instanceof InventoryHolder holder) {
+            var inventory = holder.getInventory();
+
+            if (holder.getInventory() instanceof DoubleChestInventory doubleChestInventory) {
+                var chest = (Chest) block.getBlockData();
+
+                // Only log this block's side of a double chest
+                // This is a bit bizarre but chest.getType() will be LEFT/RIGHT from the perspective
+                // opposite from where the player would see a chest.
+                //
+                // Per the spigot javadocs: "Left and right are relative to the chest itself,
+                // i.e. opposite to what a player placing the appropriate block would see"
+                //
+                // However, it seems like DoubleChestInventory's getLeftSide/getRightSide
+                // are from the perspective of the player.
+                //
+                // This means that when the broken chest block is type LEFT
+                // the inventory on the RIGHT is what actually drops its contents.
+                if (chest.getType() == Chest.Type.LEFT) {
+                    inventory = doubleChestInventory.getRightSide();
+                } else {
+                    inventory = doubleChestInventory.getLeftSide();
+                }
+            }
+
+            recordItemDropFromInventory(inventory, block.getLocation(),
+                String.format("broken %s", nameFromCause(block)));
+        }
     }
 
     /**
@@ -226,17 +272,17 @@ public class AbstractListener {
      *
      * @param inventory The inventory
      * @param location The location
-     * @param destroyer What or who destroyed the inventory
+     * @param cause The player or named cause
      */
     protected void recordItemDropFromInventory(
-            Inventory inventory, Location location, Object destroyer) {
+            Inventory inventory, Location location, Object cause) {
         if (!configurationService.prismConfig().actions().itemDrop()) {
             return;
         }
 
         for (ItemStack item : inventory.getContents()) {
             if (item != null) {
-                recordItemDropActivity(location, destroyer, item, null);
+                recordItemDropActivity(location, cause, item, null);
             }
         }
     }

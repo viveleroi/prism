@@ -32,6 +32,7 @@ import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
+import network.darkhelmet.prism.api.services.modifications.ModificationSkipReason;
 import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import network.darkhelmet.prism.bukkit.services.modifications.state.ItemStackStateChange;
 import network.darkhelmet.prism.bukkit.utils.ItemUtils;
@@ -101,7 +102,13 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
             Object owner,
             Activity activityContext,
             ModificationQueueMode mode) {
-        activityContext.player();
+        // Ignore non-player item rollbacks because they should always be serialized as contents
+        // of a broken inventory holder, killed entity, etc.
+        if (activityContext.player() == null) {
+            return ModificationResult.builder().activity(activityContext)
+                .skipReason(ModificationSkipReason.NOT_APPLICABLE).build();
+        }
+
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(activityContext.player().key());
 
         // The only time we give items back to a player's personal inventory is when they dropped it
