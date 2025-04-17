@@ -116,6 +116,13 @@ public class QueryService {
             builder.grouped(false);
         }
 
+        // If the ID is provided, no other parameters matter
+        if (arguments.getArgument("id", Integer.class).isPresent()) {
+            builder.activityId(arguments.getArgument("id", Integer.class).get());
+
+            return Optional.of(builder);
+        }
+
         // Read "world" parameter from arguments or defaults
         String worldName = null;
         if (arguments.getArgument("world", String.class).isPresent()) {

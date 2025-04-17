@@ -439,6 +439,7 @@ public class PrismBukkit implements Prism {
             commandManager.registerNamedArguments(
                 ArgumentKey.of("query-parameters"),
                 Argument.forBoolean().name("reversed").build(),
+                Argument.forInt().name("id").build(),
                 Argument.forInt().name("r").build(),
                 Argument.forString().name("in").suggestion(SuggestionKey.of("ins")).build(),
                 Argument.forString().name("since").build(),
