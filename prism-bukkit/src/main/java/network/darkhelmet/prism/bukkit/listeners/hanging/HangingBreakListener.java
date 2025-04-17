@@ -22,21 +22,15 @@ package network.darkhelmet.prism.bukkit.listeners.hanging;
 
 import com.google.inject.Inject;
 
-import java.util.Locale;
 import java.util.Optional;
 
 import network.darkhelmet.prism.api.services.expectations.ExpectationType;
-import network.darkhelmet.prism.bukkit.actions.BukkitEntityAction;
-import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
-import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
 import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Hanging;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -65,7 +59,7 @@ public class HangingBreakListener extends AbstractListener implements Listener {
      * This is merely here to capture indirect causes (physics) for when they detach
      * from a block.</p>
      *
-     * @param event HangingBreakEvent The hanging break event
+     * @param event The event
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onHangingBreakEvent(final HangingBreakEvent event) {
@@ -85,27 +79,6 @@ public class HangingBreakListener extends AbstractListener implements Listener {
                 // Remove from cache
                 expectationService.cacheFor(ExpectationType.DETACH).metExpectation(hanging);
             });
-        } else {
-            recordHangingBreak(hanging, event.getCause().name().toLowerCase(Locale.ENGLISH));
         }
-    }
-
-    /**
-     * Record a hanging entity break.
-     *
-     * @param hanging The hanging entity
-     * @param cause The cause
-     */
-    protected void recordHangingBreak(Entity hanging, Object cause) {
-        var action = new BukkitEntityAction(BukkitActionTypeRegistry.HANGING_BREAK, hanging);
-
-        var builder = BukkitActivity.builder().action(action).location(hanging.getLocation());
-        if (cause instanceof Player player) {
-            builder.player(player);
-        } else {
-            builder.cause(nameFromCause(cause));
-        }
-
-        recordingService.addToQueue(builder.build());
     }
 }

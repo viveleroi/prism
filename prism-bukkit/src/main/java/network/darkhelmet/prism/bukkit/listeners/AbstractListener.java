@@ -27,6 +27,7 @@ import java.util.Locale;
 import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.api.services.expectations.ExpectationType;
 import network.darkhelmet.prism.bukkit.actions.BukkitBlockAction;
+import network.darkhelmet.prism.bukkit.actions.BukkitEntityAction;
 import network.darkhelmet.prism.bukkit.actions.BukkitItemStackAction;
 import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
@@ -195,6 +196,25 @@ public class AbstractListener {
             builder.cause((String) cause);
         } else if (cause instanceof Player player) {
             builder.player(player);
+        }
+
+        recordingService.addToQueue(builder.build());
+    }
+
+    /**
+     * Record a hanging entity break.
+     *
+     * @param hanging The hanging entity
+     * @param cause The cause
+     */
+    protected void recordHangingBreak(Entity hanging, Object cause) {
+        var action = new BukkitEntityAction(BukkitActionTypeRegistry.HANGING_BREAK, hanging);
+
+        var builder = BukkitActivity.builder().action(action).location(hanging.getLocation());
+        if (cause instanceof Player player) {
+            builder.player(player);
+        } else {
+            builder.cause(nameFromCause(cause));
         }
 
         recordingService.addToQueue(builder.build());

@@ -82,6 +82,7 @@ import network.darkhelmet.prism.bukkit.listeners.entity.EntityPickupItemListener
 import network.darkhelmet.prism.bukkit.listeners.entity.EntityPlaceListener;
 import network.darkhelmet.prism.bukkit.listeners.entity.EntityTransformListener;
 import network.darkhelmet.prism.bukkit.listeners.entity.EntityUnleashListener;
+import network.darkhelmet.prism.bukkit.listeners.hanging.HangingBreakByEntityListener;
 import network.darkhelmet.prism.bukkit.listeners.hanging.HangingBreakListener;
 import network.darkhelmet.prism.bukkit.listeners.hanging.HangingPlaceListener;
 import network.darkhelmet.prism.bukkit.listeners.inventory.InventoryClickListener;
@@ -269,6 +270,7 @@ public class PrismBukkit implements Prism {
             registerEvent(EntityTransformListener.class);
             registerEvent(EntityUnleashListener.class);
             registerEvent(HangingBreakListener.class);
+            registerEvent(HangingBreakByEntityListener.class);
             registerEvent(HangingPlaceListener.class);
             registerEvent(InventoryClickListener.class);
             registerEvent(InventoryDragListener.class);
