@@ -41,6 +41,7 @@ import network.darkhelmet.prism.loader.services.configuration.ConfigurationServi
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.type.Chest;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -162,10 +163,14 @@ public class AbstractListener {
     protected void processExplosion(List<Block> affectedBlocks, Object cause) {
         if (configurationService.prismConfig().actions().blockBreak()) {
             for (Block affectedBlock : affectedBlocks) {
-                final Block block = BlockUtils.rootBlock(affectedBlock);
+                // Ignore the tops of bisected blocks
+                if (affectedBlock.getBlockData() instanceof Bisected bisected
+                        && bisected.getHalf().equals(Bisected.Half.TOP)) {
+                    continue;
+                }
 
                 // Record all blocks that will fall
-                for (Block faller : BlockUtils.gravityAffectedBlocksAbove(new ArrayList<>(), block)) {
+                for (Block faller : BlockUtils.gravityAffectedBlocksAbove(new ArrayList<>(), affectedBlock)) {
                     // Skip blocks already in the affected block list
                     if (affectedBlocks.contains(faller)) {
                         continue;
@@ -175,7 +180,7 @@ public class AbstractListener {
                 }
 
                 // Record this block
-                recordBlockBreakAction(block, cause);
+                recordBlockBreakAction(affectedBlock, cause);
             }
         }
     }
