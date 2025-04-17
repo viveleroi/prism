@@ -42,6 +42,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected;
+import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Chest;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -163,9 +164,11 @@ public class AbstractListener {
     protected void processExplosion(List<Block> affectedBlocks, Object cause) {
         if (configurationService.prismConfig().actions().blockBreak()) {
             for (Block affectedBlock : affectedBlocks) {
-                // Ignore the tops of bisected blocks
-                if (affectedBlock.getBlockData() instanceof Bisected bisected
-                        && bisected.getHalf().equals(Bisected.Half.TOP)) {
+                // Ignore the tops of bisected blocks or heads of beds
+                if ((affectedBlock.getBlockData() instanceof Bisected bisected
+                        && bisected.getHalf().equals(Bisected.Half.TOP)
+                        || affectedBlock.getBlockData() instanceof Bed bed
+                        && bed.getPart().equals(Bed.Part.HEAD))) {
                     continue;
                 }
 
