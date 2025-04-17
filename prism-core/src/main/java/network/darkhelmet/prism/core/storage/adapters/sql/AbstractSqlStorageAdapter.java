@@ -83,6 +83,7 @@ import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
 import static org.jooq.impl.DSL.avg;
+import static org.jooq.impl.DSL.coalesce;
 import static org.jooq.impl.DSL.constraint;
 import static org.jooq.impl.DSL.max;
 import static org.jooq.impl.DSL.min;
@@ -717,12 +718,13 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
 
     @Override
     public Pair<Integer, Integer> getActivitiesPkBounds() {
-        Result<Record2<UInteger, UInteger>> result = create
-            .select(min(PRISM_ACTIVITIES.ACTIVITY_ID), max(PRISM_ACTIVITIES.ACTIVITY_ID))
-            .from(PRISM_ACTIVITIES).fetch();
+        Record2<UInteger, UInteger> result = create
+            .select(coalesce(min(PRISM_ACTIVITIES.ACTIVITY_ID), DSL.val(0)),
+                    coalesce(max(PRISM_ACTIVITIES.ACTIVITY_ID), DSL.val(0)))
+            .from(PRISM_ACTIVITIES).fetchOne();
 
-        int minPk = result.get(0).get(min(PRISM_ACTIVITIES.ACTIVITY_ID)).intValue();
-        int maxPk = result.get(0).get(max(PRISM_ACTIVITIES.ACTIVITY_ID)).intValue();
+        int minPk = result != null ? result.value1().intValue() : 0;
+        int maxPk = result != null ? result.value2().intValue() : 0;
 
         return new Pair<>(minPk, maxPk);
     }
