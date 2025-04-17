@@ -125,7 +125,7 @@ public class AbstractListener {
     protected void processBlockBreak(Block brokenBlock, Object cause) {
         final Block block = BlockUtils.rootBlock(brokenBlock);
 
-        // Find any hanging entities.
+        // Find any hanging entities
         if (configurationService.prismConfig().actions().hangingBreak()) {
             for (Entity hanging : EntityUtils.hangingEntities(block.getLocation(), 2)) {
                 expectationService.cacheFor(ExpectationType.DETACH).expect(hanging, cause);
