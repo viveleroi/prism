@@ -52,6 +52,7 @@ import network.darkhelmet.prism.api.services.wands.WandMode;
 import network.darkhelmet.prism.api.storage.StorageAdapter;
 import network.darkhelmet.prism.bukkit.PrismBukkit;
 import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.integrations.worldedit.WorldEditIntegration;
 import network.darkhelmet.prism.bukkit.providers.TaskChainProvider;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
 import network.darkhelmet.prism.bukkit.services.filters.BukkitFilterService;
@@ -97,7 +98,9 @@ import network.darkhelmet.prism.loader.services.configuration.ConfigurationServi
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 import network.darkhelmet.prism.loader.storage.StorageType;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class PrismModule extends AbstractModule {
     /**
@@ -161,6 +164,22 @@ public class PrismModule extends AbstractModule {
     public BukkitAudiences getAudience() {
         if (prism.loaderPlugin().isEnabled()) {
             return BukkitAudiences.create(prism.loaderPlugin());
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the world edit integration.
+     *
+     * @return The world edit integration
+     */
+    @Provides
+    @Singleton
+    public WorldEditIntegration getWorldEditIntegeration() {
+        final Plugin worldEdit = Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
+        if (worldEdit != null) {
+            return new WorldEditIntegration(loggingService, worldEdit);
         }
 
         return null;

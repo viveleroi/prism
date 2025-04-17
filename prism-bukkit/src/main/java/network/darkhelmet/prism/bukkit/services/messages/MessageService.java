@@ -123,6 +123,12 @@ public interface MessageService {
     @Message("rich.error.unknown-command")
     void errorUnknownCommand(CommandSender receiver);
 
+    @Message("rich.error.world-edit-missing")
+    void errorWorldEditMissing(CommandSender receiver);
+
+    @Message("rich.error.world-edit-missing-selection")
+    void errorWorldEditMissingSelection(CommandSender receiver);
+
     @Message("rich.activity-row-grouped")
     void listActivityRowGrouped(CommandSender receiver, @Placeholder AbstractActivity activity);
 

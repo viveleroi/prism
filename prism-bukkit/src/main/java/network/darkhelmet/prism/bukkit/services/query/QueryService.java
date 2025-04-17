@@ -36,9 +36,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.util.Coordinate;
 import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.integrations.worldedit.WorldEditIntegration;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
 import network.darkhelmet.prism.bukkit.utils.LocationUtils;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
@@ -70,6 +73,11 @@ public class QueryService {
     private final MessageService messageService;
 
     /**
+     * The world edit integration.
+     */
+    private final WorldEditIntegration worldEditIntegration;
+
+    /**
      * The query service.
      *
      * @param actionRegistry The action registry
@@ -78,10 +86,12 @@ public class QueryService {
     public QueryService(
             BukkitActionTypeRegistry actionRegistry,
             ConfigurationService configurationService,
-            MessageService messageService) {
+            MessageService messageService,
+            @Nullable WorldEditIntegration worldEditIntegration) {
         this.actionRegistry = actionRegistry;
         this.configurationService = configurationService;
         this.messageService = messageService;
+        this.worldEditIntegration = worldEditIntegration;
     }
 
     /**
@@ -200,7 +210,25 @@ public class QueryService {
                 return Optional.empty();
             }
 
-            parseIn(builder, referenceLocation, in);
+            if (in.equalsIgnoreCase("worldedit")) {
+                if (worldEditIntegration != null) {
+                    var regionBounds = worldEditIntegration.getRegionBounds((Player) sender);
+
+                    if (regionBounds != null) {
+                        builder.boundingCoordinates(regionBounds.key(), regionBounds.value());
+                    } else {
+                        messageService.errorWorldEditMissingSelection(sender);
+
+                        return Optional.empty();
+                    }
+                } else {
+                    messageService.errorWorldEditMissing(sender);
+
+                    return Optional.empty();
+                }
+            } else {
+                parseIn(builder, referenceLocation, in);
+            }
         }
 
         // Read "r" parameter from arguments or defaults
@@ -570,15 +598,15 @@ public class QueryService {
      * @param referenceLocation The reference location
      * @param in The in param
      */
-    protected void parseIn(
-            ActivityQuery.ActivityQueryBuilder builder, Location referenceLocation, String in) {
+    protected void parseIn(ActivityQuery.ActivityQueryBuilder builder, Location referenceLocation, String in) {
+        builder.worldUuid(referenceLocation.getWorld().getUID());
+
         if (in.equalsIgnoreCase("chunk")) {
             Chunk chunk = referenceLocation.getChunk();
             Coordinate chunkMin = LocationUtils.getChunkMinCoordinate(chunk);
             Coordinate chunkMax = LocationUtils.getChunkMaxCoordinate(chunk);
 
-            builder.worldUuid(referenceLocation.getWorld().getUID());
-            builder.boundingCoordinates(chunkMin, chunkMax).worldUuid(referenceLocation.getWorld().getUID());
+            builder.boundingCoordinates(chunkMin, chunkMax);
         }
     }
 

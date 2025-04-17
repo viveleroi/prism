@@ -431,7 +431,7 @@ public class PrismBukkit implements Prism {
 
             // Register "in" parameter
             commandManager.registerSuggestion(SuggestionKey.of("ins"), (sender, context) ->
-                Arrays.asList("chunk", "world"));
+                Arrays.asList("chunk", "world", "worldedit"));
 
             commandManager.registerFlags(FlagKey.of("query-flags"),
                 Flag.flag("nd").longFlag("nodefaults").build(),
