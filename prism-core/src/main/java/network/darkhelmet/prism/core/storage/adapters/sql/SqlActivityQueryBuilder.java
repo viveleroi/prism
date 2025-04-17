@@ -150,7 +150,7 @@ public class SqlActivityQueryBuilder {
      * @return A list of DbRow results
      */
     public Result<Record> queryActivities(ActivityQuery query) {
-        SelectQuery<org.jooq.Record> queryBuilder = create.selectQuery();
+        SelectQuery<Record> queryBuilder = create.selectQuery();
 
         // Add fields useful for all query types
         queryBuilder.addSelect(

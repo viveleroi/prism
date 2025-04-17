@@ -20,13 +20,9 @@
 
 package network.darkhelmet.prism.core.storage.adapters.sql;
 
-import com.zaxxer.hikari.HikariDataSource;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import network.darkhelmet.prism.api.actions.BlockAction;
@@ -36,6 +32,7 @@ import network.darkhelmet.prism.api.actions.MaterialAction;
 import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.storage.ActivityBatch;
 import network.darkhelmet.prism.core.services.cache.CacheService;
+import network.darkhelmet.prism.core.storage.dbo.records.PrismActivitiesRecord;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 import org.jetbrains.annotations.Nullable;
@@ -59,11 +56,6 @@ public class SqlActivityBatch implements ActivityBatch {
     private final LoggingService loggingService;
 
     /**
-     * The data source.
-     */
-    private final HikariDataSource dataSource;
-
-    /**
      * The serializer version.
      */
     protected final short serializerVersion;
@@ -79,79 +71,50 @@ public class SqlActivityBatch implements ActivityBatch {
     protected final DSLContext create;
 
     /**
-     * The connection.
+     * An array of records to batch insert.
      */
-    protected Connection connection;
-
-    /**
-     * The statement.
-     */
-    protected PreparedStatement statement;
+    private List<PrismActivitiesRecord> records = new ArrayList<>();
 
     /**
      * Construct a new batch handler.
      *
+     * @param loggingService The logging service
      * @param create The DSL context
      * @param serializerVersion The serializer version
      * @param cacheService The cache service
      */
     public SqlActivityBatch(
             LoggingService loggingService,
-            HikariDataSource dataSource,
             DSLContext create,
             short serializerVersion,
             CacheService cacheService) {
         this.loggingService = loggingService;
-        this.dataSource = dataSource;
         this.create = create;
         this.serializerVersion = serializerVersion;
         this.cacheService = cacheService;
     }
 
     @Override
-    public void startBatch() throws SQLException {
-        connection = dataSource.getConnection();
-        connection.setAutoCommit(false);
-
-        // Build the INSERT query
-        String sql = create.insertInto(PRISM_ACTIVITIES,
-            PRISM_ACTIVITIES.TIMESTAMP,
-            PRISM_ACTIVITIES.X,
-            PRISM_ACTIVITIES.Y,
-            PRISM_ACTIVITIES.Z,
-            PRISM_ACTIVITIES.ACTION_ID,
-            PRISM_ACTIVITIES.ENTITY_TYPE_ID,
-            PRISM_ACTIVITIES.MATERIAL_ID,
-            PRISM_ACTIVITIES.OLD_MATERIAL_ID,
-            PRISM_ACTIVITIES.WORLD_ID,
-            PRISM_ACTIVITIES.CAUSE_ID,
-            PRISM_ACTIVITIES.DESCRIPTOR,
-            PRISM_ACTIVITIES.METADATA,
-            PRISM_ACTIVITIES.SERIALIZER_VERSION,
-            PRISM_ACTIVITIES.SERIALIZED_DATA
-        ).values((UInteger) null, null, null, null, null, null, null, null, null, null, null, null, null, null)
-            .getSQL();
-
-        statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+    public void startBatch() {
+        records = new ArrayList<>();
     }
 
     @Override
     public void add(Activity activity) throws SQLException {
-        statement.setLong(1, activity.timestamp() / 1000);
-        statement.setInt(2, activity.coordinate().intX());
-        statement.setInt(3, activity.coordinate().intY());
-        statement.setInt(4, activity.coordinate().intZ());
+        var record = create.newRecord(PRISM_ACTIVITIES);
+
+        record.setTimestamp(UInteger.valueOf(activity.timestamp() / 1000));
+        record.setX(activity.coordinate().intX());
+        record.setY(activity.coordinate().intY());
+        record.setZ(activity.coordinate().intZ());
 
         // Set the action relationship
-        byte actionId = getOrCreateActionId(activity.action().type().key());
-        statement.setByte(5, actionId);
+        record.setActionId(UByte.valueOf(getOrCreateActionId(activity.action().type().key())));
 
         // Set the entity relationship
-        if (activity.action() instanceof EntityAction) {
-            int entityTypeId = getOrCreateEntityTypeId(((EntityAction) activity.action()).serializeEntityType());
-            statement.setInt(6, entityTypeId);
-        } else {
-            statement.setNull(6, Types.INTEGER);
+        if (activity.action() instanceof EntityAction entityAction) {
+            record.setEntityTypeId(UShort.valueOf(
+                getOrCreateEntityTypeId(entityAction.serializeEntityType())));
         }
 
         // Set the material relationship
@@ -163,9 +126,7 @@ public class SqlActivityBatch implements ActivityBatch {
                 data = ((BlockAction) activity.action()).serializeBlockData();
             }
 
-            statement.setInt(7, getOrCreateMaterialId(material, data));
-        } else {
-            statement.setNull(7, Types.INTEGER);
+            record.setMaterialId(UShort.valueOf(getOrCreateMaterialId(material, data)));
         }
 
         // Set the replaced material relationship
@@ -173,15 +134,11 @@ public class SqlActivityBatch implements ActivityBatch {
             String replacedMaterial = blockAction.serializeReplacedMaterial();
             String replacedData = blockAction.serializeReplacedBlockData();
 
-            int oldMaterialId = getOrCreateMaterialId(replacedMaterial, replacedData);
-            statement.setInt(8, oldMaterialId);
-        } else {
-            statement.setNull(8, Types.INTEGER);
+            record.setOldMaterialId(UShort.valueOf(getOrCreateMaterialId(replacedMaterial, replacedData)));
         }
 
         // Set the world relationship
-        byte worldId = getOrCreateWorldId(activity.world().key(), activity.world().value());
-        statement.setByte(9, worldId);
+        record.setWorldId(UByte.valueOf(getOrCreateWorldId(activity.world().key(), activity.world().value())));
 
         // Set the player relationship
         Long playerId = null;
@@ -190,38 +147,28 @@ public class SqlActivityBatch implements ActivityBatch {
         }
 
         // Set the cause relationship
-        long causeId = getOrCreateCauseId(activity.cause(), playerId);
-        statement.setLong(10, causeId);
+        record.setCauseId(UInteger.valueOf(getOrCreateCauseId(activity.cause(), playerId)));
 
         // Set the descriptor
-        statement.setString(11, activity.action().descriptor());
+        record.setDescriptor(activity.action().descriptor());
 
         // Serialize the metadata
         if (activity.action().metadata() != null) {
             try {
-                statement.setString(12, activity.action().serializeMetadata());
+                record.setMetadata(activity.action().serializeMetadata());
             } catch (Exception e) {
                 loggingService.handleException(e);
-                statement.setNull(12, Types.VARCHAR);
             }
-        } else {
-            statement.setNull(12, Types.VARCHAR);
         }
 
         if (activity.action() instanceof CustomData customDataAction) {
             if (customDataAction.hasCustomData()) {
-                statement.setShort(13, serializerVersion);
-                statement.setString(14, customDataAction.serializeCustomData());
-            } else {
-                statement.setNull(13, Types.SMALLINT);
-                statement.setNull(14, Types.VARCHAR);
+                record.setSerializerVersion(UShort.valueOf(serializerVersion));
+                record.setSerializedData(customDataAction.serializeCustomData());
             }
-        } else {
-            statement.setNull(13, Types.SMALLINT);
-            statement.setNull(14, Types.VARCHAR);
         }
 
-        statement.addBatch();
+        records.add(record);
     }
 
     /**
@@ -531,15 +478,7 @@ public class SqlActivityBatch implements ActivityBatch {
     }
 
     @Override
-    public void commitBatch() throws SQLException {
-        statement.executeBatch();
-        connection.commit();
-
-        // Restore auto-commit
-        connection.setAutoCommit(true);
-
-        // Close stuff
-        statement.close();
-        connection.close();
+    public void commitBatch() {
+        create.batchInsert(records).execute();
     }
 }

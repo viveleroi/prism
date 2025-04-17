@@ -708,7 +708,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
 
     @Override
     public ActivityBatch createActivityBatch() {
-        return new SqlActivityBatch(loggingService, dataSource, create, serializerVersion, cacheService);
+        return new SqlActivityBatch(loggingService, create, serializerVersion, cacheService);
     }
 
     @Override
