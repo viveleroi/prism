@@ -230,6 +230,15 @@ public class CustomTag<T extends Enum<T> & Keyed> implements Tag<T> {
         return values;
     }
 
+    /**
+     * Check if the tag is empty.
+     *
+     * @return True if empty
+     */
+    public boolean isEmpty() {
+        return values.isEmpty();
+    }
+
     @Override
     public boolean isTagged(@NotNull T value) {
         return values.contains(value);

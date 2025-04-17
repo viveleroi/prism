@@ -26,7 +26,7 @@ import java.util.List;
 import lombok.Getter;
 
 import network.darkhelmet.prism.loader.services.configuration.cache.CacheConfiguration;
-import network.darkhelmet.prism.loader.services.configuration.filters.FilterConfiguartion;
+import network.darkhelmet.prism.loader.services.configuration.filters.FilterConfiguration;
 import network.darkhelmet.prism.loader.services.configuration.purge.PurgeConfiguration;
 
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
@@ -66,7 +66,7 @@ public class PrismConfiguration {
             See the wiki for documentation.
             https://prism.readthedocs.io
             """)
-    private List<FilterConfiguartion> filters = new ArrayList<>();
+    private List<FilterConfiguration> filters = new ArrayList<>();
 
     @Comment("Configure rules for modifications (rollbacks/restores).")
     private ModificationConfiguration modifications = new ModificationConfiguration();

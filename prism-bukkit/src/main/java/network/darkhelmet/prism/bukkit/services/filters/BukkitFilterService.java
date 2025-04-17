@@ -34,13 +34,12 @@ import network.darkhelmet.prism.bukkit.utils.CustomTag;
 import network.darkhelmet.prism.bukkit.utils.ListUtils;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.configuration.filters.FilterConditionsConfiguration;
-import network.darkhelmet.prism.loader.services.configuration.filters.FilterConfiguartion;
+import network.darkhelmet.prism.loader.services.configuration.filters.FilterConfiguration;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.Tag;
 import org.bukkit.entity.EntityType;
 
 @Singleton
@@ -87,15 +86,15 @@ public class BukkitFilterService implements FilterService {
         allowFilters.clear();
 
         // Convert all configured filters into Filter objects
-        for (FilterConfiguartion config : configurationService.prismConfig().filters()) {
+        for (FilterConfiguration config : configurationService.prismConfig().filters()) {
             loadFilter(config.name().isEmpty() ? "Unnamed" : config.name(), config.behavior(), config.conditions());
         }
     }
 
     /**
-     * Load all filters from the config.
+     * Load filter.
      */
-    public void loadFilter(String filterName, FilterBehavior behavior, FilterConditionsConfiguration config) {
+    protected void loadFilter(String filterName, FilterBehavior behavior, FilterConditionsConfiguration config) {
         // Behavior
         if (behavior == null) {
             loggingService
@@ -119,15 +118,14 @@ public class BukkitFilterService implements FilterService {
             conditionExists = true;
         }
 
-        var entityTypeTags = new ArrayList<Tag<EntityType>>();
+        var entityTypeTags = new CustomTag<>(EntityType.class);
 
         // Entity Types
         if (!ListUtils.isNullOrEmpty(config.entityTypes())) {
-            var entityTag = new CustomTag<>(EntityType.class);
             for (String entityTypeKey : config.entityTypes()) {
                 try {
                     EntityType entityType = EntityType.valueOf(entityTypeKey.toUpperCase(Locale.ENGLISH));
-                    entityTag.append(entityType);
+                    entityTypeTags.append(entityType);
                 } catch (IllegalArgumentException e) {
                     loggingService.warn(
                         "Filter error in {0}: No entity type matching {1}", filterName, entityTypeKey);
@@ -135,7 +133,6 @@ public class BukkitFilterService implements FilterService {
             }
 
             conditionExists = true;
-            entityTypeTags.add(entityTag);
         }
 
         // Entity type tags
@@ -146,7 +143,7 @@ public class BukkitFilterService implements FilterService {
                     var tag = Bukkit.getTag("entity_types", namespacedKey, EntityType.class);
                     if (tag != null) {
                         conditionExists = true;
-                        entityTypeTags.add(tag);
+                        entityTypeTags.append(tag);
 
                         continue;
                     }
@@ -157,15 +154,14 @@ public class BukkitFilterService implements FilterService {
             }
         }
 
-        var materialTags = new ArrayList<Tag<Material>>();
+        CustomTag<Material> materialTags = new CustomTag<>(Material.class);
 
         // Materials
         if (!ListUtils.isNullOrEmpty(config.materials())) {
-            CustomTag<Material> materialTag = new CustomTag<>(Material.class);
             for (String materialKey : config.materials()) {
                 try {
                     Material material = Material.valueOf(materialKey.toUpperCase(Locale.ENGLISH));
-                    materialTag.append(material);
+                    materialTags.append(material);
                 } catch (IllegalArgumentException e) {
                     loggingService.warn(
                         "Filter error in {0}: No material matching {1}", filterName, materialKey);
@@ -173,7 +169,6 @@ public class BukkitFilterService implements FilterService {
             }
 
             conditionExists = true;
-            materialTags.add(materialTag);
         }
 
         // Block material tags
@@ -184,7 +179,7 @@ public class BukkitFilterService implements FilterService {
                     var tag = Bukkit.getTag("blocks", namespacedKey, Material.class);
                     if (tag != null) {
                         conditionExists = true;
-                        materialTags.add(tag);
+                        materialTags.append(tag);
 
                         continue;
                     }
@@ -203,7 +198,7 @@ public class BukkitFilterService implements FilterService {
 
                     if (tag != null) {
                         conditionExists = true;
-                        materialTags.add(tag);
+                        materialTags.append(tag);
 
                         continue;
                     }
@@ -219,8 +214,8 @@ public class BukkitFilterService implements FilterService {
                 behavior,
                 ListUtils.isNullOrEmpty(config.actions()) ? new ArrayList<>() : config.actions(),
                 ListUtils.isNullOrEmpty(config.causes()) ? new ArrayList<>() : config.causes(),
-                ListUtils.isNullOrEmpty(entityTypeTags) ? new ArrayList<>() : entityTypeTags,
-                ListUtils.isNullOrEmpty(materialTags) ? new ArrayList<>() : materialTags,
+                entityTypeTags,
+                materialTags,
                 ListUtils.isNullOrEmpty(config.permissions()) ? new ArrayList<>() : config.permissions(),
                 ListUtils.isNullOrEmpty(worldNames) ? new ArrayList<>() : worldNames
             );

@@ -28,7 +28,7 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
 @Getter
-public class FilterConfiguartion {
+public class FilterConfiguration {
     /**
      * The name.
      */

@@ -20,17 +20,18 @@
 
 package network.darkhelmet.prism.bukkit.services.filters;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.services.filters.FilterBehavior;
 import network.darkhelmet.prism.bukkit.actions.BukkitEntityAction;
 import network.darkhelmet.prism.bukkit.actions.BukkitMaterialAction;
+import network.darkhelmet.prism.bukkit.utils.CustomTag;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Tag;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
@@ -56,14 +57,14 @@ public class ActivityFilter {
     private final List<String> causes;
 
     /**
-     * The entity type tags (entity types, entity types tags).
+     * The entity type tag (entity types, entity types tags).
      */
-    private final List<Tag<EntityType>> entityTypeTags;
+    private final CustomTag<EntityType> entityTypeTag;
 
     /**
      * The material tags (materials, block-tags, item-tags).
      */
-    private final List<Tag<Material>> materialTags;
+    private final CustomTag<Material> materialTag;
 
     /**
      * All permissions.
@@ -81,8 +82,8 @@ public class ActivityFilter {
      * @param behavior The behavior
      * @param actions The actions
      * @param causes The causes
-     * @param entityTypeTags The entity type tags
-     * @param materialTags The material tags
+     * @param entityTypeTag The entity type tag
+     * @param materialTag The material tag
      * @param permissions The permissions
      * @param worldNames The world names
      */
@@ -91,17 +92,17 @@ public class ActivityFilter {
             @NotNull FilterBehavior behavior,
             @NotNull List<String> actions,
             @NotNull List<String> causes,
-            @NotNull List<Tag<EntityType>> entityTypeTags,
-            @NotNull List<Tag<Material>> materialTags,
+            @NotNull CustomTag<EntityType> entityTypeTag,
+            @NotNull CustomTag<Material> materialTag,
             @NotNull List<String> permissions,
             @NotNull List<String> worldNames) {
         this.name = name;
         this.actions = actions;
         this.behavior = behavior;
         this.causes = causes;
-        this.entityTypeTags = entityTypeTags;
+        this.entityTypeTag = entityTypeTag;
         this.permissions = permissions;
-        this.materialTags = materialTags;
+        this.materialTag = materialTag;
         this.worldNames = worldNames;
     }
 
@@ -114,67 +115,111 @@ public class ActivityFilter {
      * @return True if the filter allows it
      */
     public boolean shouldRecord(Activity activity, LoggingService loggingService, boolean debug) {
+        List<ConditionResult> results = new ArrayList<>();
+
         if (debug) {
             loggingService.debug("Filter ({0}) Check for Activity: {1}", name, activity);
             loggingService.debug("Behavior: {0}", behavior);
         }
 
         var actionResult = actionsMatch(activity);
+        results.add(actionResult);
         if (debug) {
             loggingService.debug("Action result: {0}", actionResult);
         }
 
         var causeResult = causesMatch(activity);
+        results.add(causeResult);
         if (debug) {
             loggingService.debug("Cause result: {0}", causeResult);
         }
 
         var entityTypeResult = entityTypesMatched(activity);
+        results.add(entityTypeResult);
         if (debug) {
             loggingService.debug("Entity type result: {0}", entityTypeResult);
         }
 
         var materialsResult = materialsMatched(activity);
+        results.add(materialsResult);
         if (debug) {
             loggingService.debug("Materials result: {0}", materialsResult);
         }
 
         var permissionResult = permissionsMatch(activity);
+        results.add(permissionResult);
         if (debug) {
             loggingService.debug("Permission result: {0}", permissionResult);
         }
 
         var worldsResult = worldsMatch(activity);
+        results.add(worldsResult);
         if (debug) {
             loggingService.debug("Worlds result: {0}", worldsResult);
         }
 
-        var finalDecision = true;
-
-        // If everything was not applicable, allow this.
-        if (actionResult.equals(ConditionResult.NOT_APPLICABLE)
-            && causeResult.equals(ConditionResult.NOT_APPLICABLE)
-            && entityTypeResult.equals(ConditionResult.NOT_APPLICABLE)
-            && materialsResult.equals(ConditionResult.NOT_APPLICABLE)
-            && permissionResult.equals(ConditionResult.NOT_APPLICABLE)
-            && worldsResult.equals(ConditionResult.NOT_APPLICABLE)) {
-            finalDecision = true;
-        } else if (!actionResult.equals(ConditionResult.NOT_MATCHED)
-            && !causeResult.equals(ConditionResult.NOT_MATCHED)
-            && !entityTypeResult.equals(ConditionResult.NOT_MATCHED)
-            && !materialsResult.equals(ConditionResult.NOT_MATCHED)
-            && !permissionResult.equals(ConditionResult.NOT_MATCHED)
-            && !worldsResult.equals(ConditionResult.NOT_MATCHED)) {
-            finalDecision = allowing();
-        } else {
-            finalDecision = ignoring();
-        }
-
+        var finalDecision = getFinalDecision(results, loggingService, debug);
         if (debug) {
             loggingService.debug("Final decision: {0}", finalDecision);
         }
 
         return finalDecision;
+    }
+
+    /**
+     * Make a final decision.
+     *
+     * @param results All filter condition results
+     * @return The decision
+     */
+    private boolean getFinalDecision(List<ConditionResult> results, LoggingService loggingService, boolean debug) {
+        int nonApplicable = 0;
+        int matched = 0;
+        int notMatched = 0;
+
+        // Count each result type
+        for (ConditionResult result : results) {
+            if (result.equals(ConditionResult.NOT_APPLICABLE)) {
+                nonApplicable++;
+            } else if (result.equals(ConditionResult.NOT_MATCHED)) {
+                notMatched++;
+            } else if (result.equals(ConditionResult.MATCHED)) {
+                matched++;
+            }
+        }
+
+        // Check if all were non-applicable
+        var allNotApplicable = nonApplicable == results.size();
+
+        if (debug) {
+            loggingService.debug("All: {0}; Not Applicable: {1}; Matched: {2}; Not Matched: {3}",
+                results.size(), nonApplicable, matched, notMatched);
+        }
+
+        // No filters applied, allow
+        if (allNotApplicable) {
+            return true;
+        }
+
+        // If ignoring and all applicable conditions matched, reject it
+        if (ignoring() && matched > 0 && notMatched == 0) {
+            if (debug) {
+                loggingService.debug("Rejecting because we're ignoring and all applicable rules matched");
+            }
+
+            return false;
+        }
+
+        // If the filter is ALLOW but something didn't match, reject it
+        if (allowing() && notMatched > 0) {
+            if (debug) {
+                loggingService.debug("Rejecting because we're allowing and one or more rules did not match");
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -244,15 +289,13 @@ public class ActivityFilter {
      * @return ConditionResult
      */
     private ConditionResult entityTypesMatched(Activity activity) {
-        if (entityTypeTags.isEmpty()) {
+        if (entityTypeTag.isEmpty()) {
             return ConditionResult.NOT_APPLICABLE;
         }
 
         if (activity.action() instanceof BukkitEntityAction entityAction) {
-            for (Tag<EntityType> entityTypeTag : entityTypeTags) {
-                if (entityTypeTag.isTagged(entityAction.entityType())) {
-                    return ConditionResult.MATCHED;
-                }
+            if (entityTypeTag.isTagged(entityAction.entityType())) {
+                return ConditionResult.MATCHED;
             }
 
             return ConditionResult.NOT_MATCHED;
@@ -270,15 +313,13 @@ public class ActivityFilter {
      * @return ConditionResult
      */
     private ConditionResult materialsMatched(Activity activity) {
-        if (materialTags.isEmpty()) {
+        if (materialTag.isEmpty()) {
             return ConditionResult.NOT_APPLICABLE;
         }
 
         if (activity.action() instanceof BukkitMaterialAction materialAction) {
-            for (Tag<Material> materialTag : materialTags) {
-                if (materialTag.isTagged(materialAction.material())) {
-                    return ConditionResult.MATCHED;
-                }
+            if (materialTag.isTagged(materialAction.material())) {
+                return ConditionResult.MATCHED;
             }
 
             return ConditionResult.NOT_MATCHED;
