@@ -30,6 +30,8 @@ import com.google.common.io.ByteStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -50,7 +52,7 @@ public enum DependencyRepository {
     // Nexus mirror specifically for prism and other darkhelmet projects
     DH_MIRROR("https://nexus.darkhelmet.network/repository/maven-central/") {
         @Override
-        protected URLConnection openConnection(Dependency dependency) throws IOException {
+        protected URLConnection openConnection(Dependency dependency) throws IOException, URISyntaxException {
             URLConnection connection = super.openConnection(dependency);
 
             // Tell nexus who we are
@@ -68,7 +70,7 @@ public enum DependencyRepository {
     // Note: viveleroi asked and was granted permission via Luck's Hideout discord on July-20-2022
     LUCK_MIRROR("https://nexus.lucko.me/repository/maven-central/") {
         @Override
-        protected URLConnection openConnection(Dependency dependency) throws IOException {
+        protected URLConnection openConnection(Dependency dependency) throws IOException, URISyntaxException {
             URLConnection connection = super.openConnection(dependency);
 
             // Tell nexus who we are
@@ -89,7 +91,7 @@ public enum DependencyRepository {
     AIKAR("https://repo.aikar.co/content/groups/aikar/"),
 
     // CodeMC (nbt-api)
-    CODEMC("https://repo.codemc.org/repository/maven-public/");
+    CODEMC("https://repo.codemc.io/repository/maven-public/");
 
     private final String url;
 
@@ -104,8 +106,8 @@ public enum DependencyRepository {
      * @return the connection
      * @throws IOException if unable to open a connection
      */
-    protected URLConnection openConnection(Dependency dependency) throws IOException {
-        URL dependencyUrl = new URL(this.url + dependency.mavenRepoPath());
+    protected URLConnection openConnection(Dependency dependency) throws IOException, URISyntaxException {
+        URL dependencyUrl = new URI(this.url + dependency.mavenRepoPath()).toURL();
         return dependencyUrl.openConnection();
     }
 

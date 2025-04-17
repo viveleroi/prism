@@ -218,8 +218,9 @@ public enum Dependency {
     NBT_API(
         "de.tr7zw",
         "item-nbt-api",
-        "2.14.1",
-        "ARymC3sKBsLcO32sFqzAbWMgCyyU0bTSrLnbjHJKmqY=",
+        "2.14.2-SNAPSHOT",
+        "86vMHe6G4v5vE8A65jiEfWCvkcSmtgLYQGTeL6UrJfM=",
+        "item-nbt-api-2.14.2-20250331.170518-8.jar",
         EnumSet.of(DependencyRepository.CODEMC),
         Relocation.of("nbtapi", "de{}tr7zw{}changeme{}nbtapi")
     ),
@@ -289,14 +290,15 @@ public enum Dependency {
     private final byte[] checksum;
     private final Set<DependencyRepository> repositories;
     private final List<Relocation> relocations;
-    private static final String MAVEN_FORMAT = "%s/%s/%s/%s-%s.jar";
+    private static final String MAVEN_JAR_FORMAT = "%s-%s.jar";
+    private static final String MAVEN_PATH_FORMAT = "%s/%s/%s/%s";
 
     Dependency(String groupId, String artifactId, String version, String checksum) {
         this(groupId, artifactId, version, checksum, new Relocation[0]);
     }
 
     Dependency(String groupId, String artifactId, String version, String checksum, Relocation... relocations) {
-        this(groupId, artifactId, version, checksum,
+        this(groupId, artifactId, version, checksum, null,
             EnumSet.of(
                 DependencyRepository.DH_MIRROR,
                 DependencyRepository.LUCK_MIRROR,
@@ -310,12 +312,26 @@ public enum Dependency {
             String checksum,
             Set<DependencyRepository> repositories,
             Relocation... relocations) {
-        this.mavenRepoPath = String.format(MAVEN_FORMAT,
-                rewriteEscaping(groupId).replace(".", "/"),
-                rewriteEscaping(artifactId),
-                version,
-                rewriteEscaping(artifactId),
-                version
+        this(groupId, artifactId, version, checksum, null, repositories, relocations);
+    }
+
+    Dependency(
+            String groupId,
+            String artifactId,
+            String version,
+            String checksum,
+            String jarPath,
+            Set<DependencyRepository> repositories,
+            Relocation... relocations) {
+        if (jarPath == null) {
+            jarPath = String.format(MAVEN_JAR_FORMAT, rewriteEscaping(artifactId), version);
+        }
+
+        this.mavenRepoPath = String.format(MAVEN_PATH_FORMAT,
+            rewriteEscaping(groupId).replace(".", "/"),
+            rewriteEscaping(artifactId),
+            version,
+            jarPath
         );
         this.version = version;
         this.checksum = Base64.getDecoder().decode(checksum);
