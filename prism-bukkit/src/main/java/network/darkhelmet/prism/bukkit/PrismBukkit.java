@@ -80,7 +80,6 @@ import network.darkhelmet.prism.bukkit.listeners.entity.EntityDeathListener;
 import network.darkhelmet.prism.bukkit.listeners.entity.EntityExplodeListener;
 import network.darkhelmet.prism.bukkit.listeners.entity.EntityPickupItemListener;
 import network.darkhelmet.prism.bukkit.listeners.entity.EntityPlaceListener;
-import network.darkhelmet.prism.bukkit.listeners.entity.EntitySpawnListener;
 import network.darkhelmet.prism.bukkit.listeners.entity.EntityTransformListener;
 import network.darkhelmet.prism.bukkit.listeners.entity.EntityUnleashListener;
 import network.darkhelmet.prism.bukkit.listeners.hanging.HangingBreakListener;
@@ -267,7 +266,6 @@ public class PrismBukkit implements Prism {
             registerEvent(EntityExplodeListener.class);
             registerEvent(EntityPickupItemListener.class);
             registerEvent(EntityPlaceListener.class);
-            registerEvent(EntitySpawnListener.class);
             registerEvent(EntityTransformListener.class);
             registerEvent(EntityUnleashListener.class);
             registerEvent(HangingBreakListener.class);
