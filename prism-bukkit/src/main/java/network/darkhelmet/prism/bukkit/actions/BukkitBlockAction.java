@@ -46,6 +46,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.TileState;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -243,11 +244,17 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
         if (type().resultType().equals(ActionResultType.REMOVES)) {
             // If the action type removes a block, rollback means we re-set it
             stateChange = setBlock(
-                activityContext.worldUuid(), activityContext.coordinate(), blockData, readWriteNbt, owner, mode);
+                activityContext.worldUuid(),
+                activityContext.coordinate(),
+                blockData,
+                replacedBlockData,
+                readWriteNbt,
+                owner,
+                mode);
         } else if (type().resultType().equals(ActionResultType.CREATES)) {
             // If the action type creates a block, rollback means we remove it
             stateChange = setBlock(activityContext.worldUuid(),
-                activityContext.coordinate(), replacedBlockData, null, owner, mode);
+                activityContext.coordinate(), replacedBlockData, blockData, null, owner, mode);
         }
 
         return ModificationResult.builder()
@@ -275,11 +282,11 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
         if (type().resultType().equals(ActionResultType.CREATES)) {
             // If the action type creates a block, restore means we re-set it
             stateChange = setBlock(activityContext.worldUuid(),
-                activityContext.coordinate(), blockData, readWriteNbt, owner, mode);
+                activityContext.coordinate(), blockData, replacedBlockData, readWriteNbt, owner, mode);
         } else if (type().resultType().equals(ActionResultType.REMOVES)) {
             // If the action type removes a block, restore means we remove it again
             stateChange = setBlock(activityContext.worldUuid(),
-                 activityContext.coordinate(), replacedBlockData, null, owner, mode);
+                 activityContext.coordinate(), replacedBlockData, blockData, null, owner, mode);
         }
 
         return ModificationResult.builder()
@@ -293,6 +300,7 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
         UUID worldUuid,
         Coordinate coordinate,
         BlockData newBlockData,
+        BlockData oldBlockData,
         ReadWriteNBT readWriteNbt,
         Object owner,
         ModificationQueueMode mode
@@ -304,21 +312,53 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
         // Capture existing state for reporting/reversing needs
         final BlockState oldState = block.getState();
 
+        if (mode.equals(ModificationQueueMode.COMPLETING)) {
+            // Set the bed head part before applying the root block change
+            // otherwise the bed will just re-break.
+            if (newBlockData instanceof Bed bed) {
+                setBedHead(block, bed);
+            } else if (oldBlockData instanceof Bed bed) {
+                setBedHead(block, bed);
+            }
+        }
+
         // Send block change or change world
         if (mode.equals(ModificationQueueMode.PLANNING) && owner instanceof Player player) {
             player.sendBlockChange(loc, newBlockData);
         } else if (mode.equals(ModificationQueueMode.COMPLETING)) {
-            block.setBlockData(newBlockData, true);
+            block.setBlockData(newBlockData);
         }
 
         // Set NBT
-        if (mode.equals(ModificationQueueMode.COMPLETING) && readWriteNbt != null) {
+        if (block.getType() != Material.AIR && mode.equals(ModificationQueueMode.COMPLETING) && readWriteNbt != null) {
             NBT.modify(block.getState(), nbt -> {
                 nbt.mergeCompound(readWriteNbt);
             });
         }
 
         return new BlockStateChange(oldState, block.getState());
+    }
+
+    /**
+     * Set the HEAD part of a bed.
+     *
+     * @param block The block being changed
+     * @param bed The bed block data
+     */
+    protected void setBedHead(Block block, Bed bed) {
+        // Bed logs will always be the FOOT part
+        Block relative = block.getRelative(bed.getFacing());
+
+        if (type().resultType().equals(ActionResultType.CREATES)) {
+            relative.setType(Material.AIR);
+        } else {
+            relative.setType(bed.getMaterial());
+
+            if (bed.clone() instanceof Bed siblingBed) {
+                siblingBed.setPart(Bed.Part.HEAD);
+                relative.setBlockData(siblingBed);
+            }
+        }
     }
 
     @Override
