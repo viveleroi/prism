@@ -300,7 +300,6 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                 + "- any firewall rules\n"
                 + "- that the database server is running\n";
             loggingService.warn(msg);
-            loggingService.handleException(e);
         }
 
         return false;
