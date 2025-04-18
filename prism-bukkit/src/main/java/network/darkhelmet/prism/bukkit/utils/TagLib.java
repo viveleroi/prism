@@ -111,7 +111,7 @@ public class TagLib {
      * Ground litter.
      */
     public static final CustomTag<Material> LITTER = new CustomTag<>(Material.class,
-        Material.LEAF_LITTER, Material.PINK_PETALS);
+        Material.LEAF_LITTER, Material.PINK_PETALS, Material.WILDFLOWERS);
 
     /**
      * All vegetation that can be grown.
