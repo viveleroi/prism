@@ -144,6 +144,10 @@ public class RestoreCommand {
                     return;
                 }
 
+                if (!query.defaultsUsed().isEmpty()) {
+                    messageService.defaultsUsed(sender, String.join(" ", query.defaultsUsed()));
+                }
+
                 ModificationRuleset modificationRuleset = configurationService
                     .prismConfig().modifications().toRulesetBuilder().build();
 

@@ -145,6 +145,10 @@ public class RollbackCommand {
                     return;
                 }
 
+                if (!query.defaultsUsed().isEmpty()) {
+                    messageService.defaultsUsed(sender, String.join(" ", query.defaultsUsed()));
+                }
+
                 ModificationRuleset modificationRuleset = configurationService
                     .prismConfig().modifications().toRulesetBuilder().build();
 

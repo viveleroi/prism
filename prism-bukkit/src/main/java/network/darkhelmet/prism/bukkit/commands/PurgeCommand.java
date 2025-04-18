@@ -102,6 +102,10 @@ public class PurgeCommand {
                 .limit(configurationService.prismConfig().purges().limit())
                 .build();
 
+            if (!query.defaultsUsed().isEmpty()) {
+                messageService.defaultsUsed(sender, String.join(" ", query.defaultsUsed()));
+            }
+
             PurgeQueue purgeQueue = purgeService.newQueue(result -> {
                 messageService.purgeCycle(sender, result);
             }, result -> messageService.purgeComplete(sender, result.deleted()));
