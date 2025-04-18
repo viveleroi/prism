@@ -103,7 +103,7 @@ public class SchedulingService {
      */
     private void scheduleJob(CommandScheduleConfiguration commandConfig) {
         if (scheduler == null) {
-            loggingService.logger().warn("Failed to schedule job because the scheduler was not initialized.");
+            loggingService.warn("Failed to schedule job because the scheduler was not initialized.");
 
             return;
         }
@@ -134,8 +134,8 @@ public class SchedulingService {
                 loggingService.handleException(e);
             }
         } else {
-            loggingService.logger().warn(
-                "Skipping command due to an execution time with no future executions: {}", commandConfig.command()
+            loggingService.warn(
+                "Skipping command due to an execution time with no future executions: {0}", commandConfig.command()
             );
         }
     }

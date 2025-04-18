@@ -252,11 +252,11 @@ public class BukkitTranslationService implements IMessageSource<CommandSender, S
                     .replace("nb_NO", "no_NO"));
 
                 if (locale == null) {
-                    this.loggingService.logger().warn("Unknown locale '{}'?", localeString);
+                    this.loggingService.warn("Unknown locale '{0}'?", localeString);
                     return;
                 }
 
-                this.loggingService.logger().info("Found locale {} ({}) in: {}",
+                this.loggingService.info("Found locale {0} ({1}) in: {2}",
                     locale.getDisplayName(), locale, localeFile);
                 final SortedProperties properties = new SortedProperties();
 
@@ -264,10 +264,10 @@ public class BukkitTranslationService implements IMessageSource<CommandSender, S
                     this.loadProperties(properties, localeDirectory, localeFile);
                     this.locales.put(locale, properties);
 
-                    this.loggingService.logger().info("Successfully loaded locale {} ({})",
+                    this.loggingService.info("Successfully loaded locale {0} ({1})",
                         locale.getDisplayName(), locale);
                 } catch (final IOException ex) {
-                    this.loggingService.logger().warn("Unable to load locale {} ({}) from source: {}",
+                    this.loggingService.warn("Unable to load locale {0} ({1}) from source: {2}",
                         locale.getDisplayName(), locale, localeFile, ex);
                 }
             }));

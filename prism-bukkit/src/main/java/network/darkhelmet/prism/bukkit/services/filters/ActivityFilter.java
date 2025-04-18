@@ -115,38 +115,38 @@ public class ActivityFilter {
      */
     public boolean shouldRecord(Activity activity, LoggingService loggingService, boolean debug) {
         if (debug) {
-            loggingService.debug("Filter (%s) Check for Activity: %s", name, activity);
-            loggingService.debug("Behavior: %s", behavior);
+            loggingService.debug("Filter ({0}) Check for Activity: {1}", name, activity);
+            loggingService.debug("Behavior: {0}", behavior);
         }
 
         var actionResult = actionsMatch(activity);
         if (debug) {
-            loggingService.debug("Action result: %s", actionResult);
+            loggingService.debug("Action result: {0}", actionResult);
         }
 
         var causeResult = causesMatch(activity);
         if (debug) {
-            loggingService.debug("Cause result: %s", causeResult);
+            loggingService.debug("Cause result: {0}", causeResult);
         }
 
         var entityTypeResult = entityTypesMatched(activity);
         if (debug) {
-            loggingService.debug("Entity type result: %s", entityTypeResult);
+            loggingService.debug("Entity type result: {0}", entityTypeResult);
         }
 
         var materialsResult = materialsMatched(activity);
         if (debug) {
-            loggingService.debug("Materials result: %s", materialsResult);
+            loggingService.debug("Materials result: {0}", materialsResult);
         }
 
         var permissionResult = permissionsMatch(activity);
         if (debug) {
-            loggingService.debug("Permission result: %s", permissionResult);
+            loggingService.debug("Permission result: {0}", permissionResult);
         }
 
         var worldsResult = worldsMatch(activity);
         if (debug) {
-            loggingService.debug("Worlds result: %s", worldsResult);
+            loggingService.debug("Worlds result: {0}", worldsResult);
         }
 
         var finalDecision = true;
@@ -171,7 +171,7 @@ public class ActivityFilter {
         }
 
         if (debug) {
-            loggingService.debug("Final decision: %s", finalDecision);
+            loggingService.debug("Final decision: {0}", finalDecision);
         }
 
         return finalDecision;

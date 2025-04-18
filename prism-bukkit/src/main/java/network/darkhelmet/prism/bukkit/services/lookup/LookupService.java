@@ -120,12 +120,12 @@ public class LookupService {
             .expireAfterAccess(cacheConfiguration.lookupExpiration().expiresAfterAccess().duration(),
                 cacheConfiguration.lookupExpiration().expiresAfterAccess().timeUnit())
             .evictionListener((key, value, cause) -> {
-                String msg = "Evicting activity query from cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Evicting activity query from cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             })
             .removalListener((key, value, cause) -> {
-                String msg = "Removing activity query from cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Removing activity query from cache: Key: {0} Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             }).build();
     }
 

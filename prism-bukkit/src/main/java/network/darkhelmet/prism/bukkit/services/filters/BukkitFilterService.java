@@ -98,8 +98,8 @@ public class BukkitFilterService implements FilterService {
     public void loadFilter(String filterName, FilterBehavior behavior, FilterConditionsConfiguration config) {
         // Behavior
         if (behavior == null) {
-            loggingService.logger()
-                .warn("Filter error: No behavior defined in filter {}. Behavior must be either IGNORE or ALLOW.",
+            loggingService
+                .warn("Filter error: No behavior defined in filter {0}. Behavior must be either IGNORE or ALLOW.",
                     filterName);
 
             return;
@@ -129,8 +129,8 @@ public class BukkitFilterService implements FilterService {
                     EntityType entityType = EntityType.valueOf(entityTypeKey.toUpperCase(Locale.ENGLISH));
                     entityTag.append(entityType);
                 } catch (IllegalArgumentException e) {
-                    loggingService.logger().warn(
-                        "Filter error in {}: No entity type matching {}", filterName, entityTypeKey);
+                    loggingService.warn(
+                        "Filter error in {0}: No entity type matching {1}", filterName, entityTypeKey);
                 }
             }
 
@@ -152,8 +152,8 @@ public class BukkitFilterService implements FilterService {
                     }
                 }
 
-                loggingService.logger().warn(
-                    "Filter error in {}: Invalid entity type tag {}", filterName, entityTypeTag);
+                loggingService.warn(
+                    "Filter error in {0}: Invalid entity type tag {1}", filterName, entityTypeTag);
             }
         }
 
@@ -167,8 +167,8 @@ public class BukkitFilterService implements FilterService {
                     Material material = Material.valueOf(materialKey.toUpperCase(Locale.ENGLISH));
                     materialTag.append(material);
                 } catch (IllegalArgumentException e) {
-                    loggingService.logger().warn(
-                        "Filter error in {}: No material matching {}", filterName, materialKey);
+                    loggingService.warn(
+                        "Filter error in {0}: No material matching {1}", filterName, materialKey);
                 }
             }
 
@@ -190,7 +190,7 @@ public class BukkitFilterService implements FilterService {
                     }
                 }
 
-                loggingService.logger().warn("Filter error in {}: Invalid block tag {}", filterName, blockTag);
+                loggingService.warn("Filter error in {0}: Invalid block tag {1}", filterName, blockTag);
             }
         }
 
@@ -209,7 +209,7 @@ public class BukkitFilterService implements FilterService {
                     }
                 }
 
-                loggingService.logger().warn("Filter error in {}: Invalid item tag {}", filterName, itemTag);
+                loggingService.warn("Filter error in {0}: Invalid item tag {1}", filterName, itemTag);
             }
         }
 
@@ -231,7 +231,7 @@ public class BukkitFilterService implements FilterService {
                 ignoreFilters.add(filter);
             }
         } else {
-            loggingService.logger().warn("Filter error in {}: Not enough conditions", filterName);
+            loggingService.warn("Filter error in {0}: Not enough conditions", filterName);
         }
     }
 

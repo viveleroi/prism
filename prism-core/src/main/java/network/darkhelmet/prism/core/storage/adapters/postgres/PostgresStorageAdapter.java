@@ -89,7 +89,7 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
             // First, try to use any hikari.properties
             File hikariPropertiesFile = new File(dataPath.toFile(), "hikari.properties");
             if (hikariPropertiesFile.exists()) {
-                loggingService.logger().info("Using hikari.properties over storage.conf");
+                loggingService.info("Using hikari.properties over storage.conf");
 
                 if (connect(new HikariConfig(hikariPropertiesFile.getPath()), SQLDialect.POSTGRES)) {
                     describeDatabase(true);
@@ -99,7 +99,7 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
                     ready = true;
                 }
             } else {
-                loggingService.logger().info("Reading storage.conf. There is no hikari.properties file.");
+                loggingService.info("Reading storage.conf. There is no hikari.properties file.");
 
                 if (connect(HikariConfigFactory.postgres(configurationService.storageConfig()), SQLDialect.POSTGRES)) {
                     describeDatabase(false);
@@ -122,21 +122,20 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
             String databaseProduct = databaseMetaData.getDatabaseProductName();
             String databaseVersion = databaseMetaData.getDatabaseProductVersion();
 
-            String versionMsg = String.format("Database: %s %s", databaseProduct, databaseVersion);
-            loggingService.logger().info(versionMsg);
+            loggingService.info("Database: {0} {1}", databaseProduct, databaseVersion);
 
             if (configurationService.storageConfig().postgres().useStoredProcedures()) {
                 boolean supportsProcedures = databaseMetaData.supportsStoredProcedures();
-                loggingService.logger().info(String.format("supports procedures: %b", supportsProcedures));
+                loggingService.info("supports procedures: {0}", supportsProcedures);
 
                 var canCreateFunctions = create.fetchSingle(
                     "SELECT bool_or(has_schema_privilege(oid, 'CREATE')) FROM pg_catalog.pg_namespace;")
                         .into(Boolean.class);
-                loggingService.logger().info(String.format("can create functions: %b", canCreateFunctions));
+                loggingService.info("can create functions: {0}", canCreateFunctions);
 
                 var usingStoredProcedures = supportsProcedures && canCreateFunctions
                     && configurationService.storageConfig().postgres().useStoredProcedures();
-                loggingService.logger().info(String.format("using stored procedures: %b", usingStoredProcedures));
+                loggingService.info("using stored procedures: {0}", usingStoredProcedures);
 
                 if (!usingStoredProcedures) {
                     configurationService.storageConfig().postgres().disallowStoredProcedures();

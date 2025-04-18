@@ -126,8 +126,8 @@ public class BukkitPurgeQueue implements PurgeQueue {
         taskChainProvider.newChain().asyncFirst(() -> {
             Pair<Integer, Integer> keys = storageAdapter.getActivitiesPkBounds();
 
-            loggingService.debug(String.format("Absolute purge lower/bound primary keys: %d, %d",
-                keys.key(), keys.value()));
+            loggingService.debug("Absolute purge lower/bound primary keys: {0}, {1}",
+                keys.key(), keys.value());
 
             return keys;
         }).syncLast(keys -> executeNext(keys.key(), keys.value())).execute();
@@ -144,7 +144,7 @@ public class BukkitPurgeQueue implements PurgeQueue {
             if (running) {
                 running = false;
 
-                loggingService.logger().info("Purge queue now empty, finishing.");
+                loggingService.info("Purge queue now empty, finishing.");
 
                 onEnd.accept(PurgeResult.builder().deleted(deleted).build());
             }
@@ -171,12 +171,12 @@ public class BukkitPurgeQueue implements PurgeQueue {
         // Get the query
         ActivityQuery query = purgeQueue.get(0);
         taskChainProvider.newChain().asyncFirst(() -> {
-            loggingService.logger().info(String.format("Executing next purge for query %s...", query));
+            loggingService.info("Executing next purge for query {0}...", query);
 
             // Calculate the cycle upper bound
             int cycleMaxPrimaryKey = cycleMinPrimaryKey + configurationService.prismConfig().purges().limit();
-            loggingService.debug(String.format("Limiting cycle to primary keys %d - %d",
-                cycleMinPrimaryKey, cycleMaxPrimaryKey));
+            loggingService.debug("Limiting cycle to primary keys {0} - {1}",
+                cycleMinPrimaryKey, cycleMaxPrimaryKey);
 
             // Delete this batch and store the count
             int count = storageAdapter.deleteActivities(query, cycleMinPrimaryKey, cycleMaxPrimaryKey);
@@ -188,7 +188,7 @@ public class BukkitPurgeQueue implements PurgeQueue {
                 .minPrimaryKey(cycleMinPrimaryKey)
                 .maxPrimaryKey(cycleMaxPrimaryKey)
                 .build());
-            loggingService.logger().info(String.format("Purged %d activity records", count));
+            loggingService.info("Purged {0} activity records", count);
 
             // Advance our starting pk for the next cycle
             int nextCycleMinPrimaryKey = cycleMinPrimaryKey + configurationService.prismConfig().purges().limit();
@@ -199,7 +199,7 @@ public class BukkitPurgeQueue implements PurgeQueue {
                 purgeQueue.remove(0);
             }
 
-            loggingService.logger().info("Scheduling next cycle (and any configured delay)");
+            loggingService.info("Scheduling next cycle (and any configured delay)");
 
             return nextCycleMinPrimaryKey;
         }).delay(cycleDuration.intValue(), cycleTimeUnit).syncLast(nextCycleMinPrimaryKey -> {

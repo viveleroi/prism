@@ -84,7 +84,7 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
             // First, try to use any hikari.properties
             File hikariPropertiesFile = new File(dataPath.toFile(), "hikari.properties");
             if (hikariPropertiesFile.exists()) {
-                loggingService.logger().info("Using hikari.properties over storage.conf");
+                loggingService.info("Using hikari.properties over storage.conf");
 
                 if (connect(new HikariConfig(hikariPropertiesFile.getPath()), SQLDialect.MYSQL)) {
                     describeDatabase(true);
@@ -97,7 +97,7 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
                     ready = true;
                 }
             } else {
-                loggingService.logger().info("Reading storage.conf. There is no hikari.properties file.");
+                loggingService.info("Reading storage.conf. There is no hikari.properties file.");
 
                 if (connect(HikariConfigFactory.mysql(configurationService.storageConfig()), SQLDialect.MYSQL)) {
                     describeDatabase(false);
@@ -123,30 +123,29 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
             String databaseProduct = databaseMetaData.getDatabaseProductName();
             String databaseVersion = databaseMetaData.getDatabaseProductVersion();
 
-            String versionMsg = String.format("Database: %s %s", databaseProduct, databaseVersion);
-            loggingService.logger().info(versionMsg);
+            loggingService.info("Database: {0} {1}", databaseProduct, databaseVersion);
 
             int majorVersion = databaseMetaData.getDatabaseMajorVersion();
             int minorVersion = databaseMetaData.getDatabaseMinorVersion();
 
             if (majorVersion < 8 || (majorVersion == 8 && minorVersion < 20)) {
-                loggingService.logger().warn("Your database version appears to be older than prism supports.");
+                loggingService.warn("Your database version appears to be older than prism supports.");
             }
 
             if (configurationService.storageConfig().mysql().useStoredProcedures()) {
                 boolean supportsProcedures = databaseMetaData.supportsStoredProcedures();
-                loggingService.logger().info(String.format("supports procedures: %b", supportsProcedures));
+                loggingService.info("supports procedures: {0}", supportsProcedures);
 
                 List<String> grants = create.fetch("SHOW GRANTS FOR CURRENT_USER();").into(String.class);
                 boolean canCreateRoutines = grants.get(0).contains("CREATE ROUTINE")
                     || grants.get(0).contains("GRANT ALL PRIVILEGES ON *.*")
                     || grants.get(0).contains("GRANT ALL PRIVILEGES ON "
                         + configurationService.storageConfig().mysql().database());
-                loggingService.logger().info(String.format("can create routines: %b", canCreateRoutines));
+                loggingService.info("can create routines: {0}", canCreateRoutines);
 
                 var usingStoredProcedures = supportsProcedures && canCreateRoutines
                     && configurationService.storageConfig().mysql().useStoredProcedures();
-                loggingService.logger().info(String.format("using stored procedures: %b", usingStoredProcedures));
+                loggingService.info("using stored procedures: {0}", usingStoredProcedures);
 
                 if (!usingStoredProcedures) {
                     configurationService.storageConfig().mysql().disallowStoredProcedures();
@@ -159,19 +158,18 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
             );
 
             long innodbSizeMb = Long.parseLong(dbVars.get("innodb_buffer_pool_size")) / 1024 / 1024;
-            loggingService.logger().info(String.format("innodb_buffer_pool_size: %d", innodbSizeMb));
+            loggingService.info("innodb_buffer_pool_size: {0}", innodbSizeMb);
             if (innodbSizeMb < 1024) {
-                loggingService.logger().info("We recommend setting a higher innodb_buffer_pool_size.");
-                loggingService.logger().info(
+                loggingService.info("We recommend setting a higher innodb_buffer_pool_size.");
+                loggingService.info(
                     "See: https://prism.readthedocs.io/en/latest/purges.html#purges-and-databases");
             }
 
-            loggingService.logger().info(String.format("sql_mode: %s", dbVars.get("sql_mode")));
+            loggingService.info("sql_mode: {0}", dbVars.get("sql_mode"));
 
             if (!usingHikariProperties) {
                 boolean usrHikariOptimizations = configurationService.storageConfig().mysql().useHikariOptimizations();
-                loggingService.logger().info(
-                    String.format("use hikari optimizations: %b", usrHikariOptimizations));
+                loggingService.info("use hikari optimizations: {0}", usrHikariOptimizations);
             }
         }
     }

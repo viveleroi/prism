@@ -96,8 +96,8 @@ public class RecordingTask implements Runnable {
 
                     // Batch max exceeded, break
                     if (batchCount > batchMax) {
-                        String msg = "Recorder: Batch max exceeded, running insert. Queue remaining: %d";
-                        loggingService.debug(String.format(msg, recordingService.queue().size()));
+                        loggingService.debug("Recorder: Batch max exceeded, running insert. Queue remaining: {0}",
+                            recordingService.queue().size());
 
                         break;
                     }

@@ -99,12 +99,12 @@ public class BukkitModificationQueueService implements ModificationQueueService 
             .expireAfterAccess(10, TimeUnit.MINUTES)
             .maximumSize(4)
             .evictionListener((key, value, cause) -> {
-                String msg = "Evicting queue result cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Evicting queue result cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             })
             .removalListener((key, value, cause) -> {
-                String msg = "Removing queue result cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Removing queue result cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             })
             .build();
     }

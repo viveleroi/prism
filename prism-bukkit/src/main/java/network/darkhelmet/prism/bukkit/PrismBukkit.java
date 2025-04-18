@@ -215,7 +215,7 @@ public class PrismBukkit implements Prism {
         dependencyService.loadAllDependencies(platformDependencies());
 
         serializerVersion = (short) DataFixerUtil.getCurrentVersion();
-        bootstrap.loggingService().logger().info(String.format("Serializer version: %d", serializerVersion));
+        bootstrap.loggingService().info("Serializer version: {0}", serializerVersion);
 
         injectorProvider = new InjectorProvider(this, bootstrap.loggingService());
 
@@ -239,8 +239,7 @@ public class PrismBukkit implements Prism {
 
         String pluginName = this.loaderPlugin().getDescription().getName();
         String pluginVersion = this.loaderPlugin().getDescription().getVersion();
-        bootstrap.loggingService().logger().info(
-            String.format("Initializing %s %s by viveleroi", pluginName, pluginVersion));
+        bootstrap.loggingService().info("Initializing {0} {1} by viveleroi", pluginName, pluginVersion);
 
         if (loaderPlugin().isEnabled()) {
             // Initialize some classes
@@ -518,7 +517,7 @@ public class PrismBukkit implements Prism {
             recordingService.stop();
         }
 
-        bootstrap.loggingService().logger().error("Prism has to disable due to a fatal error.");
+        bootstrap.loggingService().error("Prism has to disable due to a fatal error.");
     }
 
     /**
@@ -527,9 +526,9 @@ public class PrismBukkit implements Prism {
     public void onDisable() {
         if (recordingService != null) {
             if (!recordingService.queue().isEmpty()) {
-                loader().loggingService().logger().warn(
-                    String.format("Server is shutting down yet there are %d activities in the queue",
-                        recordingService.queue().size()));
+                loader().loggingService().warn(
+                    "Server is shutting down yet there are {0} activities in the queue",
+                        recordingService.queue().size());
             }
 
             recordingService.stop();

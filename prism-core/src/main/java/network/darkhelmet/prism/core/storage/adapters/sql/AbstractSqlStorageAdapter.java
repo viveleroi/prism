@@ -228,10 +228,10 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
         this.serializerVersion = serializerVersion;
 
         this.prefix = configurationService.storageConfig().primaryDataSource().prefix();
-        loggingService.logger().info(String.format("Catalog %s; Schema %s; Prefix %s",
+        loggingService.info("Catalog {0}; Schema {1}; Prefix {2}",
             configurationService.storageConfig().primaryDataSource().catalog(),
             configurationService.storageConfig().primaryDataSource().schema(),
-            prefix));
+            prefix);
 
         var catalog = new DefaultCatalog(configurationService.storageConfig().primaryDataSource().catalog());
 
@@ -281,7 +281,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             url = hikariConfig.getJdbcUrl();
         }
 
-        loggingService.logger().info(String.format("Connecting to %s", url));
+        loggingService.info("Connecting to {0}", url);
 
         try {
             dataSource = new HikariDataSource(hikariConfig);
@@ -299,7 +299,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                 + "- your username/password\n"
                 + "- any firewall rules\n"
                 + "- that the database server is running\n";
-            loggingService.logger().warn(msg);
+            loggingService.warn(msg);
         }
 
         return false;
@@ -311,10 +311,10 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
     protected void listDrivers() {
         Enumeration<Driver> drivers = DriverManager.getDrivers();
         if (!drivers.hasMoreElements()) {
-            loggingService.logger().info("No database drivers detected!");
+            loggingService.info("No database drivers detected!");
         }
         while (drivers.hasMoreElements()) {
-            loggingService.logger().info(String.format("Database driver: %s", drivers.nextElement().getClass()));
+            loggingService.info("Database driver: {0}", drivers.nextElement().getClass());
         }
     }
 
@@ -330,8 +330,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             String databaseProduct = databaseMetaData.getDatabaseProductName();
             String databaseVersion = databaseMetaData.getDatabaseProductVersion();
 
-            String versionMsg = String.format("Database: %s %s", databaseProduct, databaseVersion);
-            loggingService.logger().info(versionMsg);
+            loggingService.info("Database: {0} {1}", databaseProduct, databaseVersion);
         }
     }
 
@@ -358,7 +357,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .fetchOne(PRISM_META.V);
 
         if (schemaVersion != null) {
-            loggingService.logger().info(String.format("Prism schema version: %s", schemaVersion));
+            loggingService.info("Prism schema version: {0}", schemaVersion);
 
             updateSchemas(schemaVersion);
         } else {
@@ -569,8 +568,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             String actionKey = r.getValue(PRISM_ACTIONS.ACTION);
             var optionalActionType = actionRegistry.actionType(actionKey);
             if (optionalActionType.isEmpty()) {
-                String msg = "Failed to find action type: %s";
-                loggingService.logger().warn(String.format(msg, actionKey));
+                loggingService.warn("Failed to find action type: {0}", actionKey);
                 continue;
             }
 

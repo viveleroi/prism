@@ -155,8 +155,8 @@ public class DependencyService {
             return file;
         }
 
-        String msg = String.format("Downloading dependency %s...", dependency.name().toLowerCase(Locale.ENGLISH));
-        loggingService.logger().info(msg);
+        loggingService.info("Downloading dependency {0}...",
+            dependency.name().toLowerCase(Locale.ENGLISH));
 
         DependencyDownloadException lastError = null;
 
@@ -203,10 +203,10 @@ public class DependencyService {
             threadPoolScheduler.async().execute(() -> {
                 try {
                     loadDependency(dependency);
-                } catch (Throwable e) {
-                    String msg = String.format("Unable to load dependency: %s",
+                } catch (Exception e) {
+                    loggingService.warn("Unable to load dependency: {0}",
                         dependency.name().toLowerCase(Locale.ENGLISH));
-                    loggingService.logger().error(msg, e);
+                    loggingService.handleException(e);
                 } finally {
                     latch.countDown();
                 }

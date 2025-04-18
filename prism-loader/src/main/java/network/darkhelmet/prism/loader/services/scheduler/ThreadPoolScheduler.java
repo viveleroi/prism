@@ -90,7 +90,7 @@ public class ThreadPoolScheduler {
         this.scheduler.shutdown();
         try {
             if (!this.scheduler.awaitTermination(1, TimeUnit.MINUTES)) {
-                this.loader.loggingService().logger().warn("Timed out waiting for the Prism scheduler to terminate");
+                this.loader.loggingService().warn("Timed out waiting for the Prism scheduler to terminate");
                 reportRunningTasks(thread -> thread.getName().equals("prism-scheduler"));
             }
         } catch (InterruptedException e) {
@@ -105,7 +105,7 @@ public class ThreadPoolScheduler {
         this.worker.shutdown();
         try {
             if (!this.worker.awaitTermination(1, TimeUnit.MINUTES)) {
-                this.loader.loggingService().logger().warn(
+                this.loader.loggingService().warn(
                     "Timed out waiting for the Prism worker thread pool to terminate");
                 reportRunningTasks(thread -> thread.getName().startsWith("prism-worker-"));
             }
@@ -117,7 +117,7 @@ public class ThreadPoolScheduler {
     private void reportRunningTasks(Predicate<Thread> predicate) {
         Thread.getAllStackTraces().forEach((thread, stack) -> {
             if (predicate.test(thread)) {
-                this.loader.loggingService().logger().warn(
+                this.loader.loggingService().warn(
                     "Thread " + thread.getName() + " is blocked, and may be the reason for the slow shutdown!\n"
                     + Arrays.stream(stack).map(el -> "  " + el).collect(Collectors.joining("\n"))
                 );
@@ -140,8 +140,9 @@ public class ThreadPoolScheduler {
     private final class ExceptionHandler implements UncaughtExceptionHandler {
         @Override
         public void uncaughtException(Thread t, Throwable e) {
-            ThreadPoolScheduler.this.loader.loggingService().logger().warn(
-                "Thread " + t.getName() + " threw an uncaught exception", e);
+            ThreadPoolScheduler.this.loader.loggingService()
+                .error("Thread {0} threw an uncaught exception", t.getName());
+            ThreadPoolScheduler.this.loader.loggingService().error(e.getMessage());
         }
     }
 }

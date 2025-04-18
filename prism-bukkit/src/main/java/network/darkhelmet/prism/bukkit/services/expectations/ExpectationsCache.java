@@ -40,8 +40,8 @@ public class ExpectationsCache {
     Cache<Object, Object> expectations = Caffeine.newBuilder()
         .expireAfterWrite(10, TimeUnit.SECONDS)
         .evictionListener((key, value, cause) -> {
-            String msg = "Removing from expectations cache: Key: %s  Value: %s  Cause: %s";
-            loggingService.debug(String.format(msg, key, value, cause));
+            String msg = "Removing from expectations cache: Key: {0}, Value: {1}, Cause: {2}";
+            loggingService.debug(msg, key, value, cause);
         })
         .build();
 

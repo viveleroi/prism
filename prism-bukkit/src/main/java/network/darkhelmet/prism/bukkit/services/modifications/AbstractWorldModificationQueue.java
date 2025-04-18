@@ -207,8 +207,8 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
     }
 
     protected void execute() {
-        String queueSizeMsg = "Modification queue beginning application. Queue size: %d";
-        loggingService.debug(String.format(queueSizeMsg, modificationsQueue.size()));
+        String queueSizeMsg = "Modification queue beginning application. Queue size: {}";
+        loggingService.debug(queueSizeMsg, modificationsQueue.size());
 
         if (!modificationsQueue.isEmpty()) {
             ModificationQueueResult.ModificationQueueResultBuilder builder = ModificationQueueResult.builder()

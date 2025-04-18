@@ -20,9 +20,10 @@
 
 package network.darkhelmet.prism.loader.services.logging;
 
-import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.apache.logging.log4j.Logger;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 public class LoggingService {
     /**
@@ -49,45 +50,89 @@ public class LoggingService {
     /**
      * Log a debug message.
      *
-     * <p>It's not feasible for users to set log4j log levels so we emulate debug here.</p>
-     *
-     * @param msg The message
+     * @param message The message
      */
-    public void debug(String msg) {
+    public void debug(String message) {
         if (configurationService.prismConfig().debug()) {
-            logger.info(msg);
+            logger.info(message);
         }
     }
 
     /**
      * Log the debug message and format args.
      *
-     * <p>It's not feasible for users to set log4j log levels so we emulate debug here.</p>
-     *
-     * @param msg The string message
+     * @param message The string message
      * @param args The args
      */
-    public void debug(String msg, Object... args) {
+    public void debug(String message, Object... args) {
         if (configurationService.prismConfig().debug()) {
-            logger.info(String.format(msg, args));
+            logger.log(Level.INFO, message, args);
         }
+    }
+
+    /**
+     * Log an error message.
+     *
+     * @param message The string message
+     */
+    public void error(String message) {
+        logger.log(Level.SEVERE, message);
+    }
+
+    /**
+     * Log an error message and format args.
+     *
+     * @param message The string message
+     * @param args The args
+     */
+    public void error(String message, Object... args) {
+        logger.log(Level.SEVERE, message, args);
     }
 
     /**
      * Handle exceptions.
      *
-     * @param ex The exception
+     * @param exception The exception
      */
-    public void handleException(Exception ex) {
-        logger.error(ex.getMessage(), ex);
+    public void handleException(Exception exception) {
+        logger.log(Level.SEVERE, "An exception occurred", exception);
     }
 
     /**
-     * Get the logger.
+     * Log a message.
      *
-     * @return Logger
+     * @param message The message
      */
-    public Logger logger() {
-        return logger;
+    public void info(String message) {
+        logger.info(message);
+    }
+
+    /**
+     * Log a message and format args.
+     *
+     * @param message The string message
+     * @param args The args
+     */
+    public void info(String message, Object... args) {
+        logger.log(Level.INFO, message, args);
+    }
+
+    /**
+     * Log a warning message.
+     *
+     * @param message The string message
+     */
+    public void warn(String message) {
+        logger.log(Level.WARNING, message);
+    }
+
+    /**
+     * Log a warning message and format args.
+     *
+     * @param message The string message
+     * @param args The args
+     */
+    public void warn(String message, Object... args) {
+        logger.log(Level.WARNING, message, args);
     }
 }

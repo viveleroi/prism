@@ -28,7 +28,6 @@ import network.darkhelmet.prism.loader.services.dependencies.loader.PluginLoader
 import network.darkhelmet.prism.loader.services.dependencies.loader.PrismBootstrap;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
-import org.apache.logging.log4j.LogManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class PrismBukkitPluginLoader extends JavaPlugin implements PluginLoader {
@@ -79,7 +78,7 @@ public class PrismBukkitPluginLoader extends JavaPlugin implements PluginLoader 
         configurationService = new ConfigurationService(getDataFolder().toPath());
 
         // Initialize the logger and logging service
-        loggingService = new LoggingService(configurationService, LogManager.getLogger("prism"));
+        loggingService = new LoggingService(configurationService, this.getLogger());
 
         TriumphGui.init(this);
 

@@ -85,12 +85,12 @@ public class CacheService {
         Caffeine<String, Byte> actionBuilder = Caffeine.newBuilder()
             .maximumSize(cacheConfiguration.pkCacheActionKey().maxSize())
             .evictionListener((key, value, cause) -> {
-                String msg = "Evicting action key from PK cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Evicting action key from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             })
             .removalListener((key, value, cause) -> {
-                String msg = "Removing action key from PK cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Removing action key from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             });
 
         if (cacheConfiguration.pkCacheActionKey().expiresAfterAccess() != null
@@ -105,12 +105,12 @@ public class CacheService {
         Caffeine<String, Integer> entityBuilder = Caffeine.newBuilder()
             .maximumSize(cacheConfiguration.pkCacheEntityType().maxSize())
             .evictionListener((key, value, cause) -> {
-                String msg = "Evicting entity type from PK cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Evicting entity type from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             })
             .removalListener((key, value, cause) -> {
-                String msg = "Removing entity type from PK cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Removing entity type from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             });
 
         if (cacheConfiguration.pkCacheEntityType().expiresAfterAccess() != null
@@ -125,12 +125,12 @@ public class CacheService {
         Caffeine<String, Integer> materialBuilder = Caffeine.newBuilder()
             .maximumSize(cacheConfiguration.pkCacheMaterialData().maxSize())
             .evictionListener((key, value, cause) -> {
-                String msg = "Evicting material data from PK cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Evicting material data from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             })
             .removalListener((key, value, cause) -> {
-                String msg = "Removing material data from PK cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Removing material data from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             });
 
         if (cacheConfiguration.pkCacheMaterialData().expiresAfterAccess() != null
@@ -145,12 +145,12 @@ public class CacheService {
         Caffeine<String, Long> namedCauseBuilder = Caffeine.newBuilder()
             .maximumSize(cacheConfiguration.pkCacheNamedCause().maxSize())
             .evictionListener((key, value, cause) -> {
-                String msg = "Evicting named cause from PK cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Evicting named cause from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             })
             .removalListener((key, value, cause) -> {
-                String msg = "Removing named cause from PK cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Removing named cause from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             });
 
         if (cacheConfiguration.pkCacheNamedCause().expiresAfterAccess() != null
@@ -165,12 +165,12 @@ public class CacheService {
         Caffeine<Long, Long> playerCauseBuilder = Caffeine.newBuilder()
             .maximumSize(cacheConfiguration.pkCachePlayer().maxSize())
             .evictionListener((key, value, cause) -> {
-                String msg = "Evicting player cause from PK cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Evicting player cause from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             })
             .removalListener((key, value, cause) -> {
-                String msg = "Removing player cause from PK cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Removing player cause from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             });
 
         if (cacheConfiguration.pkCachePlayer().expiresAfterAccess() != null
@@ -185,12 +185,12 @@ public class CacheService {
         Caffeine<UUID, Long> playerBuilder = Caffeine.newBuilder()
             .maximumSize(cacheConfiguration.pkCachePlayer().maxSize())
             .evictionListener((key, value, cause) -> {
-                String msg = "Evicting player from PK cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Evicting player from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             })
             .removalListener((key, value, cause) -> {
-                String msg = "Removing player from PK cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Removing player from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             });
 
         if (cacheConfiguration.pkCachePlayer().expiresAfterAccess() != null
@@ -205,12 +205,12 @@ public class CacheService {
         Caffeine<UUID, Byte> worldBuilder = Caffeine.newBuilder()
             .maximumSize(cacheConfiguration.pkCacheWorld().maxSize())
             .evictionListener((key, value, cause) -> {
-                String msg = "Evicting player from PK cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Evicting player from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             })
             .removalListener((key, value, cause) -> {
-                String msg = "Removing player from PK cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                String msg = "Removing player from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
             });
 
         if (cacheConfiguration.pkCacheWorld().expiresAfterAccess() != null
