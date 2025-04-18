@@ -29,6 +29,8 @@ import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
 import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
+import network.darkhelmet.prism.bukkit.utils.ItemUtils;
+import network.darkhelmet.prism.bukkit.utils.TagLib;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.Material;
@@ -62,15 +64,17 @@ public class PlayerArmorStandManipulateListener extends AbstractListener impleme
     public void onPlayerArmorStandManipulate(final PlayerArmorStandManipulateEvent event) {
         Action action = null;
         if (event.getArmorStandItem().getType() == Material.AIR) {
-            // Ignore if this event is disabled
-            if (!configurationService.prismConfig().actions().itemInsert()) {
+            // Ignore if this event is disabled or the player is not holding a valid item
+            if (!configurationService.prismConfig().actions().itemInsert()
+                    || !TagLib.ALL_ARMOR.isTagged(event.getPlayerItem().getType())) {
                 return;
             }
 
             action = new BukkitItemStackAction(BukkitActionTypeRegistry.ITEM_INSERT, event.getPlayerItem());
         } else {
-            // Ignore if this event is disabled
-            if (!configurationService.prismConfig().actions().itemRemove()) {
+            // Ignore if this event is disabled or the player is holding an item
+            if (!configurationService.prismConfig().actions().itemRemove()
+                    || !ItemUtils.nullOrAir(event.getPlayerItem())) {
                 return;
             }
 

@@ -348,4 +348,10 @@ public class TagLib {
      */
     public static final CustomTag<Material> KEEPS_INVENTORY = new CustomTag<>(Material.class, Material.SHULKER_BOX)
         .append(Tag.SHULKER_BOXES);
+
+    /**
+     * Tag all armor items.
+     */
+    public static final CustomTag<Material> ALL_ARMOR = new CustomTag<>(Material.class)
+        .append(Tag.ITEMS_FOOT_ARMOR, Tag.ITEMS_LEG_ARMOR, Tag.ITEMS_CHEST_ARMOR, Tag.ITEMS_HEAD_ARMOR);
 }
