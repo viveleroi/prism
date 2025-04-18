@@ -108,6 +108,12 @@ public class TagLib {
     public static final CustomTag<Material> ALL_PLANTS = new CustomTag<>(Material.class, PLANTS).append(TALL_PLANTS);
 
     /**
+     * Ground litter.
+     */
+    public static final CustomTag<Material> LITTER = new CustomTag<>(Material.class,
+        Material.LEAF_LITTER, Material.PINK_PETALS);
+
+    /**
      * All vegetation that can be grown.
      */
     public static final CustomTag<Material> GROWABLES = new CustomTag<>(Material.class,
@@ -267,7 +273,14 @@ public class TagLib {
         .append(
             Tag.WOOL_CARPETS,
             Tag.FLOWER_POTS)
-        .append(REDSTONE_DETACHABLE, GROWABLES, ALL_PLANTS, DETACHABLES, TOP_BANNERS, RECURSIVE_TOP_DETACHABLES);
+        .append(
+            REDSTONE_DETACHABLE,
+            GROWABLES,
+            ALL_PLANTS,
+            DETACHABLES,
+            TOP_BANNERS,
+            RECURSIVE_TOP_DETACHABLES,
+            LITTER);
 
     /**
      * All wall-placeable skulls.
