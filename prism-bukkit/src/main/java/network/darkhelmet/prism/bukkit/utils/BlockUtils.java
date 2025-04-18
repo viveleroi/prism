@@ -35,6 +35,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.block.data.type.TrapDoor;
@@ -248,14 +249,20 @@ public class BlockUtils {
      * @return A list of any blocks that are considered "detachable"
      */
     protected static List<Block> sideDetachables(List<Block> accumulator, Block startBlock) {
-        for (BlockFace face : attachmentFacesSides) {
-            Block neighbor = startBlock.getRelative(face);
-            if (TagLib.SIDE_DETACHABLES.isTagged(neighbor.getType())) {
-                accumulator.add(neighbor);
+        if (startBlock.getType().isSolid()) {
+            for (BlockFace face : attachmentFacesSides) {
+                Block neighbor = startBlock.getRelative(face);
+                if (TagLib.SIDE_DETACHABLES.isTagged(neighbor.getType())) {
+                    // Only record if the detachable is attached to us
+                    if (neighbor.getBlockData() instanceof Directional directional
+                            && directional.getFacing().equals(face)) {
+                        accumulator.add(neighbor);
 
-                // Vines can extend down from a side attachment
-                if (neighbor.getType().equals(Material.VINE)) {
-                    bottomDetachables(accumulator, neighbor);
+                        // Vines can extend down from a side attachment
+                        if (neighbor.getType().equals(Material.VINE)) {
+                            bottomDetachables(accumulator, neighbor);
+                        }
+                    }
                 }
             }
         }
