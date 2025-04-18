@@ -195,7 +195,7 @@ public class HikariConfigFactory {
             hikariConfig.setDriverClassName("com.p6spy.engine.spy.P6SpyDriver");
             hikariConfig.setJdbcUrl(jdbcUrl);
         } else {
-            tryDataSourceClassNames(hikariConfig, "org.sqlite.JdbcDataSource");
+            tryDataSourceClassNames(hikariConfig, "org.sqlite.SQLiteDataSource");
             tryDriverClassNames("org.sqlite.JDBC");
         }
 
