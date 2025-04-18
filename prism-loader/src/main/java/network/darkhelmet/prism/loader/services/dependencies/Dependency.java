@@ -218,9 +218,8 @@ public enum Dependency {
     NBT_API(
         "de.tr7zw",
         "item-nbt-api",
-        "2.14.2-SNAPSHOT",
-        "86vMHe6G4v5vE8A65jiEfWCvkcSmtgLYQGTeL6UrJfM=",
-        "item-nbt-api-2.14.2-20250331.170518-8.jar",
+        "2.15.0",
+        "5yc80GV+X5ivm5l3BMnkpfuX65KjOhIReaRvkOz2aWA=",
         EnumSet.of(DependencyRepository.CODEMC),
         Relocation.of("nbtapi", "de{}tr7zw{}changeme{}nbtapi")
     ),
