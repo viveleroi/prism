@@ -33,8 +33,7 @@ public class CacheBuilderConfiguration {
 
     @Comment("""
             The max size of this cache.
-            Data will be evicted if the cache size reaches this limit.
-            """)
+            Data will be evicted if the cache size reaches this limit.""")
     private long maxSize;
 
     /**

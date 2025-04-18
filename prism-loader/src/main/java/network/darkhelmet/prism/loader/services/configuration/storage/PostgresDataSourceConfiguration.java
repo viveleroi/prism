@@ -31,16 +31,15 @@ public class PostgresDataSourceConfiguration extends SqlDataSourceConfiguration 
     @Comment("""
             Set the schema for prism tables/functions to use.
             The default is "public", but we recommend creating a schema "prism" for all prism entities.
-            https://neon.tech/postgresql/postgresql-administration/postgresql-create-schema
-            """)
+            https://neon.tech/postgresql/postgresql-administration/postgresql-create-schema""")
     public String schema = "public";
 
-    @Comment("Enable stored procedures. Stored procedures allow Prism to modify database records\n"
-            + "more efficiently and with reduced network traffic.\n"
-            + "However, your postgres account must have privileges to `CREATE FUNCTION`.\n"
-            + "If you use a shared postgres database, you likely do NOT have such permission.\n"
-            + "If you're unsure, Prism tells you in the server console during server startup.\n"
-            + "Prism will force disable this setting if you do not have necessary permission.")
+    @Comment("""
+            Enable stored procedures. Stored procedures allow Prism to modify database records
+            more efficiently and with reduced network traffic.
+            However, your postgres account must have privileges to `CREATE FUNCTION`.
+            If you're unsure, Prism tells you in the server console during server startup.
+            Prism will force disable this setting if you do not have necessary permission.""")
     private boolean useStoredProcedures = true;
 
     /**

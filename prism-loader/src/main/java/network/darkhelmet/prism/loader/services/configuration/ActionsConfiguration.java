@@ -45,8 +45,7 @@ public class ActionsConfiguration {
 
     @Comment("""
             block-ignite is when a block is lit on fire.
-            Note: Fire spreads to other blocks (block-spread). This records an initial ignition.
-            """)
+            Note: Fire spreads to other blocks (block-spread). This records an initial ignition.""")
     private boolean blockIgnite = true;
 
     @Comment("block-place is when a player or entity places a block.")
@@ -55,8 +54,7 @@ public class ActionsConfiguration {
     @Comment("""
             block-shift is when a piston pushes or pulls a block.
             It's disabled by default because these are difficult to rollback
-            and can become extremely spammy due to redstone contraptions.
-            """)
+            and can become extremely spammy due to redstone contraptions.""")
     private boolean blockShift = false;
 
     @Comment("""
@@ -64,8 +62,7 @@ public class ActionsConfiguration {
             This event can produce a lot of data. There's a lot of natural gen you may
             wish to ignore. For example, vine/cave_vines all produce spread events
             as they grow, and grass blocks as it's spreads to dirt.
-            A filter to ignore those is strongly recommended if you enable this.
-            """)
+            A filter to ignore those is strongly recommended if you enable this.""")
     private boolean blockSpread = false;
 
     @Comment("block-use is when a player uses a block (buttons, doors, anvil, enchanting table, etc).")
@@ -111,14 +108,12 @@ public class ActionsConfiguration {
             fluid-flow tracks the flow of water and lava. Even when this is false,
             prism will record blocks broken by either.
             We very strongly recommend leaving this false and using
-            a drain command instead. This produces an insane amount of activity data.
-            """)
+            a drain command instead. This produces an insane amount of activity data.""")
     private boolean fluidFlow = false;
 
     @Comment("""
             hanging-break is when an item frame or painting is broken/detached.
-            This event will operate if block-break is false, even for detachments.
-            """)
+            This event will operate if block-break is false, even for detachments.""")
     private boolean hangingBreak = true;
 
     @Comment("hanging-place is when an item frame or painting is hung up.")

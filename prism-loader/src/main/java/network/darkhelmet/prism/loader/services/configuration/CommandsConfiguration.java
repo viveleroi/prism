@@ -35,13 +35,10 @@ public class CommandsConfiguration {
             Allow Minecraft tags in tag parameters. The list is long and often
             includes tags unlikely to be useful. We instead recommend using
             the tag whitelist option to reduce the list to something useful.
-            Note: disabling this overrides the tag whitelist.
-            """)
+            Note: disabling this overrides the tag whitelist.""")
     private boolean allowMinecraftTags = true;
 
-    @Comment("""
-            Enable the block tag whitelist. If disabled, values will be ignored.
-            """)
+    @Comment("Enable the block tag whitelist. If disabled, values will be ignored.")
     private boolean blockTagWhitelistEnabled = false;
 
     @Comment("""
@@ -49,13 +46,10 @@ public class CommandsConfiguration {
             These must include the tag namespace, e.g. `minecraft:dirt`, but can
             include any tag - even custom ones.
             https://minecraft.wiki/w/Block_tag_(Java_Edition)
-            Note: All Minecraft tags will be excluded if `allowMinecraftTags` is false.
-            """)
+            Note: All Minecraft tags will be excluded if `allowMinecraftTags` is false.""")
     private List<String> blockTagWhitelist = new ArrayList<>();
 
-    @Comment("""
-            Enable the entity type tag whitelist. If disabled, values will be ignored.
-            """)
+    @Comment("Enable the entity type tag whitelist. If disabled, values will be ignored.")
     private boolean entityTypeTagWhitelistEnabled = false;
 
     @Comment("""
@@ -63,13 +57,10 @@ public class CommandsConfiguration {
             These must include the tag namespace, e.g. `minecraft:aquatic`, but can
             include any tag - even custom ones.
             https://minecraft.wiki/w/Entity_type_tag_(Java_Edition)
-            Note: All Minecraft tags will be excluded if `allowMinecraftTags` is false.
-            """)
+            Note: All Minecraft tags will be excluded if `allowMinecraftTags` is false.""")
     private List<String> entityTypeTagWhitelist = new ArrayList<>();
 
-    @Comment("""
-            Enable the item tag whitelist. If disabled, values will be ignored.
-            """)
+    @Comment("Enable the item tag whitelist. If disabled, values will be ignored.")
     private boolean itemTagWhitelistEnabled = false;
 
     @Comment("""
@@ -77,8 +68,7 @@ public class CommandsConfiguration {
             These must include the tag namespace, e.g. `minecraft:dirt`, but can
             include any tag - even custom ones.
             https://minecraft.wiki/w/Item_tag_(Java_Edition)
-            Note: All Minecraft tags will be excluded if `allowMinecraftTags` is false.
-            """)
+            Note: All Minecraft tags will be excluded if `allowMinecraftTags` is false.""")
     private List<String> itemTagWhitelist = new ArrayList<>();
 
     /**

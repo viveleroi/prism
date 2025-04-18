@@ -23,6 +23,8 @@ package network.darkhelmet.prism.loader.services.configuration;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import network.darkhelmet.prism.loader.services.configuration.serializers.LocaleSerializerConfigurate;
 import network.darkhelmet.prism.loader.services.configuration.storage.StorageConfiguration;
@@ -39,6 +41,11 @@ public class ConfigurationService {
     private final Path dataPath;
 
     /**
+     * The logger.
+     */
+    private final Logger logger;
+
+    /**
      * The primary plugin configuration.
      */
     private PrismConfiguration prismConfiguration = new PrismConfiguration();
@@ -53,8 +60,9 @@ public class ConfigurationService {
      *
      * @param dataPath The plugin datapath
      */
-    public ConfigurationService(Path dataPath) {
+    public ConfigurationService(Path dataPath, Logger logger) {
         this.dataPath = dataPath;
+        this.logger = logger;
 
         loadConfigurations();
     }
@@ -83,10 +91,12 @@ public class ConfigurationService {
     public void loadConfigurations() {
         // Load the main config
         File prismConfigFile = new File(dataPath.toFile(), "prism.conf");
-        prismConfiguration = getOrWriteConfiguration(PrismConfiguration.class, prismConfigFile);
+        prismConfiguration = getOrWriteConfiguration(
+            PrismConfiguration.class, prismConfigFile, new PrismConfiguration());
 
         File storageConfigFile = new File(dataPath.toFile(), "storage.conf");
-        storageConfiguration = getOrWriteConfiguration(StorageConfiguration.class, storageConfigFile);
+        storageConfiguration = getOrWriteConfiguration(
+            StorageConfiguration.class, storageConfigFile, new StorageConfiguration());
     }
 
     /**
@@ -109,37 +119,27 @@ public class ConfigurationService {
     /**
      * Get or create a configuration file.
      *
-     * @param clz The configuration class.
-     * @param file The file path we'll read/write to.
-     * @param <T> The configuration class type.
-     * @return The configuration class instance
-     */
-    public <T> T getOrWriteConfiguration(Class<T> clz, File file) {
-        return getOrWriteConfiguration(clz, file, null);
-    }
-
-    /**
-     * Get or create a configuration file.
-     *
      * @param clz The configuration class
      * @param file The file path we'll read/write to
-     * @param config The existing config object to write
+     * @param defaultConfig The default config object to write
      * @param <T> The configuration class type
      * @return The configuration class instance
      */
-    public <T> T getOrWriteConfiguration(Class<T> clz, File file, T config) {
+    public <T> T getOrWriteConfiguration(Class<T> clz, File file, T defaultConfig) {
         if (!file.exists()) {
             file.getParentFile().mkdirs();
         }
 
-        final ConfigurationLoader loader = configurationLoader(file.toPath());
+        final ConfigurationLoader<?> loader = configurationLoader(file.toPath());
 
         try {
             final ConfigurationNode root = loader.load();
 
-            // If config is not provided, load it
+            T config = root.get(clz);
+
+            // If config is not present, default
             if (config == null) {
-                config = root.get(clz);
+                config = defaultConfig;
             }
 
             root.set(clz, config);
@@ -148,7 +148,7 @@ public class ConfigurationService {
             return config;
         } catch (final ConfigurateException e) {
             if (e.getCause() != null) {
-                e.getCause().printStackTrace();
+                logger.log(Level.SEVERE, "An exception occurred", e);
             }
         }
 

@@ -75,7 +75,7 @@ public class PrismBukkitPluginLoader extends JavaPlugin implements PluginLoader 
         this.prismBootstrap = loader.instantiatePlugin(BOOTSTRAP_CLASS, PluginLoader.class, this);
 
         // Initialize the config service and load config files
-        configurationService = new ConfigurationService(getDataFolder().toPath());
+        configurationService = new ConfigurationService(getDataFolder().toPath(), this.getLogger());
 
         // Initialize the logger and logging service
         loggingService = new LoggingService(configurationService, this.getLogger());

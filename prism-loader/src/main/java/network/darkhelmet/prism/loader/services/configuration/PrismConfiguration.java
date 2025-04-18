@@ -41,14 +41,12 @@ public class PrismConfiguration {
             Disabling any here will completely prevent prism from recording them.
             Actions that are disabled by default may need some consideration/filters
             before turning them. Blanket-enabling everything is a recipe for exponential
-            database growth (aka bad stuff).
-            """)
+            database growth (aka bad stuff).""")
     private ActionsConfiguration actions = new ActionsConfiguration();
 
     @Comment("""
             Configure how Prism caches data. Probably best to leave
-            these settings alone unless you have specific reasons to change them.
-            """)
+            these settings alone unless you have specific reasons to change them.""")
     private CacheConfiguration cache = new CacheConfiguration();
 
     private CommandsConfiguration commands = new CommandsConfiguration();
@@ -64,8 +62,7 @@ public class PrismConfiguration {
     @Comment("""
             Filters allow fine-grained control over what prism records.
             See the wiki for documentation.
-            https://prism.readthedocs.io
-            """)
+            https://prism.readthedocs.io""")
     private List<FilterConfiguration> filters = new ArrayList<>();
 
     @Comment("Configure rules for modifications (rollbacks/restores).")

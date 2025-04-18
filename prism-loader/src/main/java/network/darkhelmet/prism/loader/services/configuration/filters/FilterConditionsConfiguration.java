@@ -32,17 +32,17 @@ public class FilterConditionsConfiguration {
     /**
      * Actions.
      */
-    private List<String> actions = null;
+    private List<String> actions;
 
     /**
      * Block tags.
      */
-    private List<String> blockTags = null;
+    private List<String> blockTags;
 
     /**
      * Causes.
      */
-    private List<String> causes = null;
+    private List<String> causes;
 
     /**
      * Entity Types.

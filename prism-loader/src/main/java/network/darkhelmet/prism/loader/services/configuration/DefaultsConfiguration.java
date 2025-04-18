@@ -37,8 +37,7 @@ public class DefaultsConfiguration {
 
     @Comment("""
             The default locale for plugin messages. Messages given to players
-            will use their client locale settings.
-            """)
+            will use their client locale settings.""")
     private Locale defaultLocale = Locale.US;
 
     @Comment("Default parameters for lookups, rollbacks, restores. Leave empty for none.")
