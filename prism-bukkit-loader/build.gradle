@@ -53,6 +53,7 @@ bukkitPluginYaml {
     apiVersion.set(project.property('spigot-api-version'))
     website.set(project.property('website'))
     authors.add("viveleroi")
+    depend.add("NBTAPI")
     softDepend.add("WorldEdit")
     load.set(xyz.jpenilla.resourcefactory.bukkit.BukkitPluginYaml.PluginLoadOrder.STARTUP)
 }

@@ -20,8 +20,8 @@
 
 package network.darkhelmet.prism.bukkit.actions;
 
-import de.tr7zw.changeme.nbtapi.NBT;
-import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
+import de.tr7zw.nbtapi.NBT;
+import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 
 import java.util.Locale;
 import java.util.UUID;

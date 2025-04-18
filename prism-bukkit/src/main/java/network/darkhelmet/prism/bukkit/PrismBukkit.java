@@ -20,7 +20,7 @@
 
 package network.darkhelmet.prism.bukkit;
 
-import de.tr7zw.changeme.nbtapi.utils.DataFixerUtil;
+import de.tr7zw.nbtapi.utils.DataFixerUtil;
 
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
@@ -195,7 +195,6 @@ public class PrismBukkit implements Prism {
      */
     protected Set<Dependency> platformDependencies() {
         return EnumSet.of(
-            Dependency.NBT_API,
             Dependency.TASKCHAIN_BUKKIT,
             Dependency.TASKCHAIN_CORE
         );

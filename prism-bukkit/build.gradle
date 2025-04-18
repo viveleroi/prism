@@ -62,7 +62,6 @@ shadowJar {
     relocate 'com.p6spy.engine', 'network.darkhelmet.prism.libs.p6spy'
     relocate 'com.typesafe.config', 'network.darkhelmet.prism.libs.hocon'
     relocate 'com.zaxxer.hikari', 'network.darkhelmet.prism.libs.hikari'
-    relocate 'de.tr7zw.changeme.nbtapi', 'network.darkhelmet.prism.libs.nbtapi'
     relocate 'dev.triumphteam', 'network.darkhelmet.prism.libs.triumphteam'
     relocate 'io.leangen.geantyref', 'network.darkhelmet.prism.libs.geantyref'
     relocate 'net.kyori', 'network.darkhelmet.prism.libs.kyori'

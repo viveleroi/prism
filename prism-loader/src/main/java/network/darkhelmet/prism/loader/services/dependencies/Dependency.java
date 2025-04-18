@@ -215,14 +215,6 @@ public enum Dependency {
         "fplBu9zKJE2Hjqlb//eI/Zumplr3V/JL5sYykw1hx+0=",
         Relocation.of("mysql", "com{}mysql")
     ),
-    NBT_API(
-        "de.tr7zw",
-        "item-nbt-api",
-        "2.15.0",
-        "5yc80GV+X5ivm5l3BMnkpfuX65KjOhIReaRvkOz2aWA=",
-        EnumSet.of(DependencyRepository.CODEMC),
-        Relocation.of("nbtapi", "de{}tr7zw{}changeme{}nbtapi")
-    ),
     P6SPY(
         "p6spy",
         "p6spy",

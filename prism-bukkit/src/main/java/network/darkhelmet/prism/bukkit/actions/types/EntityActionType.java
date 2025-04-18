@@ -20,8 +20,8 @@
 
 package network.darkhelmet.prism.bukkit.actions.types;
 
-import de.tr7zw.changeme.nbtapi.NBT;
-import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
+import de.tr7zw.nbtapi.NBT;
+import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
