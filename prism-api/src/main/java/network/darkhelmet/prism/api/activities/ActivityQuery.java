@@ -20,6 +20,7 @@
 
 package network.darkhelmet.prism.api.activities;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -176,6 +177,10 @@ public final class ActivityQuery {
          * @return The builder
          */
         public ActivityQueryBuilder activityId(int activityId) {
+            if (activityIds == null) {
+                activityIds = new ArrayList<>();
+            }
+
             activityIds.add(activityId);
             return this;
         }
