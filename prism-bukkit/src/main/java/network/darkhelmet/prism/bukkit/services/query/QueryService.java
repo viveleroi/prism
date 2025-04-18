@@ -116,9 +116,9 @@ public class QueryService {
             builder.grouped(false);
         }
 
-        // If the ID is provided, no other parameters matter
-        if (arguments.getArgument("id", Integer.class).isPresent()) {
-            builder.activityId(arguments.getArgument("id", Integer.class).get());
+        // If an ID is provided, no other parameters matter
+        if (arguments.getListArgument("id", Integer.class).isPresent()) {
+            builder.activityIds(arguments.getListArgument("id", Integer.class).get());
 
             return Optional.of(builder);
         }

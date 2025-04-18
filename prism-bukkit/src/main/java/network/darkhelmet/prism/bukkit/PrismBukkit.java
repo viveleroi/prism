@@ -440,7 +440,6 @@ public class PrismBukkit implements Prism {
             commandManager.registerNamedArguments(
                 ArgumentKey.of("query-parameters"),
                 Argument.forBoolean().name("reversed").build(),
-                Argument.forInt().name("id").build(),
                 Argument.forInt().name("r").build(),
                 Argument.forString().name("in").suggestion(SuggestionKey.of("ins")).build(),
                 Argument.forString().name("since").build(),
@@ -449,6 +448,7 @@ public class PrismBukkit implements Prism {
                 Argument.forString().name("world").suggestion(SuggestionKey.of("worlds")).build(),
                 Argument.forString().name("at").build(),
                 Argument.forString().name("bounds").build(),
+                Argument.listOf(Integer.class).name("id").build(),
                 Argument.listOf(String.class).name("a").suggestion(SuggestionKey.of("actions")).build(),
                 Argument.listOf(String.class).name("btag").suggestion(SuggestionKey.of("blocktags")).build(),
                 Argument.listOf(String.class).name("etag").suggestion(SuggestionKey.of("entitytypetags")).build(),

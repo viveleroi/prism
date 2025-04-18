@@ -49,9 +49,9 @@ public final class ActivityQuery {
     private Collection<ActionType> actionTypes;
 
     /**
-     * The activity id.
+     * The activity ids.
      */
-    private Integer activityId;
+    private Collection<Integer> activityIds;
 
     /**
      * The lower-bound timestamp.
@@ -169,6 +169,17 @@ public final class ActivityQuery {
     }
 
     public static class ActivityQueryBuilder {
+        /**
+         * Add a single activity id.
+         *
+         * @param activityId Activity id
+         * @return The builder
+         */
+        public ActivityQueryBuilder activityId(int activityId) {
+            activityIds.add(activityId);
+            return this;
+        }
+
         /**
          * Set the coordinate corners of a bounding box.
          *

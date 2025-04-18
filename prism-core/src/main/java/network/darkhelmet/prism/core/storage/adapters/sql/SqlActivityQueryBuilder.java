@@ -301,9 +301,9 @@ public class SqlActivityQueryBuilder {
     protected List<Condition> conditions(ActivityQuery query) {
         List<Condition> conditions = new ArrayList<>();
 
-        // Activity ID
-        if (query.activityId() != null) {
-            conditions.add(PRISM_ACTIVITIES.ACTIVITY_ID.equal(UInteger.valueOf(query.activityId())));
+        // Activity IDs
+        if (query.activityIds() != null && !query.activityIds().isEmpty()) {
+            conditions.add(PRISM_ACTIVITIES.ACTIVITY_ID.in(query.activityIds()));
         }
 
         // Locations
