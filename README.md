@@ -55,9 +55,11 @@ Prism is not a commercial project. It takes significant investment of time and e
 ## Credits
 
 - Originally created for the Darkhelmet (DHMC) server.
-- Special thanks to Luck & LuckPerms contributors for the dependency management code.
+- Matt for extra effort and support in the [TriumphTeam][triumph] Command Lib.
+- Luck & LuckPerms contributors for the dependency management code.
 
 [discord]: https://discord.gg/7FxZScH4EJ
 [docs]: https://prism.readthedocs.io/en/latest
 [ci]: https://ci.darkhelmet.network/job/Prism-v4/
 [prism3]: https://github.com/prism/PrismRefracted
+[triumph]: https://triumphteam.dev/
