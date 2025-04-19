@@ -39,7 +39,7 @@ A lot of `services` and related code inside the bukkit module will be eventually
 If you wish to test on paper, you can modify the `runServer` task inside `prism-bukkit-loader/build.gradle` as
 paper is the default, or you can download paper yourself.
  
-# Setup Databases
+## Setup Databases
 
 If testing with sqlite/h2, you don't need to do anything. Sqlite is the default for prism.
 
@@ -48,7 +48,7 @@ If working in MySQL/MariaDB/Postgres, install any or all.
 We recommend using [docker](https://www.docker.com/) and the official images for each. This allows you to
 start/stop/destroy/etc each service as needed.
 
-# Setup Server
+## Setup Server
 
 Install the required and any relevant plugins into `prism-bukkit-loader/run/plugins`
 
