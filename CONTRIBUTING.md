@@ -28,12 +28,39 @@ This approach was chosen to allow future development of prism for other platform
 
 A lot of `services` and related code inside the bukkit module will be eventually moved to core.
 
+## Setup Spigot
+
+1. Download spigot [BuildTools](https://www.spigotmc.org/wiki/buildtools/) and run it to get a jar for the needed mc version.
+2. Inside the `prism-bukkit-loader` module, create a `spigot-jars` directory with the necessary spigot jar.
+3. Match or update the version used compared to what's defined in `prism-bukkit-loader/build.gradle`.
+
+## Paper?
+
+If you wish to test on paper, you can modify the `runServer` task inside `prism-bukkit-loader/build.gradle` as
+paper is the default, or you can download paper yourself.
+ 
+# Setup Databases
+
+If testing with sqlite/h2, you don't need to do anything. Sqlite is the default for prism.
+
+If working in MySQL/MariaDB/Postgres, install any or all.
+
+We recommend using [docker](https://www.docker.com/) and the official images for each. This allows you to
+start/stop/destroy/etc each service as needed.
+
+# Setup Server
+
+Install the required and any relevant plugins into `prism-bukkit-loader/run/plugins`
+
+1. Required: [NBT-API](https://modrinth.com/plugin/nbtapi)
+2. Optional: [LuckPerms](https://luckperms.net/) - For testing permissions
+3. Optional: [WorldEdit](https://enginehub.org/worldedit) - For testing WorldEdit integration
+
 ## Development
 
-1. Inside the `prism-bukkit-loader` module, create a `spigot-jars` directory with the necessary spigot jar.
-2. Verify or modify the version needed in `prism-bukkit-loader/build.gradle`.
-3. Use your IDE to run the `runServer` task. It will build the plugin and run the server with it.
-4. Or, use gradle: `./gradlew -p prism-bukkit-loader runServer`.
+Configure IntelliJ to run the `prism-bukkit-loader - runServer` task. It will build the plugin and run the server with it. 
+
+Or, use gradle: `./gradlew -p prism-bukkit-loader runServer`.
 
 Server files and plugin configs will be inside `prism-bukkit-loader/run`.
 
