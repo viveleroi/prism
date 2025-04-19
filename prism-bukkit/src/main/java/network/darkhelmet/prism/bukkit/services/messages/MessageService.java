@@ -193,12 +193,6 @@ public interface MessageService {
     @Message("rich.reloaded-locales")
     void reloadedLocales(CommandSender receiver);
 
-    @Message("rich.removed-blocks")
-    void removedBlocks(CommandSender receiver, @Placeholder Integer count);
-
-    @Message("rich.removed-drops")
-    void removedDrops(CommandSender receiver, @Placeholder Integer count);
-
     @Message("rich.teleporting-to-activity")
     void teleportingToActivity(CommandSender receiver, @Placeholder AbstractActivity activity);
 

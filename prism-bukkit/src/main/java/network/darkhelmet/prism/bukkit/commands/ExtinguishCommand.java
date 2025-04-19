@@ -87,7 +87,7 @@ public class ExtinguishCommand {
         int removalCount = changes.size();
 
         if (removalCount > 0) {
-            messageService.removedBlocks(player, removalCount);
+            messageService.modificationsRemovedBlocks(player, removalCount);
         } else {
             messageService.errorNoBlocksRemoved(player);
         }
