@@ -34,6 +34,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -60,163 +61,124 @@ public class InventoryClickListener extends AbstractListener implements Listener
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInventoryClick(final InventoryClickEvent event) {
-        // Ignore clicks outside the inventory
-        if (event.getClickedInventory() == null) {
-            return;
-        }
-
-        // Get the unique slot number for the view
-        int slot = event.getRawSlot();
-
-        // Anything negative is outside the window
-        if (slot < 0) {
-            return;
-        }
-
-        // Reassign some things for clarity
+        // Rename some things for clarity
         ItemStack heldItem = event.getCursor();
         ItemStack slotItem = event.getCurrentItem();
-        boolean clickedTopInventory = slot < event.getInventory().getSize();
 
-        // Ignore null slot items. This used to only happen when clicking inventories
-        // opened via code. It may not be used anymore, but would never be useful to us.
-        if (slotItem == null) {
+        boolean clickedTopInventory = event.getClickedInventory() != null
+            && event.getClickedInventory().equals(event.getInventory());
+
+        // Ignore:
+        // - Clicks with the creative menu open
+        // - Useless/unknown clicks
+        // - Drop item events because those are tracked by the PlayerDropItemListener
+        if (event.getClick().equals(ClickType.CREATIVE)
+                || event.getAction().equals(InventoryAction.NOTHING)
+                || event.getAction().equals(InventoryAction.UNKNOWN)
+                || event.getAction().equals(InventoryAction.DROP_ALL_CURSOR)
+                || event.getAction().equals(InventoryAction.DROP_ALL_SLOT)
+                || event.getAction().equals(InventoryAction.DROP_ONE_CURSOR)
+                || event.getAction().equals(InventoryAction.DROP_ONE_SLOT)) {
             return;
         }
 
-        // Who clicks in an inv that isn't a player? Seriously! Just to be safe...
-        if (!(event.getWhoClicked() instanceof Player player)) {
+        // Ignore inventories without a holder - smithing tables, etc.
+        // Things that have a UI but do not actually store items.
+        if (event.getInventory().getHolder() == null) {
             return;
         }
 
         // Get the location of the top inventory
         Location location = event.getInventory().getLocation();
-
-        // If null, it's virtual/transient so we can ignore
         if (location == null) {
             return;
         }
 
-        // Ignore player's working only with their own inventory
-        if (event.getInventory().getHolder() instanceof Player other && other.equals(player)) {
+        // Ignore non-players or player's working only within their own inventory
+        if (!(event.getWhoClicked() instanceof Player player)
+                || event.getInventory().getHolder() instanceof Player other && other.equals(player)) {
             return;
         }
 
-        if (event.getClick().equals(ClickType.LEFT)) {
-            if (clickedTopInventory) {
-                if (ItemUtils.nullOrAir(heldItem)) {
-                    if (!ItemUtils.nullOrAir(slotItem)) {
-                        // Taking the full stack out
-                        recordItemRemoveActivity(location, player, slotItem, slotItem.getAmount(), slot);
-                    }
-                } else {
-                    int amount = 0;
-
-                    if (ItemUtils.nullOrAir(slotItem) && heldItem.getAmount() <= heldItem.getMaxStackSize()) {
-                        // Placing full stack
-                        amount = heldItem.getAmount();
-                    } else if (slotItem.getType().equals(heldItem.getType())) {
-                        // Adding to existing stack
-                        amount = Math.min(heldItem.getMaxStackSize() - slotItem.getAmount(), heldItem.getAmount());
-                    }
-
-                    if (amount > 0) {
-                        // Placing items
-                        recordItemInsertActivity(location, player, heldItem, amount, slot);
-                    } else if (!ItemUtils.nullOrAir(slotItem) && !slotItem.getType().equals(heldItem.getType())) {
-                        // "Exchanging" items
-                        recordItemRemoveActivity(location, player, slotItem, slotItem.getAmount(), slot);
-                        recordItemInsertActivity(location, player, heldItem, heldItem.getAmount(), slot);
-                    }
-                }
-            }
-        } else if (event.getClick().equals(ClickType.RIGHT)) {
-            if (clickedTopInventory) {
-                if (ItemUtils.nullOrAir(heldItem)) {
-                    if (!ItemUtils.nullOrAir(slotItem)) {
-                        // Splitting stack in half
-                        int amount = (slotItem.getAmount() + 1) / 2;
-                        recordItemRemoveActivity(location, player, slotItem, amount, slot);
-                    }
-                } else {
-                    if ((ItemUtils.nullOrAir(slotItem) || slotItem.equals(heldItem))
-                            && slotItem.getAmount() < slotItem.getType().getMaxStackSize()) {
-                        // Placing a single item
-                        recordItemInsertActivity(location, player, slotItem, 1, slot);
-                    }
-                }
-            }
-        } else if (event.getClick().equals(ClickType.NUMBER_KEY)) {
-            if (clickedTopInventory) {
-                if (!ItemUtils.nullOrAir(slotItem)) {
-                    recordItemRemoveActivity(location, player, slotItem, slotItem.getAmount(), slot);
+        // We don't care about most actions that occur in the player's inventory
+        if (!clickedTopInventory) {
+            if (event.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
+                int quantityAccepted = ItemUtils.inventoryAcceptsQuantity(
+                    event.getInventory(), slotItem.getType(), slotItem.getType().getMaxStackSize());
+                if (quantityAccepted > 0) {
+                    recordItemInsertActivity(
+                        location, player, slotItem, Integer.min(quantityAccepted, slotItem.getAmount()));
                 }
 
-                ItemStack swapItem = player.getInventory().getItem(event.getHotbarButton());
-                if (!ItemUtils.nullOrAir(swapItem)) {
-                    recordItemInsertActivity(location, player, swapItem, swapItem.getAmount(), slot);
-                }
-            }
-        } else if (event.getClick().equals(ClickType.DOUBLE_CLICK)) {
-            for (ItemStack slotStack : event.getInventory().getStorageContents()) {
-                if (!ItemUtils.nullOrAir(slotStack) && slotStack.isSimilar(heldItem)) {
-                    recordItemRemoveActivity(location, player, slotStack, slotStack.getAmount(), slot);
-                }
-            }
-        } else if (event.getClick().equals(ClickType.SHIFT_LEFT) || event.getClick().equals(ClickType.SHIFT_RIGHT)) {
-            if (clickedTopInventory) {
-                if (!ItemUtils.nullOrAir(slotItem)) {
-                    int maxStackSize = slotItem.getType().getMaxStackSize();
-                    int remaining = slotItem.getAmount();
-
-                    for (ItemStack slotStack : event.getView().getBottomInventory().getStorageContents()) {
-                        if (ItemUtils.nullOrAir(slotStack)) {
-                            remaining -= maxStackSize;
-                        } else if (slotStack.isSimilar(slotItem)) {
-                            remaining -= (maxStackSize - Math.min(slotStack.getAmount(), maxStackSize));
-                        }
-
-                        if (remaining <= 0) {
-                            remaining = 0;
-                            break;
-                        }
-                    }
-
-                    int amount = slotItem.getAmount() - remaining;
-                    recordItemRemoveActivity(location, player, slotItem, amount, slot);
-                }
+                return;
             } else {
-                int maxStackSize = slotItem.getType().getMaxStackSize();
-                int amountRemaining = slotItem.getAmount();
+                return;
+            }
+        }
 
-                ItemStack[] contents = event.getInventory().getStorageContents();
+        // Handle all actions that can move items between two inventories
+        switch (event.getAction()) {
+            case COLLECT_TO_CURSOR -> {
+                // Ignore the held item quantity because it was already tracked
+                int totalCollected = 0;
 
-                // Fill item stacks first
-                for (ItemStack slotStack : contents) {
-                    if (slotItem.isSimilar(slotStack)) {
-                        amountRemaining -= Math.min(maxStackSize - slotStack.getAmount(), amountRemaining);
+                // We have to manually count how many will be collected
+                for (var itemStack : event.getInventory().getContents()) {
+                    if (itemStack != null && itemStack.getType().equals(heldItem.getType())) {
+                        // If adding this would exceed the stack size, cap at the max stack size.
+                        if (totalCollected + itemStack.getAmount() > heldItem.getType().getMaxStackSize()) {
+                            totalCollected = heldItem.getType().getMaxStackSize();
 
-                        if (amountRemaining <= 0) {
                             break;
+                        } else {
+                            totalCollected += itemStack.getAmount();
                         }
                     }
                 }
 
-                int firstEmpty = event.getInventory().firstEmpty();
-                if (firstEmpty > -1) {
-                    amountRemaining -= Math.min(maxStackSize, amountRemaining);
+                recordItemRemoveActivity(location, player, heldItem, totalCollected);
+            }
+            case HOTBAR_SWAP, PICKUP_ALL -> {
+                recordItemRemoveActivity(location, player, slotItem);
+            }
+            case HOTBAR_MOVE_AND_READD -> {
+                ItemStack swapItem = null;
+                if (event.getHotbarButton() == -1) {
+                    swapItem = player.getInventory().getItemInOffHand();
+                } else {
+                    swapItem = player.getInventory().getItem(event.getHotbarButton());
                 }
 
-                int amount = slotItem.getAmount() - amountRemaining;
-                recordItemInsertActivity(location, player, slotItem, amount, slot);
+                // No need to check if the item exists because this only fires when it does
+                recordItemInsertActivity(location, player, swapItem);
+                recordItemRemoveActivity(location, player, slotItem);
             }
-        } else if (event.getClick().equals(ClickType.DROP)) {
-            if (!ItemUtils.nullOrAir(slotItem)) {
-                recordItemRemoveActivity(location, player, slotItem, 1, slot);
+            case MOVE_TO_OTHER_INVENTORY -> {
+                int quantityAccepted = ItemUtils.inventoryAcceptsQuantity(
+                    player.getInventory(), slotItem.getType(), slotItem.getType().getMaxStackSize());
+                if (quantityAccepted > 0) {
+                    recordItemRemoveActivity(
+                        location, player, slotItem, Integer.min(quantityAccepted, slotItem.getAmount()));
+                }
             }
-        } else if (event.getClick().equals(ClickType.CONTROL_DROP)) {
-            if (!ItemUtils.nullOrAir(slotItem)) {
-                recordItemRemoveActivity(location, player, slotItem, slotItem.getAmount(), slot);
+            case PICKUP_HALF -> {
+                recordItemRemoveActivity(location, player, slotItem, slotItem.getAmount() / 2);
+            }
+            case PICKUP_ONE -> {
+                recordItemRemoveActivity(location, player, slotItem, 1);
+            }
+            case PLACE_ALL -> {
+                recordItemInsertActivity(location, player, heldItem);
+            }
+            case PLACE_ONE -> {
+                recordItemInsertActivity(location, player, heldItem, 1);
+            }
+            case SWAP_WITH_CURSOR -> {
+                recordItemRemoveActivity(location, player, slotItem);
+                recordItemInsertActivity(location, player, heldItem);
+            }
+            default -> {
+                // Do nothing
             }
         }
     }

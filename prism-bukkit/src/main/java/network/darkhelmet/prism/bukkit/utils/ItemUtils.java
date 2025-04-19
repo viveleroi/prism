@@ -26,6 +26,7 @@ import lombok.experimental.UtilityClass;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
@@ -34,6 +35,34 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 @UtilityClass
 public class ItemUtils {
+    /**
+     * Get the amount of a material an inventory has room for.
+     *
+     * @param inventory The inventory
+     * @param material The material
+     * @param max The max acceptable quantity to return
+     * @return Amount
+     */
+    public static int inventoryAcceptsQuantity(Inventory inventory, Material material, Integer max) {
+        var acceptableQuantity = 0;
+
+        for (var item : inventory.getStorageContents()) {
+            if (nullOrAir(item)) {
+                acceptableQuantity += material.getMaxStackSize();
+            } else if (item.getType().equals(material)) {
+                acceptableQuantity += material.getMaxStackSize() - item.getAmount();
+            }
+
+            if (max != null && acceptableQuantity >= max) {
+                acceptableQuantity = max;
+
+                break;
+            }
+        }
+
+        return acceptableQuantity;
+    }
+
     /**
      * Checks for null or air items.
      *

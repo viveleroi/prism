@@ -87,7 +87,7 @@ public class InventoryDragListener extends AbstractListener implements Listener 
                 int slotViewAmount = (stack == null)  ? 0 : stack.getAmount();
                 int amount = entry.getValue().getAmount() - slotViewAmount;
 
-                recordItemInsertActivity(location, player, entry.getValue(), amount, rawSlot);
+                recordItemInsertActivity(location, player, entry.getValue(), amount);
             }
         }
     }

@@ -261,7 +261,8 @@ public class AbstractListener {
         } else  {
             namedCause = nameFromCause(cause);
         }
-        recordItemActivity(BukkitActionTypeRegistry.ITEM_DROP, location, player, namedCause, itemStack, amount, null);
+
+        recordItemActivity(BukkitActionTypeRegistry.ITEM_DROP, location, player, namedCause, itemStack, amount);
     }
 
     /**
@@ -311,8 +312,7 @@ public class AbstractListener {
      * @param location The location
      * @param cause The player or named cause
      */
-    protected void recordItemDropFromInventory(
-            Inventory inventory, Location location, Object cause) {
+    protected void recordItemDropFromInventory(Inventory inventory, Location location, Object cause) {
         if (!configurationService.prismConfig().actions().itemDrop()) {
             return;
         }
@@ -331,15 +331,46 @@ public class AbstractListener {
      * @param player The player
      * @param itemStack The item stack
      * @param amount The amount
-     * @param slot The slot
      */
     protected void recordItemInsertActivity(
-            Location location, Player player, ItemStack itemStack, Integer amount, Integer slot) {
+            Location location, Player player, ItemStack itemStack, int amount) {
         if (!configurationService.prismConfig().actions().itemInsert()) {
             return;
         }
 
-        recordItemActivity(BukkitActionTypeRegistry.ITEM_INSERT, location, player, null, itemStack, amount, slot);
+        recordItemActivity(BukkitActionTypeRegistry.ITEM_INSERT, location, player, null, itemStack, amount);
+    }
+
+    /**
+     * Record an item insert activity.
+     *
+     * @param location The location
+     * @param player The player
+     * @param itemStack The item stack
+     */
+    protected void recordItemInsertActivity(
+            Location location, Player player, ItemStack itemStack) {
+        if (!configurationService.prismConfig().actions().itemInsert()) {
+            return;
+        }
+
+        recordItemActivity(BukkitActionTypeRegistry.ITEM_INSERT, location, player, null, itemStack, null);
+    }
+
+    /**
+     * Record an item remove activity.
+     *
+     * @param location The location
+     * @param player The player
+     * @param itemStack The item stack
+     */
+    protected void recordItemRemoveActivity(
+            Location location, Player player, ItemStack itemStack) {
+        if (!configurationService.prismConfig().actions().itemInsert()) {
+            return;
+        }
+
+        recordItemActivity(BukkitActionTypeRegistry.ITEM_REMOVE, location, player, null, itemStack, null);
     }
 
     /**
@@ -349,15 +380,14 @@ public class AbstractListener {
      * @param player The player
      * @param itemStack The item stack
      * @param amount The amount
-     * @param slot The slot
      */
     protected void recordItemRemoveActivity(
-            Location location, Player player, ItemStack itemStack, Integer amount, Integer slot) {
+            Location location, Player player, ItemStack itemStack, int amount) {
         if (!configurationService.prismConfig().actions().itemInsert()) {
             return;
         }
 
-        recordItemActivity(BukkitActionTypeRegistry.ITEM_REMOVE, location, player, null, itemStack, amount, slot);
+        recordItemActivity(BukkitActionTypeRegistry.ITEM_REMOVE, location, player, null, itemStack, amount);
     }
 
     /**
@@ -369,7 +399,6 @@ public class AbstractListener {
      * @param cause The cause
      * @param itemStack The item stack
      * @param amount The amount
-     * @param slot The slot
      */
     private void recordItemActivity(
             ActionType actionType,
@@ -377,8 +406,7 @@ public class AbstractListener {
             Player player,
             String cause,
             ItemStack itemStack,
-            Integer amount,
-            Integer slot) {
+            Integer amount) {
         // Clone the item stack and set the quantity because
         // this is what we use to record the action
         ItemStack clonedStack = itemStack.clone();
