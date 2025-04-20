@@ -31,6 +31,54 @@ import org.bukkit.inventory.ItemStack;
 @UtilityClass
 public class ItemUtils {
     /**
+     * Try our best to count the number of items that will be collected on double click.
+     *
+     * <p>I honestly can't determine how Minecraft chooses which stacks to take from, as the pattern
+     * varies based on where in the inv your item is. Sometimes it's stacks closest, sometimes not.
+     * Sometimes it's stacks to the left, sometimes right. It's client-side anyway so this is just a guess.</p>
+     *
+     * @param bottom The bottom inventory (player)
+     * @param top The top inventory (container)
+     * @param material The material
+     * @param startQuantity The start quantity
+     * @return The amount
+     */
+    public static int countCollectedToCursor(Inventory bottom, Inventory top, Material material, int startQuantity) {
+        int remaining = material.getMaxStackSize() - startQuantity;
+
+        // The bottom inv is always checked first. If we found enough, nothing will be tracked.
+        var bottomAmount = countMatchingMaterials(bottom, material);
+        if (bottomAmount > remaining) {
+            return 0;
+        } else {
+            remaining -= bottomAmount;
+        }
+
+        // Return how many the top inv contributed
+        var topAmount = countMatchingMaterials(top, material);
+        return Math.min(topAmount, remaining);
+    }
+
+    /**
+     * Count of matching items by material in an inventory.
+     *
+     * @param inventory The inventory
+     * @param material The material
+     * @return Amount
+     */
+    public static int countMatchingMaterials(Inventory inventory, Material material) {
+        int total = 0;
+
+        for (var itemStack : inventory.getStorageContents()) {
+            if (itemStack != null && itemStack.getType().equals(material)) {
+                total += itemStack.getAmount();
+            }
+        }
+
+        return total;
+    }
+
+    /**
      * Get the amount of a material an inventory has room for.
      *
      * @param inventory The inventory

@@ -111,6 +111,14 @@ public class InventoryClickListener extends AbstractListener implements Listener
                 }
 
                 return;
+            } else if (event.getAction().equals(InventoryAction.COLLECT_TO_CURSOR)) {
+                int totalCollected = ItemUtils.countCollectedToCursor(
+                    player.getInventory(), event.getInventory(), heldItem.getType(), heldItem.getAmount());
+                if (totalCollected > 0) {
+                    recordItemRemoveActivity(location, player, heldItem, totalCollected);
+                }
+
+                return;
             } else {
                 return;
             }
@@ -119,24 +127,11 @@ public class InventoryClickListener extends AbstractListener implements Listener
         // Handle all actions that can move items between two inventories
         switch (event.getAction()) {
             case COLLECT_TO_CURSOR -> {
-                // Ignore the held item quantity because it was already tracked
-                int totalCollected = 0;
-
-                // We have to manually count how many will be collected
-                for (var itemStack : event.getInventory().getContents()) {
-                    if (itemStack != null && itemStack.getType().equals(heldItem.getType())) {
-                        // If adding this would exceed the stack size, cap at the max stack size.
-                        if (totalCollected + itemStack.getAmount() > heldItem.getType().getMaxStackSize()) {
-                            totalCollected = heldItem.getType().getMaxStackSize();
-
-                            break;
-                        } else {
-                            totalCollected += itemStack.getAmount();
-                        }
-                    }
+                int totalCollected = ItemUtils.countCollectedToCursor(
+                    player.getInventory(), event.getInventory(), heldItem.getType(), heldItem.getAmount());
+                if (totalCollected > 0) {
+                    recordItemRemoveActivity(location, player, heldItem, totalCollected);
                 }
-
-                recordItemRemoveActivity(location, player, heldItem, totalCollected);
             }
             case HOTBAR_SWAP, PICKUP_ALL -> {
                 recordItemRemoveActivity(location, player, slotItem);
