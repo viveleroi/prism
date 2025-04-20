@@ -68,6 +68,27 @@ public class BlockUtils {
     }
 
     /**
+     * Get light level.
+     *
+     * @param block Block
+     * @return int
+     */
+    public static int getLightLevel(Block block) {
+        int light = 0;
+        final BlockFace[] blockFaces =
+            new BlockFace[] {BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST,
+                BlockFace.UP, BlockFace.DOWN};
+        for (BlockFace blockFace : blockFaces) {
+            light = Math.max(light, block.getRelative(blockFace).getLightLevel());
+            if (light >= 15) {
+                break;
+            }
+        }
+
+        return light * 100 / 15;
+    }
+
+    /**
      * Remove blocks matching a list of materials.
      *
      * @param world The world

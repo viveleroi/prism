@@ -23,6 +23,7 @@ package network.darkhelmet.prism.bukkit.listeners.block;
 import com.google.inject.Inject;
 
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
+import network.darkhelmet.prism.bukkit.services.alerts.BukkitAlertService;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
 import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
@@ -34,18 +35,27 @@ import org.bukkit.event.block.BlockBreakEvent;
 
 public class BlockBreakListener extends AbstractListener implements Listener {
     /**
+     * The alert service.
+     */
+    private final BukkitAlertService alertService;
+
+    /**
      * Construct the listener.
      *
      * @param configurationService The configuration service
      * @param expectationService The expectation service
+     * @param alertService The alert service
      * @param recordingService The recording service
      */
     @Inject
     public BlockBreakListener(
             ConfigurationService configurationService,
             ExpectationService expectationService,
+            BukkitAlertService alertService,
             BukkitRecordingService recordingService) {
         super(configurationService, expectationService, recordingService);
+
+        this.alertService = alertService;
     }
 
     /**
@@ -56,5 +66,7 @@ public class BlockBreakListener extends AbstractListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(final BlockBreakEvent event) {
         processBlockBreak(event.getBlock(), event.getPlayer());
+
+        alertService.alertBlockBreak(event.getBlock(), event.getPlayer());
     }
 }

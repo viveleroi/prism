@@ -28,6 +28,7 @@ import network.darkhelmet.prism.api.activities.AbstractActivity;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueResult;
 import network.darkhelmet.prism.api.services.purges.PurgeCycleResult;
 import network.darkhelmet.prism.api.services.wands.WandMode;
+import network.darkhelmet.prism.bukkit.services.alerts.BlockBreakAlertData;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -35,6 +36,12 @@ import org.bukkit.entity.Player;
 public interface MessageService {
     @Message("rich.about")
     void about(CommandSender receiver, @Placeholder String version);
+
+    @Message("rich.alert-block-break")
+    void alertBlockBreak(CommandSender receiver, @Placeholder BlockBreakAlertData data);
+
+    @Message("rich.alert-block-break-night-vision")
+    void alertBlockBreakNightVision(CommandSender receiver, @Placeholder BlockBreakAlertData data);
 
     @Message("rich.defaults-used")
     void defaultsUsed(CommandSender receiver, @Placeholder String defaults);

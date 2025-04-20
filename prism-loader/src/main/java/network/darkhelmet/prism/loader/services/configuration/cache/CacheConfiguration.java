@@ -30,6 +30,10 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 @ConfigSerializable
 @Getter
 public class CacheConfiguration {
+    @Comment("Cache settings for alerted locations.")
+    private CacheBuilderConfiguration alertedLocations = new CacheBuilderConfiguration(
+        5000, new DurationConfiguration(5, TimeUnit.MINUTES));
+
     @Comment("Activity queries (lookups) are cached so that they can be re-used or paginated.")
     private CacheBuilderConfiguration lookupExpiration = new CacheBuilderConfiguration(
         3, new DurationConfiguration(5, TimeUnit.MINUTES));

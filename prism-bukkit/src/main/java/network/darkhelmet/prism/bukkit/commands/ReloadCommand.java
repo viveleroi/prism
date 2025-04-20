@@ -27,15 +27,27 @@ import dev.triumphteam.cmd.core.annotations.Command;
 
 import java.io.IOException;
 
+import network.darkhelmet.prism.bukkit.services.alerts.BukkitAlertService;
 import network.darkhelmet.prism.bukkit.services.filters.BukkitFilterService;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
 import network.darkhelmet.prism.bukkit.services.translation.BukkitTranslationService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 import org.bukkit.command.CommandSender;
 
 @Command(value = "prism", alias = {"pr"})
 public class ReloadCommand {
+    /**
+     * The alert service.
+     */
+    private final BukkitAlertService alertService;
+
+    /**
+     * The logging service.
+     */
+    private final LoggingService loggingService;
+
     /**
      * The message service.
      */
@@ -59,6 +71,7 @@ public class ReloadCommand {
     /**
      * Construct the reload command.
      *
+     * @param alertService The alert service
      * @param messageService The message service
      * @param translationService The translation service
      * @param configurationService The configuration service
@@ -66,10 +79,14 @@ public class ReloadCommand {
      */
     @Inject
     public ReloadCommand(
+            BukkitAlertService alertService,
+            LoggingService loggingService,
             MessageService messageService,
             BukkitTranslationService translationService,
             ConfigurationService configurationService,
             BukkitFilterService filterService) {
+        this.alertService = alertService;
+        this.loggingService = loggingService;
         this.messageService = messageService;
         this.translationService = translationService;
         this.configurationService = configurationService;
@@ -87,6 +104,7 @@ public class ReloadCommand {
         configurationService.loadConfigurations();
 
         filterService.loadFilters();
+        alertService.loadAlerts();
 
         messageService.reloadedConfig(sender);
     }
@@ -105,7 +123,7 @@ public class ReloadCommand {
             messageService.reloadedLocales(sender);
         } catch (IOException e) {
             messageService.errorReloadLocale(sender);
-            e.printStackTrace();
+            loggingService.handleException(e);
         }
     }
 }

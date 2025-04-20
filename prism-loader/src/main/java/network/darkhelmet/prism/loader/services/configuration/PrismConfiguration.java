@@ -25,6 +25,7 @@ import java.util.List;
 
 import lombok.Getter;
 
+import network.darkhelmet.prism.loader.services.configuration.alerts.AlertsConfiguration;
 import network.darkhelmet.prism.loader.services.configuration.cache.CacheConfiguration;
 import network.darkhelmet.prism.loader.services.configuration.filters.FilterConfiguration;
 import network.darkhelmet.prism.loader.services.configuration.purge.PurgeConfiguration;
@@ -43,6 +44,8 @@ public class PrismConfiguration {
             before turning them. Blanket-enabling everything is a recipe for exponential
             database growth (aka bad stuff).""")
     private ActionsConfiguration actions = new ActionsConfiguration();
+
+    private AlertsConfiguration alerts = new AlertsConfiguration();
 
     @Comment("""
             Configure how Prism caches data. Probably best to leave

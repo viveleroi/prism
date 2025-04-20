@@ -162,8 +162,25 @@ public class LookupService {
     /**
      * Performs an async storage query and passes the result to the consumer.
      *
+     * @param query The activity query
+     * @param consumer The result consumer
+     */
+    public void lookup(ActivityQuery query, Consumer<List<Activity>> consumer) {
+        taskChainProvider.newChain().async(() -> {
+            try {
+                consumer.accept(storageAdapter.queryActivities(query));
+            } catch (Exception ex) {
+                loggingService.handleException(ex);
+            }
+        }).execute();
+    }
+
+    /**
+     * Performs an async storage query, caches the query for the sender, and passes the result to the consumer.
+     *
      * @param sender The command sender
      * @param query The activity query
+     * @param consumer The result consumer
      */
     public void lookup(CommandSender sender, ActivityQuery query, Consumer<List<Activity>> consumer) {
         taskChainProvider.newChain().async(() -> {

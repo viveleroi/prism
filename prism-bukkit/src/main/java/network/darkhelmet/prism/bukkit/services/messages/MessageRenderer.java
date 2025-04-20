@@ -45,7 +45,7 @@ public class MessageRenderer implements IMessageRenderer<CommandSender, String, 
     private final BukkitTranslationService translationService;
 
     /**
-     * Contruct the message renderer.
+     * Construct the message renderer.
      *
      * @param translationService The translation service
      */
@@ -57,7 +57,7 @@ public class MessageRenderer implements IMessageRenderer<CommandSender, String, 
     @Override
     public Component render(
         final CommandSender receiver,
-        final String intermediateMessage,
+        String intermediateMessage,
         final Map<String, ? extends Component> resolvedPlaceholders,
         final Method method,
         final Type owner
@@ -68,7 +68,12 @@ public class MessageRenderer implements IMessageRenderer<CommandSender, String, 
         TagResolver.Builder builder = TagResolver.builder();
         builder.resolver(headingTemplate);
         for (final var entry : resolvedPlaceholders.entrySet()) {
-            builder.resolver(Placeholder.component(entry.getKey(), entry.getValue()));
+            if (entry.getKey().contains("color")) {
+                intermediateMessage = intermediateMessage.replaceAll(entry.getKey(),
+                    entry.getValue().color().asHexString());
+            } else {
+                builder.resolver(Placeholder.component(entry.getKey(), entry.getValue()));
+            }
         }
 
         return MiniMessage.miniMessage().deserialize(intermediateMessage, builder.build());

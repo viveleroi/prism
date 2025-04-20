@@ -54,6 +54,8 @@ import network.darkhelmet.prism.bukkit.PrismBukkit;
 import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import network.darkhelmet.prism.bukkit.integrations.worldedit.WorldEditIntegration;
 import network.darkhelmet.prism.bukkit.providers.TaskChainProvider;
+import network.darkhelmet.prism.bukkit.services.alerts.BlockBreakAlertData;
+import network.darkhelmet.prism.bukkit.services.alerts.BukkitAlertService;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
 import network.darkhelmet.prism.bukkit.services.filters.BukkitFilterService;
 import network.darkhelmet.prism.bukkit.services.lookup.LookupService;
@@ -62,6 +64,7 @@ import network.darkhelmet.prism.bukkit.services.messages.MessageSender;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
 import network.darkhelmet.prism.bukkit.services.messages.ReceiverResolver;
 import network.darkhelmet.prism.bukkit.services.messages.resolvers.ActivityPlaceholderResolver;
+import network.darkhelmet.prism.bukkit.services.messages.resolvers.BlockBreakAlertDataPlaceholderResolver;
 import network.darkhelmet.prism.bukkit.services.messages.resolvers.IntegerPlaceholderResolver;
 import network.darkhelmet.prism.bukkit.services.messages.resolvers.ModificationQueueResultPlaceholderResolver;
 import network.darkhelmet.prism.bukkit.services.messages.resolvers.PaginatedResultsPlaceholderResolver;
@@ -222,6 +225,8 @@ public class PrismModule extends AbstractModule {
                 .weightedPlaceholderResolver(
                     ModificationQueueResult.class, modificationQueueResultPlaceholderResolver, 0)
                 .weightedPlaceholderResolver(new TypeToken<>(){}, new PaginatedResultsPlaceholderResolver(), 0)
+                .weightedPlaceholderResolver(
+                    BlockBreakAlertData.class, new BlockBreakAlertDataPlaceholderResolver(), 0)
                 .create(this.getClass().getClassLoader());
         } catch (UnscannableMethodException e) {
             e.printStackTrace();
@@ -240,6 +245,9 @@ public class PrismModule extends AbstractModule {
 
         // Actions
         bind(ActionTypeRegistry.class).to(BukkitActionTypeRegistry.class).in(Singleton.class);
+
+        // Service - Alerts
+        bind(BukkitAlertService.class).in(Singleton.class);
 
         // Service - Cache
         bind(CacheService.class).in(Singleton.class);
