@@ -532,7 +532,7 @@ public class QueryService {
         final List<String> p = new ArrayList<>();
         if (arguments.getListArgument("p", Player.class).isPresent()) {
             arguments.getListArgument("p", Player.class).get().forEach(player -> {
-                p.add(player.toString());
+                p.add(player.getName());
             });
         } else if (!arguments.hasFlag("nodefaults")
                 && configurationService.prismConfig().defaults().parameters().containsKey("p")) {
