@@ -30,15 +30,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import lombok.experimental.Tolerate;
 
 import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.api.util.Coordinate;
 
-@Builder(toBuilder = true)
+@SuperBuilder(toBuilder = true)
 @Getter
 @ToString
-public final class ActivityQuery {
+public class ActivityQuery {
     /**
      * The action type keys.
      */
@@ -189,20 +190,22 @@ public final class ActivityQuery {
         return all;
     }
 
-    public static class ActivityQueryBuilder {
+    public abstract static class ActivityQueryBuilder
+            <C extends ActivityQuery, B extends ActivityQueryBuilder<C, B>> {
         /**
          * Add a single activity id.
          *
          * @param activityId Activity id
          * @return The builder
          */
-        public ActivityQueryBuilder activityId(int activityId) {
+        public B activityId(int activityId) {
             if (activityIds == null) {
                 activityIds = new ArrayList<>();
             }
 
             activityIds.add(activityId);
-            return this;
+
+            return self();
         }
 
         /**
@@ -212,10 +215,11 @@ public final class ActivityQuery {
          * @param maxCoordinate The max coordinate
          * @return The builder
          */
-        public ActivityQueryBuilder boundingCoordinates(Coordinate minCoordinate, Coordinate maxCoordinate) {
+        public B boundingCoordinates(Coordinate minCoordinate, Coordinate maxCoordinate) {
             this.minCoordinate = minCoordinate;
             this.maxCoordinate = maxCoordinate;
-            return this;
+
+            return self();
         }
 
         /**
@@ -227,9 +231,10 @@ public final class ActivityQuery {
          * @return The builder
          */
         @Tolerate
-        public ActivityQueryBuilder coordinate(double x, double y, double z) {
+        public B coordinate(double x, double y, double z) {
             this.coordinate = new Coordinate(x, y, z);
-            return this;
+
+            return self();
         }
 
         /**
@@ -237,10 +242,10 @@ public final class ActivityQuery {
          *
          * @return The builder
          */
-        public ActivityQueryBuilder coordinateFromReferenceCoordinate() {
+        public B coordinateFromReferenceCoordinate() {
             this.coordinate = referenceCoordinate;
 
-            return this;
+            return self();
         }
 
         /**
@@ -250,11 +255,11 @@ public final class ActivityQuery {
          *
          * @return The builder
          */
-        public ActivityQueryBuilder modification() {
+        public B modification() {
             this.lookup(false);
             this.grouped(false);
 
-            return this;
+            return self();
         }
 
         /**
@@ -263,7 +268,7 @@ public final class ActivityQuery {
          * @param radius The radius
          * @return The builder
          */
-        public ActivityQueryBuilder radius(int radius) {
+        public B radius(int radius) {
             Coordinate minCoordinate = new Coordinate(
                 referenceCoordinate.intX() - radius,
                 referenceCoordinate.intY() - radius,
@@ -276,7 +281,7 @@ public final class ActivityQuery {
 
             this.boundingCoordinates(minCoordinate, maxCoordinate);
 
-            return this;
+            return self();
         }
 
         /**
@@ -288,12 +293,12 @@ public final class ActivityQuery {
          *
          * @return The builder
          */
-        public ActivityQueryBuilder restore() {
+        public B restore() {
             this.lookup(false);
             this.grouped(false);
             this.sort(Sort.ASCENDING);
 
-            return this;
+            return self();
         }
 
         /**
@@ -305,12 +310,12 @@ public final class ActivityQuery {
          *
          * @return The builder
          */
-        public ActivityQueryBuilder rollback() {
+        public B rollback() {
             this.lookup(false);
             this.grouped(false);
             this.sort(Sort.DESCENDING);
 
-            return this;
+            return self();
         }
     }
 }

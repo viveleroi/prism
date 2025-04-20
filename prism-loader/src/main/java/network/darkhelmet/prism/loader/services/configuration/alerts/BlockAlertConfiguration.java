@@ -20,11 +20,11 @@
 
 package network.darkhelmet.prism.loader.services.configuration.alerts;
 
+import java.util.List;
+
 import lombok.Getter;
 
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
-
-import java.util.List;
 
 @ConfigSerializable
 @Getter

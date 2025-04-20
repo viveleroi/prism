@@ -32,8 +32,8 @@ import java.util.Locale;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.TextColor;
 
-import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivityQuery;
 import network.darkhelmet.prism.bukkit.services.lookup.LookupService;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
 import network.darkhelmet.prism.bukkit.utils.BlockUtils;
@@ -170,13 +170,11 @@ public class BukkitAlertService {
         // Cache the block state as it's being changed
         var blockState = block.getState();
 
-        // Query for block place actions at this location
-        var location = blockState.getLocation();
-        var query = ActivityQuery.builder()
+        var query = BukkitActivityQuery.builder()
             .grouped(false)
             .actionType(BukkitActionTypeRegistry.BLOCK_PLACE)
             .material(blockState.getType().toString().toLowerCase(Locale.ENGLISH))
-            .coordinate(location.getBlockX(), location.getBlockY(), location.getBlockZ())
+            .location(blockState.getLocation())
             .limit(1)
             .build();
 
