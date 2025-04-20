@@ -93,8 +93,8 @@ public interface MessageService {
     @Message("rich.error.param-invalid-world")
     void errorParamInvalidWorld(CommandSender receiver);
 
-    @Message("rich.error.param-r-and-in-chunk")
-    void errorParamRadiusAndChunk(CommandSender receiver);
+    @Message("rich.error.param-r-and-in")
+    void errorParamRadiusAndIn(CommandSender receiver);
 
     @Message("rich.error.peek-no-item")
     void errorPeekNoItem(CommandSender receiver);

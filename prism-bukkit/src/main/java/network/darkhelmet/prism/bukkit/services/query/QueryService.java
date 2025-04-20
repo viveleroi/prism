@@ -234,8 +234,14 @@ public class QueryService {
         // Read "r" parameter from arguments or defaults
         Integer r = null;
         if (arguments.getArgument("r", Integer.class).isPresent()) {
+            if (in != null) {
+                messageService.errorParamRadiusAndIn(sender);
+
+                return Optional.empty();
+            }
+
             r = arguments.getArgument("r", Integer.class).get();
-        } else if (!arguments.hasFlag("nodefaults")
+        } else if (in == null && !arguments.hasFlag("nodefaults")
                 && configurationService.prismConfig().defaults().parameters().containsKey("r")) {
             r = Integer.parseInt(configurationService.prismConfig().defaults().parameters().get("r"));
 
@@ -251,12 +257,6 @@ public class QueryService {
             } else if (referenceLocation != null && at == null) {
                 builder.referenceCoordinate(
                     new Coordinate(referenceLocation.getX(), referenceLocation.getY(), referenceLocation.getZ()));
-            }
-
-            if (in != null && in.equalsIgnoreCase("chunk")) {
-                messageService.errorParamRadiusAndChunk(sender);
-
-                return Optional.empty();
             }
 
             builder.worldUuid(world.getUID());
