@@ -77,6 +77,8 @@ public class BukkitActionTypeRegistry extends AbstractActionTypeRegistry {
         new EntityActionType("entity-transform", ActionResultType.CREATES, false, ReasonMetadata.class);
     public static final ActionType ENTITY_UNLEASH =
         new EntityActionType("entity-unleash", ActionResultType.NONE, false);
+    public static final ActionType FIREWORK_LAUNCH =
+        new GenericActionType("firework-launch", ActionResultType.NONE, false);
     public static final ActionType FLUID_FLOW =
         new BlockActionType("fluid-flow", ActionResultType.CREATES, true);
     public static final ActionType HANGING_BREAK =
@@ -148,6 +150,7 @@ public class BukkitActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(ENTITY_SHEAR);
         registerAction(ENTITY_TRANSFORM);
         registerAction(ENTITY_UNLEASH);
+        registerAction(FIREWORK_LAUNCH);
         registerAction(FLUID_FLOW);
         registerAction(HANGING_BREAK);
         registerAction(HANGING_PLACE);

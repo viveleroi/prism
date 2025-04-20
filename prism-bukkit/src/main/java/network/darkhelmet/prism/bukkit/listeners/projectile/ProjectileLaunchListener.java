@@ -32,6 +32,7 @@ import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
 import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.ThrowableProjectile;
 import org.bukkit.event.EventHandler;
@@ -70,6 +71,9 @@ public class ProjectileLaunchListener extends AbstractListener implements Listen
         Action action = null;
         if (event.getEntity() instanceof ThrowableProjectile throwableProjectile) {
             action = new BukkitItemStackAction(BukkitActionTypeRegistry.ITEM_THROW, throwableProjectile.getItem());
+        } else if (event.getEntity() instanceof Firework) {
+            action = new GenericBukkitAction(
+                BukkitActionTypeRegistry.FIREWORK_LAUNCH, nameFromCause(event.getEntity()));
         } else {
             action = new GenericBukkitAction(BukkitActionTypeRegistry.ITEM_THROW, nameFromCause(event.getEntity()));
         }

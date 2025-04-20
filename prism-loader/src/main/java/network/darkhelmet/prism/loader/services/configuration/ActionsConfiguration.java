@@ -104,6 +104,9 @@ public class ActionsConfiguration {
     @Comment("entity-unleash is when a player or natural cause unleashes an entity.")
     private boolean entityUnleash = true;
 
+    @Comment("firework-launch is when a player launches a firework rocket.")
+    private boolean fireworkLaunch = true;
+
     @Comment("""
             fluid-flow tracks the flow of water and lava. Even when this is false,
             prism will record blocks broken by either.
