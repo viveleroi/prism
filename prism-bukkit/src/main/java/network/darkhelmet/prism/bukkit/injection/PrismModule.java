@@ -80,17 +80,17 @@ import network.darkhelmet.prism.bukkit.services.wands.InspectionWand;
 import network.darkhelmet.prism.bukkit.services.wands.RestoreWand;
 import network.darkhelmet.prism.bukkit.services.wands.RollbackWand;
 import network.darkhelmet.prism.bukkit.services.wands.WandService;
-import network.darkhelmet.prism.core.injection.factories.H2ActivityQueryBuilderFactory;
+import network.darkhelmet.prism.core.injection.factories.FileSqlActivityQueryBuilderFactory;
 import network.darkhelmet.prism.core.injection.factories.PurgeQueueFactory;
 import network.darkhelmet.prism.core.injection.factories.RestoreFactory;
 import network.darkhelmet.prism.core.injection.factories.RollbackFactory;
 import network.darkhelmet.prism.core.injection.factories.SqlActivityQueryBuilderFactory;
 import network.darkhelmet.prism.core.services.cache.CacheService;
-import network.darkhelmet.prism.core.storage.adapters.h2.H2ActivityQueryBuilder;
 import network.darkhelmet.prism.core.storage.adapters.h2.H2StorageAdapter;
 import network.darkhelmet.prism.core.storage.adapters.mariadb.MariaDbStorageAdapter;
 import network.darkhelmet.prism.core.storage.adapters.mysql.MysqlStorageAdapter;
 import network.darkhelmet.prism.core.storage.adapters.postgres.PostgresStorageAdapter;
+import network.darkhelmet.prism.core.storage.adapters.sql.FileSqlActivityQueryBuilder;
 import network.darkhelmet.prism.core.storage.adapters.sql.SqlActivityQueryBuilder;
 import network.darkhelmet.prism.core.storage.adapters.sql.SqlSchemaUpdater;
 import network.darkhelmet.prism.core.storage.adapters.sqlite.SqliteStorageAdapter;
@@ -304,10 +304,10 @@ public class PrismModule extends AbstractModule {
         StorageType storageType = prism.loader().configurationService().storageConfig().primaryStorageType();
 
         // Install the correct query builder
-        if (storageType.equals(StorageType.H2)) {
+        if (storageType.equals(StorageType.SQLITE) || storageType.equals(StorageType.H2)) {
             install(new FactoryModuleBuilder()
-                .implement(SqlActivityQueryBuilder.class, H2ActivityQueryBuilder.class)
-                .build(H2ActivityQueryBuilderFactory.class));
+                .implement(SqlActivityQueryBuilder.class, FileSqlActivityQueryBuilder.class)
+                .build(FileSqlActivityQueryBuilderFactory.class));
         } else {
             install(new FactoryModuleBuilder()
                 .implement(SqlActivityQueryBuilder.class, SqlActivityQueryBuilder.class)

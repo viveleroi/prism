@@ -28,7 +28,7 @@ import java.io.File;
 import java.nio.file.Path;
 
 import network.darkhelmet.prism.api.actions.types.ActionTypeRegistry;
-import network.darkhelmet.prism.core.injection.factories.H2ActivityQueryBuilderFactory;
+import network.darkhelmet.prism.core.injection.factories.FileSqlActivityQueryBuilderFactory;
 import network.darkhelmet.prism.core.services.cache.CacheService;
 import network.darkhelmet.prism.core.storage.HikariConfigFactory;
 import network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter;
@@ -56,7 +56,7 @@ public class H2StorageAdapter extends AbstractSqlStorageAdapter {
             ConfigurationService configurationService,
             ActionTypeRegistry actionRegistry,
             SqlSchemaUpdater schemaUpdater,
-            H2ActivityQueryBuilderFactory queryBuilderFactory,
+            FileSqlActivityQueryBuilderFactory queryBuilderFactory,
             CacheService cacheService,
             @Named("serializerVersion") short serializerVersion,
             Path dataPath) {

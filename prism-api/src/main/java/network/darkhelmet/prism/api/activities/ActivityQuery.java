@@ -22,6 +22,8 @@ package network.darkhelmet.prism.api.activities;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import lombok.Builder;
@@ -167,6 +169,24 @@ public final class ActivityQuery {
      */
     public boolean modification() {
         return !lookup && !grouped;
+    }
+
+    /**
+     * Get all action type keys for this query.
+     *
+     * <p>This combines the keys of any defined action types,
+     * and any action type keys defined as strings.</p>
+     *
+     * @return Set of keys
+     */
+    public Set<String> allActionTypeKeys() {
+        var all = new HashSet<>(actionTypeKeys);
+
+        for (var actionType : actionTypes()) {
+            all.add(actionType.key());
+        }
+
+        return all;
     }
 
     public static class ActivityQueryBuilder {

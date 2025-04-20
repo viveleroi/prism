@@ -301,9 +301,36 @@ public class SqlActivityQueryBuilder {
     protected List<Condition> conditions(ActivityQuery query) {
         List<Condition> conditions = new ArrayList<>();
 
+        // Action Types
+        if (!query.actionTypes().isEmpty()) {
+            List<String> actionTypeKeys = new ArrayList<>();
+            for (var actionType : query.actionTypes()) {
+                if (query.lookup() || actionType.reversible()) {
+                    actionTypeKeys.add(actionType.key());
+                }
+            }
+
+            conditions.add(PRISM_ACTIONS.ACTION.in(actionTypeKeys));
+        }
+
+        // Action Type Keys
+        if (!query.actionTypeKeys().isEmpty()) {
+            conditions.add(PRISM_ACTIONS.ACTION.in(query.actionTypeKeys()));
+        }
+
         // Activity IDs
         if (query.activityIds() != null && !query.activityIds().isEmpty()) {
             conditions.add(PRISM_ACTIVITIES.ACTIVITY_ID.in(query.activityIds()));
+        }
+
+        // Cause
+        if (query.cause() != null) {
+            conditions.add(PRISM_CAUSES.CAUSE.equal(query.cause()));
+        }
+
+        // Entity Types
+        if (!query.entityTypes().isEmpty()) {
+            conditions.add(PRISM_ENTITY_TYPES.ENTITY_TYPE.in(query.entityTypes()));
         }
 
         // Locations
@@ -320,36 +347,9 @@ public class SqlActivityQueryBuilder {
                 .between(query.minCoordinate().intZ(), query.maxCoordinate().intZ()));
         }
 
-        // World
-        if (query.worldUuid() != null) {
-            conditions.add(PRISM_WORLDS.WORLD_UUID.equal(query.worldUuid().toString()));
-        }
-
-        // Action Type Keys
-        if (!query.actionTypeKeys().isEmpty()) {
-            conditions.add(PRISM_ACTIONS.ACTION.in(query.actionTypeKeys()));
-        }
-
-        // Action Types
-        if (!query.actionTypes().isEmpty()) {
-            List<String> actionTypeKeys = new ArrayList<>();
-            for (var actionType : query.actionTypes()) {
-                if (query.lookup() || actionType.reversible()) {
-                    actionTypeKeys.add(actionType.key());
-                }
-            }
-
-            conditions.add(PRISM_ACTIONS.ACTION.in(actionTypeKeys));
-        }
-
         // Materials
         if (!query.materials().isEmpty()) {
             conditions.add(PRISM_MATERIALS.MATERIAL.in(query.materials()));
-        }
-
-        // Entity Types
-        if (!query.entityTypes().isEmpty()) {
-            conditions.add(PRISM_ENTITY_TYPES.ENTITY_TYPE.in(query.entityTypes()));
         }
 
         // Players by name
@@ -357,24 +357,24 @@ public class SqlActivityQueryBuilder {
             conditions.add(PRISM_PLAYERS.PLAYER.in(query.playerNames()));
         }
 
-        // Cause
-        if (query.cause() != null) {
-            conditions.add(PRISM_CAUSES.CAUSE.equal(query.cause()));
+        // Reversed
+        if (query.reversed() != null) {
+            conditions.add(PRISM_ACTIVITIES.REVERSED.eq(query.reversed()));
         }
 
         // Timestamps
         if (query.after() != null && query.before() != null) {
             conditions.add(PRISM_ACTIVITIES.TIMESTAMP
-                .between(UInteger.valueOf(query.after()), UInteger.valueOf(query.before())));
+                    .between(UInteger.valueOf(query.after()), UInteger.valueOf(query.before())));
         } else if (query.after() != null) {
             conditions.add(PRISM_ACTIVITIES.TIMESTAMP.greaterThan(UInteger.valueOf(query.after())));
         } else if (query.before() != null) {
             conditions.add(PRISM_ACTIVITIES.TIMESTAMP.lessThan(UInteger.valueOf(query.before())));
         }
 
-        // Reversed
-        if (query.reversed() != null) {
-            conditions.add(PRISM_ACTIVITIES.REVERSED.eq(query.reversed()));
+        // World
+        if (query.worldUuid() != null) {
+            conditions.add(PRISM_WORLDS.WORLD_UUID.equal(query.worldUuid().toString()));
         }
 
         return conditions;

@@ -20,16 +20,16 @@
 
 package network.darkhelmet.prism.core.injection.factories;
 
-import network.darkhelmet.prism.core.storage.adapters.h2.H2ActivityQueryBuilder;
+import network.darkhelmet.prism.core.storage.adapters.sql.FileSqlActivityQueryBuilder;
 
 import org.jooq.DSLContext;
 
-public interface H2ActivityQueryBuilderFactory {
+public interface FileSqlActivityQueryBuilderFactory {
     /**
-     * Create an sql activity query builder.
+     * Create a file sql activity query builder.
      *
      * @param create The dsl context
      * @return The sql activity query builder
      */
-    H2ActivityQueryBuilder create(DSLContext create);
+    FileSqlActivityQueryBuilder create(DSLContext create);
 }
