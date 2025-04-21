@@ -20,4 +20,37 @@
 
 package network.darkhelmet.prism.api.actions.metadata;
 
-public record ReasonMetadata(String reason) {}
+import java.util.Locale;
+import java.util.Map;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Singular;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Metadata {
+    private enum MetadataKey {
+        USING
+    }
+
+    @Getter
+    @Singular("entry")
+    public Map<String, String> data;
+
+    public static class MetadataBuilder {
+        /**
+         * Set the using metadata.
+         *
+         * @param value Using
+         * @return The builder
+         */
+        public MetadataBuilder using(String value) {
+            entry(MetadataKey.USING.toString().toLowerCase(Locale.ENGLISH), value);
+            return this;
+        }
+    }
+}

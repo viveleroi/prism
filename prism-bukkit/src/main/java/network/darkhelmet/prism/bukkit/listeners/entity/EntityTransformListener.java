@@ -24,7 +24,7 @@ import com.google.inject.Inject;
 
 import java.util.Locale;
 
-import network.darkhelmet.prism.api.actions.metadata.ReasonMetadata;
+import network.darkhelmet.prism.api.actions.metadata.Metadata;
 import network.darkhelmet.prism.bukkit.actions.BukkitEntityAction;
 import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
@@ -66,10 +66,11 @@ public class EntityTransformListener extends AbstractListener implements Listene
             return;
         }
 
-        ReasonMetadata reason = new ReasonMetadata(event.getTransformReason().name().toLowerCase(Locale.ENGLISH));
+        var metadata = Metadata.builder()
+            .using(event.getTransformReason().name().toLowerCase(Locale.ENGLISH)).build();
 
         var action = new BukkitEntityAction(
-            BukkitActionTypeRegistry.ENTITY_TRANSFORM, event.getTransformedEntity(), reason);
+            BukkitActionTypeRegistry.ENTITY_TRANSFORM, event.getTransformedEntity(), metadata);
 
         var activity = BukkitActivity.builder()
             .action(action)

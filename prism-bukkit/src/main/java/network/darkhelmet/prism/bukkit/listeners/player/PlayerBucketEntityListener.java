@@ -22,7 +22,7 @@ package network.darkhelmet.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.api.actions.metadata.UsingMetadata;
+import network.darkhelmet.prism.api.actions.metadata.Metadata;
 import network.darkhelmet.prism.bukkit.actions.BukkitEntityAction;
 import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
@@ -65,9 +65,9 @@ public class PlayerBucketEntityListener extends AbstractListener implements List
             return;
         }
 
+        var metadata = Metadata.builder().using(ItemUtils.getItemStackDescriptor(event.getOriginalBucket())).build();
         var action = new BukkitEntityAction(
-            BukkitActionTypeRegistry.ENTITY_REMOVE, event.getEntity(),
-                new UsingMetadata(ItemUtils.getItemStackDescriptor(event.getOriginalBucket())));
+            BukkitActionTypeRegistry.ENTITY_REMOVE, event.getEntity(), metadata);
 
         var bucketEmptyActivity = BukkitActivity.builder()
             .action(action)

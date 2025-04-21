@@ -21,6 +21,7 @@
 package network.darkhelmet.prism.bukkit.actions;
 
 import network.darkhelmet.prism.api.actions.Action;
+import network.darkhelmet.prism.api.actions.metadata.Metadata;
 import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
@@ -54,7 +55,7 @@ public class GenericBukkitAction extends BukkitAction implements Action {
      * @param descriptor The descriptor
      * @param metadata The metadata
      */
-    public GenericBukkitAction(ActionType type, String descriptor, Record metadata) {
+    public GenericBukkitAction(ActionType type, String descriptor, Metadata metadata) {
         super(type, descriptor, metadata);
     }
 
@@ -68,7 +69,7 @@ public class GenericBukkitAction extends BukkitAction implements Action {
     public GenericBukkitAction(ActionType type, String descriptor, String metadata) throws Exception {
         super(type, descriptor);
 
-        this.metadata = ObjectMapper.readValue(metadata, type.metadataClass());
+        this.metadata = ObjectMapper.readValue(metadata, Metadata.class);
     }
 
     @Override

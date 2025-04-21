@@ -22,7 +22,7 @@ package network.darkhelmet.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.api.actions.metadata.UsingMetadata;
+import network.darkhelmet.prism.api.actions.metadata.Metadata;
 import network.darkhelmet.prism.bukkit.actions.GenericBukkitAction;
 import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
@@ -73,8 +73,7 @@ public class PlayerTeleportListener extends AbstractListener implements Listener
                 to.getWorld().getName(), to.getBlockX(), to.getBlockY(), to.getBlockZ());
         }
 
-        UsingMetadata metadata = new UsingMetadata(event.getCause().name().toLowerCase());
-
+        var metadata = Metadata.builder().using(event.getCause().name().toLowerCase()).build();
         var action = new GenericBukkitAction(BukkitActionTypeRegistry.PLAYER_TELEPORT, descriptor, metadata);
 
         var activity = BukkitActivity.builder()

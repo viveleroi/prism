@@ -25,14 +25,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Setter;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 
-import network.darkhelmet.prism.api.actions.metadata.ReasonMetadata;
-import network.darkhelmet.prism.api.actions.metadata.UsingMetadata;
+import network.darkhelmet.prism.api.actions.Action;
+import network.darkhelmet.prism.api.actions.metadata.Metadata;
 import network.darkhelmet.prism.api.actions.types.ActionType;
-import network.darkhelmet.prism.api.services.translation.TranslationService;
 
-public abstract class BukkitAction implements network.darkhelmet.prism.api.actions.Action {
+public abstract class BukkitAction implements Action {
     /**
      * The object mapper.
      */
@@ -52,7 +50,7 @@ public abstract class BukkitAction implements network.darkhelmet.prism.api.actio
     /**
      * The metadata.
      */
-    protected Record metadata;
+    protected Metadata metadata;
 
     /**
      * Construct a new action.
@@ -80,7 +78,7 @@ public abstract class BukkitAction implements network.darkhelmet.prism.api.actio
      * @param descriptor The descriptor
      * @param metadata The metadata
      */
-    public BukkitAction(ActionType type, String descriptor, Record metadata) {
+    public BukkitAction(ActionType type, String descriptor, Metadata metadata) {
         this.type = type;
         this.descriptor = descriptor;
         this.metadata = metadata;
@@ -97,29 +95,8 @@ public abstract class BukkitAction implements network.darkhelmet.prism.api.actio
     }
 
     @Override
-    public Record metadata() {
+    public Metadata metadata() {
         return metadata;
-    }
-
-    @Override
-    public Component metadataComponent(Object receiver, TranslationService translationService) {
-        if (metadata instanceof UsingMetadata usingMetadata) {
-            String using = translationService.translate(receiver, "text.metadata-hover-using");
-
-            return Component.text()
-                .append(Component.text(using + ": ", NamedTextColor.GRAY))
-                .append(Component.text(usingMetadata.using(), NamedTextColor.WHITE))
-                .build();
-        } else if (metadata instanceof ReasonMetadata reasonMetadata) {
-            String reason = translationService.translate(receiver, "text.metadata-hover-reason");
-
-            return Component.text()
-                .append(Component.text(reason + ": ", NamedTextColor.GRAY))
-                .append(Component.text(reasonMetadata.reason(), NamedTextColor.WHITE))
-                .build();
-        }
-
-        return null;
     }
 
     @Override

@@ -25,6 +25,7 @@ import lombok.Getter;
 
 import network.darkhelmet.prism.api.actions.Action;
 import network.darkhelmet.prism.api.actions.ActionData;
+import network.darkhelmet.prism.api.actions.metadata.Metadata;
 
 @Getter
 @EqualsAndHashCode
@@ -45,9 +46,9 @@ public abstract class ActionType {
     protected final boolean reversible;
 
     /**
-     * The metadata class.
+     * The metadata.
      */
-    protected final Class<? extends Record> metadataClass;
+    protected final Metadata metadata;
 
     /**
      * Construct a new action type.
@@ -56,7 +57,8 @@ public abstract class ActionType {
      * @param resultType The result type
      * @param reversible If action is reversible
      */
-    public ActionType(String key, ActionResultType resultType, boolean reversible) {
+    public ActionType(
+            String key, ActionResultType resultType, boolean reversible) {
         this(key, resultType, reversible, null);
     }
 
@@ -64,16 +66,16 @@ public abstract class ActionType {
      * Construct a new action type.
      *
      * @param key The key
+     * @param metadata The metadata
      * @param resultType The result type
      * @param reversible If action is reversible
-     * @param metadataClass The metadata class
      */
     public ActionType(
-            String key, ActionResultType resultType, boolean reversible, Class<? extends Record> metadataClass) {
+            String key, ActionResultType resultType, boolean reversible, Metadata metadata) {
         this.key = key;
+        this.metadata = metadata;
         this.resultType = resultType;
         this.reversible = reversible;
-        this.metadataClass = metadataClass;
     }
 
     /**

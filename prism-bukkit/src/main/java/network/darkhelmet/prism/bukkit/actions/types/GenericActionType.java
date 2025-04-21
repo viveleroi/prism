@@ -34,26 +34,14 @@ public class GenericActionType extends ActionType {
      * @param resultType The result type
      * @param reversible If action is reversible
      */
-    public GenericActionType(String key, ActionResultType resultType, boolean reversible) {
-        this(key, resultType, reversible, null);
-    }
-
-    /**
-     * Construct a new generic action type.
-     *
-     * @param key The key
-     * @param resultType The result type
-     * @param reversible If action is reversible
-     * @param metadataClass The metadata class
-     */
     public GenericActionType(
-            String key, ActionResultType resultType, boolean reversible, Class<? extends Record> metadataClass) {
-        super(key, resultType, reversible, metadataClass);
+            String key, ActionResultType resultType, boolean reversible) {
+        super(key, resultType, reversible);
     }
 
     @Override
     public Action createAction(ActionData actionData) throws Exception {
-        if (this.metadataClass != null && actionData.metadata() != null) {
+        if (actionData.metadata() != null) {
             return new GenericBukkitAction(this, actionData.descriptor(), actionData.metadata());
         } else {
             return new GenericBukkitAction(this, actionData.descriptor());

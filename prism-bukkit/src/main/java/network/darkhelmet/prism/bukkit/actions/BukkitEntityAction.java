@@ -29,6 +29,7 @@ import java.util.UUID;
 import net.kyori.adventure.text.Component;
 
 import network.darkhelmet.prism.api.actions.EntityAction;
+import network.darkhelmet.prism.api.actions.metadata.Metadata;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.api.activities.Activity;
@@ -64,7 +65,7 @@ public class BukkitEntityAction extends BukkitAction implements EntityAction {
      * @param entity The entity
      * @param metadata The metadata
      */
-    public BukkitEntityAction(ActionType type, Entity entity, Record metadata) {
+    public BukkitEntityAction(ActionType type, Entity entity, Metadata metadata) {
         this(type, entity);
 
         this.metadata = metadata;
@@ -99,7 +100,7 @@ public class BukkitEntityAction extends BukkitAction implements EntityAction {
      * @param metadata The metadata
      */
     public BukkitEntityAction(
-            ActionType type, EntityType entityType, ReadWriteNBT readWriteNbt, String descriptor, Record metadata) {
+            ActionType type, EntityType entityType, ReadWriteNBT readWriteNbt, String descriptor, Metadata metadata) {
         super(type, descriptor, metadata);
 
         this.entityType = entityType;

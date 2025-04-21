@@ -22,12 +22,12 @@ package network.darkhelmet.prism.api.actions;
 
 import net.kyori.adventure.text.Component;
 
+import network.darkhelmet.prism.api.actions.metadata.Metadata;
 import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode;
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
-import network.darkhelmet.prism.api.services.translation.TranslationService;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -89,23 +89,12 @@ public interface Action {
      *
      * @return The metadata
      */
-    @Nullable Record metadata();
+    @Nullable Metadata metadata();
 
     /**
-     * Get the metadata as a component.
+     * Serialize the metadata.
      *
-     * <p>Metadata components are used as hover effects for descriptors in chat results.</p>
-     *
-     * @param receiver The receiver
-     * @param translationService The translation service
-     * @return The metadata component.
-     */
-    Component metadataComponent(Object receiver, TranslationService translationService);
-
-    /**
-     * Serialize the metdata.
-     *
-     * @return The serialized metdata
+     * @return The serialized metadata
      * @throws Exception Serialization exception
      */
     String serializeMetadata() throws Exception;

@@ -27,6 +27,7 @@ import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 
 import network.darkhelmet.prism.api.actions.Action;
 import network.darkhelmet.prism.api.actions.ActionData;
+import network.darkhelmet.prism.api.actions.metadata.Metadata;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.bukkit.actions.BukkitEntityAction;
@@ -48,19 +49,6 @@ public class EntityActionType extends ActionType {
         super(key, resultType, reversible);
     }
 
-    /**
-     * Construct a new entity action type.
-     *
-     * @param key The key
-     * @param resultType The result type
-     * @param reversible If action is reversible
-     * @param metadataClass The metadata class
-     */
-    public EntityActionType(
-            String key, ActionResultType resultType, boolean reversible, Class<? extends Record> metadataClass) {
-        super(key, resultType, reversible, metadataClass);
-    }
-
     @Override
     public Action createAction(ActionData actionData) {
         ReadWriteNBT readWriteNbt = null;
@@ -70,10 +58,10 @@ public class EntityActionType extends ActionType {
 
         EntityType type = EntityType.valueOf(actionData.entityType());
 
-        Record metadata = null;
+        Metadata metadata = null;
         if (actionData.metadata() != null) {
             try {
-                metadata = ObjectMapper.readValue(actionData.metadata(), metadataClass());
+                metadata = ObjectMapper.readValue(actionData.metadata(), Metadata.class);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }

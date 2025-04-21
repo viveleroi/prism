@@ -25,6 +25,7 @@ import com.google.inject.Singleton;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -212,8 +213,28 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         if (value.action().descriptor() != null) {
             var builder = Component.text().append(value.action().descriptorComponent());
 
-            if (value.action().metadata() != null) {
-                builder.hoverEvent(HoverEvent.showText(value.action().metadataComponent(receiver, translationService)));
+            if (value.action().metadata() != null && value.action().metadata().data() != null
+                    && !value.action().metadata().data().isEmpty()) {
+                var metadataBuilder = Component.text();
+
+                int size = value.action().metadata().data().entrySet().size();
+                int i = 0;
+                for (var entry : value.action().metadata().data().entrySet()) {
+                    var key = translationService.messageOf(receiver,
+                        String.format("text.metadata-hover-%s", entry.getKey().toLowerCase(Locale.ROOT)));
+
+                    metadataBuilder
+                        .append(Component.text(key + ": ", NamedTextColor.GRAY))
+                        .append(Component.text(entry.getValue(), NamedTextColor.WHITE));
+
+                    if (i < size - 1) {
+                        metadataBuilder.appendNewline();
+                    }
+
+                    i++;
+                }
+
+                builder.hoverEvent(HoverEvent.showText(metadataBuilder.build()));
             }
 
             descriptor = builder.build();

@@ -22,8 +22,6 @@ package network.darkhelmet.prism.bukkit.actions.types;
 
 import com.google.inject.Singleton;
 
-import network.darkhelmet.prism.api.actions.metadata.ReasonMetadata;
-import network.darkhelmet.prism.api.actions.metadata.UsingMetadata;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.core.actions.types.AbstractActionTypeRegistry;
@@ -70,13 +68,13 @@ public class BukkitActionTypeRegistry extends AbstractActionTypeRegistry {
     public static final ActionType ENTITY_PLACE =
         new EntityActionType("entity-place", ActionResultType.CREATES, true);
     public static final ActionType ENTITY_REMOVE =
-        new EntityActionType("entity-remove", ActionResultType.REMOVES, true, UsingMetadata.class);
+        new EntityActionType("entity-remove", ActionResultType.REMOVES, true);
     public static final ActionType ENTITY_SHEAR =
         new EntityActionType("entity-shear", ActionResultType.CREATES, true);
     public static final ActionType ENTITY_RIDE =
         new EntityActionType("entity-ride", ActionResultType.NONE, false);
     public static final ActionType ENTITY_TRANSFORM =
-        new EntityActionType("entity-transform", ActionResultType.CREATES, false, ReasonMetadata.class);
+        new EntityActionType("entity-transform", ActionResultType.CREATES, false);
     public static final ActionType ENTITY_UNLEASH =
         new EntityActionType("entity-unleash", ActionResultType.NONE, false);
     public static final ActionType FIREWORK_LAUNCH =
@@ -111,7 +109,7 @@ public class BukkitActionTypeRegistry extends AbstractActionTypeRegistry {
     public static final ActionType PLAYER_QUIT =
         new GenericActionType("player-quit", ActionResultType.NONE, false);
     public static final ActionType PLAYER_TELEPORT =
-        new GenericActionType("player-teleport", ActionResultType.NONE, false, UsingMetadata.class);
+        new GenericActionType("player-teleport", ActionResultType.NONE, false);
     public static final ActionType RAID_TRIGGER =
         new GenericActionType("raid-trigger", ActionResultType.NONE, false);
     public static final ActionType SIGN_EDIT =
