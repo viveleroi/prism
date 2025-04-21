@@ -92,6 +92,9 @@ public class ActionsConfiguration {
     @Comment("entity-place is when a player places an armor stand or end crystal.")
     private boolean entityPlace = true;
 
+    @Comment("entity-remove is when a player collects an entity, like fish with a water bucket.")
+    private boolean entityRemove = true;
+
     @Comment("entity-ride is when a player rides an entity.")
     private boolean entityRide = true;
 

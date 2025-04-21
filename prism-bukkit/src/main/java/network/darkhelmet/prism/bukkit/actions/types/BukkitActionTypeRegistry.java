@@ -69,6 +69,8 @@ public class BukkitActionTypeRegistry extends AbstractActionTypeRegistry {
         new EntityActionType("entity-leash", ActionResultType.NONE, false);
     public static final ActionType ENTITY_PLACE =
         new EntityActionType("entity-place", ActionResultType.CREATES, true);
+    public static final ActionType ENTITY_REMOVE =
+        new EntityActionType("entity-remove", ActionResultType.REMOVES, true, UsingMetadata.class);
     public static final ActionType ENTITY_SHEAR =
         new EntityActionType("entity-shear", ActionResultType.CREATES, true);
     public static final ActionType ENTITY_RIDE =
@@ -148,6 +150,7 @@ public class BukkitActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(ENTITY_KILL);
         registerAction(ENTITY_LEASH);
         registerAction(ENTITY_PLACE);
+        registerAction(ENTITY_REMOVE);
         registerAction(ENTITY_RIDE);
         registerAction(ENTITY_SHEAR);
         registerAction(ENTITY_TRANSFORM);
