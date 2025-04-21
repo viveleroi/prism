@@ -163,11 +163,14 @@ public class PreviewCommand {
     @Command(value = "preview-restore", alias = {"prs"})
     @Permission("prism.modify")
     public void onPreviewRestore(final Player player, final Arguments arguments) {
-        Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(player, arguments);
+        var builder = queryService.queryFromArguments(player, arguments);
         if (builder.isPresent()) {
             final ActivityQuery query = builder.get().modification().reversed(true).build();
 
-            preview(BukkitRestore.class, player, query);
+            var modificationRuleset = configurationService.prismConfig().modifications().toRulesetBuilder()
+                .overwrite(arguments.hasFlag("overwrite")).build();
+
+            preview(BukkitRestore.class, player, query, modificationRuleset);
         }
     }
 
@@ -181,11 +184,14 @@ public class PreviewCommand {
     @Command(value = "preview-rollback", alias = {"prb"})
     @Permission("prism.modify")
     public void onPreviewRollback(final Player player, final Arguments arguments) {
-        Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(player, arguments);
+        var builder = queryService.queryFromArguments(player, arguments);
         if (builder.isPresent()) {
             final ActivityQuery query = builder.get().modification().reversed(false).build();
 
-            preview(BukkitRollback.class, player, query);
+            var modificationRuleset = configurationService.prismConfig().modifications().toRulesetBuilder()
+                .overwrite(arguments.hasFlag("overwrite")).build();
+
+            preview(BukkitRollback.class, player, query, modificationRuleset);
         }
     }
 
@@ -196,7 +202,12 @@ public class PreviewCommand {
      * @param player The player
      * @param query The query
      */
-    protected void preview(Class<? extends ModificationQueue> clazz, final Player player, final ActivityQuery query) {
+    protected void preview(
+        Class<? extends ModificationQueue> clazz,
+        final Player player,
+        final ActivityQuery query,
+        final ModificationRuleset modificationRuleset
+    ) {
         // Ensure a queue is free
         if (!modificationQueueService.queueAvailable()) {
             messageService.errorQueueNotFree(player);
@@ -219,9 +230,6 @@ public class PreviewCommand {
 
                 return null;
             }
-
-            ModificationRuleset modificationRuleset = configurationService
-                .prismConfig().modifications().toRulesetBuilder().build();
 
             ModificationQueue queue = modificationQueueService
                 .newQueue(clazz, modificationRuleset, player, query, results);

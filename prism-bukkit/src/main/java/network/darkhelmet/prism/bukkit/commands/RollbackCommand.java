@@ -28,11 +28,8 @@ import dev.triumphteam.cmd.core.annotations.CommandFlags;
 import dev.triumphteam.cmd.core.annotations.NamedArguments;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 
-import java.util.Optional;
-
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueueService;
-import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.api.storage.StorageAdapter;
 import network.darkhelmet.prism.bukkit.providers.TaskChainProvider;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
@@ -126,7 +123,7 @@ public class RollbackCommand {
             return;
         }
 
-        Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(sender, arguments);
+        var builder = queryService.queryFromArguments(sender, arguments);
         if (builder.isPresent()) {
             final ActivityQuery query = builder.get().rollback().build();
             taskChainProvider.newChain().asyncFirst(() -> {
@@ -149,8 +146,8 @@ public class RollbackCommand {
                     messageService.defaultsUsed(sender, String.join(" ", query.defaultsUsed()));
                 }
 
-                ModificationRuleset modificationRuleset = configurationService
-                    .prismConfig().modifications().toRulesetBuilder().build();
+                var modificationRuleset = configurationService.prismConfig().modifications().toRulesetBuilder()
+                    .overwrite(arguments.hasFlag("overwrite")).build();
 
                 modificationQueueService.newRollbackQueue(modificationRuleset, sender, query, modifications).apply();
             }).execute();

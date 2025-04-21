@@ -22,6 +22,11 @@ package network.darkhelmet.prism.api.services.modifications;
 
 public enum ModificationSkipReason {
     /**
+     * The block already matches what the modification would do.
+     */
+    ALREADY_SET,
+
+    /**
      * The modification includes blacklisted content.
      */
     BLACKLISTED,
@@ -34,5 +39,5 @@ public enum ModificationSkipReason {
     /**
      * The action has no implementation for the modification.
      */
-    NOT_IMPLEMENTED,
+    NOT_IMPLEMENTED
 }

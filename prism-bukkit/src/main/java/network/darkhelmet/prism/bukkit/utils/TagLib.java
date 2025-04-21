@@ -354,4 +354,9 @@ public class TagLib {
      */
     public static final CustomTag<Material> ALL_ARMOR = new CustomTag<>(Material.class)
         .append(Tag.ITEMS_FOOT_ARMOR, Tag.ITEMS_LEG_ARMOR, Tag.ITEMS_CHEST_ARMOR, Tag.ITEMS_HEAD_ARMOR);
+
+    /**
+     * Blocks which require overwrite to be set in a modification.
+     */
+    public static final CustomTag<Material> REQUIRES_OVERWRITE = new CustomTag<>(Material.class).append(Tag.DOORS);
 }

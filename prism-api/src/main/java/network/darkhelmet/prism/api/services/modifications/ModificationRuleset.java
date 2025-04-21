@@ -55,6 +55,11 @@ public class ModificationRuleset {
     private boolean removeDrops;
 
     /**
+     * Whether to force set blocks even if they seem to be already set.
+     */
+    private boolean overwrite;
+
+    /**
      * The delay between tasks.
      */
     private long taskDelay;

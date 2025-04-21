@@ -37,6 +37,7 @@ import network.darkhelmet.prism.api.services.modifications.ModificationSkipReaso
 import network.darkhelmet.prism.api.services.modifications.StateChange;
 import network.darkhelmet.prism.api.util.Coordinate;
 import network.darkhelmet.prism.bukkit.services.modifications.state.BlockStateChange;
+import network.darkhelmet.prism.bukkit.utils.TagLib;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -249,6 +250,11 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
 
         StateChange<BlockState> stateChange = null;
         if (type().resultType().equals(ActionResultType.REMOVES)) {
+            var canSet = canSet(block, blockData, modificationRuleset, activityContext);
+            if (canSet != null) {
+                return canSet;
+            }
+
             if (mode.equals(ModificationQueueMode.COMPLETING)) {
                 // If rolling back a removal, we need to place the top half of a bisected block
                 // This happens first otherwise the block will break again
@@ -267,6 +273,11 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
                 owner,
                 mode);
         } else if (type().resultType().equals(ActionResultType.CREATES)) {
+            var canSet = canSet(block, replacedBlockData, modificationRuleset, activityContext);
+            if (canSet != null) {
+                return canSet;
+            }
+
             // If the action type creates a block, rollback means we remove it
             stateChange = setBlock(block, location, replacedBlockData, blockData, null, owner, mode);
         }
@@ -297,6 +308,11 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
 
         StateChange<BlockState> stateChange = null;
         if (type().resultType().equals(ActionResultType.CREATES)) {
+            var canSet = canSet(block, blockData, modificationRuleset, activityContext);
+            if (canSet != null) {
+                return canSet;
+            }
+
             if (mode.equals(ModificationQueueMode.COMPLETING)) {
                 // If rolling back a removal, we need to place the top half of a bisected block
                 // This happens first otherwise the block will break again
@@ -308,6 +324,11 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
             // If the action type creates a block, restore means we re-set it
             stateChange = setBlock(block, location, blockData, replacedBlockData, readWriteNbt, owner, mode);
         } else if (type().resultType().equals(ActionResultType.REMOVES)) {
+            var canSet = canSet(block, replacedBlockData, modificationRuleset, activityContext);
+            if (canSet != null) {
+                return canSet;
+            }
+
             // If the action type removes a block, restore means we remove it again
             stateChange = setBlock(block, location, replacedBlockData, blockData, null, owner, mode);
         }
@@ -316,9 +337,36 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
             .activity(activityContext).statusFromMode(mode).stateChange(stateChange).build();
     }
 
+    /**
+     * A convenience method for getting a location.
+     *
+     * @param worldUuid The world uuid
+     * @param coordinate The coordinate
+     * @return The location
+     */
     protected Location location(UUID worldUuid, Coordinate coordinate) {
         World world = Bukkit.getWorld(worldUuid);
         return new Location(world, coordinate.x(), coordinate.y(), coordinate.z());
+    }
+
+    /**
+     * Compare the current block to our planned change and determine if a change is warranted.
+     *
+     * @param block The block
+     * @param newBlockData The new block data
+     * @param modificationRuleset The modification ruleset
+     * @param activityContext The activity context
+     * @return True if already set
+     */
+    protected ModificationResult canSet(
+            Block block, BlockData newBlockData, ModificationRuleset modificationRuleset, Activity activityContext) {
+        if (!modificationRuleset.overwrite() && (TagLib.REQUIRES_OVERWRITE.isTagged(block.getType())
+                || block.getBlockData().matches(newBlockData))) {
+            return ModificationResult.builder()
+                .activity(activityContext).skipReason(ModificationSkipReason.ALREADY_SET).build();
+        }
+
+        return null;
     }
 
     /**

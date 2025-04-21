@@ -441,6 +441,7 @@ public class PrismBukkit implements Prism {
                 Arrays.asList("chunk", "world", "worldedit"));
 
             commandManager.registerFlags(FlagKey.of("query-flags"),
+                Flag.flag("ow").longFlag("overwrite").build(),
                 Flag.flag("nd").longFlag("nodefaults").build(),
                 Flag.flag("ng").longFlag("nogroup").build());
 
