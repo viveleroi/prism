@@ -108,6 +108,7 @@ import network.darkhelmet.prism.bukkit.listeners.player.PlayerTeleportListener;
 import network.darkhelmet.prism.bukkit.listeners.player.PlayerUnleashEntityListener;
 import network.darkhelmet.prism.bukkit.listeners.portal.PortalCreateListener;
 import network.darkhelmet.prism.bukkit.listeners.projectile.ProjectileLaunchListener;
+import network.darkhelmet.prism.bukkit.listeners.raid.RaidTriggerListener;
 import network.darkhelmet.prism.bukkit.listeners.sheep.SheepDyeWoolListener;
 import network.darkhelmet.prism.bukkit.listeners.sign.SignChangeListener;
 import network.darkhelmet.prism.bukkit.listeners.sponge.SpongeAbsorbListener;
@@ -295,6 +296,7 @@ public class PrismBukkit implements Prism {
             registerEvent(PlayerUnleashEntityListener.class);
             registerEvent(ProjectileLaunchListener.class);
             registerEvent(PortalCreateListener.class);
+            registerEvent(RaidTriggerListener.class);
             registerEvent(SheepDyeWoolListener.class);
             registerEvent(SignChangeListener.class);
             registerEvent(SpongeAbsorbListener.class);

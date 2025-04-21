@@ -110,6 +110,8 @@ public class BukkitActionTypeRegistry extends AbstractActionTypeRegistry {
         new GenericActionType("player-quit", ActionResultType.NONE, false);
     public static final ActionType PLAYER_TELEPORT =
         new GenericActionType("player-teleport", ActionResultType.NONE, false, TeleportMetadata.class);
+    public static final ActionType RAID_TRIGGER =
+        new GenericActionType("raid-trigger", ActionResultType.NONE, false);
     public static final ActionType SIGN_EDIT =
         new BlockActionType("sign-edit", ActionResultType.CREATES, false);
     public static final ActionType VEHICLE_BREAK =
@@ -166,6 +168,7 @@ public class BukkitActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(PLAYER_JOIN);
         registerAction(PLAYER_QUIT);
         registerAction(PLAYER_TELEPORT);
+        registerAction(RAID_TRIGGER);
         registerAction(SIGN_EDIT);
         registerAction(VEHICLE_BREAK);
         registerAction(VEHICLE_EXIT);

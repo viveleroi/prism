@@ -158,6 +158,9 @@ public class ActionsConfiguration {
     @Comment("player-teleport is when a player teleports.")
     private boolean playerTeleport = true;
 
+    @Comment("raid-trigger is when a player triggers a raid.")
+    private boolean raidTrigger = true;
+
     @Comment("sign-edit is when a player edits the text on a sign.")
     private boolean signEdit = true;
 
