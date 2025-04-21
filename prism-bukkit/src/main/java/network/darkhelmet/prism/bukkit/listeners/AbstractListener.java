@@ -44,6 +44,8 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Chest;
+import org.bukkit.block.data.type.Stairs;
+import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -167,7 +169,9 @@ public class AbstractListener {
                 // Ignore the tops of bisected blocks or heads of beds
                 if ((affectedBlock.getBlockData() instanceof Bisected bisected
                         && bisected.getHalf().equals(Bisected.Half.TOP)
-                        || affectedBlock.getBlockData() instanceof Bed bed
+                        && !(bisected instanceof Stairs)
+                        && !(bisected instanceof TrapDoor))
+                        || (affectedBlock.getBlockData() instanceof Bed bed
                         && bed.getPart().equals(Bed.Part.HEAD))) {
                     continue;
                 }
