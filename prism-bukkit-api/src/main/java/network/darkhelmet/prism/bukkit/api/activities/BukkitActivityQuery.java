@@ -21,14 +21,16 @@
 package network.darkhelmet.prism.bukkit.api.activities;
 
 import lombok.experimental.SuperBuilder;
+
 import network.darkhelmet.prism.api.activities.ActivityQuery;
+
 import org.bukkit.Location;
 
 @SuperBuilder(toBuilder = true)
 public class BukkitActivityQuery extends ActivityQuery {
-    public abstract static class BukkitActivityQueryBuilder<C extends BukkitActivityQuery, B extends BukkitActivityQueryBuilder<C, B>>
+    public abstract static class BukkitActivityQueryBuilder
+            <C extends BukkitActivityQuery, B extends BukkitActivityQueryBuilder<C, B>>
             extends ActivityQueryBuilder<C, B> {
-
         /**
          * Set the world uuid and coordinate from a Location.
          *

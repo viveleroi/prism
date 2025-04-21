@@ -20,4 +20,4 @@
 
 package network.darkhelmet.prism.api.actions.metadata;
 
-public record TeleportMetadata(String using) {}
+public record UsingMetadata(String using) {}

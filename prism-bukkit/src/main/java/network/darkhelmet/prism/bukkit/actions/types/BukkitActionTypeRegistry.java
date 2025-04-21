@@ -23,7 +23,7 @@ package network.darkhelmet.prism.bukkit.actions.types;
 import com.google.inject.Singleton;
 
 import network.darkhelmet.prism.api.actions.metadata.ReasonMetadata;
-import network.darkhelmet.prism.api.actions.metadata.TeleportMetadata;
+import network.darkhelmet.prism.api.actions.metadata.UsingMetadata;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.core.actions.types.AbstractActionTypeRegistry;
@@ -109,7 +109,7 @@ public class BukkitActionTypeRegistry extends AbstractActionTypeRegistry {
     public static final ActionType PLAYER_QUIT =
         new GenericActionType("player-quit", ActionResultType.NONE, false);
     public static final ActionType PLAYER_TELEPORT =
-        new GenericActionType("player-teleport", ActionResultType.NONE, false, TeleportMetadata.class);
+        new GenericActionType("player-teleport", ActionResultType.NONE, false, UsingMetadata.class);
     public static final ActionType RAID_TRIGGER =
         new GenericActionType("raid-trigger", ActionResultType.NONE, false);
     public static final ActionType SIGN_EDIT =

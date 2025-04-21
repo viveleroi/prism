@@ -28,7 +28,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import network.darkhelmet.prism.api.actions.metadata.ReasonMetadata;
-import network.darkhelmet.prism.api.actions.metadata.TeleportMetadata;
+import network.darkhelmet.prism.api.actions.metadata.UsingMetadata;
 import network.darkhelmet.prism.api.actions.types.ActionType;
 import network.darkhelmet.prism.api.services.translation.TranslationService;
 
@@ -98,12 +98,12 @@ public abstract class BukkitAction implements network.darkhelmet.prism.api.actio
 
     @Override
     public Component metadataComponent(Object receiver, TranslationService translationService) {
-        if (metadata instanceof TeleportMetadata teleportMetadata) {
+        if (metadata instanceof UsingMetadata usingMetadata) {
             String using = translationService.translate(receiver, "text.metadata-hover-using");
 
             return Component.text()
                 .append(Component.text(using + ": ", NamedTextColor.GRAY))
-                .append(Component.text(teleportMetadata.using(), NamedTextColor.WHITE))
+                .append(Component.text(usingMetadata.using(), NamedTextColor.WHITE))
                 .build();
         } else if (metadata instanceof ReasonMetadata reasonMetadata) {
             String reason = translationService.translate(receiver, "text.metadata-hover-reason");
