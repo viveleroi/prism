@@ -43,6 +43,8 @@ import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.ChiseledBookshelf;
 import org.bukkit.block.Jukebox;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -135,6 +137,10 @@ public class PlayerInteractListener extends AbstractListener implements Listener
             return;
         }
 
+        final BlockState blockState = block.getState();
+        final Location location = block.getLocation();
+        final ItemStack heldItem = player.getInventory().getItemInMainHand();
+
         if (event.getAction().equals(org.bukkit.event.block.Action.PHYSICAL)
                 && block.getType().equals(Material.FARMLAND)) {
             // Record block break for crop
@@ -146,9 +152,20 @@ public class PlayerInteractListener extends AbstractListener implements Listener
             return;
         }
 
-        if (event.getClickedBlock().getState() instanceof Jukebox jukebox) {
-            recordJukeboxActivity(jukebox, event.getClickedBlock().getLocation(), player);
-        } else if (event.getClickedBlock().getState() instanceof InventoryHolder inventoryHolder) {
+        if (blockState instanceof ChiseledBookshelf chiseledBookshelf && event.getClickedPosition() != null) {
+            var slot = chiseledBookshelf.getSlot(event.getClickedPosition());
+            var item = chiseledBookshelf.getInventory().getItem(slot);
+
+            if (item == null) {
+                if (Tag.ITEMS_BOOKSHELF_BOOKS.isTagged(heldItem.getType())) {
+                    recordItemInsertActivity(location, player, heldItem, 1);
+                }
+            } else {
+                recordItemRemoveActivity(location, player, heldItem, 1);
+            }
+        } else if (blockState instanceof Jukebox jukebox) {
+            recordJukeboxActivity(jukebox, location, player);
+        } else if (blockState instanceof InventoryHolder inventoryHolder) {
             // Ignore if this event is disabled
             if (!configurationService.prismConfig().actions().inventoryOpen()) {
                 return;
@@ -160,29 +177,27 @@ public class PlayerInteractListener extends AbstractListener implements Listener
                 return;
             }
 
-            var action = new BukkitBlockAction(
-                BukkitActionTypeRegistry.INVENTORY_OPEN, event.getClickedBlock().getState());
+            var action = new BukkitBlockAction(BukkitActionTypeRegistry.INVENTORY_OPEN, blockState);
 
             var activity = BukkitActivity.builder()
                 .action(action)
                 .player(player)
-                .location(event.getClickedBlock().getLocation())
+                .location(location)
                 .build();
 
             recordingService.addToQueue(activity);
-        } else if (TagLib.USABLE.isTagged(event.getClickedBlock().getType())) {
+        } else if (TagLib.USABLE.isTagged(block.getType())) {
             // Ignore if this event is disabled
             if (!configurationService.prismConfig().actions().blockUse()) {
                 return;
             }
 
-            var action = new BukkitBlockAction(
-                BukkitActionTypeRegistry.BLOCK_USE, event.getClickedBlock().getState());
+            var action = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_USE, blockState);
 
             var activity = BukkitActivity.builder()
                 .action(action)
                 .player(player)
-                .location(event.getClickedBlock().getLocation())
+                .location(location)
                 .build();
 
             recordingService.addToQueue(activity);
