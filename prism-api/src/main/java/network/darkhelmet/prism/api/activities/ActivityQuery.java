@@ -287,10 +287,6 @@ public class ActivityQuery {
         /**
          * Indicate this query is for use with a restore modifier.
          *
-         * <p>Sets lookup and grouped to false,
-         * sort direction to ascending,
-         * reversed boolean to true.</p>
-         *
          * @return The builder
          */
         public B restore() {
@@ -304,16 +300,12 @@ public class ActivityQuery {
         /**
          * Indicate this query is for use with modifiers.
          *
-         * <p>Sets lookup and grouped to false,
-         * sort direction to descending,
-         * reversed boolean to false.</p>
-         *
          * @return The builder
          */
         public B rollback() {
             this.lookup(false);
             this.grouped(false);
-            this.sort(Sort.DESCENDING);
+            this.sort(Sort.ASCENDING);
 
             return self();
         }
