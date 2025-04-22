@@ -35,6 +35,7 @@ import network.darkhelmet.prism.loader.services.configuration.ConfigurationServi
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.PistonMoveReaction;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -63,6 +64,13 @@ public class BlockPistonExtendListener extends AbstractListener implements Liste
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPistonExtend(final BlockPistonExtendEvent event) {
+        // Allow tracking block-break of dragon eggs even if block-shift false
+        for (Block block : event.getBlocks()) {
+            if (block.getPistonMoveReaction().equals(PistonMoveReaction.BREAK)) {
+                recordBlockBreakAction(block, "piston");
+            }
+        }
+
         // Ignore if this event is disabled
         if (!configurationService.prismConfig().actions().blockShift()) {
             return;

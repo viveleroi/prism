@@ -54,7 +54,8 @@ public class ActionsConfiguration {
     @Comment("""
             block-shift is when a piston pushes or pulls a block.
             It's disabled by default because these are difficult to rollback
-            and can become extremely spammy due to redstone contraptions.""")
+            and can become extremely spammy due to redstone contraptions.
+            It WILL record dragon egg breaks even if block-shift is disabled.""")
     private boolean blockShift = false;
 
     @Comment("""
