@@ -29,6 +29,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -64,6 +65,16 @@ public class ItemUtils {
     }
 
     /**
+     * Get the material "nice" name for an item stack.
+     *
+     * @param itemStack The item stack
+     * @return The material name
+     */
+    public static String materialName(ItemStack itemStack) {
+        return itemStack.getType().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+    }
+
+    /**
      * Checks for null or air items.
      *
      * @param item The item
@@ -80,8 +91,7 @@ public class ItemUtils {
      * @return A descriptor
      */
     public static String getItemStackDescriptor(ItemStack itemStack) {
-        StringBuilder descriptor = new StringBuilder(itemStack.getType().name().toLowerCase(Locale.ENGLISH)
-            .replace('_', ' '));
+        StringBuilder descriptor = new StringBuilder(materialName(itemStack));
 
         var meta = itemStack.hasItemMeta() ? itemStack.getItemMeta() : null;
 
@@ -93,7 +103,7 @@ public class ItemUtils {
         } else if (meta instanceof SkullMeta skullMeta) {
             // Skulls
             if (skullMeta.hasOwner()) {
-                descriptor.append(skullMeta.getOwningPlayer().getName()).append("'s ");
+                descriptor = new StringBuilder().append(skullMeta.getOwningPlayer().getName()).append("'s head");
             }
         } else if (meta instanceof BookMeta bookMeta) {
             // Books
@@ -104,17 +114,21 @@ public class ItemUtils {
             if (bookMeta.hasAuthor()) {
                 descriptor.append(" by ").append(bookMeta.getAuthor());
             }
-        }
+        } else if (meta instanceof EnchantmentStorageMeta enchantmentStorageMeta
+                && enchantmentStorageMeta.hasStoredEnchants()) {
+            if (itemStack.getType().equals(Material.ENCHANTED_BOOK)) {
+                var first = enchantmentStorageMeta.getStoredEnchants().entrySet().iterator().next();
 
-        // Custom name
-        if (meta != null) {
-            if (meta.hasDisplayName() && !meta.getDisplayName().isEmpty()) {
-                descriptor.append(" named \"").append(meta.getDisplayName()).append("\"");
+                descriptor = new StringBuilder();
+                descriptor.append(first.getKey().getKey().getKey().replaceAll("_", " "));
+
+                if (first.getValue() > 1) {
+                    descriptor.append(" ").append(first.getValue() == 2 ? "II" : "III");
+                }
+
+                descriptor.append(" book");
             }
-        }
-
-        // Potions
-        if (itemStack.getItemMeta() instanceof PotionMeta potionMeta) {
+        } else if (meta instanceof PotionMeta potionMeta) {
             var potionType = potionMeta.getBasePotionType();
             if (potionType != null) {
                 var name = potionType.name().replaceAll("_", " ").toLowerCase(Locale.ENGLISH);
@@ -128,6 +142,13 @@ public class ItemUtils {
                 }
 
                 descriptor.append(" of ").append(name);
+            }
+        }
+
+        // Custom name
+        if (meta != null) {
+            if (meta.hasDisplayName() && !meta.getDisplayName().isEmpty()) {
+                descriptor.append(" named \"").append(meta.getDisplayName()).append("\"");
             }
         }
 

@@ -161,7 +161,7 @@ public class PlayerInteractListener extends AbstractListener implements Listener
                     recordItemInsertActivity(location, player, heldItem, 1);
                 }
             } else {
-                recordItemRemoveActivity(location, player, heldItem, 1);
+                recordItemRemoveActivity(location, player, item, 1);
             }
         } else if (blockState instanceof Jukebox jukebox) {
             recordJukeboxActivity(jukebox, location, player);
