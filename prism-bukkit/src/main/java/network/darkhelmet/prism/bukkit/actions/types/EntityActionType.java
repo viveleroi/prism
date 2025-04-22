@@ -20,10 +20,10 @@
 
 package network.darkhelmet.prism.bukkit.actions.types;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.iface.ReadWriteNBT;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import network.darkhelmet.prism.api.actions.Action;
 import network.darkhelmet.prism.api.actions.ActionData;
