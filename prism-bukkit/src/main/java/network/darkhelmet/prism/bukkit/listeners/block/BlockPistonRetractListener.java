@@ -33,6 +33,7 @@ import network.darkhelmet.prism.loader.services.configuration.ConfigurationServi
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.PistonMoveReaction;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -67,7 +68,9 @@ public class BlockPistonRetractListener extends AbstractListener implements List
         }
 
         for (Block block : event.getBlocks()) {
-            if (block.getType().equals(Material.AIR)) {
+            // Ignore blocks that we already tracked or won't be affected
+            if (block.getType().equals(Material.AIR)
+                    || !block.getPistonMoveReaction().equals(PistonMoveReaction.MOVE)) {
                 continue;
             }
 

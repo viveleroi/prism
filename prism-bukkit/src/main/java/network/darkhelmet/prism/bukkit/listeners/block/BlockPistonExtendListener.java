@@ -22,14 +22,12 @@ package network.darkhelmet.prism.bukkit.listeners.block;
 
 import com.google.inject.Inject;
 
-import network.darkhelmet.prism.api.actions.Action;
 import network.darkhelmet.prism.bukkit.actions.BukkitBlockAction;
 import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
 import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
-import network.darkhelmet.prism.bukkit.utils.TagLib;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.Location;
@@ -77,19 +75,18 @@ public class BlockPistonExtendListener extends AbstractListener implements Liste
         }
 
         for (Block block : event.getBlocks()) {
-            if (block.getType().equals(Material.AIR)) {
+            // Ignore blocks that we already tracked or won't be affected
+            if (block.getType().equals(Material.AIR)
+                    || block.getPistonMoveReaction().equals(PistonMoveReaction.BLOCK)
+                    || block.getPistonMoveReaction().equals(PistonMoveReaction.BREAK)
+                    || block.getPistonMoveReaction().equals(PistonMoveReaction.IGNORE)) {
                 continue;
             }
 
             Location newBlockLocation = block.getRelative(event.getDirection()).getLocation();
 
-            Action action;
-            if (TagLib.TOP_DETACHABLES.isTagged(block.getType())) {
-                action = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_BREAK, block.getState());
-            } else {
-                action = new BukkitBlockAction(
-                    BukkitActionTypeRegistry.BLOCK_SHIFT, block.getState(), newBlockLocation.getBlock().getState());
-            }
+            var action = new BukkitBlockAction(
+                BukkitActionTypeRegistry.BLOCK_SHIFT, block.getState(), newBlockLocation.getBlock().getState());
 
             var activity = BukkitActivity.builder().action(action).location(newBlockLocation).cause("piston").build();
 
