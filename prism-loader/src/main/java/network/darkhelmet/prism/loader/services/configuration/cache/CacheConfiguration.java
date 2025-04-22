@@ -38,6 +38,10 @@ public class CacheConfiguration {
     private CacheBuilderConfiguration lookupExpiration = new CacheBuilderConfiguration(
         3, new DurationConfiguration(5, TimeUnit.MINUTES));
 
+    @Comment("Cache settings for default entity nbt data.")
+    private CacheBuilderConfiguration nbtEntityDefaults = new CacheBuilderConfiguration(200,
+        new DurationConfiguration(15, TimeUnit.MINUTES));
+
     @Comment("Cache settings for action key/primary keys.")
     private CacheBuilderConfiguration pkCacheActionKey = new CacheBuilderConfiguration(100);
 

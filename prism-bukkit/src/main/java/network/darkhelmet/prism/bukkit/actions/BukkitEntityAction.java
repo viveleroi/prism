@@ -34,6 +34,8 @@ import network.darkhelmet.prism.api.services.modifications.ModificationQueueMode
 import network.darkhelmet.prism.api.services.modifications.ModificationResult;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.api.util.Coordinate;
+import network.darkhelmet.prism.bukkit.PrismBukkit;
+import network.darkhelmet.prism.bukkit.services.nbt.NbtService;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -78,24 +80,9 @@ public class BukkitEntityAction extends BukkitAction implements EntityAction {
         this.entityType = entity.getType();
 
         readWriteNbt = NBT.createNBTObject();
-        NBT.get(entity, readWriteNbt::mergeCompound);
 
-        // Strip some data we don't want to track/rollback.
-        String[] rejects = {
-            "DeathTime",
-            "Fire",
-            "Health",
-            "HurtByTimestamp",
-            "HurtTime",
-            "OnGround",
-            "Pos",
-            "WorldUUIDLeast",
-            "WorldUUIDMost"
-        };
-
-        for (String reject : rejects) {
-            readWriteNbt.removeKey(reject);
-        }
+        var nbtService = PrismBukkit.instance().injectorProvider().injector().getInstance(NbtService.class);
+        nbtService.processEntityNbt(entity, readWriteNbt::mergeCompound);
 
         this.descriptor = entityType.toString().toLowerCase(Locale.ENGLISH).replace("_", " ");
     }

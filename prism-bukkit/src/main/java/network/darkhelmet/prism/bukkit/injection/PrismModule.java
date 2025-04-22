@@ -74,6 +74,7 @@ import network.darkhelmet.prism.bukkit.services.messages.resolvers.WandModePlace
 import network.darkhelmet.prism.bukkit.services.modifications.BukkitModificationQueueService;
 import network.darkhelmet.prism.bukkit.services.modifications.BukkitRestore;
 import network.darkhelmet.prism.bukkit.services.modifications.BukkitRollback;
+import network.darkhelmet.prism.bukkit.services.nbt.NbtService;
 import network.darkhelmet.prism.bukkit.services.purge.BukkitPurgeQueue;
 import network.darkhelmet.prism.bukkit.services.purge.PurgeService;
 import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
@@ -269,6 +270,9 @@ public class PrismModule extends AbstractModule {
 
         // Service - Modifications
         bind(ModificationQueueService.class).to(BukkitModificationQueueService.class).in(Singleton.class);
+
+        // Service - Nbt
+        bind(NbtService.class).in(Singleton.class);
 
         install(new FactoryModuleBuilder()
             .implement(Restore.class, BukkitRestore.class)
