@@ -282,7 +282,7 @@ public class QueryService {
                 return Optional.empty();
             }
 
-            String[] segments = bounds.split("-");
+            String[] segments = bounds.split("/");
             if (segments.length != 2) {
                 messageService.errorParamBoundsInvalid(sender);
 
