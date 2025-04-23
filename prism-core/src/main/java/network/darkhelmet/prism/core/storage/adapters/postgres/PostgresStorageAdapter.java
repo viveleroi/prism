@@ -174,7 +174,7 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
 
     @Override
     public ActivityBatch createActivityBatch() {
-        if (configurationService.storageConfig().mysql().useStoredProcedures()) {
+        if (configurationService.storageConfig().postgres().useStoredProcedures()) {
             return new SqlActivityProcedureBatch(loggingService, dataSource, serializerVersion, prefix);
         }
 
