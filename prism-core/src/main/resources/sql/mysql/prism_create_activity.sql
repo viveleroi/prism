@@ -5,7 +5,7 @@ CREATE PROCEDURE %prefix%create_activity (
     IN `z` INT,
     IN `action` VARCHAR(25),
     IN `cause` VARCHAR(25),
-    IN `player` VARCHAR(16),
+    IN `player` VARCHAR(32),
     IN `playerUuid` CHAR(36),
     IN `entityType` VARCHAR(25),
     IN `material` VARCHAR(45),

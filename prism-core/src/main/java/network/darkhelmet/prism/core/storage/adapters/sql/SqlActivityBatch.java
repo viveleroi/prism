@@ -397,29 +397,27 @@ public class SqlActivityBatch implements ActivityBatch {
 
         long primaryKey;
 
-        // Select the existing record
-        UInteger intPk = create
-            .select(PRISM_PLAYERS.PLAYER_ID)
+        // Create the player or update the name
+        create
+            .insertInto(PRISM_PLAYERS, PRISM_PLAYERS.PLAYER_UUID, PRISM_PLAYERS.PLAYER)
+            .values(playerUuid.toString(), playerName)
+            .onConflict(PRISM_PLAYERS.PLAYER_UUID)
+            .doUpdate()
+            .set(PRISM_PLAYERS.PLAYER, playerName)
+            .execute();
+
+        // Get the primary key.
+        // Every but postgres needs a second query to get the pk, so we just do this for everyone.
+        var result = create.select(PRISM_PLAYERS.PLAYER_ID)
             .from(PRISM_PLAYERS)
-            .where(PRISM_PLAYERS.PLAYER_UUID.equal(playerUuid.toString()))
-            .fetchOne(PRISM_PLAYERS.PLAYER_ID);
+            .where(PRISM_PLAYERS.PLAYER_UUID.eq(playerUuid.toString()))
+            .fetchOne();
 
-        if (intPk != null) {
-            primaryKey = intPk.longValue();
+        if (result != null) {
+            primaryKey = result.value1().longValue();
         } else {
-            // Attempt to create the record, or update the world name
-            intPk = create
-                .insertInto(PRISM_PLAYERS, PRISM_PLAYERS.PLAYER_UUID, PRISM_PLAYERS.PLAYER)
-                .values(playerUuid.toString(), playerName)
-                .returningResult(PRISM_PLAYERS.PLAYER_ID)
-                .fetchOne(PRISM_PLAYERS.PLAYER_ID);
-
-            if (intPk != null) {
-                primaryKey = intPk.longValue();
-            } else {
-                throw new SQLException(
-                    String.format("Failed to get or create a player record. Player: %s", playerUuid));
-            }
+            throw new SQLException(
+                String.format("Failed to get or create a player record. Player: %s", playerUuid));
         }
 
         cacheService.playerUuidPkMap().put(playerUuid, primaryKey);

@@ -5,7 +5,7 @@ CREATE OR REPLACE FUNCTION %prefix%create_activity (
     p_z INTEGER,
     p_action VARCHAR(25),
     p_cause VARCHAR(25),
-    p_player VARCHAR(16),
+    p_player VARCHAR(32),
     p_playerUuid CHAR(36),
     p_entityType VARCHAR(25),
     p_material VARCHAR(45),

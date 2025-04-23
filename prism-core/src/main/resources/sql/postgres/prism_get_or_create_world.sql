@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION %prefix%get_or_create_world(worldName VARCHAR(255), uuid VARCHAR(55))
+CREATE OR REPLACE FUNCTION %prefix%get_or_create_world(worldName VARCHAR(255), uuid CHAR(36))
 RETURNS SMALLINT AS $$
 DECLARE
     worldId SMALLINT;
