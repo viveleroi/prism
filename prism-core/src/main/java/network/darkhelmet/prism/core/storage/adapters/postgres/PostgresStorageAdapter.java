@@ -124,6 +124,7 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
 
             loggingService.info("Database: {0} {1}", databaseProduct, databaseVersion);
 
+            var usingStoredProcedures = false;
             if (configurationService.storageConfig().postgres().useStoredProcedures()) {
                 boolean supportsProcedures = databaseMetaData.supportsStoredProcedures();
                 loggingService.info("supports procedures: {0}", supportsProcedures);
@@ -133,14 +134,15 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
                         .into(Boolean.class);
                 loggingService.info("can create functions: {0}", canCreateFunctions);
 
-                var usingStoredProcedures = supportsProcedures && canCreateFunctions
+                usingStoredProcedures = supportsProcedures && canCreateFunctions
                     && configurationService.storageConfig().postgres().useStoredProcedures();
-                loggingService.info("using stored procedures: {0}", usingStoredProcedures);
 
                 if (!usingStoredProcedures) {
                     configurationService.storageConfig().postgres().disallowStoredProcedures();
                 }
             }
+
+            loggingService.info("using stored procedures: {0}", usingStoredProcedures);
         }
     }
 

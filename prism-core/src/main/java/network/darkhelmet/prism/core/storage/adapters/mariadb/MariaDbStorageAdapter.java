@@ -132,6 +132,7 @@ public class MariaDbStorageAdapter extends AbstractSqlStorageAdapter {
                 loggingService.warn("Your database version appears to be older than prism supports.");
             }
 
+            var usingStoredProcedures = false;
             if (configurationService.storageConfig().mariadb().useStoredProcedures()) {
                 boolean supportsProcedures = databaseMetaData.supportsStoredProcedures();
                 loggingService.info("supports procedures: {0}", supportsProcedures);
@@ -143,14 +144,15 @@ public class MariaDbStorageAdapter extends AbstractSqlStorageAdapter {
                         + configurationService.storageConfig().mariadb().database());
                 loggingService.info("can create routines: {0}", canCreateRoutines);
 
-                var usingStoredProcedures = supportsProcedures && canCreateRoutines
+                usingStoredProcedures = supportsProcedures && canCreateRoutines
                     && configurationService.storageConfig().mariadb().useStoredProcedures();
-                loggingService.info("using stored procedures: {0}", usingStoredProcedures);
 
                 if (!usingStoredProcedures) {
                     configurationService.storageConfig().mariadb().disallowStoredProcedures();
                 }
             }
+
+            loggingService.info("using stored procedures: {0}", usingStoredProcedures);
 
             Map<String, String> dbVars = create.fetch("SHOW VARIABLES").intoMap(
                 r -> r.get(0, String.class),

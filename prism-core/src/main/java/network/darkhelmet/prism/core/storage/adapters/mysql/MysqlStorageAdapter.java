@@ -132,6 +132,7 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
                 loggingService.warn("Your database version appears to be older than prism supports.");
             }
 
+            var usingStoredProcedures = false;
             if (configurationService.storageConfig().mysql().useStoredProcedures()) {
                 boolean supportsProcedures = databaseMetaData.supportsStoredProcedures();
                 loggingService.info("supports procedures: {0}", supportsProcedures);
@@ -143,14 +144,15 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
                         + configurationService.storageConfig().mysql().database());
                 loggingService.info("can create routines: {0}", canCreateRoutines);
 
-                var usingStoredProcedures = supportsProcedures && canCreateRoutines
+                usingStoredProcedures = supportsProcedures && canCreateRoutines
                     && configurationService.storageConfig().mysql().useStoredProcedures();
-                loggingService.info("using stored procedures: {0}", usingStoredProcedures);
 
                 if (!usingStoredProcedures) {
                     configurationService.storageConfig().mysql().disallowStoredProcedures();
                 }
             }
+
+            loggingService.info("using stored procedures: {0}", usingStoredProcedures);
 
             Map<String, String> dbVars = create.fetch("SHOW VARIABLES").intoMap(
                 r -> r.get(0, String.class),
