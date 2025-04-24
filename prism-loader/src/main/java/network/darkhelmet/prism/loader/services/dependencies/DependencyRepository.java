@@ -44,13 +44,13 @@ import java.util.concurrent.TimeUnit;
  */
 public enum DependencyRepository {
     /**
-     * Maven Central mirror repository.
+     * Prism's nexus/maven proxy.
      *
      * <p>This is used to reduce the load on repo.maven.org - I'm told they
      * don't like being used as a CDN.</p>
      */
-    // Nexus mirror specifically for prism and other darkhelmet projects
-    DH_MIRROR("https://nexus.darkhelmet.network/repository/maven-central/") {
+    // Nexus mirror specifically for prism
+    PRISM_MIRROR("https://nexus.prism-mc.org/repository/maven-central/") {
         @Override
         protected URLConnection openConnection(Dependency dependency) throws IOException, URISyntaxException {
             URLConnection connection = super.openConnection(dependency);
