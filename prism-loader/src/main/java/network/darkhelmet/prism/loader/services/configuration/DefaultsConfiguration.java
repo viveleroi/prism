@@ -32,6 +32,9 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 @ConfigSerializable
 @Getter
 public class DefaultsConfiguration {
+    @Comment("The default radius for the drain command.")
+    private int drainRadius = 5;
+
     @Comment("The default radius for the extinguish command.")
     private int extinguishRadius = 5;
 
