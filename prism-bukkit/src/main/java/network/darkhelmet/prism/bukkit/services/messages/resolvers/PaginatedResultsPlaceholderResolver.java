@@ -50,7 +50,7 @@ public class PaginatedResultsPlaceholderResolver
 
         Component perPage = Component.text(showing);
         Component currentPage = Component.text(value.currentPage());
-        Component totalPages = Component.text(value.totalPages());
+        Component totalPages = Component.text(Math.max(value.totalPages(), 1));
         Component totalResults = Component.text(value.totalResults());
 
         return Map.of(placeholderName + "_per_page", Either.left(ConclusionValue.conclusionValue(perPage)),
