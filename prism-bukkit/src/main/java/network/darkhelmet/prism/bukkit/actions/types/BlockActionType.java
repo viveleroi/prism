@@ -23,7 +23,7 @@ package network.darkhelmet.prism.bukkit.actions.types;
 import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 
-import java.util.Locale;
+import javax.annotation.Nullable;
 
 import network.darkhelmet.prism.api.actions.Action;
 import network.darkhelmet.prism.api.actions.ActionData;
@@ -49,16 +49,8 @@ public class BlockActionType extends ActionType {
 
     @Override
     public Action createAction(ActionData actionData) {
-        BlockData blockData = null;
-        if (actionData.material() != null) {
-            String replacedBlockDataStr = actionData.material().toLowerCase(Locale.ENGLISH);
-
-            if (actionData.materialData() != null) {
-                replacedBlockDataStr += actionData.materialData();
-            }
-
-            blockData = Bukkit.createBlockData(replacedBlockDataStr);
-        }
+        BlockData blockData = createBlockData(
+            actionData.blockNamespace(), actionData.blockName(), actionData.blockData());
 
         ReadWriteNBT readWriteNbt = null;
         if (actionData.customData() != null && actionData.customDataVersion() > 0) {
@@ -66,23 +58,40 @@ public class BlockActionType extends ActionType {
         }
 
         BlockData replacedBlockData = null;
-        if (actionData.replacedMaterial() != null) {
-            String replacedBlockDataStr = actionData.replacedMaterial().toLowerCase(Locale.ENGLISH);
-
-            if (actionData.replacedMaterialData() != null) {
-                replacedBlockDataStr += actionData.replacedMaterialData();
-            }
-
-            replacedBlockData = Bukkit.createBlockData(replacedBlockDataStr);
-        }
-
-        Material material = Material.valueOf(actionData.material());
-        Material replaced = null;
-        if (actionData.replacedMaterial() != null) {
-            replaced = Material.valueOf(actionData.replacedMaterial());
+        if (actionData.replacedBlockData() != null) {
+            replacedBlockData = createBlockData(
+                actionData.replacedBlockNamespace(), actionData.replacedBlockName(), actionData.replacedBlockData());
+        } else {
+            replacedBlockData = Bukkit.createBlockData(Material.AIR);
         }
 
         return new BukkitBlockAction(
-            this, material, blockData, readWriteNbt, replaced, replacedBlockData, actionData.descriptor());
+            this,
+                actionData.blockNamespace(),
+                actionData.blockName(),
+                blockData,
+                readWriteNbt,
+                actionData.replacedBlockNamespace(),
+                actionData.replacedBlockName(),
+                replacedBlockData,
+                actionData.descriptor());
+    }
+
+    /**
+     * Convert a namespace, name, and data into block data.
+     *
+     * @param namespace The namespace
+     * @param name The name
+     * @param data The data, if any
+     * @return The block data
+     */
+    protected BlockData createBlockData(String namespace, String name, @Nullable String data) {
+        var builder = new StringBuilder().append(namespace).append(":").append(name);
+
+        if (data != null) {
+            builder.append(data);
+        }
+
+        return Bukkit.createBlockData(builder.toString());
     }
 }

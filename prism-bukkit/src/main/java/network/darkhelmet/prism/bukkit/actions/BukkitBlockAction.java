@@ -23,8 +23,9 @@ package network.darkhelmet.prism.bukkit.actions;
 import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 
-import java.util.Locale;
 import java.util.UUID;
+
+import lombok.Getter;
 
 import network.darkhelmet.prism.api.actions.BlockAction;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
@@ -54,7 +55,19 @@ import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class BukkitBlockAction extends BukkitMaterialAction implements BlockAction {
+public class BukkitBlockAction extends BukkitAction implements BlockAction {
+    /**
+     * The block namespace.
+     */
+    @Getter
+    private final String blockNamespace;
+
+    /**
+     * The block name.
+     */
+    @Getter
+    private final String blockName;
+
     /**
      * The block data.
      */
@@ -63,12 +76,19 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
     /**
      * The read/write nbt.
      */
-    private final ReadWriteNBT readWriteNbt;
+    private ReadWriteNBT readWriteNbt;
 
     /**
-     * The replaced material.
+     * The replaced block namespace.
      */
-    private final Material replacedMaterial;
+    @Getter
+    private final String replacedBlockNamespace;
+
+    /**
+     * The replaced block name.
+     */
+    @Getter
+    private final String replacedBlockName;
 
     /**
      * The replaced block data.
@@ -93,63 +113,49 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
      * @param replacedBlockState The replaced block state
      */
     public BukkitBlockAction(ActionType type, BlockState blockState, @Nullable BlockState replacedBlockState) {
-        super(type, blockState.getType());
+        this(type, blockState.getBlockData(), replacedBlockState != null ? replacedBlockState.getBlockData() : null);
 
-        // Set new block data
-        this.blockData = blockState.getBlockData();
         if (blockState instanceof TileState) {
             readWriteNbt = NBT.createNBTObject();
             NBT.get(blockState, readWriteNbt::mergeCompound);
-        } else {
-            this.readWriteNbt = null;
-        }
-
-        // Set old block data
-        if (replacedBlockState != null) {
-            this.replacedBlockData = replacedBlockState.getBlockData();
-            this.replacedMaterial = replacedBlockState.getType();
-        } else {
-            this.replacedBlockData = null;
-            this.replacedMaterial = Material.AIR;
         }
     }
 
     /**
-     * Construct a block state action.
-     *
-     * @param type The action type
-     * @param material The material
-     * @param replacedMaterial The replaced material
-     */
-    public BukkitBlockAction(ActionType type, Material material, @Nullable Material replacedMaterial) {
-        super(type, material);
-        this.replacedMaterial = replacedMaterial;
-        this.blockData = null;
-        this.replacedBlockData = null;
-        this.readWriteNbt = null;
-    }
-
-    /**
-     * Construct a block state action.
+     * Construct a block action.
      *
      * @param type The action type
      * @param blockData The block data
      * @param replacedBlockData The replaced block data
      */
     public BukkitBlockAction(ActionType type, BlockData blockData, @Nullable BlockData replacedBlockData) {
-        super(type, blockData.getMaterial());
+        super(type);
 
         // Set new block data
         this.blockData = blockData;
-        this.readWriteNbt = null;
 
-        // Set old block data
-        if (replacedBlockData != null) {
-            this.replacedBlockData = replacedBlockData;
-            this.replacedMaterial = replacedBlockData.getMaterial();
+        // Removes all block data and splits the namespaced key into namespace/block name
+        var segments = this.blockData.getAsString().replaceAll("\\[.*$", "").split(":");
+        if (segments.length > 1) {
+            this.blockNamespace = segments[0];
+            this.blockName = segments[1];
+            this.descriptor = this.blockName.replaceAll("_", " ");
         } else {
-            this.replacedBlockData = null;
-            this.replacedMaterial = Material.AIR;
+            this.blockNamespace = "";
+            this.blockName = segments[0];
+            this.descriptor = segments[0];
+        }
+
+        // Set replaced block data
+        this.replacedBlockData = replacedBlockData;
+        if (replacedBlockData != null) {
+            var replacedSegments = this.replacedBlockData.getAsString()
+                .replaceAll("\\[.*$", "").split(":");
+            this.replacedBlockNamespace = replacedSegments[0];
+            this.replacedBlockName = replacedSegments[1];
+        } else {
+            this.replacedBlockNamespace = null;
+            this.replacedBlockName = null;
         }
     }
 
@@ -157,31 +163,38 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
      * Construct a block state action.
      *
      * @param type The action type
-     * @param material The material
+     * @param blockNamespace The namespace
+     * @param blockName The name
      * @param blockData The block data
      * @param teData The custom data
-     * @param replacedMaterial The replaced material
+     * @param replacedBlockNamespace The replaced block namespace
+     * @param replacedBlockName The replaced block name
      * @param replacedBlockData The replaced block data
      */
     public BukkitBlockAction(
             ActionType type,
-            Material material,
+            String blockNamespace,
+            String blockName,
             BlockData blockData,
             ReadWriteNBT teData,
-            Material replacedMaterial,
+            String replacedBlockNamespace,
+            String replacedBlockName,
             BlockData replacedBlockData,
             String descriptor) {
-        super(type, material, descriptor);
+        super(type, descriptor);
 
+        this.blockNamespace = blockNamespace;
+        this.blockName = blockName;
         this.blockData = blockData;
         this.readWriteNbt = teData;
-        this.replacedMaterial = replacedMaterial;
+        this.replacedBlockNamespace = replacedBlockNamespace;
+        this.replacedBlockName = replacedBlockName;
         this.replacedBlockData = replacedBlockData;
     }
 
     @Override
     public @Nullable String serializeBlockData() {
-        return this.blockData != null ? this.blockData.getAsString().replaceAll("^[^\\[]+", "") : "";
+        return this.blockData != null ? this.blockData.getAsString(true).replaceAll("^[^\\[]+", "") : "";
     }
 
     @Override
@@ -210,21 +223,12 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
     }
 
     @Override
-    public @Nullable String serializeReplacedMaterial() {
-        if (replacedMaterial == null) {
-            return null;
-        }
-
-        return replacedMaterial.toString().toLowerCase(Locale.ENGLISH);
-    }
-
-    @Override
     public @Nullable String serializeReplacedBlockData() {
         if (replacedBlockData == null) {
             return null;
         }
 
-        return this.replacedBlockData.getAsString().replaceAll("^[^\\[]+", "");
+        return this.replacedBlockData.getAsString(true).replaceAll("^[^\\[]+", "");
     }
 
     @Override
@@ -234,12 +238,12 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
             Activity activityContext,
             ModificationQueueMode mode) {
         // Skip if either material is in the blacklist
-        if (modificationRuleset.blockBlacklistContainsAny(material.toString())) {
+        if (modificationRuleset.blockBlacklistContainsAny(blockName)) {
             return ModificationResult.builder()
                 .activity(activityContext).skipReason(ModificationSkipReason.BLACKLISTED).build();
         }
 
-        if (replacedMaterial != null && modificationRuleset.blockBlacklistContainsAny(replacedMaterial.toString())) {
+        if (replacedBlockName != null && modificationRuleset.blockBlacklistContainsAny(replacedBlockName)) {
             return ModificationResult.builder()
                 .activity(activityContext).skipReason(ModificationSkipReason.BLACKLISTED).build();
         }
@@ -292,12 +296,12 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
             Activity activityContext,
             ModificationQueueMode mode) {
         // Skip if either material is in the blacklist
-        if (modificationRuleset.blockBlacklistContainsAny(material.toString())) {
+        if (modificationRuleset.blockBlacklistContainsAny(blockName)) {
             return ModificationResult.builder()
                 .activity(activityContext).skipReason(ModificationSkipReason.BLACKLISTED).build();
         }
 
-        if (replacedMaterial != null && modificationRuleset.blockBlacklistContainsAny(replacedMaterial.toString())) {
+        if (replacedBlockName != null && modificationRuleset.blockBlacklistContainsAny(replacedBlockName)) {
             return ModificationResult.builder()
                 .activity(activityContext).skipReason(ModificationSkipReason.BLACKLISTED).build();
         }
@@ -456,7 +460,7 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
 
     @Override
     public String toString() {
-        return String.format("BlockAction{type=%s,material=%s,blockData=%s,replacedMaterial=%s,replacedBlockData=%s}",
-            type, material, blockData, replacedMaterial, replacedBlockData);
+        return String.format("BlockAction{type=%s,blockData=%s,replacedBlockData=%s}",
+            type, blockData, replacedBlockData);
     }
 }

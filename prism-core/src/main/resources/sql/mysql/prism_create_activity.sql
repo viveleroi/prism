@@ -9,9 +9,12 @@ CREATE PROCEDURE %prefix%create_activity (
     IN `playerUuid` CHAR(36),
     IN `entityType` VARCHAR(25),
     IN `material` VARCHAR(45),
-    IN `blockData` VARCHAR(155),
-    IN `oldMaterial` VARCHAR(45),
-    IN `oldBlockData` VARCHAR(155),
+    IN `blockNamespace` VARCHAR(55),
+    IN `blockName` VARCHAR(55),
+    IN `blockData` VARCHAR(255),
+    IN `replacedBlockNamespace` VARCHAR(55),
+    IN `replacedBlockName` VARCHAR(55),
+    IN `replacedBlockData` VARCHAR(255),
     IN `world` VARCHAR(255),
     IN `worldUuid` CHAR(36),
     IN `serializerVersion` SMALLINT,
@@ -22,29 +25,52 @@ CREATE PROCEDURE %prefix%create_activity (
 BEGIN
     SET @entityId = NULL;
     SET @materialId = NULL;
-    SET @oldMaterialId = NULL;
+    SET @blockId = NULL;
+    SET @replacedBlockId = NULL;
     SET @playerId = NULL;
+
+    -- Create the action
     CALL %prefix%get_or_create_action(`action`, @actionId);
+
+    -- Create the player
     IF `playerUuid` IS NOT NULL THEN
         CALL %prefix%get_or_create_player(`player`, `playerUuid`, @playerId);
     END IF;
+
+    -- Create the cause
     CALL %prefix%get_or_create_cause(`cause`, @playerId, @causeId);
+
+    -- Create the world
     CALL %prefix%get_or_create_world(`world`, `worldUuid`, @worldId);
+
+    -- Create the entity type
     IF `entityType` IS NOT NULL THEN
         CALL %prefix%get_or_create_entity_type(entityType, @entityId);
     END IF;
+
+    -- Create the material
     IF `material` IS NOT NULL THEN
-        CALL %prefix%get_or_create_material(material, blockData, @materialId);
+        CALL %prefix%get_or_create_material(material, @materialId);
     END IF;
-    IF `oldMaterial` IS NOT NULL THEN
-        CALL %prefix%get_or_create_material(oldMaterial, oldBlockData, @oldMaterialId);
+
+    -- Create the block
+    IF `blockName` IS NOT NULL THEN
+        CALL %prefix%get_or_create_block(blockNamespace, blockName, blockData, @blockId);
     END IF;
+
+    -- Create the replaced block
+    IF `replacedBlockName` IS NOT NULL THEN
+        CALL %prefix%get_or_create_block(replacedBlockNamespace, replacedBlockName, replacedBlockData, @replacedBlockId);
+    END IF;
+
+    -- Create the activities
     INSERT INTO `%prefix%activities`
     (`timestamp`, `world_id`, `x`, `y`, `z`, `action_id`, `material_id`,
-    `old_material_id`, `entity_type_id`, `cause_id`, `descriptor`, `metadata`, `serializer_version`, `serialized_data`)
+    `block_id`, `replaced_block_id`, `entity_type_id`, `cause_id`, `descriptor`, `metadata`, `serializer_version`, `serialized_data`)
     VALUES
     (`timestamp`, @worldId, `x`, `y`, `z`, @actionId, @materialId,
-    @oldMaterialId, @entityId, @causeId, `descriptor`, `metadata`,
+    @blockId, @replacedBlockId, @entityId, @causeId, `descriptor`, `metadata`,
      `serializerVersion`, `serializedData`);
+
     SET @activityId = LAST_INSERT_ID();
 END

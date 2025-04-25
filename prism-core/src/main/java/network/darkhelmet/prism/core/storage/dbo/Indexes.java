@@ -54,10 +54,15 @@ public class Indexes {
         PRISM_ACTIVITIES,
         new OrderField[] { PRISM_ACTIVITIES.MATERIAL_ID },
         false);
-    public static final Index PRISM_ACTIVITIES_OLDMATERIALID = Internal.createIndex(
-        DSL.name("oldMaterialId"),
+    public static final Index PRISM_ACTIVITIES_BLOCKID = Internal.createIndex(
+        DSL.name("blockId"),
         PRISM_ACTIVITIES,
-        new OrderField[] { PRISM_ACTIVITIES.OLD_MATERIAL_ID },
+        new OrderField[] { PRISM_ACTIVITIES.BLOCK_ID },
+        false);
+    public static final Index PRISM_ACTIVITIES_REPLACEDBLOCKID = Internal.createIndex(
+        DSL.name("replacedBlockId"),
+        PRISM_ACTIVITIES,
+        new OrderField[] { PRISM_ACTIVITIES.BLOCK_ID },
         false);
     public static final Index PRISM_ACTIVITIES_WORLDID = Internal.createIndex(
         DSL.name("worldId"),

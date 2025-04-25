@@ -14,6 +14,8 @@ repositories {
 dependencies {
     compileOnly project.property('deps.adventure-api')
     compileOnly project.property('deps.adventure-bukkit')
+    compileOnly project.property('deps.adventure-textserializerlegacy')
+    compileOnly project.property('deps.adventure-textserializerplain')
     compileOnly project.property('deps.caffeine')
     compileOnly project.property('deps.configurate-hocon')
     compileOnly project.property('deps.cronutils')

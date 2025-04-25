@@ -39,16 +39,6 @@ public abstract class BukkitMaterialAction extends BukkitAction implements Mater
      * @param type The action type
      * @param material The material
      */
-    public BukkitMaterialAction(ActionType type, Material material) {
-        this(type, material, null);
-    }
-
-    /**
-     * Construct a new material action.
-     *
-     * @param type The action type
-     * @param material The material
-     */
     public BukkitMaterialAction(ActionType type, Material material, String descriptor) {
         super(type, descriptor, null);
 

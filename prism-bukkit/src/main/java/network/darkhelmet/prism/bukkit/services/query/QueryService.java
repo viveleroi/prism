@@ -386,18 +386,18 @@ public class QueryService {
             parseActions(builder, a);
         }
 
-        // Read "m" parameter from arguments or defaults
-        final Set<String> materials = new HashSet<>();
-        if (arguments.getListArgument("m", Material.class).isPresent()) {
-            arguments.getListArgument("m", Material.class).get().forEach(material -> {
-                materials.add(material.toString().toLowerCase(Locale.ENGLISH));
+        // Read "b" parameter from arguments or defaults
+        final Set<String> blocks = new HashSet<>();
+        if (arguments.getListArgument("b", String.class).isPresent()) {
+            arguments.getListArgument("b", String.class).get().forEach(block -> {
+                blocks.add(block.toLowerCase(Locale.ENGLISH));
             });
         } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("m")) {
-            String materialString = configurationService.prismConfig().defaults().parameters().get("m");
-            Collections.addAll(materials, materialString.split(","));
+                && configurationService.prismConfig().defaults().parameters().containsKey("b")) {
+            String blocksString = configurationService.prismConfig().defaults().parameters().get("b");
+            Collections.addAll(blocks, blocksString.split(","));
 
-            builder.defaultUsed("m:" + materialString);
+            builder.defaultUsed("b:" + blocksString);
         }
 
         // Read "btag" parameter from arguments or defaults
@@ -430,9 +430,27 @@ public class QueryService {
                 }
 
                 tag.getValues().forEach(material -> {
-                    materials.add(material.toString().toLowerCase(Locale.ENGLISH));
+                    blocks.add(material.toString().toLowerCase(Locale.ENGLISH));
                 });
             }
+        }
+
+        if (!blocks.isEmpty()) {
+            builder.blocks(blocks);
+        }
+
+        // Read "m" parameter from arguments or defaults
+        final Set<String> materials = new HashSet<>();
+        if (arguments.getListArgument("m", Material.class).isPresent()) {
+            arguments.getListArgument("m", Material.class).get().forEach(material -> {
+                materials.add(material.toString().toLowerCase(Locale.ENGLISH));
+            });
+        } else if (!arguments.hasFlag("nodefaults")
+                && configurationService.prismConfig().defaults().parameters().containsKey("m")) {
+            String materialString = configurationService.prismConfig().defaults().parameters().get("m");
+            Collections.addAll(materials, materialString.split(","));
+
+            builder.defaultUsed("m:" + materialString);
         }
 
         // Read "itag" parameter from arguments or defaults

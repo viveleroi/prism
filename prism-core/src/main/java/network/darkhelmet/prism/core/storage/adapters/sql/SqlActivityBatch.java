@@ -43,6 +43,7 @@ import org.jooq.types.UShort;
 
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
+import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_MATERIALS;
@@ -118,23 +119,23 @@ public class SqlActivityBatch implements ActivityBatch {
         }
 
         // Set the material relationship
-        if (activity.action() instanceof MaterialAction) {
-            String material = ((MaterialAction) activity.action()).serializeMaterial();
-            String data = null;
-
-            if (activity.action() instanceof BlockAction) {
-                data = ((BlockAction) activity.action()).serializeBlockData();
-            }
-
-            record.setMaterialId(UShort.valueOf(getOrCreateMaterialId(material, data)));
+        if (activity.action() instanceof MaterialAction materialAction) {
+            record.setMaterialId(UShort.valueOf(getOrCreateMaterialId(materialAction.serializeMaterial())));
         }
 
-        // Set the replaced material relationship
+        // Set the block relationship
         if (activity.action() instanceof BlockAction blockAction) {
-            String replacedMaterial = blockAction.serializeReplacedMaterial();
-            String replacedData = blockAction.serializeReplacedBlockData();
+            record.setBlockId(UInteger.valueOf(getOrCreateBlockId(
+                blockAction.blockNamespace(),
+                blockAction.blockName(),
+                blockAction.serializeBlockData())));
 
-            record.setOldMaterialId(UShort.valueOf(getOrCreateMaterialId(replacedMaterial, replacedData)));
+            if (blockAction.replacedBlockName() != null) {
+                record.setReplacedBlockId(UInteger.valueOf(getOrCreateBlockId(
+                    blockAction.replacedBlockNamespace(),
+                    blockAction.replacedBlockName(),
+                    blockAction.serializeReplacedBlockData())));
+            }
         }
 
         // Set the world relationship
@@ -212,6 +213,55 @@ public class SqlActivityBatch implements ActivityBatch {
         }
 
         cacheService.actionKeyPkMap().put(actionKey, primaryKey);
+
+        return primaryKey;
+    }
+
+    /**
+     * Get or create the block data record and return the primary key.
+     *
+     * @param blockData The block data
+     * @return The primary key
+     * @throws SQLException The database exception
+     */
+    private int getOrCreateBlockId(String namespace, String name, String blockData) throws SQLException {
+        String blockKey = namespace + ":" + name + (blockData == null ? "" : blockData);
+        Integer blockPk = cacheService.blockDataPkMap().getIfPresent(blockKey);
+        if (blockPk != null) {
+            return blockPk;
+        }
+
+        int primaryKey;
+
+        // Select the existing block
+        UInteger intPk = create
+            .select(PRISM_BLOCKS.BLOCK_ID)
+            .from(PRISM_BLOCKS)
+            .where(PRISM_BLOCKS.NS.equal(namespace),
+                PRISM_BLOCKS.NAME.equal(name),
+                PRISM_BLOCKS.DATA.equal(blockData))
+            .fetchOne(PRISM_BLOCKS.BLOCK_ID);
+
+        if (intPk != null) {
+            primaryKey = intPk.intValue();
+        } else {
+            // Create the record
+            intPk = create
+                .insertInto(PRISM_BLOCKS, PRISM_BLOCKS.NS, PRISM_BLOCKS.NAME, PRISM_BLOCKS.DATA)
+                .values(namespace, name, blockData)
+                .returningResult(PRISM_BLOCKS.BLOCK_ID)
+                .fetchOne(PRISM_BLOCKS.BLOCK_ID);
+
+            if (intPk != null) {
+                primaryKey = intPk.intValue();
+            } else {
+                throw new SQLException(
+                    String.format("Failed to get or create a block record. Block: %s:%s %s",
+                        namespace, name, blockData));
+            }
+        }
+
+        cacheService.blockDataPkMap().put(blockKey, primaryKey);
 
         return primaryKey;
     }
@@ -332,16 +382,14 @@ public class SqlActivityBatch implements ActivityBatch {
     }
 
     /**
-     * Get or create the material data record and return the primary key.
+     * Get or create the material record and return the primary key.
      *
      * @param material The material
-     * @param blockData The data, if any
      * @return The primary key
      * @throws SQLException The database exception
      */
-    private int getOrCreateMaterialId(String material, String blockData) throws SQLException {
-        String materialData = material + (blockData == null ? "" : blockData);
-        Integer materialPk = cacheService.materialDataPkMap().getIfPresent(materialData);
+    private int getOrCreateMaterialId(String material) throws SQLException {
+        Integer materialPk = cacheService.materialDataPkMap().getIfPresent(material);
         if (materialPk != null) {
             return materialPk;
         }
@@ -352,7 +400,7 @@ public class SqlActivityBatch implements ActivityBatch {
         UShort shortPk = create
             .select(PRISM_MATERIALS.MATERIAL_ID)
             .from(PRISM_MATERIALS)
-            .where(PRISM_MATERIALS.MATERIAL.equal(material), PRISM_MATERIALS.DATA.eq(blockData))
+            .where(PRISM_MATERIALS.MATERIAL.equal(material))
             .fetchOne(PRISM_MATERIALS.MATERIAL_ID);
 
         if (shortPk != null) {
@@ -360,8 +408,8 @@ public class SqlActivityBatch implements ActivityBatch {
         } else {
             // Create the record
             shortPk = create
-                .insertInto(PRISM_MATERIALS, PRISM_MATERIALS.MATERIAL, PRISM_MATERIALS.DATA)
-                .values(material, blockData)
+                .insertInto(PRISM_MATERIALS, PRISM_MATERIALS.MATERIAL)
+                .values(material)
                 .returningResult(PRISM_MATERIALS.MATERIAL_ID)
                 .fetchOne(PRISM_MATERIALS.MATERIAL_ID);
 
@@ -369,12 +417,11 @@ public class SqlActivityBatch implements ActivityBatch {
                 primaryKey = shortPk.intValue();
             } else {
                 throw new SQLException(
-                    String.format("Failed to get or create a material record. Material: %s %s",
-                        material, blockData));
+                    String.format("Failed to get or create a material record. Material: %s", material));
             }
         }
 
-        cacheService.materialDataPkMap().put(materialData, primaryKey);
+        cacheService.materialDataPkMap().put(material, primaryKey);
 
         return primaryKey;
     }

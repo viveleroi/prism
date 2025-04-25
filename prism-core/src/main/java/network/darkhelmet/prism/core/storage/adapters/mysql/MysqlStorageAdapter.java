@@ -185,6 +185,7 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
                 // Drop procedures first because MySQL doesn't support OR REPLACE in CREATE PROCEDURE
                 stmt.execute(String.format("DROP PROCEDURE IF EXISTS %screate_activity", prefix));
                 stmt.execute(String.format("DROP PROCEDURE IF EXISTS %sget_or_create_action", prefix));
+                stmt.execute(String.format("DROP PROCEDURE IF EXISTS %sget_or_create_block", prefix));
                 stmt.execute(String.format("DROP PROCEDURE IF EXISTS %sget_or_create_cause", prefix));
                 stmt.execute(String.format("DROP PROCEDURE IF EXISTS %sget_or_create_entity_type", prefix));
                 stmt.execute(String.format("DROP PROCEDURE IF EXISTS %sget_or_create_material", prefix));
@@ -194,6 +195,7 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
                 // Create all procedures
                 stmt.execute(loadSqlFromResourceFile("mysql", "prism_create_activity", prefix));
                 stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_action", prefix));
+                stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_block", prefix));
                 stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_cause", prefix));
                 stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_entity_type", prefix));
                 stmt.execute(loadSqlFromResourceFile("mysql", "prism_get_or_create_material", prefix));

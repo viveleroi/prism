@@ -22,6 +22,7 @@ package network.darkhelmet.prism.core.storage.dbo;
 
 import network.darkhelmet.prism.core.storage.dbo.records.PrismActionsRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismActivitiesRecord;
+import network.darkhelmet.prism.core.storage.dbo.records.PrismBlocksRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismCausesRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismEntityTypesRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismMaterialsRecord;
@@ -37,6 +38,7 @@ import org.jooq.impl.Internal;
 
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
+import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_MATERIALS;
@@ -61,6 +63,16 @@ public class Keys {
         DSL.name("KEY_prism_activities_PRIMARY"),
         new TableField[] { PRISM_ACTIVITIES.ACTIVITY_ID },
         true);
+    public static final UniqueKey<PrismBlocksRecord> KEY_PRISM_BLOCKS_PRIMARY = Internal.createUniqueKey(
+        PRISM_BLOCKS,
+        DSL.name("KEY_prism_blocks_PRIMARY"),
+        new TableField[] { PRISM_BLOCKS.BLOCK_ID },
+        true);
+    public static final UniqueKey<PrismBlocksRecord> KEY_PRISM_BLOCKS_BLOCK = Internal.createUniqueKey(
+        PRISM_BLOCKS,
+        DSL.name("KEY_prism_blocks_block"),
+        new TableField[] { PRISM_BLOCKS.NS, PRISM_BLOCKS.NAME },
+        true);
     public static final UniqueKey<PrismCausesRecord> KEY_PRISM_CAUSES_CAUSE = Internal.createUniqueKey(
         PRISM_CAUSES,
         DSL.name("KEY_prism_causes_cause"),
@@ -81,11 +93,6 @@ public class Keys {
         DSL.name("KEY_prism_entity_types_PRIMARY"),
         new TableField[] { PRISM_ENTITY_TYPES.ENTITY_TYPE_ID },
         true);
-    public static final UniqueKey<PrismMaterialsRecord> KEY_PRISM_MATERIALS_MATERIALDATA = Internal.createUniqueKey(
-        PRISM_MATERIALS,
-        DSL.name("KEY_prism_materials_materialData"),
-        new TableField[] { PRISM_MATERIALS.MATERIAL, PRISM_MATERIALS.DATA },
-            true);
     public static final UniqueKey<PrismMaterialsRecord> KEY_PRISM_MATERIALS_PRIMARY = Internal.createUniqueKey(
         PRISM_MATERIALS,
             DSL.name("KEY_prism_materials_PRIMARY"),
@@ -150,13 +157,21 @@ public class Keys {
         Keys.KEY_PRISM_MATERIALS_PRIMARY,
         new TableField[] { PRISM_MATERIALS.MATERIAL_ID },
         true);
-    public static final ForeignKey<PrismActivitiesRecord, PrismMaterialsRecord> OLDMATERIALID = Internal
+    public static final ForeignKey<PrismActivitiesRecord, PrismBlocksRecord> BLOCKID = Internal
         .createForeignKey(
             PRISM_ACTIVITIES,
-            DSL.name("oldMaterialId"),
-            new TableField[] { PRISM_ACTIVITIES.OLD_MATERIAL_ID },
-            Keys.KEY_PRISM_MATERIALS_PRIMARY,
-            new TableField[] { PRISM_MATERIALS.MATERIAL_ID },
+            DSL.name("blockId"),
+            new TableField[] { PRISM_ACTIVITIES.BLOCK_ID },
+            Keys.KEY_PRISM_BLOCKS_PRIMARY,
+            new TableField[] {PRISM_BLOCKS.BLOCK_ID },
+            true);
+    public static final ForeignKey<PrismActivitiesRecord, PrismBlocksRecord> REPLACEDBLOCKID = Internal
+        .createForeignKey(
+            PRISM_ACTIVITIES,
+            DSL.name("replacedBlockId"),
+            new TableField[] { PRISM_ACTIVITIES.REPLACED_BLOCK_ID },
+            Keys.KEY_PRISM_BLOCKS_PRIMARY,
+            new TableField[] {PRISM_BLOCKS.BLOCK_ID },
             true);
     public static final ForeignKey<PrismActivitiesRecord, PrismWorldsRecord> WORLDID = Internal.createForeignKey(
         PRISM_ACTIVITIES,

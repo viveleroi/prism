@@ -33,7 +33,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row16;
+import org.jooq.Row17;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -139,11 +139,20 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         "");
 
     /**
-     * The column <code>prism_activities.old_material_id</code>.
+     * The column <code>prism_activities.block_id</code>.
      */
-    public final TableField<PrismActivitiesRecord, UShort> OLD_MATERIAL_ID = createField(
-        DSL.name("old_material_id"),
-        SQLDataType.SMALLINTUNSIGNED,
+    public final TableField<PrismActivitiesRecord, UInteger> BLOCK_ID = createField(
+        DSL.name("block_id"),
+        SQLDataType.INTEGERUNSIGNED,
+        this,
+        "");
+
+    /**
+     * The column <code>prism_activities.replaced_block_id</code>.
+     */
+    public final TableField<PrismActivitiesRecord, UInteger> REPLACED_BLOCK_ID = createField(
+        DSL.name("replaced_block_id"),
+        SQLDataType.INTEGERUNSIGNED,
         this,
         "");
 
@@ -184,7 +193,7 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         "");
 
     /**
-     * The column <code>prism_activities.serializer_version</code>.
+     * The column <code>prism_blocks.serializer_version</code>.
      */
     public final TableField<PrismActivitiesRecord, UShort> SERIALIZER_VERSION = createField(
         DSL.name("serializer_version"),
@@ -255,7 +264,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
             Indexes.PRISM_ACTIVITIES_COORDINATE,
             Indexes.PRISM_ACTIVITIES_ENTITYTYPEID,
             Indexes.PRISM_ACTIVITIES_MATERIALID,
-            Indexes.PRISM_ACTIVITIES_OLDMATERIALID,
+            Indexes.PRISM_ACTIVITIES_BLOCKID,
+            Indexes.PRISM_ACTIVITIES_REPLACEDBLOCKID,
             Indexes.PRISM_ACTIVITIES_WORLDID);
     }
 
@@ -275,7 +285,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
             Keys.WORLDID,
             Keys.ACTIONID,
             Keys.MATERIALID,
-            Keys.OLDMATERIALID,
+            Keys.BLOCKID,
+            Keys.REPLACEDBLOCKID,
             Keys.ENTITYTYPEID,
             Keys.CAUSEID);
     }
@@ -283,7 +294,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
     private transient PrismWorlds prismWorlds;
     private transient PrismActions prismActions;
     private transient PrismMaterials materialid;
-    private transient PrismMaterials oldmaterialid;
+    private transient PrismBlocks blockid;
+    private transient PrismBlocks replacedblockid;
     private transient PrismEntityTypes prismEntityTypes;
     private transient PrismCauses prismCauses;
 
@@ -324,15 +336,27 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
     }
 
     /**
-     * Get the implicit join path to the <code>prism_materials</code>
-     * table, via the <code>oldMaterialId</code> key.
+     * Get the implicit join path to the <code>prism_blocks</code>
+     * table, via the <code>blockId</code> key.
      */
-    public PrismMaterials oldmaterialid() {
-        if (oldmaterialid == null) {
-            oldmaterialid = new PrismMaterials(prefix, this, Keys.OLDMATERIALID);
+    public PrismBlocks blockid() {
+        if (blockid == null) {
+            blockid = new PrismBlocks(prefix, this, Keys.BLOCKID);
         }
 
-        return oldmaterialid;
+        return blockid;
+    }
+
+    /**
+     * Get the implicit join path to the <code>prism_blocks</code>
+     * table, via the <code>blockId</code> key.
+     */
+    public PrismBlocks replacedblockid() {
+        if (replacedblockid == null) {
+            replacedblockid = new PrismBlocks(prefix, this, Keys.REPLACEDBLOCKID);
+        }
+
+        return replacedblockid;
     }
 
     /**
@@ -380,23 +404,24 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
     }
 
     @Override
-    public Row16<
-        UInteger,
-        UInteger,
-        UByte,
-        Integer,
-        Integer,
-        Integer,
-        UByte,
-        UShort,
-        UShort,
-        UShort,
-        UInteger,
-        String,
-        String,
-        Short,
-        String,
-        Boolean> fieldsRow() {
-        return (Row16) super.fieldsRow();
+    public Row17<
+            UInteger,
+            UInteger,
+            UByte,
+            Integer,
+            Integer,
+            Integer,
+            UByte,
+            UShort,
+            UInteger,
+            UInteger,
+            UShort,
+            UInteger,
+            String,
+            String,
+            UShort,
+            String,
+            Boolean> fieldsRow() {
+        return (Row17) super.fieldsRow();
     }
 }

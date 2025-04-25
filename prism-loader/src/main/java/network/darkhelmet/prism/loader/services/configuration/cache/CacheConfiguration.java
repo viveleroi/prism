@@ -34,6 +34,10 @@ public class CacheConfiguration {
     private CacheBuilderConfiguration alertedLocations = new CacheBuilderConfiguration(
         5000, new DurationConfiguration(5, TimeUnit.MINUTES));
 
+    @Comment("Cache settings for block data/primary keys.")
+    private CacheBuilderConfiguration pkCacheBlockData = new CacheBuilderConfiguration(
+        5000, new DurationConfiguration(15, TimeUnit.MINUTES));
+
     @Comment("Activity queries (lookups) are cached so that they can be re-used or paginated.")
     private CacheBuilderConfiguration lookupExpiration = new CacheBuilderConfiguration(
         3, new DurationConfiguration(5, TimeUnit.MINUTES));

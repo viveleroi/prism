@@ -90,7 +90,8 @@ public class SqlActivityProcedureBatch implements ActivityBatch {
         connection = hikariDataSource.getConnection();
 
         statement = connection.prepareCall(
-            "{ CALL " + prefix + "create_activity(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
+            "{ CALL " + prefix
+                + "create_activity(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
     }
 
     @Override
@@ -131,54 +132,60 @@ public class SqlActivityProcedureBatch implements ActivityBatch {
             statement.setNull(10, Types.VARCHAR);
         }
 
-        // Material data
-        if (activity.action() instanceof BlockAction) {
-            statement.setString(11, ((BlockAction) activity.action()).serializeBlockData());
+        // Block data
+        if (activity.action() instanceof BlockAction blockAction) {
+            statement.setString(11, blockAction.blockNamespace());
+            statement.setString(12, blockAction.blockName());
+            statement.setString(13, blockAction.serializeBlockData());
         } else {
             statement.setNull(11, Types.VARCHAR);
-        }
-
-        // Replaced material & data
-        if (activity.action() instanceof BlockAction blockAction) {
-            statement.setString(12, blockAction.serializeReplacedMaterial());
-            statement.setString(13, blockAction.serializeReplacedBlockData());
-        } else {
             statement.setNull(12, Types.VARCHAR);
             statement.setNull(13, Types.VARCHAR);
         }
 
+        // Replaced block data
+        if (activity.action() instanceof BlockAction blockAction) {
+            statement.setString(14, blockAction.blockNamespace());
+            statement.setString(15, blockAction.blockName());
+            statement.setString(16, blockAction.serializeReplacedBlockData());
+        } else {
+            statement.setNull(14, Types.VARCHAR);
+            statement.setNull(15, Types.VARCHAR);
+            statement.setNull(16, Types.VARCHAR);
+        }
+
         // World
-        statement.setString(14, activity.world().value());
-        statement.setString(15, activity.world().key().toString());
+        statement.setString(17, activity.world().value());
+        statement.setString(18, activity.world().key().toString());
 
         // Custom data
         if (activity.action() instanceof CustomData) {
-            statement.setInt(16, serializerVersion);
+            statement.setInt(19, serializerVersion);
 
             String customData = ((CustomData) activity.action()).serializeCustomData();
-            statement.setString(17, customData);
+            statement.setString(20, customData);
         } else {
-            statement.setNull(16, Types.SMALLINT);
-            statement.setNull(17, Types.VARCHAR);
+            statement.setNull(19, Types.SMALLINT);
+            statement.setNull(20, Types.VARCHAR);
         }
 
         // Descriptor
         if (activity.action().descriptor() != null) {
-            statement.setString(18, activity.action().descriptor());
+            statement.setString(21, activity.action().descriptor());
         } else {
-            statement.setNull(18, Types.VARCHAR);
+            statement.setNull(21, Types.VARCHAR);
         }
 
         // Serialize the metadata
         if (activity.action().metadata() != null) {
             try {
-                statement.setString(19, activity.action().serializeMetadata());
+                statement.setString(22, activity.action().serializeMetadata());
             } catch (Exception e) {
                 loggingService.handleException(e);
-                statement.setNull(19, Types.VARCHAR);
+                statement.setNull(22, Types.VARCHAR);
             }
         } else {
-            statement.setNull(19, Types.VARCHAR);
+            statement.setNull(22, Types.VARCHAR);
         }
 
         statement.addBatch();

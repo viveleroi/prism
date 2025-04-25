@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import lombok.Getter;
@@ -356,6 +357,16 @@ public class PrismBukkit implements Prism {
                 return actionFamilies;
             });
 
+            // Register block types auto-suggest
+            commandManager.registerSuggestion(SuggestionKey.of("blocks"), (sender, context) -> {
+                List<String> suggestions = new ArrayList<>();
+                for (var material : Material.values()) {
+                    suggestions.add(material.name().toLowerCase(Locale.ROOT));
+                }
+
+                return suggestions;
+            });
+
             // Register block tags auto-suggest
             commandManager.registerSuggestion(SuggestionKey.of("blocktags"), (sender, context) -> {
                 var blockTagWhitelistEnabled = configurationService.prismConfig().commands().blockTagWhitelistEnabled();
@@ -462,6 +473,7 @@ public class PrismBukkit implements Prism {
                 Argument.listOf(String.class).name("btag").suggestion(SuggestionKey.of("blocktags")).build(),
                 Argument.listOf(String.class).name("etag").suggestion(SuggestionKey.of("entitytypetags")).build(),
                 Argument.listOf(String.class).name("itag").suggestion(SuggestionKey.of("itemtags")).build(),
+                Argument.listOf(String.class).name("b").suggestion(SuggestionKey.of("blocks")).build(),
                 Argument.listOf(Material.class).name("m").build(),
                 Argument.listOf(EntityType.class).name("e").build(),
                 Argument.listOf(Player.class).name("p").build()

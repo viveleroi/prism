@@ -22,8 +22,8 @@ package network.darkhelmet.prism.core.storage.dbo.records;
 
 import org.jooq.Field;
 import org.jooq.Record1;
-import org.jooq.Record3;
-import org.jooq.Row3;
+import org.jooq.Record2;
+import org.jooq.Row2;
 import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.types.UShort;
 
@@ -31,7 +31,7 @@ import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStor
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PrismMaterialsRecord extends UpdatableRecordImpl<PrismMaterialsRecord> implements
-        Record3<UShort, String, String> {
+        Record2<UShort, String> {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -64,21 +64,6 @@ public class PrismMaterialsRecord extends UpdatableRecordImpl<PrismMaterialsReco
         return (String) get(1);
     }
 
-    /**
-     * Setter for <code>prism_materials.data</code>.
-     */
-    public PrismMaterialsRecord setData(String value) {
-        set(2, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>prism_materials.data</code>.
-     */
-    public String getData() {
-        return (String) get(2);
-    }
-
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -93,13 +78,13 @@ public class PrismMaterialsRecord extends UpdatableRecordImpl<PrismMaterialsReco
     // -------------------------------------------------------------------------
 
     @Override
-    public Row3<UShort, String, String> fieldsRow() {
-        return (Row3) super.fieldsRow();
+    public Row2<UShort, String> fieldsRow() {
+        return (Row2) super.fieldsRow();
     }
 
     @Override
-    public Row3<UShort, String, String> valuesRow() {
-        return (Row3) super.valuesRow();
+    public Row2<UShort, String> valuesRow() {
+        return (Row2) super.valuesRow();
     }
 
     @Override
@@ -113,11 +98,6 @@ public class PrismMaterialsRecord extends UpdatableRecordImpl<PrismMaterialsReco
     }
 
     @Override
-    public Field<String> field3() {
-        return PRISM_MATERIALS.DATA;
-    }
-
-    @Override
     public UShort component1() {
         return getMaterialId();
     }
@@ -125,11 +105,6 @@ public class PrismMaterialsRecord extends UpdatableRecordImpl<PrismMaterialsReco
     @Override
     public String component2() {
         return getMaterial();
-    }
-
-    @Override
-    public String component3() {
-        return getData();
     }
 
     @Override
@@ -155,21 +130,9 @@ public class PrismMaterialsRecord extends UpdatableRecordImpl<PrismMaterialsReco
     }
 
     @Override
-    public String value3() {
-        return getData();
-    }
-
-    @Override
-    public PrismMaterialsRecord value3(String value) {
-        setData(value);
-        return this;
-    }
-
-    @Override
-    public PrismMaterialsRecord values(UShort value1, String value2, String value3) {
+    public PrismMaterialsRecord values(UShort value1, String value2) {
         value1(value1);
         value2(value2);
-        value3(value3);
         return this;
     }
 
@@ -187,11 +150,10 @@ public class PrismMaterialsRecord extends UpdatableRecordImpl<PrismMaterialsReco
     /**
      * Create a detached, initialised PrismMaterialsRecord.
      */
-    public PrismMaterialsRecord(UShort materialId, String material, String data) {
+    public PrismMaterialsRecord(UShort materialId, String material) {
         super(PRISM_MATERIALS);
 
         setMaterialId(materialId);
         setMaterial(material);
-        setData(data);
     }
 }

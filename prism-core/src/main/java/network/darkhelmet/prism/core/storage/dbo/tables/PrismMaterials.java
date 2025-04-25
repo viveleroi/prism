@@ -20,9 +20,6 @@
 
 package network.darkhelmet.prism.core.storage.dbo.tables;
 
-import java.util.Arrays;
-import java.util.List;
-
 import network.darkhelmet.prism.core.storage.dbo.Keys;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismMaterialsRecord;
 
@@ -31,7 +28,7 @@ import org.jooq.ForeignKey;
 import org.jooq.Identity;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row3;
+import org.jooq.Row2;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -77,15 +74,6 @@ public class PrismMaterials extends TableImpl<PrismMaterialsRecord> {
     public final TableField<PrismMaterialsRecord, String> MATERIAL = createField(
         DSL.name("material"),
         SQLDataType.VARCHAR(45),
-        this,
-        "");
-
-    /**
-     * The column <code>prism_materials.data</code>.
-     */
-    public final TableField<PrismMaterialsRecord, String> DATA = createField(
-        DSL.name("data"),
-        SQLDataType.VARCHAR(155),
         this,
         "");
 
@@ -138,11 +126,6 @@ public class PrismMaterials extends TableImpl<PrismMaterialsRecord> {
     }
 
     @Override
-    public List<UniqueKey<PrismMaterialsRecord>> getUniqueKeys() {
-        return Arrays.asList(Keys.KEY_PRISM_MATERIALS_MATERIALDATA);
-    }
-
-    @Override
     public PrismMaterials as(String alias) {
         return new PrismMaterials(prefix, DSL.name(alias), this);
     }
@@ -163,7 +146,7 @@ public class PrismMaterials extends TableImpl<PrismMaterialsRecord> {
     }
 
     @Override
-    public Row3<UShort, String, String> fieldsRow() {
-        return (Row3) super.fieldsRow();
+    public Row2<UShort, String> fieldsRow() {
+        return (Row2) super.fieldsRow();
     }
 }

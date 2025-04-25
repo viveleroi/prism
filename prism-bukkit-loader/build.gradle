@@ -12,6 +12,8 @@ dependencies {
     // Include kyori here as triumph gui uses it
     implementation project.property('deps.adventure-api')
     implementation project.property('deps.adventure-bukkit')
+    implementation project.property('deps.adventure-textserializerlegacy')
+    implementation project.property('deps.adventure-textserializerplain')
     implementation(project.property('deps.triumph-gui')) {
         exclude(group: "net.kyori")
     }

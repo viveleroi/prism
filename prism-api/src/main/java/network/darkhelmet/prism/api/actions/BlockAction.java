@@ -22,7 +22,21 @@ package network.darkhelmet.prism.api.actions;
 
 import org.jetbrains.annotations.Nullable;
 
-public interface BlockAction extends MaterialAction, CustomData {
+public interface BlockAction extends CustomData {
+    /**
+     * The block namespace. Usually "minecraft"
+     *
+     * @return The namespace
+     */
+    String blockNamespace();
+
+    /**
+     * The block name.
+     *
+     * @return Block name
+     */
+    String blockName();
+
     /**
      * Serialize block data.
      *
@@ -31,11 +45,18 @@ public interface BlockAction extends MaterialAction, CustomData {
     String serializeBlockData();
 
     /**
-     * Serialize the replaced block material.
+     * Replaced block namespace.
      *
-     * @return The serialized material
+     * @return Block namespace
      */
-    @Nullable String serializeReplacedMaterial();
+    String replacedBlockNamespace();
+
+    /**
+     * The replaced block name.
+     *
+     * @return Block name
+     */
+    String replacedBlockName();
 
     /**
      * Serialized the replaced block data.

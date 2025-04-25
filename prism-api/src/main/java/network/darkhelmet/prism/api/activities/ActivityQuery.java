@@ -68,6 +68,12 @@ public class ActivityQuery {
     private Long before;
 
     /**
+     * The blocks.
+     */
+    @Singular
+    private Collection<String> blocks;
+
+    /**
      * The cause.
      */
     private String cause;

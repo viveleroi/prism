@@ -28,7 +28,7 @@ import java.util.List;
 
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismActivitiesRecord;
-import network.darkhelmet.prism.core.storage.dbo.tables.PrismMaterials;
+import network.darkhelmet.prism.core.storage.dbo.tables.PrismBlocks;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.configuration.storage.StorageConfiguration;
 
@@ -44,6 +44,7 @@ import org.jooq.types.UInteger;
 
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
+import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_MATERIALS;
@@ -70,9 +71,9 @@ public class SqlActivityQueryBuilder {
     protected final DSLContext create;
 
     /**
-     * The aliased old materials table.
+     * The aliased replaced blocks table.
      */
-    protected final PrismMaterials OLD_MATERIALS;
+    protected final PrismBlocks REPLACED_BLOCKS;
 
     /**
      * Construct a new query builder.
@@ -87,7 +88,7 @@ public class SqlActivityQueryBuilder {
         this.configurationService = configurationService;
         storageConfiguration = configurationService.storageConfig();
         this.create = create;
-        this.OLD_MATERIALS = PRISM_MATERIALS.as("old_materials");
+        this.REPLACED_BLOCKS = PRISM_BLOCKS.as("replaced_blocks");
     }
 
     /**
@@ -157,6 +158,8 @@ public class SqlActivityQueryBuilder {
             PRISM_WORLDS.WORLD_UUID,
             PRISM_WORLDS.WORLD,
             PRISM_MATERIALS.MATERIAL,
+            PRISM_BLOCKS.NS,
+            PRISM_BLOCKS.NAME,
             PRISM_ENTITY_TYPES.ENTITY_TYPE,
             PRISM_ACTIONS.ACTION,
             PRISM_CAUSES.CAUSE,
@@ -192,16 +195,17 @@ public class SqlActivityQueryBuilder {
         // Add fields only needed for modifications
         if (query.modification()) {
             queryBuilder.addSelect(
-                PRISM_MATERIALS.DATA,
+                PRISM_BLOCKS.DATA,
                 PRISM_ACTIVITIES.SERIALIZED_DATA,
                 coalesce(PRISM_ACTIVITIES.SERIALIZER_VERSION, 1).as("serializer_version"),
-                OLD_MATERIALS.MATERIAL,
-                OLD_MATERIALS.DATA
+                REPLACED_BLOCKS.DATA
             );
         }
 
         queryBuilder.addFrom(PRISM_ACTIVITIES);
         queryBuilder.addJoin(PRISM_ACTIONS, PRISM_ACTIONS.ACTION_ID.equal(PRISM_ACTIVITIES.ACTION_ID));
+        queryBuilder.addJoin(PRISM_BLOCKS, JoinType.LEFT_OUTER_JOIN, PRISM_BLOCKS.BLOCK_ID
+            .equal(PRISM_ACTIVITIES.BLOCK_ID));
         queryBuilder.addJoin(PRISM_WORLDS, PRISM_WORLDS.WORLD_ID.equal(PRISM_ACTIVITIES.WORLD_ID));
         queryBuilder.addJoin(PRISM_ENTITY_TYPES, JoinType.LEFT_OUTER_JOIN, PRISM_ENTITY_TYPES.ENTITY_TYPE_ID
             .equal(PRISM_ACTIVITIES.ENTITY_TYPE_ID));
@@ -212,8 +216,8 @@ public class SqlActivityQueryBuilder {
             .equal(PRISM_CAUSES.PLAYER_ID));
 
         if (query.modification()) {
-            queryBuilder.addJoin(OLD_MATERIALS, JoinType.LEFT_OUTER_JOIN, OLD_MATERIALS.MATERIAL_ID
-                .equal(PRISM_ACTIVITIES.OLD_MATERIAL_ID));
+            queryBuilder.addJoin(REPLACED_BLOCKS, JoinType.LEFT_OUTER_JOIN, REPLACED_BLOCKS.BLOCK_ID
+                .equal(PRISM_ACTIVITIES.REPLACED_BLOCK_ID));
         }
 
         // Add all conditions
@@ -226,6 +230,8 @@ public class SqlActivityQueryBuilder {
                 PRISM_WORLDS.WORLD,
                 PRISM_ACTIVITIES.ACTION_ID,
                 PRISM_MATERIALS.MATERIAL,
+                PRISM_BLOCKS.NS,
+                PRISM_BLOCKS.NAME,
                 PRISM_ENTITY_TYPES.ENTITY_TYPE,
                 PRISM_CAUSES.CAUSE,
                 PRISM_PLAYERS.PLAYER,
@@ -253,34 +259,34 @@ public class SqlActivityQueryBuilder {
             // then we sort everything by `y asc` and sort these hanging blocks by `y desc`.
             // cave_vines are sorted to come after cave_vines_plant so the plant is rebuilt first.
             queryBuilder.addOrderBy(DSL.decode()
-                .when(PRISM_MATERIALS.MATERIAL.in("cave_vines", "weeping_vines"), 1)
+                .when(PRISM_BLOCKS.NAME.in("cave_vines", "weeping_vines"), 1)
                 .else_(-1).asc());
             queryBuilder.addOrderBy(DSL.decode()
-                .when(PRISM_MATERIALS.MATERIAL.in("cave_vines_plant", "weeping_vines_plant"), 1)
+                .when(PRISM_BLOCKS.NAME.in("cave_vines_plant", "weeping_vines_plant"), 1)
                 .else_(-1).asc());
 
             queryBuilder.addOrderBy(DSL.decode()
-                .when(PRISM_MATERIALS.MATERIAL
+                .when(PRISM_BLOCKS.NAME
                 .in("vine", "pointed_dripstone"), 1)
                 .else_(-1).asc());
 
             queryBuilder.addOrderBy(PRISM_ACTIVITIES.X.asc());
             queryBuilder.addOrderBy(PRISM_ACTIVITIES.Z.asc());
 
-            List<String> materialsToBuildUp = List.of(
+            List<String> blocksToBuildUp = List.of(
                 "pointed_dripstone",
                 "cave_vines_plant",
                 "weeping_vines_plant",
                 "vine");
 
             queryBuilder.addOrderBy(DSL.decode()
-                .when(PRISM_MATERIALS.MATERIAL
-                .in(materialsToBuildUp), PRISM_ACTIVITIES.Y)
+                .when(PRISM_BLOCKS.NAME
+                .in(blocksToBuildUp), PRISM_ACTIVITIES.Y)
                 .desc());
 
             queryBuilder.addOrderBy(DSL.decode()
-                .when(PRISM_MATERIALS.MATERIAL
-                .notIn(materialsToBuildUp), PRISM_ACTIVITIES.Y)
+                .when(PRISM_BLOCKS.NAME
+                .notIn(blocksToBuildUp), PRISM_ACTIVITIES.Y)
                 .asc());
         }
 
@@ -321,6 +327,11 @@ public class SqlActivityQueryBuilder {
         // Activity IDs
         if (query.activityIds() != null && !query.activityIds().isEmpty()) {
             conditions.add(PRISM_ACTIVITIES.ACTIVITY_ID.in(query.activityIds()));
+        }
+
+        // Blocks
+        if (!query.blocks().isEmpty()) {
+            conditions.add(PRISM_BLOCKS.NAME.in(query.blocks()));
         }
 
         // Cause

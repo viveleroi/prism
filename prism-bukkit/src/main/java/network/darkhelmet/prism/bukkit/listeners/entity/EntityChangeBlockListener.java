@@ -31,6 +31,7 @@ import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
 import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
@@ -83,7 +84,9 @@ public class EntityChangeBlockListener extends AbstractListener implements Liste
             // The event.getTo method return AIR for some insane reason. Since we know sheep can only
             // turn grass into dirt, we'll just fake the "new" material.
             var action = new BukkitBlockAction(
-                BukkitActionTypeRegistry.ENTITY_EAT, event.getBlock().getType(), Material.DIRT);
+                BukkitActionTypeRegistry.ENTITY_EAT,
+                event.getBlock().getBlockData(),
+                Bukkit.createBlockData(Material.DIRT));
 
             var activity = BukkitActivity.builder()
                 .action(action).location(event.getBlock().getLocation())

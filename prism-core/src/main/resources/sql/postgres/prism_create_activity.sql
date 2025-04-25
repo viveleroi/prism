@@ -9,9 +9,12 @@ CREATE OR REPLACE FUNCTION %prefix%create_activity (
     p_playerUuid CHAR(36),
     p_entityType VARCHAR(25),
     p_material VARCHAR(45),
-    p_blockData VARCHAR(155),
-    p_oldMaterial VARCHAR(45),
-    p_oldBlockData VARCHAR(155),
+    p_blockNamespace VARCHAR(55),
+    p_blockName VARCHAR(55),
+    p_blockData VARCHAR(255),
+    p_replacedBlockNamespace VARCHAR(55),
+    p_replacedBlockName VARCHAR(55),
+    p_replacedBlockData VARCHAR(255),
     p_world VARCHAR(255),
     p_worldUuid CHAR(36),
     p_serializerVersion INTEGER,
@@ -27,7 +30,8 @@ DECLARE
     v_playerId INTEGER;
     v_entityTypeId SMALLINT;
     v_materialId SMALLINT;
-    v_oldMaterialId SMALLINT;
+    v_blockId INTEGER;
+    v_replacedBlockId INTEGER;
     v_activityId INTEGER;
 BEGIN
     -- Get or create action
@@ -51,21 +55,27 @@ BEGIN
 
     -- Get or create material
     IF p_material IS NOT NULL THEN
-        SELECT %prefix%get_or_create_material(p_material, p_blockData) INTO v_materialId;
+        SELECT %prefix%get_or_create_material(p_material) INTO v_materialId;
     END IF;
 
-    -- Get or create old material
-    IF p_oldMaterial IS NOT NULL THEN
-        SELECT %prefix%get_or_create_material(p_oldMaterial, p_oldBlockData) INTO v_oldMaterialId;
+    -- Get or create block id
+    IF p_blockName IS NOT NULL THEN
+        SELECT %prefix%get_or_create_block(p_blockNamespace, p_blockName, p_blockData) INTO v_blockId;
+    END IF;
+
+    -- Get or create replaced block id
+    IF p_replacedBlockName IS NOT NULL THEN
+        SELECT %prefix%get_or_create_block(p_replacedBlockNamespace, p_replacedBlockName, p_replacedBlockData)
+        INTO v_replacedBlockId;
     END IF;
 
     -- Insert into activities table
     INSERT INTO %prefix%activities
         ("timestamp", world_id, x, y, z, action_id, material_id,
-         old_material_id, entity_type_id, cause_id, descriptor, metadata, serializer_version, serialized_data)
+         block_id, replaced_block_id, entity_type_id, cause_id, descriptor, metadata, serializer_version, serialized_data)
     VALUES
-        (p_timestamp, v_worldId, p_x, p_y, p_z, v_actionId, v_materialId,
-         v_oldMaterialId, v_entityTypeId, v_causeId, p_descriptor, p_metadata, p_serializerVersion, p_serializedData)
+        (p_timestamp, v_worldId, p_x, p_y, p_z, v_actionId, v_materialId, v_blockId,
+         v_replacedBlockId, v_entityTypeId, v_causeId, p_descriptor, p_metadata, p_serializerVersion, p_serializedData)
     RETURNING activity_id INTO v_activityId;
 END;
 $$ LANGUAGE plpgsql;

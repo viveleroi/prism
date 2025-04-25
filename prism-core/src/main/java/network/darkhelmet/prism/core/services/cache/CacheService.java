@@ -42,6 +42,11 @@ public class CacheService {
     private final Cache<String, Byte> actionKeyPkMap;
 
     /**
+     * A cache of blocks to primary keys.
+     */
+    private final Cache<String, Integer> blockDataPkMap;
+
+    /**
      * A cache of entity types to primary keys.
      */
     private final Cache<String, Integer> entityTypePkMap;
@@ -100,6 +105,26 @@ public class CacheService {
         }
 
         actionKeyPkMap = actionBuilder.build();
+
+        // Build the block data cache
+        Caffeine<String, Integer> blockBuilder = Caffeine.newBuilder()
+            .maximumSize(cacheConfiguration.pkCacheBlockData().maxSize())
+            .evictionListener((key, value, cause) -> {
+                String msg = "Evicting block data from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
+            })
+            .removalListener((key, value, cause) -> {
+                String msg = "Removing block data from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
+            });
+
+        if (cacheConfiguration.pkCacheBlockData().expiresAfterAccess() != null
+                && cacheConfiguration.pkCacheBlockData().expiresAfterAccess().duration() != null) {
+            blockBuilder.expireAfterAccess(cacheConfiguration.pkCacheBlockData().expiresAfterAccess().duration(),
+                cacheConfiguration.pkCacheBlockData().expiresAfterAccess().timeUnit());
+        }
+
+        blockDataPkMap = blockBuilder.build();
 
         // Build the entity type cache
         Caffeine<String, Integer> entityBuilder = Caffeine.newBuilder()

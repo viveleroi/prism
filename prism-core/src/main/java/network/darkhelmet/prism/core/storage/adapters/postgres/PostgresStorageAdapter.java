@@ -157,6 +157,7 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
                 // Drop procedures just in case the parameters change, if so OR REPLACE won't work
                 stmt.execute(String.format("DROP FUNCTION IF EXISTS %screate_activity", prefix));
                 stmt.execute(String.format("DROP FUNCTION IF EXISTS %sget_or_create_action", prefix));
+                stmt.execute(String.format("DROP FUNCTION IF EXISTS %sget_or_create_block", prefix));
                 stmt.execute(String.format("DROP FUNCTION IF EXISTS %sget_or_create_cause", prefix));
                 stmt.execute(String.format("DROP FUNCTION IF EXISTS %sget_or_create_entity_type", prefix));
                 stmt.execute(String.format("DROP FUNCTION IF EXISTS %sget_or_create_material", prefix));
@@ -164,6 +165,7 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
                 stmt.execute(String.format("DROP FUNCTION IF EXISTS %sget_or_create_world", prefix));
 
                 stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_action", prefix));
+                stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_block", prefix));
                 stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_cause", prefix));
                 stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_entity_type", prefix));
                 stmt.execute(loadSqlFromResourceFile("postgres", "prism_get_or_create_material", prefix));

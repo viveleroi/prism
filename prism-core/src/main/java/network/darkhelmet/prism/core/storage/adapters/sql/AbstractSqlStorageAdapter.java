@@ -64,6 +64,7 @@ import network.darkhelmet.prism.core.storage.dbo.records.PrismMaterialsRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismWorldsRecord;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismActions;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismActivities;
+import network.darkhelmet.prism.core.storage.dbo.tables.PrismBlocks;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismCauses;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismEntityTypes;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismMaterials;
@@ -103,6 +104,11 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
      * The activities dbo.
      */
     public static PrismActivities PRISM_ACTIVITIES;
+
+    /**
+     * The blocks dbo.
+     */
+    public static PrismBlocks PRISM_BLOCKS;
 
     /**
      * The causes dbo.
@@ -185,9 +191,9 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
     protected DSLContext create;
 
     /**
-     * The aliases materials table.
+     * The aliased replaced blocks table.
      */
-    protected final PrismMaterials OLD_MATERIALS;
+    protected final PrismBlocks REPLACED_BLOCKS;
 
     /**
      * The schema/table prefix.
@@ -238,6 +244,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
         // Initialize all of our DBOs
         PRISM_ACTIONS = new PrismActions(prefix);
         PRISM_ACTIVITIES = new PrismActivities(prefix);
+        PRISM_BLOCKS = new PrismBlocks(prefix);
         PRISM_CAUSES = new PrismCauses(prefix);
         PRISM_ENTITY_TYPES = new PrismEntityTypes(prefix);
         PRISM_MATERIALS = new PrismMaterials(prefix);
@@ -259,7 +266,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
         ));
 
         // Table aliases
-        OLD_MATERIALS = PRISM_MATERIALS.as("old_materials");
+        REPLACED_BLOCKS = PRISM_BLOCKS.as("replaced_blocks");
 
         // Turn off jooq crap. Lame
         System.setProperty("org.jooq.no-logo", "true");
@@ -376,6 +383,16 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .unique(PRISM_PLAYERS.PLAYER_UUID)
             .execute();
 
+        // Create the blocks table
+        create.createTableIfNotExists(PRISM_BLOCKS)
+            .column(PRISM_BLOCKS.BLOCK_ID)
+            .column(PRISM_BLOCKS.NS)
+            .column(PRISM_BLOCKS.NAME)
+            .column(PRISM_BLOCKS.DATA)
+            .primaryKey(PRISM_BLOCKS.BLOCK_ID)
+            .unique(PRISM_BLOCKS.NS, PRISM_BLOCKS.NAME, PRISM_BLOCKS.DATA)
+            .execute();
+
         // Create the causes table
         create.createTableIfNotExists(PRISM_CAUSES)
             .column(PRISM_CAUSES.CAUSE_ID)
@@ -409,9 +426,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
         create.createTableIfNotExists(PRISM_MATERIALS)
             .column(PRISM_MATERIALS.MATERIAL_ID)
             .column(PRISM_MATERIALS.MATERIAL)
-            .column(PRISM_MATERIALS.DATA)
             .primaryKey(PRISM_MATERIALS.MATERIAL_ID)
-            .unique(PRISM_MATERIALS.MATERIAL, PRISM_MATERIALS.DATA)
+            .unique(PRISM_MATERIALS.MATERIAL)
             .execute();
 
         // Create the worlds table
@@ -433,7 +449,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .column(PRISM_ACTIVITIES.Z)
             .column(PRISM_ACTIVITIES.ACTION_ID)
             .column(PRISM_ACTIVITIES.MATERIAL_ID)
-            .column(PRISM_ACTIVITIES.OLD_MATERIAL_ID)
+            .column(PRISM_ACTIVITIES.BLOCK_ID)
+            .column(PRISM_ACTIVITIES.REPLACED_BLOCK_ID)
             .column(PRISM_ACTIVITIES.ENTITY_TYPE_ID)
             .column(PRISM_ACTIVITIES.CAUSE_ID)
             .column(PRISM_ACTIVITIES.DESCRIPTOR)
@@ -451,8 +468,10 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                     .references(PRISM_ENTITY_TYPES, PRISM_ENTITY_TYPES.ENTITY_TYPE_ID).onDeleteCascade(),
                 constraint("materialId").foreignKey(PRISM_ACTIVITIES.MATERIAL_ID)
                     .references(PRISM_MATERIALS, PRISM_MATERIALS.MATERIAL_ID).onDeleteCascade(),
-                constraint("oldMaterialId").foreignKey(PRISM_ACTIVITIES.OLD_MATERIAL_ID)
-                    .references(PRISM_MATERIALS, PRISM_MATERIALS.MATERIAL_ID).onDeleteCascade(),
+                constraint("blockId").foreignKey(PRISM_ACTIVITIES.BLOCK_ID)
+                    .references(PRISM_BLOCKS, PRISM_BLOCKS.BLOCK_ID).onDeleteCascade(),
+                constraint("replacedBlockId").foreignKey(PRISM_ACTIVITIES.REPLACED_BLOCK_ID)
+                    .references(PRISM_BLOCKS, PRISM_BLOCKS.BLOCK_ID).onDeleteCascade(),
                 constraint("worldId").foreignKey(PRISM_ACTIVITIES.WORLD_ID)
                     .references(PRISM_WORLDS, PRISM_WORLDS.WORLD_ID).onDeleteCascade()
             )
@@ -498,7 +517,6 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
         List<PrismMaterialsRecord> materials = create
             .select(PRISM_MATERIALS.MATERIAL, PRISM_MATERIALS.MATERIAL_ID)
             .from(PRISM_MATERIALS)
-            .where(PRISM_MATERIALS.DATA.isNull())
             .fetchInto(PrismMaterialsRecord.class);
 
         for (PrismMaterialsRecord material : materials) {
@@ -623,6 +641,9 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             String descriptor = query.lookup() ? r.getValue(PRISM_ACTIVITIES.DESCRIPTOR) : null;
             String metadata = query.lookup() ? r.getValue(PRISM_ACTIVITIES.METADATA) : null;
 
+            String blockNamespace = r.getValue(PRISM_BLOCKS.NS);
+            String blockName = r.getValue(PRISM_BLOCKS.NAME);
+
             long timestamp;
             if (query.grouped()) {
                 timestamp = r.getValue(avg(PRISM_ACTIVITIES.TIMESTAMP)).longValue();
@@ -633,22 +654,22 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             if (!query.grouped() && query.modification()) {
                 long activityId = r.getValue(PRISM_ACTIVITIES.ACTIVITY_ID).longValue();
 
-                String materialData = r.getValue(PRISM_MATERIALS.DATA);
                 String customData = r.getValue(PRISM_ACTIVITIES.SERIALIZED_DATA);
                 UShort customDataVersion = r.getValue(PRISM_ACTIVITIES.SERIALIZER_VERSION);
-
-                // Material/serialization data
-                String replacedMaterial = null;
-                String replacedMaterialName = r.getValue(OLD_MATERIALS.MATERIAL);
-                if (replacedMaterialName != null) {
-                    replacedMaterial = replacedMaterialName.toUpperCase(Locale.ENGLISH);
-                }
-
-                String replacedMaterialData = r.getValue(OLD_MATERIALS.DATA);
+                String blockData = r.getValue(PRISM_BLOCKS.DATA);
+                String replacedBlockNamespace = r.getValue(REPLACED_BLOCKS.NS);
+                String replacedBlockName = r.getValue(REPLACED_BLOCKS.NAME);
+                String replacedBlockData = r.getValue(REPLACED_BLOCKS.DATA);
 
                 // Build the action data
                 ActionData actionData = new ActionData(
-                    material, materialData, replacedMaterial, replacedMaterialData,
+                    material,
+                    blockNamespace,
+                    blockName,
+                    blockData,
+                    replacedBlockNamespace,
+                    replacedBlockName,
+                    replacedBlockData,
                     entityType, customData, descriptor, metadata, customDataVersion.shortValue());
 
                 // Build the activity
@@ -666,8 +687,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
 
                 // Build the action data
                 ActionData actionData = new ActionData(
-                    material, null, null, null,
-                    entityType, null, descriptor, metadata, (short) 0);
+                    material, blockNamespace, blockName, null, null, null,
+                    null, entityType, null, descriptor, metadata, (short) 0);
 
                 // Build the activity
                 try {
@@ -682,8 +703,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             } else {
                 // Build the action data
                 ActionData actionData = new ActionData(
-                    material, null, null, null,
-                    entityType, null, descriptor, metadata, (short) 0);
+                    material, blockNamespace, blockName, null, null, null,
+                    null, entityType, null, descriptor, metadata, (short) 0);
 
                 // Count
                 int count = r.getValue("groupcount", Integer.class);
