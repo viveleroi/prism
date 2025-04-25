@@ -75,7 +75,6 @@ import network.darkhelmet.prism.loader.services.configuration.ConfigurationServi
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 import org.jooq.DSLContext;
-import org.jooq.Index;
 import org.jooq.Record2;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
@@ -459,6 +458,13 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .column(PRISM_ACTIVITIES.SERIALIZED_DATA)
             .column(PRISM_ACTIVITIES.REVERSED)
             .primaryKey(PRISM_ACTIVITIES.ACTIVITY_ID)
+            .indexes(Indexes.PRISM_ACTIVITIES_ACTIONID,
+                Indexes.PRISM_ACTIVITIES_BLOCKID,
+                Indexes.PRISM_ACTIVITIES_CAUSEID,
+                Indexes.PRISM_ACTIVITIES_COORDINATE,
+                Indexes.PRISM_ACTIVITIES_ENTITYTYPEID,
+                Indexes.PRISM_ACTIVITIES_MATERIALID,
+                Indexes.PRISM_ACTIVITIES_WORLDID)
             .constraints(
                 constraint("actionId").foreignKey(PRISM_ACTIVITIES.ACTION_ID)
                     .references(PRISM_ACTIONS, PRISM_ACTIONS.ACTION_ID).onDeleteCascade(),
@@ -476,13 +482,6 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                     .references(PRISM_WORLDS, PRISM_WORLDS.WORLD_ID).onDeleteCascade()
             )
             .execute();
-
-        // Jooq doesn't support creating indexes inline with create table.
-        List<Index> indexes = create.meta(PRISM_DATABASE).getIndexes();
-        if (!indexes.contains(Indexes.PRISM_ACTIVITIES_COORDINATE)) {
-            create.createIndex("coordinate")
-                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.X, PRISM_ACTIVITIES.Y, PRISM_ACTIVITIES.Z).execute();
-        }
     }
 
     /**

@@ -30,32 +30,32 @@ import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStor
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Indexes {
     public static final Index PRISM_ACTIVITIES_ACTIONID = Internal.createIndex(
-        DSL.name("actionId"),
+        DSL.name("idx_prism_actionId"),
         PRISM_ACTIVITIES,
         new OrderField[] { PRISM_ACTIVITIES.ACTION_ID },
         false);
     public static final Index PRISM_ACTIVITIES_CAUSEID = Internal.createIndex(
-        DSL.name("causeId"),
+        DSL.name("idx_prism_causeId"),
         PRISM_ACTIVITIES,
         new OrderField[] { PRISM_ACTIVITIES.CAUSE_ID },
         false);
     public static final Index PRISM_ACTIVITIES_COORDINATE = Internal.createIndex(
-        DSL.name("coordinate"),
+        DSL.name("idx_prism_coordinates"),
         PRISM_ACTIVITIES,
-        new OrderField[] { PRISM_ACTIVITIES.X, PRISM_ACTIVITIES.Z, PRISM_ACTIVITIES.Y },
+        new OrderField[] { PRISM_ACTIVITIES.X, PRISM_ACTIVITIES.Z, PRISM_ACTIVITIES.Y, PRISM_ACTIVITIES.TIMESTAMP },
         false);
     public static final Index PRISM_ACTIVITIES_ENTITYTYPEID = Internal.createIndex(
-        DSL.name("entityTypeId"),
+        DSL.name("idx_prism_entityTypeId"),
         PRISM_ACTIVITIES,
         new OrderField[] { PRISM_ACTIVITIES.ENTITY_TYPE_ID },
         false);
     public static final Index PRISM_ACTIVITIES_MATERIALID = Internal.createIndex(
-        DSL.name("materialId"),
+        DSL.name("idx_prism_materialId"),
         PRISM_ACTIVITIES,
         new OrderField[] { PRISM_ACTIVITIES.MATERIAL_ID },
         false);
     public static final Index PRISM_ACTIVITIES_BLOCKID = Internal.createIndex(
-        DSL.name("blockId"),
+        DSL.name("idx_prism_blockId"),
         PRISM_ACTIVITIES,
         new OrderField[] { PRISM_ACTIVITIES.BLOCK_ID },
         false);
@@ -65,7 +65,7 @@ public class Indexes {
         new OrderField[] { PRISM_ACTIVITIES.BLOCK_ID },
         false);
     public static final Index PRISM_ACTIVITIES_WORLDID = Internal.createIndex(
-        DSL.name("worldId"),
+        DSL.name("idx_prism_worldId"),
         PRISM_ACTIVITIES,
         new OrderField[] { PRISM_ACTIVITIES.WORLD_ID },
         false);
