@@ -37,7 +37,6 @@ import network.darkhelmet.prism.api.services.modifications.ModificationSkipReaso
 import network.darkhelmet.prism.api.services.modifications.StateChange;
 import network.darkhelmet.prism.api.util.Coordinate;
 import network.darkhelmet.prism.bukkit.services.modifications.state.BlockStateChange;
-import network.darkhelmet.prism.bukkit.utils.TagLib;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -360,8 +359,7 @@ public class BukkitBlockAction extends BukkitMaterialAction implements BlockActi
      */
     protected ModificationResult canSet(
             Block block, BlockData newBlockData, ModificationRuleset modificationRuleset, Activity activityContext) {
-        if (!modificationRuleset.overwrite() && (TagLib.REQUIRES_OVERWRITE.isTagged(block.getType())
-                || block.getBlockData().matches(newBlockData))) {
+        if (!modificationRuleset.overwrite() && block.getBlockData().matches(newBlockData)) {
             return ModificationResult.builder()
                 .activity(activityContext).skipReason(ModificationSkipReason.ALREADY_SET).build();
         }
