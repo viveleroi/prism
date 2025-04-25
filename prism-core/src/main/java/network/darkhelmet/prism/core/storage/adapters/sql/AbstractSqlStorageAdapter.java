@@ -385,7 +385,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .unique(PRISM_CAUSES.CAUSE)
             .constraints(
                 constraint("playerId").foreignKey(PRISM_CAUSES.PLAYER_ID)
-                    .references(PRISM_PLAYERS, PRISM_PLAYERS.PLAYER_ID)
+                    .references(PRISM_PLAYERS, PRISM_PLAYERS.PLAYER_ID).onDeleteCascade()
             )
             .execute();
 
@@ -444,17 +444,17 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .primaryKey(PRISM_ACTIVITIES.ACTIVITY_ID)
             .constraints(
                 constraint("actionId").foreignKey(PRISM_ACTIVITIES.ACTION_ID)
-                    .references(PRISM_ACTIONS, PRISM_ACTIONS.ACTION_ID),
+                    .references(PRISM_ACTIONS, PRISM_ACTIONS.ACTION_ID).onDeleteCascade(),
                 constraint("causeId").foreignKey(PRISM_ACTIVITIES.CAUSE_ID)
-                    .references(PRISM_CAUSES, PRISM_CAUSES.CAUSE_ID),
+                    .references(PRISM_CAUSES, PRISM_CAUSES.CAUSE_ID).onDeleteCascade(),
                 constraint("entityTypeId").foreignKey(PRISM_ACTIVITIES.ENTITY_TYPE_ID)
-                    .references(PRISM_ENTITY_TYPES, PRISM_ENTITY_TYPES.ENTITY_TYPE_ID),
+                    .references(PRISM_ENTITY_TYPES, PRISM_ENTITY_TYPES.ENTITY_TYPE_ID).onDeleteCascade(),
                 constraint("materialId").foreignKey(PRISM_ACTIVITIES.MATERIAL_ID)
-                    .references(PRISM_MATERIALS, PRISM_MATERIALS.MATERIAL_ID),
+                    .references(PRISM_MATERIALS, PRISM_MATERIALS.MATERIAL_ID).onDeleteCascade(),
                 constraint("oldMaterialId").foreignKey(PRISM_ACTIVITIES.OLD_MATERIAL_ID)
-                    .references(PRISM_MATERIALS, PRISM_MATERIALS.MATERIAL_ID),
+                    .references(PRISM_MATERIALS, PRISM_MATERIALS.MATERIAL_ID).onDeleteCascade(),
                 constraint("worldId").foreignKey(PRISM_ACTIVITIES.WORLD_ID)
-                    .references(PRISM_WORLDS, PRISM_WORLDS.WORLD_ID)
+                    .references(PRISM_WORLDS, PRISM_WORLDS.WORLD_ID).onDeleteCascade()
             )
             .execute();
 
