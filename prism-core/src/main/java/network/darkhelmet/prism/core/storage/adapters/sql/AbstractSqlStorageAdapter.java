@@ -708,7 +708,11 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                     replacedBlockNamespace,
                     replacedBlockName,
                     replacedBlockData,
-                    entityType, customData, descriptor, metadata, customDataVersion.shortValue());
+                    entityType,
+                    customData,
+                    descriptor,
+                    metadata,
+                    customDataVersion.shortValue());
 
                 // Build the activity
                 try {

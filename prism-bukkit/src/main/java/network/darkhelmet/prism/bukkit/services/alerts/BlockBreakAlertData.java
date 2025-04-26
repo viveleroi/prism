@@ -25,7 +25,7 @@ import net.kyori.adventure.text.format.TextColor;
 
 public record BlockBreakAlertData(
     String playerName,
-    String blockName,
+    String blockTranslationKey,
     TextColor color,
     String count,
     int lightLevel,

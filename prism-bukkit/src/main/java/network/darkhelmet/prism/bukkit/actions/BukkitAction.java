@@ -92,6 +92,11 @@ public abstract class BukkitAction implements network.darkhelmet.prism.api.actio
     }
 
     @Override
+    public Component descriptorComponent() {
+        return Component.text(descriptor);
+    }
+
+    @Override
     public Record metadata() {
         return metadata;
     }

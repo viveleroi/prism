@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -211,7 +210,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
     protected Component descriptor(CommandSender receiver, AbstractActivity value) {
         Component descriptor = Component.empty();
         if (value.action().descriptor() != null) {
-            TextComponent.Builder builder = Component.text().append(Component.text(value.action().descriptor()));
+            var builder = Component.text().append(value.action().descriptorComponent());
 
             if (value.action().metadata() != null) {
                 builder.hoverEvent(HoverEvent.showText(value.action().metadataComponent(receiver, translationService)));

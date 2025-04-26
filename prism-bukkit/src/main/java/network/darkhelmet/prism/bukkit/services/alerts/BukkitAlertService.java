@@ -179,6 +179,7 @@ public class BukkitAlertService {
 
         // Cache the block state as it's being changed
         var blockState = block.getState();
+        String blockTranslationKey = blockState.getBlock().getTranslationKey();
 
         var query = BukkitActivityQuery.builder()
             .grouped(false)
@@ -201,8 +202,6 @@ public class BukkitAlertService {
                 locations.put(blockLocation, player);
             }
 
-            String blockName = blockState.getType().toString().replace("_", " ")
-                .toLowerCase(Locale.ROOT).replace("glowing", " ");
             TextColor color = TextColor.fromCSSHexString(alert.config().hexColor());
             String count = vein.size() + (vein.size() >= alert.config().maxScanCount() ? "+" : "");
 
@@ -215,7 +214,7 @@ public class BukkitAlertService {
             }
 
             var data = new BlockBreakAlertData(
-                player.getName(), blockName, color, count, lightLevel,
+                player.getName(), blockTranslationKey, color, count, lightLevel,
                     Key.key(blockState.getType().getKey().toString()));
 
             for (CommandSender receiver : getReceivers(player)) {

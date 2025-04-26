@@ -53,7 +53,7 @@ public class BlockBreakAlertDataPlaceholderResolver implements
             final @Nullable Object[] parameters
     ) {
         Component color = Component.text().color(value.color()).build();
-        Component blockName = blockName(value.blockName(), value.itemKey());
+        Component blockName = block(value.blockTranslationKey(), value.itemKey());
         Component playerName = Component.text(value.playerName());
         Component count = Component.text(value.count());
         Component lightLevel = Component.text(value.lightLevel());
@@ -66,15 +66,15 @@ public class BlockBreakAlertDataPlaceholderResolver implements
     }
 
     /**
-     * Build the block name component.
+     * Build the block component.
      *
-     * @param blockName The block name
+     * @param blockTranslationKey The block translation key
      * @param itemKey The item key
      * @return The component
      */
-    protected Component blockName(String blockName, Key itemKey) {
+    protected Component block(String blockTranslationKey, Key itemKey) {
         return Component.text()
-            .append(Component.text(blockName))
+            .append(Component.translatable(blockTranslationKey))
             .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_ITEM,
                 HoverEvent.ShowItem.showItem(itemKey, 1)))
             .build();

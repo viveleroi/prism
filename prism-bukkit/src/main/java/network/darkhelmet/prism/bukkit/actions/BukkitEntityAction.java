@@ -26,6 +26,8 @@ import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 import java.util.Locale;
 import java.util.UUID;
 
+import net.kyori.adventure.text.Component;
+
 import network.darkhelmet.prism.api.actions.EntityAction;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
@@ -102,6 +104,11 @@ public class BukkitEntityAction extends BukkitAction implements EntityAction {
 
         this.entityType = entityType;
         this.readWriteNbt = readWriteNbt;
+    }
+
+    @Override
+    public Component descriptorComponent() {
+        return Component.translatable(entityType.getTranslationKey());
     }
 
     /**

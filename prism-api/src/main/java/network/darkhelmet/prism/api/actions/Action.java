@@ -65,7 +65,7 @@ public interface Action {
      *
      * <p>A descriptor is a mix between an identifier and formatted/specific content.</p>
      *
-     * <p>For example we log the entity type of "BOAT" and custom nbt serialized data
+     * <p>For example, we log the entity type of "BOAT" and custom nbt serialized data
      * but custom data is too unique to group, yet pieces are important to users.
      * A descriptor parses the key data for a *descriptive*, *group-able* name.</p>
      *
@@ -75,6 +75,14 @@ public interface Action {
      * @return The descriptor
      */
     String descriptor();
+
+    /**
+     * An in-game descriptor. May differ from the database version
+     * in that it includes translatable components or other information.
+     *
+     * @return The descriptor component
+     */
+    Component descriptorComponent();
 
     /**
      * Get the metadata record attached to this action.

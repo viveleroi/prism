@@ -27,6 +27,8 @@ import java.util.UUID;
 
 import lombok.Getter;
 
+import net.kyori.adventure.text.Component;
+
 import network.darkhelmet.prism.api.actions.BlockAction;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
@@ -193,8 +195,8 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
     }
 
     @Override
-    public @Nullable String serializeBlockData() {
-        return this.blockData != null ? this.blockData.getAsString(true).replaceAll("^[^\\[]+", "") : "";
+    public Component descriptorComponent() {
+        return Component.translatable(String.format("block.%s.%s", blockNamespace, blockName));
     }
 
     @Override
@@ -211,6 +213,11 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
         if (readWriteNbt != null) {
             readWriteNbt.mergeCompound(NBT.parseNBT(nbtString));
         }
+    }
+
+    @Override
+    public @Nullable String serializeBlockData() {
+        return this.blockData != null ? this.blockData.getAsString(true).replaceAll("^[^\\[]+", "") : "";
     }
 
     @Override
