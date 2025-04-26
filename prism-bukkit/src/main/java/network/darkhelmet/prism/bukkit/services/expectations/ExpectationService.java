@@ -20,26 +20,25 @@
 
 package network.darkhelmet.prism.bukkit.services.expectations;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
-import network.darkhelmet.prism.api.services.expectations.ExpectationType;
+import network.darkhelmet.prism.core.services.cache.CacheService;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
+import network.darkhelmet.prism.loader.services.configuration.cache.CacheConfiguration;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 @Singleton
 public class ExpectationService {
     /**
-     * Cache of expectation types and their caches.
+     * Cache expectations and wipe them if our expectations aren't met.
      */
-    Map<ExpectationType, ExpectationsCache> expectationsCaches = new HashMap<>();
-
-    /**
-     * The logging service.
-     */
-    private LoggingService loggingService;
+    Cache<Object, Object> detachExpectations;
 
     /**
      * Constructor.
@@ -47,24 +46,59 @@ public class ExpectationService {
      * @param loggingService The logging service
      */
     @Inject
-    public ExpectationService(LoggingService loggingService) {
-        this.loggingService = loggingService;
+    public ExpectationService(
+            CacheService cacheService,
+            ConfigurationService configurationService,
+            LoggingService loggingService) {
+        CacheConfiguration cacheConfiguration = configurationService.prismConfig().cache();
+
+        var cacheBuilder = Caffeine.newBuilder()
+            .expireAfterWrite(10, TimeUnit.SECONDS)
+            .evictionListener((key, value, cause) -> {
+                String msg = "Evicting expectations cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
+            })
+            .removalListener((key, value, cause) -> {
+                String msg = "Removing expectations cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                loggingService.debug(msg, key, value, cause);
+            });
+
+        if (cacheConfiguration.recordStats()) {
+            cacheBuilder.recordStats();
+        }
+
+        detachExpectations = cacheBuilder.build();
+        cacheService.caches().put("detachExpectations", detachExpectations);
     }
 
     /**
-     * Get or create an expectations cache.
+     * Get the expectation.
      *
-     * @param type The expectation type
-     * @return The expectations cache
+     * @param target The target
+     * @return The cause, if target present
      */
-    public ExpectationsCache cacheFor(ExpectationType type) {
-        if (expectationsCaches.containsKey(type)) {
-            return expectationsCaches.get(type);
-        }
+    public Optional<Object> detachExpectation(Object target) {
+        return Optional.ofNullable(detachExpectations.getIfPresent(target));
+    }
 
-        ExpectationsCache cache = new ExpectationsCache(loggingService);
-        expectationsCaches.put(type, cache);
+    /**
+     * Add a target object and a cause we expect an event will "claim".
+     *
+     * @param target The target object
+     * @param cause The cause
+     */
+    public void expectDetach(Object target, Object cause) {
+        detachExpectations.put(target, cause);
+    }
 
-        return cache;
+    /**
+     * Mark a target as a met expectation. This immediately
+     * removes it from the expectations cache and avoids
+     * auto-expiring.
+     *
+     * @param target The target
+     */
+    public void metDetachExpectation(Object target) {
+        detachExpectations.invalidate(target);
     }
 }

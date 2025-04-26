@@ -66,6 +66,7 @@ import network.darkhelmet.prism.bukkit.services.messages.ReceiverResolver;
 import network.darkhelmet.prism.bukkit.services.messages.resolvers.ActivityPlaceholderResolver;
 import network.darkhelmet.prism.bukkit.services.messages.resolvers.BlockBreakAlertDataPlaceholderResolver;
 import network.darkhelmet.prism.bukkit.services.messages.resolvers.IntegerPlaceholderResolver;
+import network.darkhelmet.prism.bukkit.services.messages.resolvers.LongPlaceholderResolver;
 import network.darkhelmet.prism.bukkit.services.messages.resolvers.ModificationQueueResultPlaceholderResolver;
 import network.darkhelmet.prism.bukkit.services.messages.resolvers.PaginatedResultsPlaceholderResolver;
 import network.darkhelmet.prism.bukkit.services.messages.resolvers.PurgeCycleResultPlaceholderResolver;
@@ -219,6 +220,7 @@ public class PrismModule extends AbstractModule {
                 .resolvingWithStrategy(new StandardPlaceholderResolverStrategy<>(
                     new StandardSupertypeThenInterfaceSupertypeStrategy(false)))
                 .weightedPlaceholderResolver(Integer.class, new IntegerPlaceholderResolver(), 0)
+                .weightedPlaceholderResolver(Long.class, new LongPlaceholderResolver(), 0)
                 .weightedPlaceholderResolver(String.class, new StringPlaceholderResolver(), 0)
                 .weightedPlaceholderResolver(PurgeCycleResult.class, new PurgeCycleResultPlaceholderResolver(), 0)
                 .weightedPlaceholderResolver(AbstractActivity.class, activityPlaceholderResolver, 0)

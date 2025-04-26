@@ -30,6 +30,9 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 @ConfigSerializable
 @Getter
 public class CacheConfiguration {
+    @Comment("Enable stats recording. Ideally not used on live servers.")
+    private boolean recordStats = true;
+
     @Comment("Cache settings for alerted locations.")
     private CacheBuilderConfiguration alertedLocations = new CacheBuilderConfiguration(
         5000, new DurationConfiguration(5, TimeUnit.MINUTES));

@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Locale;
 
 import network.darkhelmet.prism.api.actions.types.ActionType;
-import network.darkhelmet.prism.api.services.expectations.ExpectationType;
 import network.darkhelmet.prism.bukkit.actions.BukkitBlockAction;
 import network.darkhelmet.prism.bukkit.actions.BukkitEntityAction;
 import network.darkhelmet.prism.bukkit.actions.BukkitItemStackAction;
@@ -133,7 +132,7 @@ public class AbstractListener {
         // Find any hanging entities
         if (configurationService.prismConfig().actions().hangingBreak()) {
             for (Entity hanging : EntityUtils.hangingEntities(block.getLocation(), 2)) {
-                expectationService.cacheFor(ExpectationType.DETACH).expect(hanging, cause);
+                expectationService.expectDetach(hanging, cause);
             }
         }
 

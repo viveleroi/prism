@@ -25,6 +25,8 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import lombok.Getter;
@@ -36,6 +38,16 @@ import network.darkhelmet.prism.loader.services.logging.LoggingService;
 @Getter
 @Singleton
 public class CacheService {
+    /**
+     * A convenient place to reference all caches for reporting purposes.
+     */
+    private final Map<String, Cache<?, ?>> caches = new HashMap<>();
+
+    /**
+     * A convenient place to reference all primary key caches for reporting purposes.
+     */
+    private final Map<String, Cache<?, ?>> primaryKeyCaches = new HashMap<>();
+
     /**
      * A cache of action keys to primary keys.
      */
@@ -104,7 +116,12 @@ public class CacheService {
                 cacheConfiguration.pkCacheActionKey().expiresAfterAccess().timeUnit());
         }
 
+        if (cacheConfiguration.recordStats()) {
+            actionBuilder.recordStats();
+        }
+
         actionKeyPkMap = actionBuilder.build();
+        primaryKeyCaches.put("actionKeyPkMap", actionKeyPkMap);
 
         // Build the block data cache
         Caffeine<String, Integer> blockBuilder = Caffeine.newBuilder()
@@ -124,7 +141,12 @@ public class CacheService {
                 cacheConfiguration.pkCacheBlockData().expiresAfterAccess().timeUnit());
         }
 
+        if (cacheConfiguration.recordStats()) {
+            blockBuilder.recordStats();
+        }
+
         blockDataPkMap = blockBuilder.build();
+        primaryKeyCaches.put("blockDataPkMap", blockDataPkMap);
 
         // Build the entity type cache
         Caffeine<String, Integer> entityBuilder = Caffeine.newBuilder()
@@ -144,7 +166,12 @@ public class CacheService {
                 cacheConfiguration.pkCacheEntityType().expiresAfterAccess().timeUnit());
         }
 
+        if (cacheConfiguration.recordStats()) {
+            entityBuilder.recordStats();
+        }
+
         entityTypePkMap = entityBuilder.build();
+        primaryKeyCaches.put("entityTypePkMap", entityTypePkMap);
 
         // Build the material data cache
         Caffeine<String, Integer> materialBuilder = Caffeine.newBuilder()
@@ -164,7 +191,12 @@ public class CacheService {
                 cacheConfiguration.pkCacheMaterialData().expiresAfterAccess().timeUnit());
         }
 
+        if (cacheConfiguration.recordStats()) {
+            materialBuilder.recordStats();
+        }
+
         materialDataPkMap = materialBuilder.build();
+        primaryKeyCaches.put("materialDataPkMap", materialDataPkMap);
 
         // Build the named cause cache
         Caffeine<String, Long> namedCauseBuilder = Caffeine.newBuilder()
@@ -184,7 +216,12 @@ public class CacheService {
                 cacheConfiguration.pkCacheNamedCause().expiresAfterAccess().timeUnit());
         }
 
+        if (cacheConfiguration.recordStats()) {
+            namedCauseBuilder.recordStats();
+        }
+
         namedCausePkMap = namedCauseBuilder.build();
+        primaryKeyCaches.put("namedCausePkMap", namedCausePkMap);
 
         // Build the player cause cache
         Caffeine<Long, Long> playerCauseBuilder = Caffeine.newBuilder()
@@ -204,7 +241,12 @@ public class CacheService {
                 cacheConfiguration.pkCachePlayer().expiresAfterAccess().timeUnit());
         }
 
+        if (cacheConfiguration.recordStats()) {
+            playerCauseBuilder.recordStats();
+        }
+
         playerCausePkMap = playerCauseBuilder.build();
+        primaryKeyCaches.put("playerCausePkMap", playerCausePkMap);
 
         // Build the player cache
         Caffeine<UUID, Long> playerBuilder = Caffeine.newBuilder()
@@ -224,7 +266,12 @@ public class CacheService {
                 cacheConfiguration.pkCachePlayer().expiresAfterAccess().timeUnit());
         }
 
+        if (cacheConfiguration.recordStats()) {
+            playerBuilder.recordStats();
+        }
+
         playerUuidPkMap = playerBuilder.build();
+        primaryKeyCaches.put("playerUuidPkMap", playerUuidPkMap);
 
         // Create the world cache
         Caffeine<UUID, Byte> worldBuilder = Caffeine.newBuilder()
@@ -244,6 +291,11 @@ public class CacheService {
                 cacheConfiguration.pkCacheWorld().expiresAfterAccess().timeUnit());
         }
 
+        if (cacheConfiguration.recordStats()) {
+            worldBuilder.recordStats();
+        }
+
         worldUuidPkMap = worldBuilder.build();
+        primaryKeyCaches.put("worldUuidPkMap", worldUuidPkMap);
     }
 }

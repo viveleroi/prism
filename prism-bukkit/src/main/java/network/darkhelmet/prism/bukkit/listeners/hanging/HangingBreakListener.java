@@ -24,7 +24,6 @@ import com.google.inject.Inject;
 
 import java.util.Optional;
 
-import network.darkhelmet.prism.api.services.expectations.ExpectationType;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
 import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
@@ -71,13 +70,13 @@ public class HangingBreakListener extends AbstractListener implements Listener {
         final Hanging hanging = event.getEntity();
         if (event.getCause().equals(HangingBreakEvent.RemoveCause.PHYSICS)) {
             // Physics causes. Hopefully find the actual cause through an expectation
-            Optional<Object> expectation = expectationService.cacheFor(ExpectationType.DETACH).expectation(hanging);
+            Optional<Object> expectation = expectationService.detachExpectation(hanging);
             expectation.ifPresent(o -> {
                 // Queue a recording
                 recordHangingBreak(hanging, o);
 
                 // Remove from cache
-                expectationService.cacheFor(ExpectationType.DETACH).metExpectation(hanging);
+                expectationService.metDetachExpectation(hanging);
             });
         }
     }

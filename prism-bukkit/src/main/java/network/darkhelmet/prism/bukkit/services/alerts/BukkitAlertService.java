@@ -40,6 +40,7 @@ import network.darkhelmet.prism.bukkit.utils.BlockUtils;
 import network.darkhelmet.prism.bukkit.utils.CustomTag;
 import network.darkhelmet.prism.bukkit.utils.ListUtils;
 import network.darkhelmet.prism.bukkit.utils.VeinScanner;
+import network.darkhelmet.prism.core.services.cache.CacheService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.configuration.alerts.AlertConfiguration;
 import network.darkhelmet.prism.loader.services.configuration.alerts.BlockAlertConfiguration;
@@ -96,6 +97,7 @@ public class BukkitAlertService {
     /**
      * Constructor.
      *
+     * @param cacheService The cache service
      * @param configurationService The configuration service
      * @param loggingService The logging service
      * @param lookupService The lookup service
@@ -103,6 +105,7 @@ public class BukkitAlertService {
      */
     @Inject
     public BukkitAlertService(
+            CacheService cacheService,
             ConfigurationService configurationService,
             LoggingService loggingService,
             LookupService lookupService,
@@ -114,7 +117,7 @@ public class BukkitAlertService {
 
         CacheConfiguration cacheConfiguration = configurationService.prismConfig().cache();
 
-        locations = Caffeine.newBuilder()
+        var cacheBuilder = Caffeine.newBuilder()
             .maximumSize(cacheConfiguration.alertedLocations().maxSize())
             .expireAfterAccess(cacheConfiguration.alertedLocations().expiresAfterAccess().duration(),
                 cacheConfiguration.alertedLocations().expiresAfterAccess().timeUnit())
@@ -125,7 +128,14 @@ public class BukkitAlertService {
             .removalListener((key, value, cause) -> {
                 String msg = "Removing alerted location from cache: Key: %s, Value: %s, Removal Cause: %s";
                 loggingService.debug(String.format(msg, key, value, cause));
-            }).build();
+            });
+
+        if (cacheConfiguration.recordStats()) {
+            cacheBuilder.recordStats();
+        }
+
+        locations = cacheBuilder.build();
+        cacheService.caches().put("alertLocations", locations);
 
         loadAlerts();
     }

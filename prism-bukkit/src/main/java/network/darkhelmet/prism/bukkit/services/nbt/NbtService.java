@@ -32,6 +32,7 @@ import de.tr7zw.nbtapi.iface.ReadableNBT;
 import java.util.function.Consumer;
 
 import network.darkhelmet.prism.bukkit.utils.StringUtils;
+import network.darkhelmet.prism.core.services.cache.CacheService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.configuration.cache.CacheConfiguration;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
@@ -71,16 +72,20 @@ public class NbtService {
     /**
      * Constructor.
      *
+     * @param cacheService The cache service
      * @param configurationService Configuration service
      * @param loggingService Logging service
      */
     @Inject
-    public NbtService(ConfigurationService configurationService, LoggingService loggingService) {
+    public NbtService(
+            CacheService cacheService,
+            ConfigurationService configurationService,
+            LoggingService loggingService) {
         CacheConfiguration cacheConfiguration = configurationService.prismConfig().cache();
 
         this.loggingService = loggingService;
 
-        entityNbtDefaults = Caffeine.newBuilder()
+        var cacheBuilder = Caffeine.newBuilder()
             .maximumSize(cacheConfiguration.nbtEntityDefaults().maxSize())
             .expireAfterAccess(cacheConfiguration.nbtEntityDefaults().expiresAfterAccess().duration(),
                 cacheConfiguration.nbtEntityDefaults().expiresAfterAccess().timeUnit())
@@ -91,7 +96,14 @@ public class NbtService {
             .removalListener((key, value, cause) -> {
                 String msg = "Removing entity nbt default from cache: Key: %s, Value: %s, Removal Cause: %s";
                 loggingService.debug(String.format(msg, key, value, cause));
-            }).build();
+            });
+
+        if (configurationService.prismConfig().cache().recordStats()) {
+            cacheBuilder.recordStats();
+        }
+
+        entityNbtDefaults = cacheBuilder.build();
+        cacheService.caches().put("entityNbtDefaults", entityNbtDefaults);
     }
 
     /**

@@ -43,6 +43,8 @@ import network.darkhelmet.prism.bukkit.services.messages.MessageService;
 import network.darkhelmet.prism.bukkit.services.modifications.state.BlockStateChange;
 import network.darkhelmet.prism.core.injection.factories.RestoreFactory;
 import network.darkhelmet.prism.core.injection.factories.RollbackFactory;
+import network.darkhelmet.prism.core.services.cache.CacheService;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 import org.bukkit.Location;
@@ -80,6 +82,8 @@ public class BukkitModificationQueueService implements ModificationQueueService 
     /**
      * Constructor.
      *
+     * @param cacheService The cache service
+     * @param configurationService The configuration service
      * @param loggingService The logging service
      * @param messageService The message service
      * @param restoreFactory The restore factory
@@ -87,6 +91,8 @@ public class BukkitModificationQueueService implements ModificationQueueService 
      */
     @Inject
     public BukkitModificationQueueService(
+            CacheService cacheService,
+            ConfigurationService configurationService,
             LoggingService loggingService,
             MessageService messageService,
             RestoreFactory restoreFactory,
@@ -95,7 +101,7 @@ public class BukkitModificationQueueService implements ModificationQueueService 
         this.restoreFactory = restoreFactory;
         this.rollbackFactory = rollbackFactory;
 
-        queueResults = Caffeine.newBuilder()
+        var cacheBuilder = Caffeine.newBuilder()
             .expireAfterAccess(10, TimeUnit.MINUTES)
             .maximumSize(4)
             .evictionListener((key, value, cause) -> {
@@ -105,8 +111,14 @@ public class BukkitModificationQueueService implements ModificationQueueService 
             .removalListener((key, value, cause) -> {
                 String msg = "Removing queue result cache: Key: {0}, Value: {1}, Removal Cause: {2}";
                 loggingService.debug(msg, key, value, cause);
-            })
-            .build();
+            });
+
+        if (configurationService.prismConfig().cache().recordStats()) {
+            cacheBuilder.recordStats();
+        }
+
+        queueResults = cacheBuilder.build();
+        cacheService.caches().put("queueResults", queueResults);
     }
 
     @Override

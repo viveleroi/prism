@@ -43,6 +43,13 @@ public interface MessageService {
     @Message("rich.alert-block-break-night-vision")
     void alertBlockBreakNightVision(CommandSender receiver, @Placeholder BlockBreakAlertData data);
 
+    @Message("rich.cache-list-entry")
+    void cacheListEntry(CommandSender receiver,
+        @Placeholder String name, @Placeholder Long size, @Placeholder Long hits);
+
+    @Message("rich.cache-list-header")
+    void cacheListHeader(CommandSender receiver);
+
     @Message("rich.defaults-used")
     void defaultsUsed(CommandSender receiver, @Placeholder String defaults);
 
@@ -123,6 +130,9 @@ public interface MessageService {
 
     @Message("rich.error.query-exec")
     void errorQueryExec(CommandSender receiver);
+
+    @Message("rich.error.record-stats")
+    void errorRecordStats(CommandSender receiver);
 
     @Message("rich.error.reload-locale")
     void errorReloadLocale(CommandSender receiver);

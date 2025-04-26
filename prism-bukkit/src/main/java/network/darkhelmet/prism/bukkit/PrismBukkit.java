@@ -48,6 +48,7 @@ import network.darkhelmet.prism.api.services.recording.RecordingService;
 import network.darkhelmet.prism.api.storage.StorageAdapter;
 import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import network.darkhelmet.prism.bukkit.commands.AboutCommand;
+import network.darkhelmet.prism.bukkit.commands.CacheCommand;
 import network.darkhelmet.prism.bukkit.commands.DrainCommand;
 import network.darkhelmet.prism.bukkit.commands.ExtinguishCommand;
 import network.darkhelmet.prism.bukkit.commands.LookupCommand;
@@ -480,6 +481,7 @@ public class PrismBukkit implements Prism {
             );
 
             commandManager.registerCommand(injectorProvider.injector().getInstance(AboutCommand.class));
+            commandManager.registerCommand(injectorProvider.injector().getInstance(CacheCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(DrainCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(ExtinguishCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(LookupCommand.class));

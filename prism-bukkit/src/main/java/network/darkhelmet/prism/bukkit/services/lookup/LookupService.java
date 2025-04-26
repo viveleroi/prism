@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import lombok.Getter;
+
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -43,6 +45,7 @@ import network.darkhelmet.prism.api.storage.StorageAdapter;
 import network.darkhelmet.prism.bukkit.providers.TaskChainProvider;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
 import network.darkhelmet.prism.bukkit.services.translation.BukkitTranslationService;
+import network.darkhelmet.prism.core.services.cache.CacheService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.configuration.cache.CacheConfiguration;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
@@ -84,12 +87,14 @@ public class LookupService {
     /**
      * Cache recent queries.
      */
+    @Getter
     private final Cache<CommandSender, ActivityQuery> recentQueries;
 
     /**
      * Construct the lookup service.
      *
      * @param audiences The bukkit audiences
+     * @param cacheService The cache service
      * @param configurationService The configuration service
      * @param messageService The message service
      * @param storageAdapter The storage adapter
@@ -100,6 +105,7 @@ public class LookupService {
     @Inject
     public LookupService(
             BukkitAudiences audiences,
+            CacheService cacheService,
             ConfigurationService configurationService,
             MessageService messageService,
             StorageAdapter storageAdapter,
@@ -115,7 +121,7 @@ public class LookupService {
 
         CacheConfiguration cacheConfiguration = configurationService.prismConfig().cache();
 
-        recentQueries = Caffeine.newBuilder()
+        var cacheBuilder = Caffeine.newBuilder()
             .maximumSize(cacheConfiguration.lookupExpiration().maxSize())
             .expireAfterAccess(cacheConfiguration.lookupExpiration().expiresAfterAccess().duration(),
                 cacheConfiguration.lookupExpiration().expiresAfterAccess().timeUnit())
@@ -126,7 +132,14 @@ public class LookupService {
             .removalListener((key, value, cause) -> {
                 String msg = "Removing activity query from cache: Key: {0} Value: {1}, Removal Cause: {2}";
                 loggingService.debug(msg, key, value, cause);
-            }).build();
+            });
+
+        if (cacheConfiguration.recordStats()) {
+            cacheBuilder.recordStats();
+        }
+
+        recentQueries = cacheBuilder.build();
+        cacheService.caches().put("lookupQueries", recentQueries);
     }
 
     /**
