@@ -23,6 +23,8 @@ package network.darkhelmet.prism.bukkit.services.translation;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -41,6 +43,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import net.kyori.adventure.translation.Translator;
@@ -119,6 +123,65 @@ public class BukkitTranslationService implements IMessageSource<CommandSender, S
         }
 
         return this.forAudience(messageKey);
+    }
+
+    /**
+     * Reload translations.
+     *
+     * @throws IOException IO Exception
+     */
+    public void reloadTranslations() throws IOException {
+        final Path localeDirectory = this.dataDirectory.resolve("locale");
+
+        // Create locale directory
+        if (!Files.exists(localeDirectory)) {
+            Files.createDirectories(localeDirectory);
+        }
+
+        // Load localization files from the jar
+        this.walkPluginJar(stream -> stream.filter(Files::isRegularFile)
+            .filter(it -> {
+                final String pathString = it.toString();
+                return pathString.startsWith("/locale/messages-")
+                    && pathString.endsWith(".properties");
+            })
+            .forEach(localeFile -> {
+                final String localeString = localeFile.getFileName().toString().substring("messages-".length())
+                    .replace(".properties", "");
+                // MC uses no_NO when the player selects nb_NO...
+                final @Nullable Locale locale = Translator.parseLocale(localeString
+                    .replace("nb_NO", "no_NO"));
+
+                if (locale == null) {
+                    this.loggingService.warn("Unknown locale '{0}'?", localeString);
+                    return;
+                }
+
+                this.loggingService.info("Found locale {0} ({1}) in: {2}",
+                    locale.getDisplayName(), locale, localeFile);
+                final SortedProperties properties = new SortedProperties();
+
+                try {
+                    this.loadProperties(properties, localeDirectory, localeFile);
+                    this.locales.put(locale, properties);
+
+                    this.loggingService.info("Successfully loaded locale {0} ({1})",
+                        locale.getDisplayName(), locale);
+                } catch (final IOException ex) {
+                    this.loggingService.warn("Unable to load locale {0} ({1}) from source: {2}",
+                        locale.getDisplayName(), locale, localeFile, ex);
+                }
+            }));
+
+        // Load any unrecognized localization files
+        for (var entry : loadProperties(localeDirectory).entrySet()) {
+            if (!this.locales.containsKey(entry.getKey())) {
+                this.locales.put(entry.getKey(), entry.getValue());
+
+                this.loggingService.info("Successfully loaded custom locale {0} ({1})",
+                    entry.getKey().getDisplayName(), entry.getKey());
+            }
+        }
     }
 
     /**
@@ -204,94 +267,59 @@ public class BukkitTranslationService implements IMessageSource<CommandSender, S
     }
 
     /**
-     * Get the plugin jar path.
+     * Loads properties files from a directory.
      *
-     * @return The plugin jar path
+     * @param directoryPath the path to the directory containing the .properties files.
+     * @return A map of locale/properties
+     * @throws IllegalArgumentException if the directoryPath is null or not a directory.
      */
-    private static Path pluginJar() {
-        try {
-            URL sourceUrl = BukkitTranslationService.class.getProtectionDomain().getCodeSource().getLocation();
-            // Some class loaders give the full url to the class, some give the URL to its jar.
-            // We want the containing jar, so we will unwrap jar-schema code sources.
-            if (sourceUrl.getProtocol().equals("jar")) {
-                final int exclamationIdx = sourceUrl.getPath().lastIndexOf('!');
-                if (exclamationIdx != -1) {
-                    sourceUrl = new URL(sourceUrl.getPath().substring(0, exclamationIdx));
+    private Map<Locale, SortedProperties> loadProperties(Path directoryPath) {
+        File directory = new File(directoryPath.toUri());
+        if (!directory.exists() || !directory.isDirectory()) {
+            throw new IllegalArgumentException("Path is not a directory: " + directoryPath);
+        }
+
+        Map<Locale, SortedProperties> propertiesMap = new HashMap<>();
+        File[] files = directory.listFiles();
+        if (files == null) {
+            return new HashMap<>();
+        }
+
+        Pattern pattern = Pattern.compile("messages(?:-([a-z]{2}(?:_[A-Z]{2})?))?\\.properties");
+
+        for (File file : files) {
+            if (file.isFile() && file.getName().endsWith(".properties")) {
+                String fileName = file.getName();
+                Matcher matcher = pattern.matcher(fileName);
+                if (matcher.find()) {
+                    String localeString = matcher.group(1);
+                    Locale locale;
+
+                    if (localeString != null && !localeString.isEmpty()) {
+                        // Parse the locale string.
+                        String[] parts = localeString.split("_");
+                        if (parts.length == 2) {
+                            locale = new Locale(parts[0], parts[1]);
+                        } else {
+                            locale = new Locale(parts[0]);
+                        }
+                    } else {
+                        locale = Locale.getDefault();
+                    }
+
+                    SortedProperties properties = new SortedProperties();
+                    try (InputStream input = new FileInputStream(file)) {
+                        properties.load(input);
+                        propertiesMap.put(locale, properties);
+                    } catch (IOException e) {
+                        loggingService.error("Error loading properties file: {0}", file);
+                        loggingService.handleException(e);
+                    }
                 }
             }
-            return Paths.get(sourceUrl.toURI());
-        } catch (final URISyntaxException | MalformedURLException ex) {
-            throw new RuntimeException("Could not locate plugin jar", ex);
-        }
-    }
-
-    /**
-     * Reload translations.
-     *
-     * @throws IOException IO Exception
-     */
-    public void reloadTranslations() throws IOException {
-        final Path localeDirectory = this.dataDirectory.resolve("locale");
-
-        // Create locale directory
-        if (!Files.exists(localeDirectory)) {
-            Files.createDirectories(localeDirectory);
         }
 
-        this.walkPluginJar(stream -> stream.filter(Files::isRegularFile)
-            .filter(it -> {
-                final String pathString = it.toString();
-                return pathString.startsWith("/locale/messages-")
-                        && pathString.endsWith(".properties");
-            })
-            .forEach(localeFile -> {
-                final String localeString = localeFile.getFileName().toString().substring("messages-".length())
-                    .replace(".properties", "");
-                // MC uses no_NO when the player selects nb_NO...
-                final @Nullable Locale locale = Translator.parseLocale(localeString
-                    .replace("nb_NO", "no_NO"));
-
-                if (locale == null) {
-                    this.loggingService.warn("Unknown locale '{0}'?", localeString);
-                    return;
-                }
-
-                this.loggingService.info("Found locale {0} ({1}) in: {2}",
-                    locale.getDisplayName(), locale, localeFile);
-                final SortedProperties properties = new SortedProperties();
-
-                try {
-                    this.loadProperties(properties, localeDirectory, localeFile);
-                    this.locales.put(locale, properties);
-
-                    this.loggingService.info("Successfully loaded locale {0} ({1})",
-                        locale.getDisplayName(), locale);
-                } catch (final IOException ex) {
-                    this.loggingService.warn("Unable to load locale {0} ({1}) from source: {2}",
-                        locale.getDisplayName(), locale, localeFile, ex);
-                }
-            }));
-    }
-
-    /**
-     * Walk files in the plugin.
-     *
-     * @param user The consumer
-     * @throws IOException IO Exception
-     */
-    private void walkPluginJar(final Consumer<Stream<Path>> user) throws IOException {
-        if (Files.isDirectory(this.pluginJar)) {
-            try (final var stream = Files.walk(this.pluginJar)) {
-                user.accept(stream.map(path -> path.relativize(this.pluginJar)));
-            }
-            return;
-        }
-        try (final FileSystem jar = FileSystems.newFileSystem(this.pluginJar, this.getClass().getClassLoader())) {
-            final Path root = jar.getRootDirectories().iterator().next();
-            try (final var stream = Files.walk(root)) {
-                user.accept(stream);
-            }
-        }
+        return propertiesMap;
     }
 
     /**
@@ -333,6 +361,49 @@ public class BukkitTranslationService implements IMessageSource<CommandSender, S
         if (write) {
             try (final Writer outputStream = Files.newBufferedWriter(savedFile)) {
                 properties.store(outputStream, null);
+            }
+        }
+    }
+
+    /**
+     * Get the plugin jar path.
+     *
+     * @return The plugin jar path
+     */
+    private static Path pluginJar() {
+        try {
+            URL sourceUrl = BukkitTranslationService.class.getProtectionDomain().getCodeSource().getLocation();
+            // Some class loaders give the full url to the class, some give the URL to its jar.
+            // We want the containing jar, so we will unwrap jar-schema code sources.
+            if (sourceUrl.getProtocol().equals("jar")) {
+                final int exclamationIdx = sourceUrl.getPath().lastIndexOf('!');
+                if (exclamationIdx != -1) {
+                    sourceUrl = new URL(sourceUrl.getPath().substring(0, exclamationIdx));
+                }
+            }
+            return Paths.get(sourceUrl.toURI());
+        } catch (final URISyntaxException | MalformedURLException ex) {
+            throw new RuntimeException("Could not locate plugin jar", ex);
+        }
+    }
+
+    /**
+     * Walk files in the plugin.
+     *
+     * @param user The consumer
+     * @throws IOException IO Exception
+     */
+    private void walkPluginJar(final Consumer<Stream<Path>> user) throws IOException {
+        if (Files.isDirectory(this.pluginJar)) {
+            try (final var stream = Files.walk(this.pluginJar)) {
+                user.accept(stream.map(path -> path.relativize(this.pluginJar)));
+            }
+            return;
+        }
+        try (final FileSystem jar = FileSystems.newFileSystem(this.pluginJar, this.getClass().getClassLoader())) {
+            final Path root = jar.getRootDirectories().iterator().next();
+            try (final var stream = Files.walk(root)) {
+                user.accept(stream);
             }
         }
     }
