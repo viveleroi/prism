@@ -31,7 +31,7 @@ import org.jooq.ForeignKey;
 import org.jooq.Identity;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row6;
+import org.jooq.Row4;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -173,7 +173,7 @@ public class PrismBlocks extends TableImpl<PrismBlocksRecord> {
     }
 
     @Override
-    public Row6<UInteger, String, String, String, String, UShort> fieldsRow() {
-        return (Row6) super.fieldsRow();
+    public Row4<UInteger, String, String, String> fieldsRow() {
+        return (Row4) super.fieldsRow();
     }
 }
