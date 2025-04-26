@@ -59,7 +59,7 @@ Prism is not a commercial project. It takes significant investment of time and e
 - Luck & LuckPerms contributors for the dependency management code.
 
 [discord]: https://discord.gg/7FxZScH4EJ
-[docs]: https://prism.readthedocs.io/en/latest
-[ci]: https://ci.darkhelmet.network/job/Prism-v4/
+[docs]: https://docs.prism-mc.org
+[ci]: https://ci.prism-mc.org
 [prism3]: https://github.com/prism/PrismRefracted
 [triumph]: https://triumphteam.dev/
