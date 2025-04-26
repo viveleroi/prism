@@ -29,6 +29,7 @@ import lombok.experimental.UtilityClass;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
@@ -52,6 +53,50 @@ public class EntityUtils {
 
             return false;
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * Moves entities up to ground level.
+     *
+     * @param world The world
+     * @param boundingBox The bounding box
+     * @return A count of entities moved
+     */
+    public static int moveEntitiesToGround(World world, BoundingBox boundingBox) {
+        var totalMoved = 0;
+
+        for (var entity : entitiesInRangeByClass(world, boundingBox, Entity.class)) {
+            final Location location = entity.getLocation();
+
+            Location destination = null;
+            while (true) {
+                if (location.getY() >= 256) {
+                    break;
+                }
+
+                if (location.getBlock().isPassable() && location.getBlock().getRelative(BlockFace.UP).isPassable()) {
+                    destination = location;
+
+                    break;
+                }
+
+                location.setY(location.getY() + 1);
+            }
+
+            if (destination != null) {
+                // Teleport to the destination
+                entity.teleport(destination);
+            } else {
+                // Teleport to the highest block
+                entity.teleport(world.getHighestBlockAt(
+                    entity.getLocation().getBlockX(), entity.getLocation().getBlockZ())
+                        .getRelative(BlockFace.UP).getLocation());
+            }
+
+            totalMoved++;
+        }
+
+        return totalMoved;
     }
 
     /**

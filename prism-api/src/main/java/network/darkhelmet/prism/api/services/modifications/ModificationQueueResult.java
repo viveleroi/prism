@@ -42,6 +42,12 @@ public final class ModificationQueueResult {
     private ModificationQueueMode mode;
 
     /**
+     * The count of entities moved.
+     */
+    @Builder.Default
+    private int movedEntities = 0;
+
+    /**
      * The count of activities planned.
      */
     @Builder.Default

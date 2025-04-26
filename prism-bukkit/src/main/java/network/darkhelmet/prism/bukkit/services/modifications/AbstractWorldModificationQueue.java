@@ -197,7 +197,24 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
     /**
      * Apply any post-modification tasks.
      */
-    protected void postProcess(ModificationQueueResult.ModificationQueueResultBuilder builder) {}
+    protected void postProcess(ModificationQueueResult.ModificationQueueResultBuilder builder) {
+        if (modificationRuleset.moveEntities()
+                && query.worldUuid() != null
+                && query.minCoordinate() != null
+                && query.maxCoordinate() != null) {
+            double x1 = query.minCoordinate().x();
+            double y1 = query.minCoordinate().y();
+            double z1 = query.minCoordinate().z();
+            double x2 = query.maxCoordinate().x();
+            double y2 = query.maxCoordinate().y();
+            double z2 = query.maxCoordinate().z();
+            BoundingBox boundingBox = new BoundingBox(x1, y1, z1, x2, y2, z2);
+            World world = Bukkit.getWorld(query.worldUuid());
+            int count = EntityUtils.moveEntitiesToGround(world, boundingBox);
+
+            builder.movedEntities(count);
+        }
+    }
 
     @Override
     public void apply() {

@@ -249,6 +249,10 @@ public class BukkitModificationQueueService implements ModificationQueueService 
                 messageService.modificationsApplied(sender, result.applied());
                 messageService.modificationsSkipped(sender, result);
 
+                if (result.movedEntities() > 0) {
+                    messageService.modificationsMovedEntities(sender, result.movedEntities());
+                }
+
                 if (result.removedBlocks() > 0) {
                     messageService.modificationsRemovedBlocks(sender, result.removedBlocks());
                 }

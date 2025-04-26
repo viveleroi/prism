@@ -45,6 +45,11 @@ public class ModificationRuleset {
     private int maxPerTask;
 
     /**
+     * Move entities.
+     */
+    private boolean moveEntities;
+
+    /**
      * A list of blocks to remove.
      */
     private List<String> removeBlocks;

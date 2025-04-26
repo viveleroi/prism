@@ -45,6 +45,9 @@ public class ModificationConfiguration {
             This can also reduce client lag as fewer changes are sent to clients at once.""")
     private int maxPerTask = 1000;
 
+    @Comment("Teleport entities out of the way.")
+    private boolean moveEntities = true;
+
     @Comment("A list of (typically unsafe) blocks to remove before a modification occurs.")
     private List<String> removeBlocks = new ArrayList<>();
 
@@ -79,6 +82,7 @@ public class ModificationConfiguration {
             .blockBlacklist(blockBlacklist)
             .entityBlacklist(entityBlacklist)
             .maxPerTask(maxPerTask)
+            .moveEntities(moveEntities)
             .removeBlocks(removeBlocks)
             .removeDrops(removeDrops)
             .taskDelay(taskDelay);
