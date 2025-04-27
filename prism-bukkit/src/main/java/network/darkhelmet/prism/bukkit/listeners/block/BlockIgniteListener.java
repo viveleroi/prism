@@ -66,8 +66,8 @@ public class BlockIgniteListener extends AbstractListener implements Listener {
             return;
         }
 
-        // Ignore igniting air. Isn't this just fire spread?
-        if (event.getBlock().getType().equals(Material.AIR)) {
+        // Ignore igniting anything that isn't burnable
+        if (!event.getBlock().getType().isBurnable()) {
             return;
         }
 
