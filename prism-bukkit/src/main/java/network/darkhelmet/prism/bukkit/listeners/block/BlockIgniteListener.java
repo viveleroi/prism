@@ -30,7 +30,6 @@ import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
 import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
@@ -66,7 +65,6 @@ public class BlockIgniteListener extends AbstractListener implements Listener {
             return;
         }
 
-        // Ignore igniting anything that isn't burnable
         if (!event.getBlock().getType().isBurnable()) {
             return;
         }
