@@ -84,7 +84,7 @@ public class AboutCommand {
             .append(Component.text("Links: ", NamedTextColor.GRAY))
             .append(link("Discord", "https://discord.gg/7FxZScH4EJ"))
             .append(Component.text(" "))
-            .append(link("Docs", "https://prism.readthedocs.io/")).build();
+            .append(link("Docs", "https://docs.prism-mc.org")).build();
 
         audiences.sender(sender).sendMessage(links);
     }
