@@ -27,38 +27,38 @@ import org.jooq.Row2;
 import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.types.UShort;
 
-import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_MATERIALS;
+import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ITEMS;
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
-public class PrismMaterialsRecord extends UpdatableRecordImpl<PrismMaterialsRecord> implements
+public class PrismItemsRecord extends UpdatableRecordImpl<PrismItemsRecord> implements
         Record2<UShort, String> {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Setter for <code>prism_materials.material_id</code>.
+     * Setter for <code>prism_items.item_id</code>.
      */
-    public PrismMaterialsRecord setMaterialId(UShort value) {
+    public PrismItemsRecord setItemId(UShort value) {
         set(0, value);
         return this;
     }
 
     /**
-     * Getter for <code>prism_materials.material_id</code>.
+     * Getter for <code>prism_items.item_id</code>.
      */
-    public UShort getMaterialId() {
+    public UShort getItemId() {
         return (UShort) get(0);
     }
 
     /**
-     * Setter for <code>prism_materials.material</code>.
+     * Setter for <code>prism_items.material</code>.
      */
-    public PrismMaterialsRecord setMaterial(String value) {
+    public PrismItemsRecord setMaterial(String value) {
         set(1, value);
         return this;
     }
 
     /**
-     * Getter for <code>prism_materials.material</code>.
+     * Getter for <code>prism_items.material</code>.
      */
     public String getMaterial() {
         return (String) get(1);
@@ -89,17 +89,17 @@ public class PrismMaterialsRecord extends UpdatableRecordImpl<PrismMaterialsReco
 
     @Override
     public Field<UShort> field1() {
-        return PRISM_MATERIALS.MATERIAL_ID;
+        return PRISM_ITEMS.ITEM_ID;
     }
 
     @Override
     public Field<String> field2() {
-        return PRISM_MATERIALS.MATERIAL;
+        return PRISM_ITEMS.MATERIAL;
     }
 
     @Override
     public UShort component1() {
-        return getMaterialId();
+        return getItemId();
     }
 
     @Override
@@ -109,12 +109,12 @@ public class PrismMaterialsRecord extends UpdatableRecordImpl<PrismMaterialsReco
 
     @Override
     public UShort value1() {
-        return getMaterialId();
+        return getItemId();
     }
 
     @Override
-    public PrismMaterialsRecord value1(UShort value) {
-        setMaterialId(value);
+    public PrismItemsRecord value1(UShort value) {
+        setItemId(value);
         return this;
     }
 
@@ -124,13 +124,13 @@ public class PrismMaterialsRecord extends UpdatableRecordImpl<PrismMaterialsReco
     }
 
     @Override
-    public PrismMaterialsRecord value2(String value) {
+    public PrismItemsRecord value2(String value) {
         setMaterial(value);
         return this;
     }
 
     @Override
-    public PrismMaterialsRecord values(UShort value1, String value2) {
+    public PrismItemsRecord values(UShort value1, String value2) {
         value1(value1);
         value2(value2);
         return this;
@@ -141,19 +141,19 @@ public class PrismMaterialsRecord extends UpdatableRecordImpl<PrismMaterialsReco
     // -------------------------------------------------------------------------
 
     /**
-     * Create a detached PrismMaterialsRecord.
+     * Create a detached PrismItemsRecord.
      */
-    public PrismMaterialsRecord() {
-        super(PRISM_MATERIALS);
+    public PrismItemsRecord() {
+        super(PRISM_ITEMS);
     }
 
     /**
-     * Create a detached, initialised PrismMaterialsRecord.
+     * Create a detached, initialised PrismItemsRecord.
      */
-    public PrismMaterialsRecord(UShort materialId, String material) {
-        super(PRISM_MATERIALS);
+    public PrismItemsRecord(UShort itemId, String material) {
+        super(PRISM_ITEMS);
 
-        setMaterialId(materialId);
+        setItemId(itemId);
         setMaterial(material);
     }
 }

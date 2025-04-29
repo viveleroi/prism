@@ -47,7 +47,7 @@ import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStor
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
-import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_MATERIALS;
+import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ITEMS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
 import static org.jooq.impl.DSL.avg;
@@ -118,8 +118,8 @@ public class SqlActivityQueryBuilder {
         }
 
         if (!query.materials().isEmpty()) {
-            queryBuilder.addUsing(PRISM_MATERIALS);
-            queryBuilder.addConditions(PRISM_ACTIVITIES.MATERIAL_ID.equal(PRISM_MATERIALS.MATERIAL_ID));
+            queryBuilder.addUsing(PRISM_ITEMS);
+            queryBuilder.addConditions(PRISM_ACTIVITIES.ITEM_ID.equal(PRISM_ITEMS.ITEM_ID));
         }
 
         if (!query.playerNames().isEmpty()) {
@@ -157,7 +157,7 @@ public class SqlActivityQueryBuilder {
         queryBuilder.addSelect(
             PRISM_WORLDS.WORLD_UUID,
             PRISM_WORLDS.WORLD,
-            PRISM_MATERIALS.MATERIAL,
+            PRISM_ITEMS.MATERIAL,
             PRISM_BLOCKS.NS,
             PRISM_BLOCKS.NAME,
             PRISM_ENTITY_TYPES.ENTITY_TYPE,
@@ -209,8 +209,8 @@ public class SqlActivityQueryBuilder {
         queryBuilder.addJoin(PRISM_WORLDS, PRISM_WORLDS.WORLD_ID.equal(PRISM_ACTIVITIES.WORLD_ID));
         queryBuilder.addJoin(PRISM_ENTITY_TYPES, JoinType.LEFT_OUTER_JOIN, PRISM_ENTITY_TYPES.ENTITY_TYPE_ID
             .equal(PRISM_ACTIVITIES.ENTITY_TYPE_ID));
-        queryBuilder.addJoin(PRISM_MATERIALS, JoinType.LEFT_OUTER_JOIN, PRISM_MATERIALS.MATERIAL_ID
-            .equal(PRISM_ACTIVITIES.MATERIAL_ID));
+        queryBuilder.addJoin(PRISM_ITEMS, JoinType.LEFT_OUTER_JOIN, PRISM_ITEMS.ITEM_ID
+            .equal(PRISM_ACTIVITIES.ITEM_ID));
         queryBuilder.addJoin(PRISM_CAUSES, PRISM_CAUSES.CAUSE_ID.equal(PRISM_ACTIVITIES.CAUSE_ID));
         queryBuilder.addJoin(PRISM_PLAYERS, JoinType.LEFT_OUTER_JOIN, PRISM_PLAYERS.PLAYER_ID
             .equal(PRISM_CAUSES.PLAYER_ID));
@@ -229,7 +229,7 @@ public class SqlActivityQueryBuilder {
                 PRISM_WORLDS.WORLD_UUID,
                 PRISM_WORLDS.WORLD,
                 PRISM_ACTIVITIES.ACTION_ID,
-                PRISM_MATERIALS.MATERIAL,
+                PRISM_ITEMS.MATERIAL,
                 PRISM_BLOCKS.NS,
                 PRISM_BLOCKS.NAME,
                 PRISM_ENTITY_TYPES.ENTITY_TYPE,
@@ -360,7 +360,7 @@ public class SqlActivityQueryBuilder {
 
         // Materials
         if (!query.materials().isEmpty()) {
-            conditions.add(PRISM_MATERIALS.MATERIAL.in(query.materials()));
+            conditions.add(PRISM_ITEMS.MATERIAL.in(query.materials()));
         }
 
         // Players by name

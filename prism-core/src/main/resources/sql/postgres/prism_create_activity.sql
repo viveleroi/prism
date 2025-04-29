@@ -29,7 +29,7 @@ DECLARE
     v_worldId SMALLINT;
     v_playerId INTEGER;
     v_entityTypeId SMALLINT;
-    v_materialId SMALLINT;
+    v_itemId SMALLINT;
     v_blockId INTEGER;
     v_replacedBlockId INTEGER;
     v_activityId INTEGER;
@@ -53,9 +53,9 @@ BEGIN
         SELECT %prefix%get_or_create_entity_type(p_entityType) INTO v_entityTypeId;
     END IF;
 
-    -- Get or create material
+    -- Get or create item
     IF p_material IS NOT NULL THEN
-        SELECT %prefix%get_or_create_material(p_material) INTO v_materialId;
+        SELECT %prefix%get_or_create_item(p_material) INTO v_itemId;
     END IF;
 
     -- Get or create block id
@@ -71,10 +71,10 @@ BEGIN
 
     -- Insert into activities table
     INSERT INTO %prefix%activities
-        ("timestamp", world_id, x, y, z, action_id, material_id,
+        ("timestamp", world_id, x, y, z, action_id, item_id,
          block_id, replaced_block_id, entity_type_id, cause_id, descriptor, metadata, serializer_version, serialized_data)
     VALUES
-        (p_timestamp, v_worldId, p_x, p_y, p_z, v_actionId, v_materialId, v_blockId,
+        (p_timestamp, v_worldId, p_x, p_y, p_z, v_actionId, v_itemId, v_blockId,
          v_replacedBlockId, v_entityTypeId, v_causeId, p_descriptor, p_metadata, p_serializerVersion, p_serializedData)
     RETURNING activity_id INTO v_activityId;
 END;

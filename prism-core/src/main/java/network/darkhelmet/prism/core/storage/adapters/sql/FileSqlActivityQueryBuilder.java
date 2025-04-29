@@ -36,7 +36,7 @@ import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStor
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
-import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_MATERIALS;
+import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ITEMS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
 
@@ -104,7 +104,7 @@ public class FileSqlActivityQueryBuilder extends SqlActivityQueryBuilder {
         // Materials
         if (!query.materials().isEmpty()) {
             queryBuilder.addConditions(DSL.exists(
-                create.selectOne().from(PRISM_MATERIALS).where(PRISM_MATERIALS.MATERIAL.in(query.materials()))));
+                create.selectOne().from(PRISM_ITEMS).where(PRISM_ITEMS.MATERIAL.in(query.materials()))));
         }
 
         // Players
@@ -119,7 +119,7 @@ public class FileSqlActivityQueryBuilder extends SqlActivityQueryBuilder {
         // Reversed
         if (query.reversed() != null) {
             queryBuilder.addConditions(DSL.exists(
-                create.selectOne().from(PRISM_MATERIALS).where(PRISM_ACTIVITIES.REVERSED.eq(query.reversed()))));
+                create.selectOne().from(PRISM_ITEMS).where(PRISM_ACTIVITIES.REVERSED.eq(query.reversed()))));
         }
 
         // Timestamps

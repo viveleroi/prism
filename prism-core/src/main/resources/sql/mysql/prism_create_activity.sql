@@ -24,7 +24,7 @@ CREATE PROCEDURE %prefix%create_activity (
 )
 BEGIN
     SET @entityId = NULL;
-    SET @materialId = NULL;
+    SET @itemId = NULL;
     SET @blockId = NULL;
     SET @replacedBlockId = NULL;
     SET @playerId = NULL;
@@ -48,9 +48,9 @@ BEGIN
         CALL %prefix%get_or_create_entity_type(entityType, @entityId);
     END IF;
 
-    -- Create the material
+    -- Create the item
     IF `material` IS NOT NULL THEN
-        CALL %prefix%get_or_create_material(material, @materialId);
+        CALL %prefix%get_or_create_item(material, @itemId);
     END IF;
 
     -- Create the block
@@ -65,10 +65,10 @@ BEGIN
 
     -- Create the activities
     INSERT INTO `%prefix%activities`
-    (`timestamp`, `world_id`, `x`, `y`, `z`, `action_id`, `material_id`,
+    (`timestamp`, `world_id`, `x`, `y`, `z`, `action_id`, `item_id`,
     `block_id`, `replaced_block_id`, `entity_type_id`, `cause_id`, `descriptor`, `metadata`, `serializer_version`, `serialized_data`)
     VALUES
-    (`timestamp`, @worldId, `x`, `y`, `z`, @actionId, @materialId,
+    (`timestamp`, @worldId, `x`, `y`, `z`, @actionId, @itemId,
     @blockId, @replacedBlockId, @entityId, @causeId, `descriptor`, `metadata`,
      `serializerVersion`, `serializedData`);
 

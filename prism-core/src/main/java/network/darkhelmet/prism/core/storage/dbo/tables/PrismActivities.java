@@ -130,10 +130,10 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         "");
 
     /**
-     * The column <code>prism_activities.material_id</code>.
+     * The column <code>prism_activities.item_id</code>.
      */
-    public final TableField<PrismActivitiesRecord, UShort> MATERIAL_ID = createField(
-        DSL.name("material_id"),
+    public final TableField<PrismActivitiesRecord, UShort> ITEM_ID = createField(
+        DSL.name("item_id"),
         SQLDataType.SMALLINTUNSIGNED,
         this,
         "");
@@ -263,7 +263,7 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
             Indexes.PRISM_ACTIVITIES_CAUSEID,
             Indexes.PRISM_ACTIVITIES_COORDINATE,
             Indexes.PRISM_ACTIVITIES_ENTITYTYPEID,
-            Indexes.PRISM_ACTIVITIES_MATERIALID,
+            Indexes.PRISM_ACTIVITIES_ITEMID,
             Indexes.PRISM_ACTIVITIES_BLOCKID,
             Indexes.PRISM_ACTIVITIES_REPLACEDBLOCKID,
             Indexes.PRISM_ACTIVITIES_WORLDID);
@@ -284,7 +284,7 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         return Arrays.asList(
             Keys.WORLDID,
             Keys.ACTIONID,
-            Keys.MATERIALID,
+            Keys.ITEMID,
             Keys.BLOCKID,
             Keys.REPLACEDBLOCKID,
             Keys.ENTITYTYPEID,
@@ -293,7 +293,7 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
 
     private transient PrismWorlds prismWorlds;
     private transient PrismActions prismActions;
-    private transient PrismMaterials materialid;
+    private transient PrismItems itemid;
     private transient PrismBlocks blockid;
     private transient PrismBlocks replacedblockid;
     private transient PrismEntityTypes prismEntityTypes;
@@ -324,15 +324,15 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
     }
 
     /**
-     * Get the implicit join path to the <code>prism_materials</code>
-     * table, via the <code>materialId</code> key.
+     * Get the implicit join path to the <code>prism_items</code>
+     * table, via the <code>itemId</code> key.
      */
-    public PrismMaterials materialid() {
-        if (materialid == null) {
-            materialid = new PrismMaterials(prefix, this, Keys.MATERIALID);
+    public PrismItems itemid() {
+        if (itemid == null) {
+            itemid = new PrismItems(prefix, this, Keys.ITEMID);
         }
 
-        return materialid;
+        return itemid;
     }
 
     /**

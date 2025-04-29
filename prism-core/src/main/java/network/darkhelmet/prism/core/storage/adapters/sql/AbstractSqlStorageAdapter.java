@@ -61,14 +61,14 @@ import network.darkhelmet.prism.core.storage.dbo.Indexes;
 import network.darkhelmet.prism.core.storage.dbo.PrismDatabase;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismActionsRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismEntityTypesRecord;
-import network.darkhelmet.prism.core.storage.dbo.records.PrismMaterialsRecord;
+import network.darkhelmet.prism.core.storage.dbo.records.PrismItemsRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismWorldsRecord;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismActions;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismActivities;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismBlocks;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismCauses;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismEntityTypes;
-import network.darkhelmet.prism.core.storage.dbo.tables.PrismMaterials;
+import network.darkhelmet.prism.core.storage.dbo.tables.PrismItems;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismMeta;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismPlayers;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismWorlds;
@@ -123,7 +123,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
     /**
      * The materials dbo.
      */
-    public static PrismMaterials PRISM_MATERIALS;
+    public static PrismItems PRISM_ITEMS;
 
     /**
      * The meta dbo.
@@ -247,7 +247,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
         PRISM_BLOCKS = new PrismBlocks(prefix);
         PRISM_CAUSES = new PrismCauses(prefix);
         PRISM_ENTITY_TYPES = new PrismEntityTypes(prefix);
-        PRISM_MATERIALS = new PrismMaterials(prefix);
+        PRISM_ITEMS = new PrismItems(prefix);
         PRISM_META = new PrismMeta(prefix);
         PRISM_PLAYERS = new PrismPlayers(prefix);
         PRISM_WORLDS = new PrismWorlds(prefix);
@@ -259,7 +259,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             PRISM_ACTIVITIES,
             PRISM_CAUSES,
             PRISM_ENTITY_TYPES,
-            PRISM_MATERIALS,
+                        PRISM_ITEMS,
             PRISM_META,
             PRISM_PLAYERS,
             PRISM_WORLDS
@@ -423,11 +423,11 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .execute();
 
         // Create the material data table
-        create.createTableIfNotExists(PRISM_MATERIALS)
-            .column(PRISM_MATERIALS.MATERIAL_ID)
-            .column(PRISM_MATERIALS.MATERIAL)
-            .primaryKey(PRISM_MATERIALS.MATERIAL_ID)
-            .unique(PRISM_MATERIALS.MATERIAL)
+        create.createTableIfNotExists(PRISM_ITEMS)
+            .column(PRISM_ITEMS.ITEM_ID)
+            .column(PRISM_ITEMS.MATERIAL)
+            .primaryKey(PRISM_ITEMS.ITEM_ID)
+            .unique(PRISM_ITEMS.MATERIAL)
             .execute();
 
         // Create the worlds table
@@ -448,7 +448,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .column(PRISM_ACTIVITIES.Y)
             .column(PRISM_ACTIVITIES.Z)
             .column(PRISM_ACTIVITIES.ACTION_ID)
-            .column(PRISM_ACTIVITIES.MATERIAL_ID)
+            .column(PRISM_ACTIVITIES.ITEM_ID)
             .column(PRISM_ACTIVITIES.BLOCK_ID)
             .column(PRISM_ACTIVITIES.REPLACED_BLOCK_ID)
             .column(PRISM_ACTIVITIES.ENTITY_TYPE_ID)
@@ -466,8 +466,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                     .references(PRISM_CAUSES, PRISM_CAUSES.CAUSE_ID).onDeleteCascade(),
                 constraint("entityTypeId").foreignKey(PRISM_ACTIVITIES.ENTITY_TYPE_ID)
                     .references(PRISM_ENTITY_TYPES, PRISM_ENTITY_TYPES.ENTITY_TYPE_ID).onDeleteCascade(),
-                constraint("materialId").foreignKey(PRISM_ACTIVITIES.MATERIAL_ID)
-                    .references(PRISM_MATERIALS, PRISM_MATERIALS.MATERIAL_ID).onDeleteCascade(),
+                constraint("itemId").foreignKey(PRISM_ACTIVITIES.ITEM_ID)
+                    .references(PRISM_ITEMS, PRISM_ITEMS.ITEM_ID).onDeleteCascade(),
                 constraint("blockId").foreignKey(PRISM_ACTIVITIES.BLOCK_ID)
                     .references(PRISM_BLOCKS, PRISM_BLOCKS.BLOCK_ID).onDeleteCascade(),
                 constraint("replacedBlockId").foreignKey(PRISM_ACTIVITIES.REPLACED_BLOCK_ID)
@@ -502,9 +502,9 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                 .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.ENTITY_TYPE_ID).execute();
         }
 
-        if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_MATERIALID.getName())) {
-            create.createIndex(Indexes.PRISM_ACTIVITIES_MATERIALID)
-                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.MATERIAL_ID).execute();
+        if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_ITEMID.getName())) {
+            create.createIndex(Indexes.PRISM_ACTIVITIES_ITEMID)
+                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.ITEM_ID).execute();
         }
 
         if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_BLOCKID.getName())) {
@@ -552,14 +552,14 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
         }
 
         // Materials (base, no data)
-        List<PrismMaterialsRecord> materials = create
-            .select(PRISM_MATERIALS.MATERIAL, PRISM_MATERIALS.MATERIAL_ID)
-            .from(PRISM_MATERIALS)
-            .fetchInto(PrismMaterialsRecord.class);
+        List<PrismItemsRecord> materials = create
+            .select(PRISM_ITEMS.MATERIAL, PRISM_ITEMS.ITEM_ID)
+            .from(PRISM_ITEMS)
+            .fetchInto(PrismItemsRecord.class);
 
-        for (PrismMaterialsRecord material : materials) {
-            int materialId = material.getMaterialId().intValue();
-            cacheService.materialDataPkMap().put(material.getMaterial(), materialId);
+        for (PrismItemsRecord material : materials) {
+            int materialId = material.getItemId().intValue();
+            cacheService.itemDataPkMap().put(material.getMaterial(), materialId);
         }
 
         // World
@@ -659,7 +659,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
 
             // Material
             String material = null;
-            String materialName = r.getValue(PRISM_MATERIALS.MATERIAL);
+            String materialName = r.getValue(PRISM_ITEMS.MATERIAL);
             if (materialName != null) {
                 material = materialName.toUpperCase(Locale.ENGLISH);
             }

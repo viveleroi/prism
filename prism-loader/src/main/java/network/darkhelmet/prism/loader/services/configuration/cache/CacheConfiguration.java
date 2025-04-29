@@ -55,8 +55,8 @@ public class CacheConfiguration {
     @Comment("Cache settings for entity types/primary keys.")
     private CacheBuilderConfiguration pkCacheEntityType = new CacheBuilderConfiguration(200);
 
-    @Comment("Cache settings for material data/primary keys.")
-    private CacheBuilderConfiguration pkCacheMaterialData = new CacheBuilderConfiguration(
+    @Comment("Cache settings for item data/primary keys.")
+    private CacheBuilderConfiguration pkCacheItemData = new CacheBuilderConfiguration(
         5000, new DurationConfiguration(15, TimeUnit.MINUTES));
 
     @Comment("Cache settings for named causes/primary keys.")

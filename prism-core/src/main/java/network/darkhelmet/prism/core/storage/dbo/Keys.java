@@ -25,7 +25,7 @@ import network.darkhelmet.prism.core.storage.dbo.records.PrismActivitiesRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismBlocksRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismCausesRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismEntityTypesRecord;
-import network.darkhelmet.prism.core.storage.dbo.records.PrismMaterialsRecord;
+import network.darkhelmet.prism.core.storage.dbo.records.PrismItemsRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismMetaRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismPlayersRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismWorldsRecord;
@@ -41,7 +41,7 @@ import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStor
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
-import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_MATERIALS;
+import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ITEMS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_META;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
@@ -93,10 +93,10 @@ public class Keys {
         DSL.name("KEY_prism_entity_types_PRIMARY"),
         new TableField[] { PRISM_ENTITY_TYPES.ENTITY_TYPE_ID },
         true);
-    public static final UniqueKey<PrismMaterialsRecord> KEY_PRISM_MATERIALS_PRIMARY = Internal.createUniqueKey(
-        PRISM_MATERIALS,
-            DSL.name("KEY_prism_materials_PRIMARY"),
-        new TableField[] { PRISM_MATERIALS.MATERIAL_ID },
+    public static final UniqueKey<PrismItemsRecord> KEY_PRISM_ITEMS_PRIMARY = Internal.createUniqueKey(
+            PRISM_ITEMS,
+            DSL.name("KEY_prism_items_PRIMARY"),
+        new TableField[] { PRISM_ITEMS.ITEM_ID},
         true);
     public static final UniqueKey<PrismMetaRecord> KEY_PRISM_META_K = Internal.createUniqueKey(
         PRISM_META,
@@ -150,12 +150,12 @@ public class Keys {
             Keys.KEY_PRISM_ENTITY_TYPES_PRIMARY,
             new TableField[] { PRISM_ENTITY_TYPES.ENTITY_TYPE_ID },
             true);
-    public static final ForeignKey<PrismActivitiesRecord, PrismMaterialsRecord> MATERIALID = Internal.createForeignKey(
+    public static final ForeignKey<PrismActivitiesRecord, PrismItemsRecord> ITEMID = Internal.createForeignKey(
         PRISM_ACTIVITIES,
-        DSL.name("materialId"),
-        new TableField[] { PRISM_ACTIVITIES.MATERIAL_ID },
-        Keys.KEY_PRISM_MATERIALS_PRIMARY,
-        new TableField[] { PRISM_MATERIALS.MATERIAL_ID },
+        DSL.name("itemId"),
+        new TableField[] { PRISM_ACTIVITIES.ITEM_ID},
+        Keys.KEY_PRISM_ITEMS_PRIMARY,
+        new TableField[] { PRISM_ITEMS.ITEM_ID},
         true);
     public static final ForeignKey<PrismActivitiesRecord, PrismBlocksRecord> BLOCKID = Internal
         .createForeignKey(

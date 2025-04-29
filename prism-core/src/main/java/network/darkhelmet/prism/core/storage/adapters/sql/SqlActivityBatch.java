@@ -46,7 +46,7 @@ import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStor
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
-import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_MATERIALS;
+import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ITEMS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
 
@@ -120,7 +120,7 @@ public class SqlActivityBatch implements ActivityBatch {
 
         // Set the material relationship
         if (activity.action() instanceof MaterialAction materialAction) {
-            record.setMaterialId(UShort.valueOf(getOrCreateMaterialId(materialAction.serializeMaterial())));
+            record.setItemId(UShort.valueOf(getOrCreateItemId(materialAction.serializeMaterial())));
         }
 
         // Set the block relationship
@@ -382,46 +382,46 @@ public class SqlActivityBatch implements ActivityBatch {
     }
 
     /**
-     * Get or create the material record and return the primary key.
+     * Get or create the item record and return the primary key.
      *
      * @param material The material
      * @return The primary key
      * @throws SQLException The database exception
      */
-    private int getOrCreateMaterialId(String material) throws SQLException {
-        Integer materialPk = cacheService.materialDataPkMap().getIfPresent(material);
-        if (materialPk != null) {
-            return materialPk;
+    private int getOrCreateItemId(String material) throws SQLException {
+        Integer itemPk = cacheService.itemDataPkMap().getIfPresent(material);
+        if (itemPk != null) {
+            return itemPk;
         }
 
         int primaryKey;
 
-        // Select the existing material or material+data
+        // Select the existing item
         UShort shortPk = create
-            .select(PRISM_MATERIALS.MATERIAL_ID)
-            .from(PRISM_MATERIALS)
-            .where(PRISM_MATERIALS.MATERIAL.equal(material))
-            .fetchOne(PRISM_MATERIALS.MATERIAL_ID);
+            .select(PRISM_ITEMS.ITEM_ID)
+            .from(PRISM_ITEMS)
+            .where(PRISM_ITEMS.MATERIAL.equal(material))
+            .fetchOne(PRISM_ITEMS.ITEM_ID);
 
         if (shortPk != null) {
             primaryKey = shortPk.intValue();
         } else {
             // Create the record
             shortPk = create
-                .insertInto(PRISM_MATERIALS, PRISM_MATERIALS.MATERIAL)
+                .insertInto(PRISM_ITEMS, PRISM_ITEMS.MATERIAL)
                 .values(material)
-                .returningResult(PRISM_MATERIALS.MATERIAL_ID)
-                .fetchOne(PRISM_MATERIALS.MATERIAL_ID);
+                .returningResult(PRISM_ITEMS.ITEM_ID)
+                .fetchOne(PRISM_ITEMS.ITEM_ID);
 
             if (shortPk != null) {
                 primaryKey = shortPk.intValue();
             } else {
                 throw new SQLException(
-                    String.format("Failed to get or create a material record. Material: %s", material));
+                    String.format("Failed to get or create an item record. Material: %s", material));
             }
         }
 
-        cacheService.materialDataPkMap().put(material, primaryKey);
+        cacheService.itemDataPkMap().put(material, primaryKey);
 
         return primaryKey;
     }

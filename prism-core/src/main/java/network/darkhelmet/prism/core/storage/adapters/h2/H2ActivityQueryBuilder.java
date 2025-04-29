@@ -38,7 +38,7 @@ import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStor
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
-import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_MATERIALS;
+import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ITEMS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
 
@@ -89,7 +89,7 @@ public class H2ActivityQueryBuilder extends SqlActivityQueryBuilder {
 
         if (!query.materials().isEmpty()) {
             selectQueryBuilder.addJoin(
-                PRISM_MATERIALS, PRISM_MATERIALS.MATERIAL_ID.equal(PRISM_ACTIVITIES.MATERIAL_ID));
+                    PRISM_ITEMS, PRISM_ITEMS.ITEM_ID.equal(PRISM_ACTIVITIES.ITEM_ID));
         }
 
         if (!query.playerNames().isEmpty()) {

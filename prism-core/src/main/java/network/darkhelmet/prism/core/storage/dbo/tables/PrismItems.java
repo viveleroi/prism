@@ -21,7 +21,7 @@
 package network.darkhelmet.prism.core.storage.dbo.tables;
 
 import network.darkhelmet.prism.core.storage.dbo.Keys;
-import network.darkhelmet.prism.core.storage.dbo.records.PrismMaterialsRecord;
+import network.darkhelmet.prism.core.storage.dbo.records.PrismItemsRecord;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
@@ -40,10 +40,10 @@ import org.jooq.impl.TableImpl;
 import org.jooq.types.UShort;
 
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
-import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_MATERIALS;
+import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ITEMS;
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
-public class PrismMaterials extends TableImpl<PrismMaterialsRecord> {
+public class PrismItems extends TableImpl<PrismItemsRecord> {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -55,33 +55,33 @@ public class PrismMaterials extends TableImpl<PrismMaterialsRecord> {
      * The class holding records for this type.
      */
     @Override
-    public Class<PrismMaterialsRecord> getRecordType() {
-        return PrismMaterialsRecord.class;
+    public Class<PrismItemsRecord> getRecordType() {
+        return PrismItemsRecord.class;
     }
 
     /**
-     * The column <code>prism_materials.material_id</code>.
+     * The column <code>prism_items.item_id</code>.
      */
-    public final TableField<PrismMaterialsRecord, UShort> MATERIAL_ID = createField(
-        DSL.name("material_id"),
+    public final TableField<PrismItemsRecord, UShort> ITEM_ID = createField(
+        DSL.name("item_id"),
         SQLDataType.SMALLINTUNSIGNED.nullable(false).identity(true),
         this,
         "");
 
     /**
-     * The column <code>prism_materials.material</code>.
+     * The column <code>prism_items.material</code>.
      */
-    public final TableField<PrismMaterialsRecord, String> MATERIAL = createField(
+    public final TableField<PrismItemsRecord, String> MATERIAL = createField(
         DSL.name("material"),
         SQLDataType.VARCHAR(45),
         this,
         "");
 
-    private PrismMaterials(String prefix, Name alias, Table<PrismMaterialsRecord> aliased) {
+    private PrismItems(String prefix, Name alias, Table<PrismItemsRecord> aliased) {
         this(prefix, alias, aliased, null);
     }
 
-    private PrismMaterials(String prefix, Name alias, Table<PrismMaterialsRecord> aliased, Field<?>[] parameters) {
+    private PrismItems(String prefix, Name alias, Table<PrismItemsRecord> aliased, Field<?>[] parameters) {
         super(alias, null, aliased, parameters, DSL.comment(""), TableOptions.table());
 
         this.prefix = prefix;
@@ -92,8 +92,8 @@ public class PrismMaterials extends TableImpl<PrismMaterialsRecord> {
      *
      * @param prefix The prefix
      */
-    public PrismMaterials(String prefix) {
-        this(prefix, DSL.name(prefix + "materials"), null);
+    public PrismItems(String prefix) {
+        this(prefix, DSL.name(prefix + "items"), null);
     }
 
     /**
@@ -104,8 +104,8 @@ public class PrismMaterials extends TableImpl<PrismMaterialsRecord> {
      * @param key The key
      * @param <O> The record type
      */
-    public <O extends Record> PrismMaterials(String prefix, Table<O> child, ForeignKey<O, PrismMaterialsRecord> key) {
-        super(child, key, PRISM_MATERIALS);
+    public <O extends Record> PrismItems(String prefix, Table<O> child, ForeignKey<O, PrismItemsRecord> key) {
+        super(child, key, PRISM_ITEMS);
 
         this.prefix = prefix;
     }
@@ -116,33 +116,33 @@ public class PrismMaterials extends TableImpl<PrismMaterialsRecord> {
     }
 
     @Override
-    public Identity<PrismMaterialsRecord, UShort> getIdentity() {
-        return (Identity<PrismMaterialsRecord, UShort>) super.getIdentity();
+    public Identity<PrismItemsRecord, UShort> getIdentity() {
+        return (Identity<PrismItemsRecord, UShort>) super.getIdentity();
     }
 
     @Override
-    public UniqueKey<PrismMaterialsRecord> getPrimaryKey() {
-        return Keys.KEY_PRISM_MATERIALS_PRIMARY;
+    public UniqueKey<PrismItemsRecord> getPrimaryKey() {
+        return Keys.KEY_PRISM_ITEMS_PRIMARY;
     }
 
     @Override
-    public PrismMaterials as(String alias) {
-        return new PrismMaterials(prefix, DSL.name(alias), this);
+    public PrismItems as(String alias) {
+        return new PrismItems(prefix, DSL.name(alias), this);
     }
 
     @Override
-    public PrismMaterials as(Name alias) {
-        return new PrismMaterials(prefix, alias, this);
+    public PrismItems as(Name alias) {
+        return new PrismItems(prefix, alias, this);
     }
 
     @Override
-    public PrismMaterials rename(String name) {
-        return new PrismMaterials(prefix, DSL.name(name), null);
+    public PrismItems rename(String name) {
+        return new PrismItems(prefix, DSL.name(name), null);
     }
 
     @Override
-    public PrismMaterials rename(Name name) {
-        return new PrismMaterials(prefix, name, null);
+    public PrismItems rename(Name name) {
+        return new PrismItems(prefix, name, null);
     }
 
     @Override

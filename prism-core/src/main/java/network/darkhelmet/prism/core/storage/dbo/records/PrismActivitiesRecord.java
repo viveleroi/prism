@@ -159,17 +159,17 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
     }
 
     /**
-     * Setter for <code>prism_activities.material_id</code>.
+     * Setter for <code>prism_activities.item_id</code>.
      */
-    public PrismActivitiesRecord setMaterialId(UShort value) {
+    public PrismActivitiesRecord setItemId(UShort value) {
         set(7, value);
         return this;
     }
 
     /**
-     * Getter for <code>prism_activities.material_id</code>.
+     * Getter for <code>prism_activities.item_id</code>.
      */
-    public UShort getMaterialId() {
+    public UShort getItemId() {
         return (UShort) get(7);
     }
 
@@ -402,7 +402,7 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
 
     @Override
     public Field<UShort> field8() {
-        return PRISM_ACTIVITIES.MATERIAL_ID;
+        return PRISM_ACTIVITIES.ITEM_ID;
     }
 
     @Override
@@ -487,7 +487,7 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
 
     @Override
     public UShort component8() {
-        return getMaterialId();
+        return getItemId();
     }
 
     @Override
@@ -614,12 +614,12 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
 
     @Override
     public UShort value8() {
-        return getMaterialId();
+        return getItemId();
     }
 
     @Override
     public PrismActivitiesRecord value8(UShort value) {
-        setMaterialId(value);
+        setItemId(value);
         return this;
     }
 
@@ -783,7 +783,7 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
             Integer y,
             Integer z,
             UByte actionId,
-            UShort materialId,
+            UShort itemId,
             UInteger blockId,
             UInteger replacedBlockId,
             UShort entityTypeId,
@@ -802,7 +802,7 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
         setY(y);
         setZ(z);
         setActionId(actionId);
-        setMaterialId(materialId);
+        setItemId(itemId);
         setBlockId(blockId);
         setReplacedBlockId(replacedBlockId);
         setEntityTypeId(entityTypeId);

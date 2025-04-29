@@ -100,7 +100,7 @@ public class ItemUtils {
 
         if (meta != null) {
             if (meta.hasItemName()) {
-                // Attempt to strip out legacy color/format codes. Right now we use it uses section characters.
+                // Attempt to strip out legacy color/format codes. Right now it uses section characters.
                 descriptor = new StringBuilder(PlainTextComponentSerializer.plainText()
                     .serialize(LegacyComponentSerializer.legacySection().deserialize(meta.getItemName())));
             } else if (meta instanceof LeatherArmorMeta leatherArmorMeta) {

@@ -49,10 +49,10 @@ public class Indexes {
         PRISM_ACTIVITIES,
         new OrderField[] { PRISM_ACTIVITIES.ENTITY_TYPE_ID },
         false);
-    public static final Index PRISM_ACTIVITIES_MATERIALID = Internal.createIndex(
-        DSL.name("idx_prism_materialId"),
+    public static final Index PRISM_ACTIVITIES_ITEMID = Internal.createIndex(
+        DSL.name("idx_prism_itemId"),
         PRISM_ACTIVITIES,
-        new OrderField[] { PRISM_ACTIVITIES.MATERIAL_ID },
+        new OrderField[] { PRISM_ACTIVITIES.ITEM_ID},
         false);
     public static final Index PRISM_ACTIVITIES_BLOCKID = Internal.createIndex(
         DSL.name("idx_prism_blockId"),

@@ -64,9 +64,9 @@ public class CacheService {
     private final Cache<String, Integer> entityTypePkMap;
 
     /**
-     * A cache of base materials to primary keys.
+     * A cache of items to primary keys.
      */
-    private final Cache<String, Integer> materialDataPkMap;
+    private final Cache<String, Integer> itemDataPkMap;
 
     /**
      * A cache of named causes to primary keys.
@@ -173,30 +173,30 @@ public class CacheService {
         entityTypePkMap = entityBuilder.build();
         primaryKeyCaches.put("entityTypePkMap", entityTypePkMap);
 
-        // Build the material data cache
-        Caffeine<String, Integer> materialBuilder = Caffeine.newBuilder()
-            .maximumSize(cacheConfiguration.pkCacheMaterialData().maxSize())
+        // Build the item data cache
+        Caffeine<String, Integer> itemBuilder = Caffeine.newBuilder()
+            .maximumSize(cacheConfiguration.pkCacheItemData().maxSize())
             .evictionListener((key, value, cause) -> {
-                String msg = "Evicting material data from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                String msg = "Evicting item data from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
                 loggingService.debug(msg, key, value, cause);
             })
             .removalListener((key, value, cause) -> {
-                String msg = "Removing material data from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
+                String msg = "Removing item data from PK cache: Key: {0}, Value: {1}, Removal Cause: {2}";
                 loggingService.debug(msg, key, value, cause);
             });
 
-        if (cacheConfiguration.pkCacheMaterialData().expiresAfterAccess() != null
-                && cacheConfiguration.pkCacheMaterialData().expiresAfterAccess().duration() != null) {
-            materialBuilder.expireAfterAccess(cacheConfiguration.pkCacheMaterialData().expiresAfterAccess().duration(),
-                cacheConfiguration.pkCacheMaterialData().expiresAfterAccess().timeUnit());
+        if (cacheConfiguration.pkCacheItemData().expiresAfterAccess() != null
+                && cacheConfiguration.pkCacheItemData().expiresAfterAccess().duration() != null) {
+            itemBuilder.expireAfterAccess(cacheConfiguration.pkCacheItemData().expiresAfterAccess().duration(),
+                cacheConfiguration.pkCacheItemData().expiresAfterAccess().timeUnit());
         }
 
         if (cacheConfiguration.recordStats()) {
-            materialBuilder.recordStats();
+            itemBuilder.recordStats();
         }
 
-        materialDataPkMap = materialBuilder.build();
-        primaryKeyCaches.put("materialDataPkMap", materialDataPkMap);
+        itemDataPkMap = itemBuilder.build();
+        primaryKeyCaches.put("itemDataPkMap", itemDataPkMap);
 
         // Build the named cause cache
         Caffeine<String, Long> namedCauseBuilder = Caffeine.newBuilder()
