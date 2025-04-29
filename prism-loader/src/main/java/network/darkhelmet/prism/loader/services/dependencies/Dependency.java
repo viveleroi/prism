@@ -172,8 +172,8 @@ public enum Dependency {
     JOOQ(
         "org.jooq",
         "jooq",
-        "3.17.2",
-        "LjpF3/2ndgUP1XMiiWc6E866n769+n6wmkET4QpVuHg=",
+        "3.17.35",
+        "7IjJxH0MM06u28/z9wQbckRBdhHTniIvwYT5pkvWsq0=",
         Relocation.of("jooq", "org{}jooq"),
         Relocation.of("reactivestreams", "org{}reactivestreams"),
         Relocation.of("r2dbc", "org{}r2dbc")

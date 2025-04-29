@@ -60,7 +60,7 @@ public class Indexes {
         new OrderField[] { PRISM_ACTIVITIES.BLOCK_ID },
         false);
     public static final Index PRISM_ACTIVITIES_REPLACEDBLOCKID = Internal.createIndex(
-        DSL.name("replacedBlockId"),
+        DSL.name("idx_prism_replacedBlockId"),
         PRISM_ACTIVITIES,
         new OrderField[] { PRISM_ACTIVITIES.BLOCK_ID },
         false);

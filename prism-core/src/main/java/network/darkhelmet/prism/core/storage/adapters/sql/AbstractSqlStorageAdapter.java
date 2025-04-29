@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import network.darkhelmet.prism.api.PaginatedResults;
 import network.darkhelmet.prism.api.actions.ActionData;
@@ -458,13 +459,6 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .column(PRISM_ACTIVITIES.SERIALIZED_DATA)
             .column(PRISM_ACTIVITIES.REVERSED)
             .primaryKey(PRISM_ACTIVITIES.ACTIVITY_ID)
-            .indexes(Indexes.PRISM_ACTIVITIES_ACTIONID,
-                Indexes.PRISM_ACTIVITIES_BLOCKID,
-                Indexes.PRISM_ACTIVITIES_CAUSEID,
-                Indexes.PRISM_ACTIVITIES_COORDINATE,
-                Indexes.PRISM_ACTIVITIES_ENTITYTYPEID,
-                Indexes.PRISM_ACTIVITIES_MATERIALID,
-                Indexes.PRISM_ACTIVITIES_WORLDID)
             .constraints(
                 constraint("actionId").foreignKey(PRISM_ACTIVITIES.ACTION_ID)
                     .references(PRISM_ACTIONS, PRISM_ACTIONS.ACTION_ID).onDeleteCascade(),
@@ -482,6 +476,51 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                     .references(PRISM_WORLDS, PRISM_WORLDS.WORLD_ID).onDeleteCascade()
             )
             .execute();
+
+        // Sqlite doesn't support creating indexes inline with create table and IF NOT EXISTS isn't a thing for indexes
+        var indexNames = create.meta().getIndexes().stream().map(org.jooq.Named::getName)
+            .collect(Collectors.toCollection(ArrayList::new));
+
+        if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_ACTIONID.getName())) {
+            create.createIndex(Indexes.PRISM_ACTIVITIES_ACTIONID)
+                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.ACTION_ID).execute();
+        }
+
+        if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_CAUSEID.getName())) {
+            create.createIndex(Indexes.PRISM_ACTIVITIES_CAUSEID)
+                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.CAUSE_ID).execute();
+        }
+
+        if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_COORDINATE.getName())) {
+            create.createIndex(Indexes.PRISM_ACTIVITIES_COORDINATE)
+                .on(PRISM_ACTIVITIES,
+                    PRISM_ACTIVITIES.X, PRISM_ACTIVITIES.Y, PRISM_ACTIVITIES.Z, PRISM_ACTIVITIES.TIMESTAMP).execute();
+        }
+
+        if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_ENTITYTYPEID.getName())) {
+            create.createIndex(Indexes.PRISM_ACTIVITIES_ENTITYTYPEID)
+                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.ENTITY_TYPE_ID).execute();
+        }
+
+        if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_MATERIALID.getName())) {
+            create.createIndex(Indexes.PRISM_ACTIVITIES_MATERIALID)
+                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.MATERIAL_ID).execute();
+        }
+
+        if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_BLOCKID.getName())) {
+            create.createIndex(Indexes.PRISM_ACTIVITIES_BLOCKID)
+                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.BLOCK_ID).execute();
+        }
+
+        if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_REPLACEDBLOCKID.getName())) {
+            create.createIndex(Indexes.PRISM_ACTIVITIES_REPLACEDBLOCKID)
+                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.BLOCK_ID).execute();
+        }
+
+        if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_WORLDID.getName())) {
+            create.createIndex(Indexes.PRISM_ACTIVITIES_WORLDID)
+                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.WORLD_ID).execute();
+        }
     }
 
     /**
