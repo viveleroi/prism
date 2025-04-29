@@ -7,13 +7,8 @@ plugins {
 
 dependencies {
     compileOnly project.property('deps.log4j-api')
-    compileOnly project.property('deps.spigot-api')
+    compileOnly project.property('deps.paper-api')
 
-    // Include kyori here as triumph gui uses it
-    implementation project.property('deps.adventure-api')
-    implementation project.property('deps.adventure-bukkit')
-    implementation project.property('deps.adventure-textserializerlegacy')
-    implementation project.property('deps.adventure-textserializerplain')
     implementation(project.property('deps.triumph-gui')) {
         exclude(group: "net.kyori")
     }
@@ -31,7 +26,7 @@ shadowJar {
     relocate 'com.typesafe', 'network.darkhelmet.prism.libs.typesafe'
     relocate 'com.fasterxml.jackson', 'network.darkhelmet.prism.libs.jackson'
     relocate 'dev.triumphteam', 'network.darkhelmet.prism.libs.triumphteam'
-    relocate 'net.kyori', 'network.darkhelmet.prism.libs.kyori'
+    relocate 'net.kyori.moonshine', 'network.darkhelmet.prism.libs.kyori.moonshine'
     relocate 'org.objectweb.asm', 'network.darkhelmet.prism.asm'
     relocate 'org.spongepowered.configurate', 'network.darkhelmet.prism.libs.configurate'
     relocate 'io.leangen.geantyref', 'network.darkhelmet.prism.libs.geantyref'
@@ -42,17 +37,14 @@ artifacts {
 }
 
 runServer {
-    minecraftVersion(project.property('spigot-api-version'))
-    legacyPluginLoading()
-    serverJar(file("./spigot-jars/spigot-" + project.property('spigot-api-version') + ".jar"))
-    jvmArgs("-Dcom.mojang.eula.agree=true")
+    minecraftVersion(project.property('paper-api-version'))
 }
 
 bukkitPluginYaml {
     name.set('prism')
     version.set(project.property('version'))
     main.set('network.darkhelmet.prism.bukkit.loader.PrismBukkitPluginLoader')
-    apiVersion.set(project.property('spigot-api-version'))
+    apiVersion.set(project.property('paper-api-version'))
     website.set(project.property('website'))
     authors.add("viveleroi")
     depend.add("NBTAPI")

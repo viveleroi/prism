@@ -1,7 +1,6 @@
 # gradle
 build
 run
-spigot-jars
 /.gradle/
 buildSrc/.gradle
 

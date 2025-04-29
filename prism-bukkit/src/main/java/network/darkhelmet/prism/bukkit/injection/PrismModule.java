@@ -32,7 +32,6 @@ import io.leangen.geantyref.TypeToken;
 
 import java.nio.file.Path;
 
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.moonshine.Moonshine;
 import net.kyori.moonshine.exception.scan.UnscannableMethodException;
 import net.kyori.moonshine.strategy.StandardPlaceholderResolverStrategy;
@@ -157,21 +156,6 @@ public class PrismModule extends AbstractModule {
     @Named("serializerVersion")
     short serializerVersion() {
         return serializerVersion;
-    }
-
-    /**
-     * Get the bukkit audiences.
-     *
-     * @return The bukkit audiences
-     */
-    @Provides
-    @Singleton
-    public BukkitAudiences getAudience() {
-        if (prism.loaderPlugin().isEnabled()) {
-            return BukkitAudiences.create(prism.loaderPlugin());
-        }
-
-        return null;
     }
 
     /**

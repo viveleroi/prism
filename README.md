@@ -1,6 +1,6 @@
 # Prism
 
-**Prism** is an event logging and grief management plugin for Spigot and Paper-based servers 1.21.4+.
+**Prism** is an event logging and grief management plugin for Paper-based servers 1.21.4+.
 
 Prism v4 is **in testing and should not be used in a real server yet**.
 

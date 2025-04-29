@@ -26,7 +26,6 @@ import com.google.inject.name.Named;
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
 
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -38,11 +37,6 @@ import org.bukkit.command.CommandSender;
 
 @Command(value = "prism", alias = {"pr"})
 public class AboutCommand {
-    /**
-     * The bukkit audiences.
-     */
-    private final BukkitAudiences audiences;
-
     /**
      * The message service.
      */
@@ -56,16 +50,13 @@ public class AboutCommand {
     /**
      * Construct the about command.
      *
-     * @param audiences The bukkit audiences
      * @param messageService The message service
      * @param version The prism version
      */
     @Inject
     public AboutCommand(
-            BukkitAudiences audiences,
             MessageService messageService,
             @Named("version") String version) {
-        this.audiences = audiences;
         this.messageService = messageService;
         this.version = version;
     }
@@ -86,7 +77,7 @@ public class AboutCommand {
             .append(Component.text(" "))
             .append(link("Docs", "https://docs.prism-mc.org")).build();
 
-        audiences.sender(sender).sendMessage(links);
+        sender.sendMessage(links);
     }
 
     /**

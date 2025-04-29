@@ -4,18 +4,11 @@ plugins {
 }
 
 repositories {
-    // Spigot
-    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-
     // WorldEdit
     maven { url = 'https://maven.enginehub.org/repo/' }
 }
 
 dependencies {
-    compileOnly project.property('deps.adventure-api')
-    compileOnly project.property('deps.adventure-bukkit')
-    compileOnly project.property('deps.adventure-textserializerlegacy')
-    compileOnly project.property('deps.adventure-textserializerplain')
     compileOnly project.property('deps.caffeine')
     compileOnly project.property('deps.configurate-hocon')
     compileOnly project.property('deps.cronutils')
@@ -31,7 +24,7 @@ dependencies {
     compileOnly project.property('deps.moonshine-standard')
     compileOnly project.property('deps.nbt-api')
     compileOnly project.property('deps.p6spy')
-    compileOnly project.property('deps.spigot-api')
+    compileOnly project.property('deps.paper-api')
     compileOnly project.property('deps.quartz')
     compileOnly project.property('deps.taskchain')
     compileOnly project.property('deps.triumph-gui')
@@ -40,7 +33,6 @@ dependencies {
     compileOnly project(':prism-api')
     compileOnly project(':prism-loader')
 
-    implementation project.property('deps.adventure-minimessage')
     implementation project.property('deps.triumph-cmd-bukkit')
     implementation project(':prism-core')
     implementation project(':prism-bukkit-api')
@@ -66,7 +58,7 @@ shadowJar {
     relocate 'com.zaxxer.hikari', 'network.darkhelmet.prism.libs.hikari'
     relocate 'dev.triumphteam', 'network.darkhelmet.prism.libs.triumphteam'
     relocate 'io.leangen.geantyref', 'network.darkhelmet.prism.libs.geantyref'
-    relocate 'net.kyori', 'network.darkhelmet.prism.libs.kyori'
+    relocate 'net.kyori.moonshine', 'network.darkhelmet.prism.libs.kyori.moonshine'
     relocate 'org.aopalliance', 'network.darkhelmet.prism.libs.aopalliance'
     relocate 'org.jooq', 'network.darkhelmet.prism.libs.jooq'
     relocate 'org.mariadb', 'network.darkhelmet.prism.libs.mariadb'

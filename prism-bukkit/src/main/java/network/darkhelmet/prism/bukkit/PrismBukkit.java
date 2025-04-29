@@ -40,8 +40,6 @@ import java.util.Set;
 
 import lombok.Getter;
 
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-
 import network.darkhelmet.prism.api.Prism;
 import network.darkhelmet.prism.api.actions.types.ActionTypeRegistry;
 import network.darkhelmet.prism.api.services.recording.RecordingService;
@@ -562,11 +560,6 @@ public class PrismBukkit implements Prism {
 
         if (storageAdapter != null) {
             storageAdapter.close();
-        }
-
-        BukkitAudiences audiences = injectorProvider.injector().getInstance(BukkitAudiences.class);
-        if (audiences != null) {
-            audiences.close();
         }
     }
 }

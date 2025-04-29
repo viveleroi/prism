@@ -20,10 +20,8 @@
 
 package network.darkhelmet.prism.bukkit.services.messages;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.moonshine.message.IMessageSender;
 
@@ -31,18 +29,8 @@ import org.bukkit.command.CommandSender;
 
 @Singleton
 public class MessageSender implements IMessageSender<CommandSender, Component> {
-    /**
-     * The bukkit audiences.
-     */
-    private final BukkitAudiences audiences;
-
-    @Inject
-    public MessageSender(BukkitAudiences audiences) {
-        this.audiences = audiences;
-    }
-
     @Override
     public void send(final CommandSender receiver, final Component renderedMessage) {
-        audiences.sender(receiver).sendMessage(renderedMessage);
+        receiver.sendMessage(renderedMessage);
     }
 }

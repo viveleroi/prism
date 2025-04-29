@@ -26,6 +26,6 @@ Explain what should happen or just remove this section for java errors. (Replace
 
 **Server (please complete the following information):**
 - Prism Version: X.X.X
-- Server Type: (Spigot, Paper, Purpur, etc)
+- Server Type: (Paper, Purpur, etc)
 - Server/Minecraft Version: X.X.X
 - Database (& Version for MySQL/MariaDB/Postgres): 

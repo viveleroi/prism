@@ -22,23 +22,12 @@ The loaders:
 
 The Bukkit Plugin:
 
-- `prism-bukkit` - The core code for the bukkit/spigot platform version of Prism.
+- `prism-bukkit` - The core code for the bukkit-based platform version of Prism.
 
 This approach was chosen to allow future development of prism for other platforms.
 
 A lot of `services` and related code inside the bukkit module will be eventually moved to core.
 
-## Setup Spigot
-
-1. Check or change the `spigot-api-version` key in gradle.properties.
-2. Download spigot [BuildTools](https://www.spigotmc.org/wiki/buildtools/) and run it to get a jar for the needed mc version.
-3. Inside the `prism-bukkit-loader` module, create a `spigot-jars` directory and put the spigot jar into it.
-
-## Paper?
-
-If you wish to test on paper, you can modify the `runServer` task inside `prism-bukkit-loader/build.gradle` as
-paper is the default, or you can download paper yourself.
- 
 ## Setup Databases
 
 If testing with sqlite/h2, you don't need to do anything. Sqlite is the default for prism.

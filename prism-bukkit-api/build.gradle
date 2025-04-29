@@ -3,6 +3,6 @@ plugins {
 }
 
 dependencies {
-    compileOnly project.property('deps.spigot-api')
+    compileOnly project.property('deps.paper-api')
     implementation project(':prism-api')
 }

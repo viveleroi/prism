@@ -31,7 +31,6 @@ import java.util.function.Consumer;
 
 import lombok.Getter;
 
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -54,11 +53,6 @@ import org.bukkit.command.CommandSender;
 
 @Singleton
 public class LookupService {
-    /**
-     * The bukkit audiences.
-     */
-    private final BukkitAudiences audiences;
-
     /**
      * The message service.
      */
@@ -93,7 +87,6 @@ public class LookupService {
     /**
      * Construct the lookup service.
      *
-     * @param audiences The bukkit audiences
      * @param cacheService The cache service
      * @param configurationService The configuration service
      * @param messageService The message service
@@ -104,7 +97,6 @@ public class LookupService {
      */
     @Inject
     public LookupService(
-            BukkitAudiences audiences,
             CacheService cacheService,
             ConfigurationService configurationService,
             MessageService messageService,
@@ -112,7 +104,6 @@ public class LookupService {
             BukkitTranslationService translationService,
             TaskChainProvider taskChainProvider,
             LoggingService loggingService) {
-        this.audiences = audiences;
         this.messageService = messageService;
         this.storageAdapter = storageAdapter;
         this.translationService = translationService;
@@ -270,7 +261,7 @@ public class LookupService {
                         .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
                 }
 
-                audiences.sender(sender).sendMessage(prev.append(splitter).append(next));
+                sender.sendMessage(prev.append(splitter).append(next));
             }
         }
     }
