@@ -35,6 +35,11 @@ public class ModificationRuleset {
     private List<String> blockBlacklist;
 
     /**
+     * Whether to drain lava.
+     */
+    private boolean drainLava;
+
+    /**
      * The entity black list.
      */
     private List<String> entityBlacklist;

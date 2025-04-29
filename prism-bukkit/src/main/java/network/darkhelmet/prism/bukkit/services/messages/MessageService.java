@@ -161,6 +161,9 @@ public interface MessageService {
     @Message("rich.modifications-applied")
     void modificationsApplied(CommandSender receiver, @Placeholder Integer count);
 
+    @Message("rich.modifications-drained-lava")
+    void modificationsDrainedLava(CommandSender receiver, @Placeholder Integer count);
+
     @Message("rich.modifications-moved-entities")
     void modificationsMovedEntities(CommandSender receiver, @Placeholder Integer count);
 

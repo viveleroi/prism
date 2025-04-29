@@ -36,6 +36,12 @@ public final class ModificationQueueResult {
     private int applied = 0;
 
     /**
+     * The count of lava blocks drained.
+     */
+    @Builder.Default
+    private int drainedLava = 0;
+
+    /**
      * The modification mode.
      */
     @NonNull

@@ -36,6 +36,9 @@ public class ModificationConfiguration {
     @Comment("List materials that should be excluded from modifications.")
     private List<String> blockBlacklist = new ArrayList<>();
 
+    @Comment("Enables draining lava from the modification area.")
+    private boolean drainLava = true;
+
     @Comment("List entities that should be excluded from modifications.")
     private List<String> entityBlacklist = new ArrayList<>();
 
@@ -51,7 +54,7 @@ public class ModificationConfiguration {
     @Comment("A list of (typically unsafe) blocks to remove before a modification occurs.")
     private List<String> removeBlocks = new ArrayList<>();
 
-    @Comment("Toggling clearing item/xp drops from a modification area.")
+    @Comment("Enables clearing item/xp drops from a modification area.")
     private boolean removeDrops = true;
 
     @Comment("The delay in ticks between modification tasks.")
@@ -62,14 +65,14 @@ public class ModificationConfiguration {
      */
     public ModificationConfiguration() {
         blockBlacklist.add("bedrock");
-        blockBlacklist.add("tnt");
         blockBlacklist.add("fire");
+        blockBlacklist.add("lava");
+        blockBlacklist.add("tnt");
 
         entityBlacklist.add("creeper");
 
         removeBlocks.add("tnt");
         removeBlocks.add("fire");
-        removeBlocks.add("lava");
     }
 
     /**
@@ -80,6 +83,7 @@ public class ModificationConfiguration {
     public ModificationRuleset.ModificationRulesetBuilder toRulesetBuilder() {
         return ModificationRuleset.builder()
             .blockBlacklist(blockBlacklist)
+            .drainLava(drainLava)
             .entityBlacklist(entityBlacklist)
             .maxPerTask(maxPerTask)
             .moveEntities(moveEntities)

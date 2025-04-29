@@ -33,27 +33,21 @@ import java.util.Optional;
 import network.darkhelmet.prism.api.actions.Action;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.services.modifications.ModificationQueue;
-import network.darkhelmet.prism.api.services.modifications.ModificationQueueService;
 import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.api.services.modifications.Previewable;
 import network.darkhelmet.prism.api.storage.StorageAdapter;
 import network.darkhelmet.prism.bukkit.providers.TaskChainProvider;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
+import network.darkhelmet.prism.bukkit.services.modifications.BukkitModificationQueueService;
 import network.darkhelmet.prism.bukkit.services.modifications.BukkitRestore;
 import network.darkhelmet.prism.bukkit.services.modifications.BukkitRollback;
 import network.darkhelmet.prism.bukkit.services.query.QueryService;
-import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 import org.bukkit.entity.Player;
 
 @Command(value = "prism", alias = {"pr"})
 public class PreviewCommand {
-    /**
-     * The configuration service.
-     */
-    private final ConfigurationService configurationService;
-
     /**
      * The storage adapter.
      */
@@ -67,7 +61,7 @@ public class PreviewCommand {
     /**
      * The modification queue service.
      */
-    private final ModificationQueueService modificationQueueService;
+    private final BukkitModificationQueueService modificationQueueService;
 
     /**
      * The query service.
@@ -87,7 +81,6 @@ public class PreviewCommand {
     /**
      * Construct the rollback command.
      *
-     * @param configurationService The configuration service
      * @param storageAdapter The storage adapter
      * @param messageService The message service
      * @param modificationQueueService The modification queue service
@@ -97,14 +90,12 @@ public class PreviewCommand {
      */
     @Inject
     public PreviewCommand(
-            ConfigurationService configurationService,
             StorageAdapter storageAdapter,
             MessageService messageService,
-            ModificationQueueService modificationQueueService,
+            BukkitModificationQueueService modificationQueueService,
             QueryService queryService,
             TaskChainProvider taskChainProvider,
             LoggingService loggingService) {
-        this.configurationService = configurationService;
         this.storageAdapter = storageAdapter;
         this.messageService = messageService;
         this.modificationQueueService = modificationQueueService;
@@ -167,8 +158,8 @@ public class PreviewCommand {
         if (builder.isPresent()) {
             final ActivityQuery query = builder.get().modification().reversed(true).build();
 
-            var modificationRuleset = configurationService.prismConfig().modifications().toRulesetBuilder()
-                .overwrite(arguments.hasFlag("overwrite")).build();
+            // Load the modification ruleset from the configs, and apply flags
+            var modificationRuleset = modificationQueueService.applyFlagsToModificationRuleset(arguments).build();
 
             preview(BukkitRestore.class, player, query, modificationRuleset);
         }
@@ -188,8 +179,8 @@ public class PreviewCommand {
         if (builder.isPresent()) {
             final ActivityQuery query = builder.get().modification().reversed(false).build();
 
-            var modificationRuleset = configurationService.prismConfig().modifications().toRulesetBuilder()
-                .overwrite(arguments.hasFlag("overwrite")).build();
+            // Load the modification ruleset from the configs, and apply flags
+            var modificationRuleset = modificationQueueService.applyFlagsToModificationRuleset(arguments).build();
 
             preview(BukkitRollback.class, player, query, modificationRuleset);
         }

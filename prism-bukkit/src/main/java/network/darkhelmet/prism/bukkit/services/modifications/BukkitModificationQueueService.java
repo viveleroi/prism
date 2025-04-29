@@ -25,6 +25,8 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import dev.triumphteam.cmd.core.argument.keyed.Arguments;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +56,11 @@ import org.bukkit.entity.Player;
 
 @Singleton
 public class BukkitModificationQueueService implements ModificationQueueService {
+    /**
+     * The configuration service.
+     */
+    private final ConfigurationService configurationService;
+
     /**
      * The message service.
      */
@@ -97,6 +104,7 @@ public class BukkitModificationQueueService implements ModificationQueueService 
             MessageService messageService,
             RestoreFactory restoreFactory,
             RollbackFactory rollbackFactory) {
+        this.configurationService = configurationService;
         this.messageService = messageService;
         this.restoreFactory = restoreFactory;
         this.rollbackFactory = rollbackFactory;
@@ -119,6 +127,22 @@ public class BukkitModificationQueueService implements ModificationQueueService 
 
         queueResults = cacheBuilder.build();
         cacheService.caches().put("queueResults", queueResults);
+    }
+
+    /**
+     * Apply flags to the modification ruleset.
+     *
+     * @param arguments The arguments
+     * @return The builder
+     */
+    public ModificationRuleset.ModificationRulesetBuilder applyFlagsToModificationRuleset(
+            Arguments arguments) {
+        var builder = configurationService.prismConfig().modifications().toRulesetBuilder();
+        builder.overwrite(arguments.hasFlag("overwrite"));
+
+        arguments.getFlagValue("drainlava", Boolean.class).ifPresent(builder::drainLava);
+
+        return builder;
     }
 
     @Override
@@ -260,6 +284,10 @@ public class BukkitModificationQueueService implements ModificationQueueService 
                 messageService.modificationsAppliedSuccess(sender);
                 messageService.modificationsApplied(sender, result.applied());
                 messageService.modificationsSkipped(sender, result);
+
+                if (result.drainedLava() > 0) {
+                    messageService.modificationsDrainedLava(sender, result.drainedLava());
+                }
 
                 if (result.movedEntities() > 0) {
                     messageService.modificationsMovedEntities(sender, result.movedEntities());
