@@ -17,7 +17,7 @@ dependencies {
 }
 
 shadowJar {
-    archiveFileName = "prism-bukkit-${project.ext.fullVersion}.jar"
+    archiveFileName = "prism-paper-${project.ext.fullVersion}.jar"
 
     from {
         project(':prism-bukkit').tasks.shadowJar.archiveFile

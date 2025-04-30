@@ -35,11 +35,6 @@ lombok {
     sha256 = ''
 }
 
-def getDate() {
-    def date = new Date()
-    return date.format('yyyyMMddHHmmss')
-}
-
 def details = versionDetails()
 
-project.ext.fullVersion = version = project.property('version') + '-' + details.lastTag + '-' + getDate() + '-' + details.gitHash
+project.ext.fullVersion = version = details.lastTag + (details.commitDistance > 0 ? '-dev' + details.commitDistance : '')
