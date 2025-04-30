@@ -124,6 +124,7 @@ import network.darkhelmet.prism.bukkit.providers.InjectorProvider;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
 import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.bukkit.services.scheduling.SchedulingService;
+import network.darkhelmet.prism.bukkit.utils.VersionUtils;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.dependencies.Dependency;
 import network.darkhelmet.prism.loader.services.dependencies.DependencyService;
@@ -222,6 +223,7 @@ public class PrismBukkit implements Prism {
 
         serializerVersion = (short) DataFixerUtil.getCurrentVersion();
         bootstrap.loggingService().info("Serializer version: {0}", serializerVersion);
+        bootstrap.loggingService().info("Server version: {0}", VersionUtils.detectedVersion());
 
         injectorProvider = new InjectorProvider(this, bootstrap.loggingService());
 

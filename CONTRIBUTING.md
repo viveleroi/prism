@@ -30,9 +30,9 @@ A lot of `services` and related code inside the bukkit module will be eventually
 
 ## Setup Spigot
 
-1. Download spigot [BuildTools](https://www.spigotmc.org/wiki/buildtools/) and run it to get a jar for the needed mc version.
-2. Inside the `prism-bukkit-loader` module, create a `spigot-jars` directory with the necessary spigot jar.
-3. Match or update the version used compared to what's defined in `prism-bukkit-loader/build.gradle`.
+1. Check or change the `spigot-api-version` key in gradle.properties.
+2. Download spigot [BuildTools](https://www.spigotmc.org/wiki/buildtools/) and run it to get a jar for the needed mc version.
+3. Inside the `prism-bukkit-loader` module, create a `spigot-jars` directory and put the spigot jar into it.
 
 ## Paper?
 
