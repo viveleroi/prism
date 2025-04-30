@@ -52,7 +52,7 @@ import net.kyori.moonshine.message.IMessageSource;
 
 import network.darkhelmet.prism.api.services.translation.TranslationService;
 import network.darkhelmet.prism.bukkit.utils.SortedProperties;
-import network.darkhelmet.prism.loader.services.configuration.PrismConfiguration;
+import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 import network.darkhelmet.prism.loader.services.logging.LoggingService;
 
 import org.bukkit.command.CommandSender;
@@ -89,19 +89,19 @@ public class BukkitTranslationService implements IMessageSource<CommandSender, S
     /**
      * Construct the translation system.
      *
+     * @param configurationService The configuration service
      * @param loggingService The logging service
      * @param dataDirectory The data directory
-     * @param prismConfiguration The default locale
      * @throws IOException IO Exception
      */
     @Inject
     public BukkitTranslationService(
+            ConfigurationService configurationService,
             LoggingService loggingService,
-            Path dataDirectory,
-            PrismConfiguration prismConfiguration) throws IOException {
+            Path dataDirectory) throws IOException {
         this.loggingService = loggingService;
         this.dataDirectory = dataDirectory;
-        this.defaultLocale = prismConfiguration.defaults().defaultLocale();
+        this.defaultLocale = configurationService.prismConfig().defaults().defaultLocale();
         this.pluginJar = pluginJar();
 
         this.reloadTranslations();
@@ -308,8 +308,8 @@ public class BukkitTranslationService implements IMessageSource<CommandSender, S
                     }
 
                     SortedProperties properties = new SortedProperties();
-                    try (InputStream input = new FileInputStream(file)) {
-                        properties.load(input);
+                    try (Reader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
+                        properties.load(reader);
                         propertiesMap.put(locale, properties);
                     } catch (IOException e) {
                         loggingService.error("Error loading properties file: {0}", file);
