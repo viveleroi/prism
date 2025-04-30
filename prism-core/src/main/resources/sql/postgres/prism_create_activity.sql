@@ -9,6 +9,7 @@ CREATE OR REPLACE FUNCTION %prefix%create_activity (
     p_playerUuid CHAR(36),
     p_entityType VARCHAR(25),
     p_material VARCHAR(45),
+    p_itemData TEXT,
     p_blockNamespace VARCHAR(55),
     p_blockName VARCHAR(55),
     p_blockData VARCHAR(255),
@@ -55,7 +56,7 @@ BEGIN
 
     -- Get or create item
     IF p_material IS NOT NULL THEN
-        SELECT %prefix%get_or_create_item(p_material) INTO v_itemId;
+        SELECT %prefix%get_or_create_item(p_material, p_itemData) INTO v_itemId;
     END IF;
 
     -- Get or create block id

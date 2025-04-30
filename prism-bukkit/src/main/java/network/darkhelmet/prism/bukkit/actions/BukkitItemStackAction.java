@@ -25,6 +25,10 @@ import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 
 import lombok.Getter;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+
 import network.darkhelmet.prism.api.actions.ItemAction;
 import network.darkhelmet.prism.api.actions.types.ActionResultType;
 import network.darkhelmet.prism.api.actions.types.ActionType;
@@ -35,15 +39,18 @@ import network.darkhelmet.prism.api.services.modifications.ModificationRuleset;
 import network.darkhelmet.prism.api.services.modifications.ModificationSkipReason;
 import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import network.darkhelmet.prism.bukkit.services.modifications.state.ItemStackStateChange;
-import network.darkhelmet.prism.bukkit.utils.ItemUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
+import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
 public class BukkitItemStackAction extends BukkitMaterialAction implements ItemAction {
     /**
@@ -64,12 +71,9 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
      * @param itemStack The item stack
      */
     public BukkitItemStackAction(ActionType type, ItemStack itemStack) {
-        this(type, itemStack, ItemUtils.getItemStackDescriptor(itemStack));
+        this(type, itemStack, null);
 
-        // Fix descriptors to include the item stack quantity
-        if (itemStack.getAmount() > 1) {
-            this.descriptor = itemStack.getAmount() + " " + this.descriptor;
-        }
+        this.descriptor = PlainTextComponentSerializer.plainText().serialize(descriptorComponent());
     }
 
     /**
@@ -87,12 +91,77 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
     }
 
     @Override
-    public boolean hasCustomData() {
-        return this.readWriteNbt != null;
+    public Component descriptorComponent() {
+        var meta = itemStack.getItemMeta();
+        var complete = Component.text();
+
+        if (itemStack.getAmount() > 1) {
+            complete.append(Component.text(itemStack.getAmount()))
+                .append(Component.space());
+        }
+
+        Component itemName = Component.translatable(itemStack.getTranslationKey());
+        if (meta != null && meta.hasItemName()) {
+            // Strip custom color/format codes out of item name for consistency
+            itemName = Component.text(PlainTextComponentSerializer.plainText()
+                .serialize(LegacyComponentSerializer.legacySection().deserialize(meta.getItemName())));
+        } else if (meta instanceof SkullMeta skullMeta && skullMeta.hasOwner()) {
+            itemName = Component.translatable("block.minecraft.player_head.named",
+                Component.text(skullMeta.getOwningPlayer().getName()));
+        }
+
+        complete.append(itemName);
+
+        if (meta != null && meta.hasDisplayName() && !meta.getDisplayName().isEmpty()) {
+            complete.append(Component.space())
+                .append(Component.text("\""))
+                .append(Component.text(meta.getDisplayName()))
+                .append(Component.text("\""));
+        }
+
+        if (meta instanceof PotionMeta potionMeta) {
+            if (potionMeta.getBasePotionType() != null
+                    && !potionMeta.getBasePotionType().getPotionEffects().isEmpty()) {
+                var effect = potionMeta.getBasePotionType().getPotionEffects().getFirst();
+
+                complete.append(Component.space())
+                    .append(Component.text("("))
+                    .append(Component.translatable(effect.getType().getTranslationKey()))
+                    .append(Component.text(")"));
+            }
+        } else if (itemStack.getType().equals(Material.ENCHANTED_BOOK)
+                && meta instanceof EnchantmentStorageMeta enchantmentStorageMeta) {
+            if (!enchantmentStorageMeta.getStoredEnchants().isEmpty()) {
+                var entry = enchantmentStorageMeta.getStoredEnchants().entrySet().iterator().next();
+                complete.append(Component.space())
+                    .append(Component.text("("))
+                    .append(Component.translatable(entry.getKey().getTranslationKey()));
+
+                if (entry.getValue() > 1) {
+                    complete.append(Component.space()).append(Component.text(entry.getValue() == 2 ? "II" : "III"));
+                }
+
+                complete.append(Component.text(")"));
+            }
+        } else if (meta instanceof BookMeta bookMeta && (bookMeta.hasTitle() || bookMeta.hasAuthor())) {
+            complete.append(Component.space()).append(Component.text("("));
+
+            if (bookMeta.hasTitle()) {
+                complete.append(Component.text(bookMeta.getTitle()));
+            }
+
+            if (bookMeta.hasAuthor()) {
+                complete.append(Component.text(" by ")).append(Component.text(bookMeta.getAuthor()));
+            }
+
+            complete.append(Component.text(")"));
+        }
+
+        return complete.build();
     }
 
     @Override
-    public @Nullable String serializeCustomData() {
+    public String serializeItemData() {
         return readWriteNbt.toString();
     }
 

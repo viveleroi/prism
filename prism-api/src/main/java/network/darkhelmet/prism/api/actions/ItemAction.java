@@ -20,4 +20,11 @@
 
 package network.darkhelmet.prism.api.actions;
 
-public interface ItemAction extends MaterialAction, CustomData {}
+public interface ItemAction extends MaterialAction {
+    /**
+     * Serialize item data.
+     *
+     * @return The item data string
+     */
+    String serializeItemData();
+}

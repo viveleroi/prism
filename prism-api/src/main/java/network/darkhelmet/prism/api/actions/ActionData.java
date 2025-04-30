@@ -22,6 +22,7 @@ package network.darkhelmet.prism.api.actions;
 
 public record ActionData(
     String material,
+    String itemData,
     String blockNamespace,
     String blockName,
     String blockData,

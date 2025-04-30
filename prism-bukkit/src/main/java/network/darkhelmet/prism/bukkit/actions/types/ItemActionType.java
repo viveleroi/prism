@@ -46,8 +46,8 @@ public class ItemActionType extends ActionType {
     @Override
     public Action createAction(ActionData actionData) {
         ItemStack itemStack;
-        if (actionData.customData() != null && actionData.customDataVersion() > 0) {
-            itemStack = NBT.itemStackFromNBT(NBT.parseNBT(actionData.customData()));
+        if (actionData.itemData() != null) {
+            itemStack = NBT.itemStackFromNBT(NBT.parseNBT(actionData.itemData()));
         } else {
             Material material = Material.valueOf(actionData.material());
             itemStack = new ItemStack(material);

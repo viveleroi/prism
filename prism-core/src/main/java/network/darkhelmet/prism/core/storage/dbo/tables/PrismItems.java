@@ -28,7 +28,7 @@ import org.jooq.ForeignKey;
 import org.jooq.Identity;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row2;
+import org.jooq.Row3;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -74,6 +74,15 @@ public class PrismItems extends TableImpl<PrismItemsRecord> {
     public final TableField<PrismItemsRecord, String> MATERIAL = createField(
         DSL.name("material"),
         SQLDataType.VARCHAR(45),
+        this,
+        "");
+
+    /**
+     * The column <code>prism_items.data</code>.
+     */
+    public final TableField<PrismItemsRecord, String> DATA = createField(
+        DSL.name("data"),
+        SQLDataType.CLOB,
         this,
         "");
 
@@ -146,7 +155,7 @@ public class PrismItems extends TableImpl<PrismItemsRecord> {
     }
 
     @Override
-    public Row2<UShort, String> fieldsRow() {
-        return (Row2) super.fieldsRow();
+    public Row3<UShort, String, String> fieldsRow() {
+        return (Row3) super.fieldsRow();
     }
 }

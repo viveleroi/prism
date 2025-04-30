@@ -28,7 +28,7 @@ import java.util.UUID;
 import network.darkhelmet.prism.api.actions.BlockAction;
 import network.darkhelmet.prism.api.actions.CustomData;
 import network.darkhelmet.prism.api.actions.EntityAction;
-import network.darkhelmet.prism.api.actions.MaterialAction;
+import network.darkhelmet.prism.api.actions.ItemAction;
 import network.darkhelmet.prism.api.activities.Activity;
 import network.darkhelmet.prism.api.storage.ActivityBatch;
 import network.darkhelmet.prism.core.services.cache.CacheService;
@@ -118,9 +118,10 @@ public class SqlActivityBatch implements ActivityBatch {
                 getOrCreateEntityTypeId(entityAction.serializeEntityType())));
         }
 
-        // Set the material relationship
-        if (activity.action() instanceof MaterialAction materialAction) {
-            record.setItemId(UShort.valueOf(getOrCreateItemId(materialAction.serializeMaterial())));
+        // Set the item relationship
+        if (activity.action() instanceof ItemAction itemAction) {
+            record.setItemId(UShort.valueOf(
+                getOrCreateItemId(itemAction.serializeMaterial(), itemAction.serializeItemData())));
         }
 
         // Set the block relationship
@@ -385,10 +386,11 @@ public class SqlActivityBatch implements ActivityBatch {
      * Get or create the item record and return the primary key.
      *
      * @param material The material
+     * @param data The item data
      * @return The primary key
      * @throws SQLException The database exception
      */
-    private int getOrCreateItemId(String material) throws SQLException {
+    private int getOrCreateItemId(String material, String data) throws SQLException {
         Integer itemPk = cacheService.itemDataPkMap().getIfPresent(material);
         if (itemPk != null) {
             return itemPk;
@@ -400,7 +402,7 @@ public class SqlActivityBatch implements ActivityBatch {
         UShort shortPk = create
             .select(PRISM_ITEMS.ITEM_ID)
             .from(PRISM_ITEMS)
-            .where(PRISM_ITEMS.MATERIAL.equal(material))
+            .where(PRISM_ITEMS.MATERIAL.equal(material), PRISM_ITEMS.DATA.equal(data))
             .fetchOne(PRISM_ITEMS.ITEM_ID);
 
         if (shortPk != null) {
@@ -408,8 +410,8 @@ public class SqlActivityBatch implements ActivityBatch {
         } else {
             // Create the record
             shortPk = create
-                .insertInto(PRISM_ITEMS, PRISM_ITEMS.MATERIAL)
-                .values(material)
+                .insertInto(PRISM_ITEMS, PRISM_ITEMS.MATERIAL, PRISM_ITEMS.DATA)
+                .values(material, data)
                 .returningResult(PRISM_ITEMS.ITEM_ID)
                 .fetchOne(PRISM_ITEMS.ITEM_ID);
 

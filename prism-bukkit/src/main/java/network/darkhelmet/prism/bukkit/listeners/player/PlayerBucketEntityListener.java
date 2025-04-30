@@ -65,7 +65,7 @@ public class PlayerBucketEntityListener extends AbstractListener implements List
             return;
         }
 
-        var metadata = Metadata.builder().using(ItemUtils.getItemStackDescriptor(event.getOriginalBucket())).build();
+        var metadata = Metadata.builder().using(ItemUtils.materialName(event.getOriginalBucket())).build();
         var action = new BukkitEntityAction(
             BukkitActionTypeRegistry.ENTITY_REMOVE, event.getEntity(), metadata);
 

@@ -9,6 +9,7 @@ CREATE PROCEDURE %prefix%create_activity (
     IN `playerUuid` CHAR(36),
     IN `entityType` VARCHAR(25),
     IN `material` VARCHAR(45),
+    IN `itemData` TEXT,
     IN `blockNamespace` VARCHAR(55),
     IN `blockName` VARCHAR(55),
     IN `blockData` VARCHAR(255),
@@ -50,7 +51,7 @@ BEGIN
 
     -- Create the item
     IF `material` IS NOT NULL THEN
-        CALL %prefix%get_or_create_item(material, @itemId);
+        CALL %prefix%get_or_create_item(material, itemData, @itemId);
     END IF;
 
     -- Create the block

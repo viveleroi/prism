@@ -1,11 +1,11 @@
 CREATE PROCEDURE %prefix%get_or_create_item
-(IN `materialKey` VARCHAR(45), OUT `itemId` SMALLINT)
+(IN `materialKey` VARCHAR(45), IN `data` TEXT, OUT `itemId` SMALLINT)
 BEGIN
     SELECT item_id INTO `itemId` FROM
-        %prefix%items WHERE material = `materialKey`;
+        %prefix%items WHERE material = `materialKey` AND data = `data`;
 
     IF `itemId` IS NULL THEN
-        INSERT INTO %prefix%items (`material`) VALUES (`materialKey`);
+        INSERT INTO %prefix%items (`material`, `data`) VALUES (`materialKey`, `data`);
 
         SET `itemId` = LAST_INSERT_ID();
     END IF;
