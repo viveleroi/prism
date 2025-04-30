@@ -9,6 +9,7 @@ CREATE PROCEDURE %prefix%create_activity (
     IN `playerUuid` CHAR(36),
     IN `entityType` VARCHAR(25),
     IN `material` VARCHAR(45),
+    IN `itemQuantity` SMALLINT,
     IN `itemData` TEXT,
     IN `blockNamespace` VARCHAR(55),
     IN `blockName` VARCHAR(55),
@@ -66,10 +67,10 @@ BEGIN
 
     -- Create the activities
     INSERT INTO `%prefix%activities`
-    (`timestamp`, `world_id`, `x`, `y`, `z`, `action_id`, `item_id`,
+    (`timestamp`, `world_id`, `x`, `y`, `z`, `action_id`, `item_id`, `item_quantity`,
     `block_id`, `replaced_block_id`, `entity_type_id`, `cause_id`, `descriptor`, `metadata`, `serializer_version`, `serialized_data`)
     VALUES
-    (`timestamp`, @worldId, `x`, `y`, `z`, @actionId, @itemId,
+    (`timestamp`, @worldId, `x`, `y`, `z`, @actionId, @itemId, `itemQuantity`,
     @blockId, @replacedBlockId, @entityId, @causeId, `descriptor`, `metadata`,
      `serializerVersion`, `serializedData`);
 

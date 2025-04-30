@@ -9,6 +9,7 @@ CREATE OR REPLACE FUNCTION %prefix%create_activity (
     p_playerUuid CHAR(36),
     p_entityType VARCHAR(25),
     p_material VARCHAR(45),
+    p_itemQuantity SMALLINT,
     p_itemData TEXT,
     p_blockNamespace VARCHAR(55),
     p_blockName VARCHAR(55),
@@ -72,10 +73,10 @@ BEGIN
 
     -- Insert into activities table
     INSERT INTO %prefix%activities
-        ("timestamp", world_id, x, y, z, action_id, item_id,
+        ("timestamp", world_id, x, y, z, action_id, item_id, item_quantity,
          block_id, replaced_block_id, entity_type_id, cause_id, descriptor, metadata, serializer_version, serialized_data)
     VALUES
-        (p_timestamp, v_worldId, p_x, p_y, p_z, v_actionId, v_itemId, v_blockId,
+        (p_timestamp, v_worldId, p_x, p_y, p_z, v_actionId, v_itemId, p_itemQuantity, v_blockId,
          v_replacedBlockId, v_entityTypeId, v_causeId, p_descriptor, p_metadata, p_serializerVersion, p_serializedData)
     RETURNING activity_id INTO v_activityId;
 END;

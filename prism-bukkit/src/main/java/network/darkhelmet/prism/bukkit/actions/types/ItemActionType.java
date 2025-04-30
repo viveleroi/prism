@@ -53,6 +53,6 @@ public class ItemActionType extends ActionType {
             itemStack = new ItemStack(material);
         }
 
-        return new BukkitItemStackAction(this, itemStack, actionData.descriptor());
+        return new BukkitItemStackAction(this, itemStack, actionData.itemQuantity(), actionData.descriptor());
     }
 }

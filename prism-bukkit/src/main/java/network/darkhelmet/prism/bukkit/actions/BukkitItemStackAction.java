@@ -71,7 +71,7 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
      * @param itemStack The item stack
      */
     public BukkitItemStackAction(ActionType type, ItemStack itemStack) {
-        this(type, itemStack, null);
+        this(type, itemStack, itemStack.getAmount(), null);
 
         this.descriptor = PlainTextComponentSerializer.plainText().serialize(descriptorComponent());
     }
@@ -81,13 +81,19 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
      *
      * @param type The action type
      * @param itemStack The item stack
+     * @param quantity The quantity
      * @param descriptor The descriptor
      */
-    public BukkitItemStackAction(ActionType type, ItemStack itemStack, String descriptor) {
+    public BukkitItemStackAction(ActionType type, ItemStack itemStack, int quantity, String descriptor) {
         super(type, itemStack.getType(), descriptor);
 
         this.itemStack = itemStack;
         this.readWriteNbt = NBT.itemStackToNBT(itemStack);
+        this.readWriteNbt.removeKey("count");
+
+        if (quantity <= itemStack.getMaxStackSize()) {
+            itemStack.setAmount(quantity);
+        }
     }
 
     @Override
@@ -158,6 +164,11 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
         }
 
         return complete.build();
+    }
+
+    @Override
+    public int quantity() {
+        return itemStack.getAmount();
     }
 
     @Override

@@ -33,7 +33,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row17;
+import org.jooq.Row18;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -134,6 +134,15 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
      */
     public final TableField<PrismActivitiesRecord, UShort> ITEM_ID = createField(
         DSL.name("item_id"),
+        SQLDataType.SMALLINTUNSIGNED,
+        this,
+        "");
+
+    /**
+     * The column <code>prism_activities.item_quantity</code>.
+     */
+    public final TableField<PrismActivitiesRecord, UShort> ITEM_QUANTITY = createField(
+        DSL.name("item_quantity"),
         SQLDataType.SMALLINTUNSIGNED,
         this,
         "");
@@ -404,7 +413,7 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
     }
 
     @Override
-    public Row17<
+    public Row18<
             UInteger,
             UInteger,
             UByte,
@@ -412,6 +421,7 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
             Integer,
             Integer,
             UByte,
+            UShort,
             UShort,
             UInteger,
             UInteger,
@@ -422,6 +432,6 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
             UShort,
             String,
             Boolean> fieldsRow() {
-        return (Row17) super.fieldsRow();
+        return (Row18) super.fieldsRow();
     }
 }

@@ -61,7 +61,6 @@ import network.darkhelmet.prism.core.storage.dbo.Indexes;
 import network.darkhelmet.prism.core.storage.dbo.PrismDatabase;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismActionsRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismEntityTypesRecord;
-import network.darkhelmet.prism.core.storage.dbo.records.PrismItemsRecord;
 import network.darkhelmet.prism.core.storage.dbo.records.PrismWorldsRecord;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismActions;
 import network.darkhelmet.prism.core.storage.dbo.tables.PrismActivities;
@@ -422,13 +421,12 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .unique(PRISM_ACTIONS.ACTION)
             .execute();
 
-        // Create the material data table
+        // Create the item table
         create.createTableIfNotExists(PRISM_ITEMS)
             .column(PRISM_ITEMS.ITEM_ID)
             .column(PRISM_ITEMS.MATERIAL)
             .column(PRISM_ITEMS.DATA)
             .primaryKey(PRISM_ITEMS.ITEM_ID)
-            .unique(PRISM_ITEMS.MATERIAL, PRISM_ITEMS.DATA)
             .execute();
 
         // Create the worlds table
@@ -450,6 +448,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .column(PRISM_ACTIVITIES.Z)
             .column(PRISM_ACTIVITIES.ACTION_ID)
             .column(PRISM_ACTIVITIES.ITEM_ID)
+            .column(PRISM_ACTIVITIES.ITEM_QUANTITY)
             .column(PRISM_ACTIVITIES.BLOCK_ID)
             .column(PRISM_ACTIVITIES.REPLACED_BLOCK_ID)
             .column(PRISM_ACTIVITIES.ENTITY_TYPE_ID)
@@ -550,17 +549,6 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
         for (PrismEntityTypesRecord entityTypesRecord : entityTypes) {
             int entityTypeId = entityTypesRecord.getEntityTypeId().intValue();
             cacheService.entityTypePkMap().put(entityTypesRecord.getEntityType(), entityTypeId);
-        }
-
-        // Materials (base, no data)
-        List<PrismItemsRecord> materials = create
-            .select(PRISM_ITEMS.MATERIAL, PRISM_ITEMS.ITEM_ID)
-            .from(PRISM_ITEMS)
-            .fetchInto(PrismItemsRecord.class);
-
-        for (PrismItemsRecord material : materials) {
-            int materialId = material.getItemId().intValue();
-            cacheService.itemDataPkMap().put(material.getMaterial(), materialId);
         }
 
         // World
@@ -667,6 +655,9 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
 
             String itemData = r.getValue(PRISM_ITEMS.DATA);
 
+            // Item quantity
+            short itemQuantity = r.getValue(coalesce(PRISM_ACTIVITIES.ITEM_QUANTITY, DSL.val(0))).shortValue();
+
             // Cause
             String cause = r.getValue(PRISM_CAUSES.CAUSE);
             Pair<UUID, String> player = null;
@@ -705,6 +696,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                 // Build the action data
                 ActionData actionData = new ActionData(
                     material,
+                    itemQuantity,
                     itemData,
                     blockNamespace,
                     blockName,
@@ -733,7 +725,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
 
                 // Build the action data
                 ActionData actionData = new ActionData(
-                    material, itemData, blockNamespace, blockName, null, null, null,
+                    material, itemQuantity, itemData, blockNamespace, blockName, null, null, null,
                     null, entityType, null, descriptor, metadata, (short) 0);
 
                 // Build the activity
@@ -749,7 +741,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             } else {
                 // Build the action data
                 ActionData actionData = new ActionData(
-                    material, itemData, blockNamespace, blockName, null, null, null,
+                    material, itemQuantity, itemData, blockNamespace, blockName, null, null, null,
                     null, entityType, null, descriptor, metadata, (short) 0);
 
                 // Count

@@ -91,7 +91,7 @@ public class SqlActivityProcedureBatch implements ActivityBatch {
 
         statement = connection.prepareCall(
             "{ CALL " + prefix
-                + "create_activity(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
+                + "create_activity(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
     }
 
     @Override
@@ -128,66 +128,68 @@ public class SqlActivityProcedureBatch implements ActivityBatch {
         // Material
         if (activity.action() instanceof ItemAction itemAction) {
             statement.setString(10, itemAction.serializeMaterial());
-            statement.setString(11, itemAction.serializeItemData());
+            statement.setShort(11, (short) itemAction.quantity());
+            statement.setString(12, itemAction.serializeItemData());
         } else {
             statement.setNull(10, Types.VARCHAR);
-            statement.setNull(11, Types.VARCHAR);
+            statement.setNull(11, Types.SMALLINT);
+            statement.setNull(12, Types.VARCHAR);
         }
 
         // Block data
         if (activity.action() instanceof BlockAction blockAction) {
-            statement.setString(12, blockAction.blockNamespace());
-            statement.setString(13, blockAction.blockName());
-            statement.setString(14, blockAction.serializeBlockData());
+            statement.setString(13, blockAction.blockNamespace());
+            statement.setString(14, blockAction.blockName());
+            statement.setString(15, blockAction.serializeBlockData());
         } else {
-            statement.setNull(12, Types.VARCHAR);
             statement.setNull(13, Types.VARCHAR);
             statement.setNull(14, Types.VARCHAR);
+            statement.setNull(15, Types.VARCHAR);
         }
 
         // Replaced block data
         if (activity.action() instanceof BlockAction blockAction) {
-            statement.setString(15, blockAction.blockNamespace());
-            statement.setString(16, blockAction.blockName());
-            statement.setString(17, blockAction.serializeReplacedBlockData());
+            statement.setString(16, blockAction.blockNamespace());
+            statement.setString(17, blockAction.blockName());
+            statement.setString(18, blockAction.serializeReplacedBlockData());
         } else {
-            statement.setNull(15, Types.VARCHAR);
             statement.setNull(16, Types.VARCHAR);
             statement.setNull(17, Types.VARCHAR);
+            statement.setNull(18, Types.VARCHAR);
         }
 
         // World
-        statement.setString(18, activity.world().value());
-        statement.setString(19, activity.world().key().toString());
+        statement.setString(19, activity.world().value());
+        statement.setString(20, activity.world().key().toString());
 
         // Custom data
         if (activity.action() instanceof CustomData) {
-            statement.setInt(20, serializerVersion);
+            statement.setInt(21, serializerVersion);
 
             String customData = ((CustomData) activity.action()).serializeCustomData();
-            statement.setString(21, customData);
+            statement.setString(22, customData);
         } else {
-            statement.setNull(20, Types.SMALLINT);
-            statement.setNull(21, Types.VARCHAR);
+            statement.setNull(21, Types.SMALLINT);
+            statement.setNull(22, Types.VARCHAR);
         }
 
         // Descriptor
         if (activity.action().descriptor() != null) {
-            statement.setString(22, activity.action().descriptor());
+            statement.setString(23, activity.action().descriptor());
         } else {
-            statement.setNull(22, Types.VARCHAR);
+            statement.setNull(23, Types.VARCHAR);
         }
 
         // Serialize the metadata
         if (activity.action().metadata() != null) {
             try {
-                statement.setString(23, activity.action().serializeMetadata());
+                statement.setString(24, activity.action().serializeMetadata());
             } catch (Exception e) {
                 loggingService.handleException(e);
-                statement.setNull(23, Types.VARCHAR);
+                statement.setNull(24, Types.VARCHAR);
             }
         } else {
-            statement.setNull(23, Types.VARCHAR);
+            statement.setNull(24, Types.VARCHAR);
         }
 
         statement.addBatch();

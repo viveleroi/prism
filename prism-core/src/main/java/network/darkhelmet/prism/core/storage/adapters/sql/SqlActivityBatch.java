@@ -122,6 +122,7 @@ public class SqlActivityBatch implements ActivityBatch {
         if (activity.action() instanceof ItemAction itemAction) {
             record.setItemId(UShort.valueOf(
                 getOrCreateItemId(itemAction.serializeMaterial(), itemAction.serializeItemData())));
+            record.setItemQuantity(UShort.valueOf(itemAction.quantity()));
         }
 
         // Set the block relationship

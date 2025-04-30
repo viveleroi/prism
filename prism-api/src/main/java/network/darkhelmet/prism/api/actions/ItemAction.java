@@ -22,6 +22,13 @@ package network.darkhelmet.prism.api.actions;
 
 public interface ItemAction extends MaterialAction {
     /**
+     * Get the quantity.
+     *
+     * @return The quantity
+     */
+    int quantity();
+
+    /**
      * Serialize item data.
      *
      * @return The item data string
