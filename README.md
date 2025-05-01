@@ -58,8 +58,14 @@ Prism is not a commercial project. It takes significant investment of time and e
 - Matt for extra effort and support in the [TriumphTeam][triumph] Command Lib.
 - Luck & LuckPerms contributors for the dependency management code.
 
+We use [YourKit Java Profiler][yourkitprofiler]. YourKit supports open source projects with innovative and intelligent tools
+for monitoring and profiling Java and .NET applications.
+
+![YourKit](https://www.yourkit.com/images/yklogo.png)
+
 [discord]: https://discord.gg/7FxZScH4EJ
 [docs]: https://docs.prism-mc.org
 [ci]: https://ci.prism-mc.org
 [prism3]: https://github.com/prism/PrismRefracted
 [triumph]: https://triumphteam.dev/
+[yourkitprofiler]: https://www.yourkit.com/java/profiler/
