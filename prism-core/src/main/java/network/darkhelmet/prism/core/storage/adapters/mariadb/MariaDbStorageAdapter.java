@@ -164,7 +164,7 @@ public class MariaDbStorageAdapter extends AbstractSqlStorageAdapter {
             if (innodbSizeMb < 1024) {
                 loggingService.info("We recommend setting a higher innodb_buffer_pool_size.");
                 loggingService.info(
-                    "See: https://prism.readthedocs.io/en/latest/purges.html#purges-and-databases");
+                    "See: https://docs.prism-mc.org/features/purges/#purges-and-databases");
             }
 
             if (!usingHikariProperties) {

@@ -39,7 +39,7 @@ public class PurgeConfiguration {
             Deleting records often locks every affected row which can block other
             queries or new data waiting for insert. If purging is causing performance
             issues or errors in the console, lower this value.
-            Please see https://prism.readthedocs.io/en/latest/purges.html for more.
+            Please see https://docs.prism-mc.org/features/purges/ for more.
             """)
     private int limit = 5000;
 

@@ -41,8 +41,8 @@ public class PrismConfiguration {
             Some are purely informational, some can be reversed/restored.
             Disabling any here will completely prevent prism from recording them.
             Actions that are disabled by default may need some consideration/filters
-            before turning them. Blanket-enabling everything is a recipe for exponential
-            database growth (aka bad stuff).""")
+            before enabling them. Blanket-enabling everything is a recipe for
+            exponential database growth.""")
     private ActionsConfiguration actions = new ActionsConfiguration();
 
     private AlertsConfiguration alerts = new AlertsConfiguration();
@@ -64,8 +64,7 @@ public class PrismConfiguration {
 
     @Comment("""
             Filters allow fine-grained control over what prism records.
-            See the wiki for documentation.
-            https://prism.readthedocs.io""")
+            Please see https://docs.prism-mc.org/configs/filters/""")
     private List<FilterConfiguration> filters = new ArrayList<>();
 
     @Comment("Configure rules for modifications (rollbacks/restores).")

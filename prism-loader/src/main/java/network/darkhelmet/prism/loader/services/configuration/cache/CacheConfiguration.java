@@ -31,15 +31,11 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 @Getter
 public class CacheConfiguration {
     @Comment("Enable stats recording. Ideally not used on live servers.")
-    private boolean recordStats = true;
+    private boolean recordStats = false;
 
     @Comment("Cache settings for alerted locations.")
     private CacheBuilderConfiguration alertedLocations = new CacheBuilderConfiguration(
-        5000, new DurationConfiguration(5, TimeUnit.MINUTES));
-
-    @Comment("Cache settings for block data/primary keys.")
-    private CacheBuilderConfiguration pkCacheBlockData = new CacheBuilderConfiguration(
-        5000, new DurationConfiguration(15, TimeUnit.MINUTES));
+        1000, new DurationConfiguration(5, TimeUnit.MINUTES));
 
     @Comment("Activity queries (lookups) are cached so that they can be re-used or paginated.")
     private CacheBuilderConfiguration lookupExpiration = new CacheBuilderConfiguration(
@@ -52,12 +48,16 @@ public class CacheConfiguration {
     @Comment("Cache settings for action key/primary keys.")
     private CacheBuilderConfiguration pkCacheActionKey = new CacheBuilderConfiguration(100);
 
+    @Comment("Cache settings for block data/primary keys.")
+    private CacheBuilderConfiguration pkCacheBlockData = new CacheBuilderConfiguration(
+        500, new DurationConfiguration(15, TimeUnit.MINUTES));
+
     @Comment("Cache settings for entity types/primary keys.")
     private CacheBuilderConfiguration pkCacheEntityType = new CacheBuilderConfiguration(200);
 
     @Comment("Cache settings for item data/primary keys.")
     private CacheBuilderConfiguration pkCacheItemData = new CacheBuilderConfiguration(
-        5000, new DurationConfiguration(15, TimeUnit.MINUTES));
+        1000, new DurationConfiguration(15, TimeUnit.MINUTES));
 
     @Comment("Cache settings for named causes/primary keys.")
     private CacheBuilderConfiguration pkCacheNamedCause = new CacheBuilderConfiguration(
@@ -65,7 +65,7 @@ public class CacheConfiguration {
 
     @Comment("Cache settings for players/primary keys.")
     private CacheBuilderConfiguration pkCachePlayer = new CacheBuilderConfiguration(
-        200, new DurationConfiguration(15, TimeUnit.MINUTES));
+        100, new DurationConfiguration(15, TimeUnit.MINUTES));
 
     @Comment("Cache settings for world/primary keys.")
     private CacheBuilderConfiguration pkCacheWorld = new CacheBuilderConfiguration(20);
