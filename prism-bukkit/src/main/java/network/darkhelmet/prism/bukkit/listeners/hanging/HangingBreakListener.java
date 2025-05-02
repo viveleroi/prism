@@ -71,13 +71,15 @@ public class HangingBreakListener extends AbstractListener implements Listener {
         if (event.getCause().equals(HangingBreakEvent.RemoveCause.PHYSICS)) {
             // Physics causes. Hopefully find the actual cause through an expectation
             Optional<Object> expectation = expectationService.detachExpectation(hanging);
-            expectation.ifPresent(o -> {
+            if (expectation.isEmpty()) {
+                recordHangingBreak(hanging, "physics");
+            } else {
                 // Queue a recording
-                recordHangingBreak(hanging, o);
+                recordHangingBreak(hanging, expectation.get());
 
                 // Remove from cache
                 expectationService.metDetachExpectation(hanging);
-            });
+            }
         }
     }
 }

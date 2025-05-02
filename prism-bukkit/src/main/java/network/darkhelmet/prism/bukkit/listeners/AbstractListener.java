@@ -33,7 +33,6 @@ import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
 import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.bukkit.utils.BlockUtils;
-import network.darkhelmet.prism.bukkit.utils.EntityUtils;
 import network.darkhelmet.prism.bukkit.utils.TagLib;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
@@ -47,6 +46,7 @@ import org.bukkit.block.data.type.Stairs;
 import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Hanging;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -131,7 +131,7 @@ public class AbstractListener {
 
         // Find any hanging entities
         if (configurationService.prismConfig().actions().hangingBreak()) {
-            for (Entity hanging : EntityUtils.hangingEntities(block.getLocation(), 2)) {
+            for (var hanging : block.getLocation().getNearbyEntitiesByType(Hanging.class, 5)) {
                 expectationService.expectDetach(hanging, cause);
             }
         }

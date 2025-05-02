@@ -53,7 +53,7 @@ public class ExpectationService {
         CacheConfiguration cacheConfiguration = configurationService.prismConfig().cache();
 
         var cacheBuilder = Caffeine.newBuilder()
-            .expireAfterWrite(10, TimeUnit.SECONDS)
+            .expireAfterWrite(20, TimeUnit.SECONDS)
             .evictionListener((key, value, cause) -> {
                 String msg = "Evicting expectations cache: Key: {0}, Value: {1}, Removal Cause: {2}";
                 loggingService.debug(msg, key, value, cause);

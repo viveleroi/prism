@@ -23,7 +23,6 @@ package network.darkhelmet.prism.bukkit.utils;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import lombok.experimental.UtilityClass;
 
@@ -34,27 +33,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.BoundingBox;
 
 @UtilityClass
 public class EntityUtils {
-    /**
-     * Gets hanging entities within a given range of a starting location.
-     *
-     * @param startLoc The start location
-     * @param range The range
-     * @return A list of all hanging entities
-     */
-    public static List<Entity> hangingEntities(final Location startLoc, int range) {
-        return Arrays.stream(startLoc.getChunk().getEntities()).filter(entity -> {
-            if (isHanging(entity.getType()) && startLoc.getWorld().equals(entity.getWorld())) {
-                return startLoc.distance(entity.getLocation()) < range;
-            }
-
-            return false;
-        }).collect(Collectors.toList());
-    }
-
     /**
      * Moves entities up to ground level.
      *
@@ -65,7 +48,7 @@ public class EntityUtils {
     public static int moveEntitiesToGround(World world, BoundingBox boundingBox) {
         var totalMoved = 0;
 
-        for (var entity : entitiesInRangeByClass(world, boundingBox, Entity.class)) {
+        for (var entity : entitiesInRangeByClass(world, boundingBox, LivingEntity.class)) {
             final Location location = entity.getLocation();
 
             Location destination = null;
