@@ -87,7 +87,8 @@ public class BukkitFilterService implements FilterService {
 
         // Convert all configured filters into Filter objects
         for (FilterConfiguration config : configurationService.prismConfig().filters()) {
-            loadFilter(config.name().isEmpty() ? "Unnamed" : config.name(), config.behavior(), config.conditions());
+            var name = config.name() == null ||  config.name().isEmpty() ? "Unnamed" : config.name();
+            loadFilter(name, config.behavior(), config.conditions());
         }
     }
 
