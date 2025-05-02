@@ -26,6 +26,7 @@ import network.darkhelmet.prism.bukkit.actions.BukkitBlockAction;
 import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import network.darkhelmet.prism.bukkit.api.activities.BukkitActivity;
 import network.darkhelmet.prism.bukkit.listeners.AbstractListener;
+import network.darkhelmet.prism.bukkit.services.alerts.BukkitAlertService;
 import network.darkhelmet.prism.bukkit.services.expectations.ExpectationService;
 import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService;
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
@@ -40,6 +41,11 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 public class BlockPlaceListener extends AbstractListener implements Listener {
     /**
+     * The alerts service.
+     */
+    private final BukkitAlertService alertService;
+
+    /**
      * Construct the listener.
      *
      * @param configurationService The configuration service
@@ -48,10 +54,12 @@ public class BlockPlaceListener extends AbstractListener implements Listener {
      */
     @Inject
     public BlockPlaceListener(
+            BukkitAlertService alertService,
             ConfigurationService configurationService,
             ExpectationService expectationService,
             BukkitRecordingService recordingService) {
         super(configurationService, expectationService, recordingService);
+        this.alertService = alertService;
     }
 
     /**
@@ -62,6 +70,8 @@ public class BlockPlaceListener extends AbstractListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPlace(final BlockPlaceEvent event) {
         final Player player = event.getPlayer();
+
+        alertService.alertBlockPlace(event.getBlock(), player);
 
         // Ignore if this event is disabled
         if (!configurationService.prismConfig().actions().blockPlace()) {

@@ -20,27 +20,25 @@
 
 package network.darkhelmet.prism.loader.services.configuration.alerts;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.Getter;
 
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
-import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
-public class AlertsConfiguration {
-    @Comment("Do not alert for players in creative.")
-    private final boolean ignoreCreative = true;
-
-    @Comment("Hide alerts from a player if they both trigger and receive alerts.")
-    private final boolean ignoreSelf = false;
+public class BlockPlaceAlertsConfiguration extends BlockAlertConfiguration {
+    /**
+     * Alert configurations.
+     */
+    private List<BlockAlertConfiguration> alerts = new ArrayList<>();
 
     /**
-     * Block break alert configurations.
+     * Constructor.
      */
-    private BlockBreakAlertsConfiguration blockBreakAlerts = new BlockBreakAlertsConfiguration();
-
-    /**
-     * Block place alert configurations.
-     */
-    private BlockPlaceAlertsConfiguration blockPlaceAlerts = new BlockPlaceAlertsConfiguration();
+    public BlockPlaceAlertsConfiguration() {
+        alerts.add(new BlockAlertConfiguration(List.of("bedrock", "lava", "tnt"), null, "#fc2150"));
+    }
 }

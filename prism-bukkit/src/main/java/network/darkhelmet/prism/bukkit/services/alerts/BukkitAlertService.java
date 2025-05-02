@@ -67,6 +67,11 @@ public class BukkitAlertService {
     private final List<BlockBreakAlert> blockBreakAlerts = new ArrayList<>();
 
     /**
+     * Cache all block place alerts.
+     */
+    private final List<BlockAlert> blockPlaceAlerts = new ArrayList<>();
+
+    /**
      * The configuration service.
      */
     private final ConfigurationService configurationService;
@@ -147,20 +152,7 @@ public class BukkitAlertService {
      * @param player The player
      */
     public void alertBlockBreak(Block block, Player player) {
-        // Ignore creative
-        if (configurationService.prismConfig().alerts().ignoreCreative()
-                && player.getGameMode().equals(GameMode.CREATIVE)) {
-            return;
-        }
-
-        // Let players bypass
-        if (player.hasPermission("prism.alert.bypass")) {
-            return;
-        }
-
-        // Check location for recent alerts
-        var lastTriggerer = locations.getIfPresent(block.getLocation());
-        if (lastTriggerer != null) {
+        if (!shouldAlert(player, block.getLocation())) {
             return;
         }
 
@@ -228,6 +220,56 @@ public class BukkitAlertService {
     }
 
     /**
+     * Trigger any configured alerts for a block place.
+     *
+     * @param block The block
+     * @param player The player
+     */
+    public void alertBlockPlace(Block block, Player player) {
+        if (!shouldAlert(player, block.getLocation())) {
+            return;
+        }
+
+        // Find the alert for this block type
+        var alert = getBlockPlaceAlert(block.getType());
+        if (alert == null) {
+            return;
+        }
+
+        var blockState = block.getState();
+        String blockTranslationKey = blockState.getBlock().getTranslationKey();
+        locations.put(blockState.getLocation(), player);
+
+        TextColor color = TextColor.fromCSSHexString(alert.config().hexColor());
+
+        var data = new BlockAlertData(
+            player.getName(),
+            blockTranslationKey,
+            color,
+            Key.key(blockState.getType().getKey().toString()));
+
+        for (CommandSender receiver : getReceivers(player)) {
+            messageService.alertBlockPlace(receiver, data);
+        }
+    }
+
+    /**
+     * Load all alerts from the config.
+     */
+    public void loadAlerts() {
+        blockBreakAlerts.clear();
+        blockPlaceAlerts.clear();
+
+        for (var config : configurationService.prismConfig().alerts().blockBreakAlerts().alerts()) {
+            blockBreakAlerts.add(new BlockBreakAlert(config, loadMaterialTags(config)));
+        }
+
+        for (var config : configurationService.prismConfig().alerts().blockPlaceAlerts().alerts()) {
+            blockPlaceAlerts.add(new BlockAlert(config, loadMaterialTags(config)));
+        }
+    }
+
+    /**
      * Get an alert for this material, if any.
      *
      * @param material The material
@@ -244,14 +286,19 @@ public class BukkitAlertService {
     }
 
     /**
-     * Load all alerts from the config.
+     * Get an alert for this material, if any.
+     *
+     * @param material The material
+     * @return The alert, if any
      */
-    public void loadAlerts() {
-        blockBreakAlerts.clear();
-
-        for (var config : configurationService.prismConfig().alerts().blockBreakAlerts().alerts()) {
-            blockBreakAlerts.add(new BlockBreakAlert(config, loadMaterialTags(config)));
+    protected BlockAlert getBlockPlaceAlert(Material material) {
+        for (var alert : blockPlaceAlerts) {
+            if (alert.materialTag().isTagged(material)) {
+                return alert;
+            }
         }
+
+        return null;
     }
 
     /**
@@ -313,5 +360,33 @@ public class BukkitAlertService {
         }
 
         return receivers;
+    }
+
+    /**
+     * Check if we should alert for this location.
+     *
+     * @param player The player
+     * @param location The location
+     * @return True if the alert is valid
+     */
+    protected boolean shouldAlert(Player player, Location location) {
+        // Ignore creative
+        if (configurationService.prismConfig().alerts().ignoreCreative()
+                && player.getGameMode().equals(GameMode.CREATIVE)) {
+            return false;
+        }
+
+        // Let players bypass
+        if (player.hasPermission("prism.alert.bypass")) {
+            return false;
+        }
+
+        // Check location for recent alerts
+        var lastTriggerer = locations.getIfPresent(location);
+        if (lastTriggerer != null) {
+            return false;
+        }
+
+        return true;
     }
 }
