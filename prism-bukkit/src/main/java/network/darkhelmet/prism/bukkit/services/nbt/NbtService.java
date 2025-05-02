@@ -64,7 +64,6 @@ public class NbtService {
         "HurtTime",
         "Motion",
         "OnGround",
-        "Pos",
         "WorldUUIDLeast",
         "WorldUUIDMost"
     };
