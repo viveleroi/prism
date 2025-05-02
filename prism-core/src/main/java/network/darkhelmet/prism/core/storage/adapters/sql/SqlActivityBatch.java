@@ -392,7 +392,7 @@ public class SqlActivityBatch implements ActivityBatch {
      * @throws SQLException The database exception
      */
     private int getOrCreateItemId(String material, String data) throws SQLException {
-        Integer itemPk = cacheService.itemDataPkMap().getIfPresent(material);
+        Integer itemPk = cacheService.itemDataPkMap().getIfPresent(data);
         if (itemPk != null) {
             return itemPk;
         }
@@ -424,7 +424,7 @@ public class SqlActivityBatch implements ActivityBatch {
             }
         }
 
-        cacheService.itemDataPkMap().put(material, primaryKey);
+        cacheService.itemDataPkMap().put(data, primaryKey);
 
         return primaryKey;
     }
