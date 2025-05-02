@@ -149,8 +149,8 @@ public class SqlActivityProcedureBatch implements ActivityBatch {
 
         // Replaced block data
         if (activity.action() instanceof BlockAction blockAction) {
-            statement.setString(16, blockAction.blockNamespace());
-            statement.setString(17, blockAction.blockName());
+            statement.setString(16, blockAction.replacedBlockNamespace());
+            statement.setString(17, blockAction.replacedBlockName());
             statement.setString(18, blockAction.serializeReplacedBlockData());
         } else {
             statement.setNull(16, Types.VARCHAR);

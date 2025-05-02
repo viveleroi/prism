@@ -200,6 +200,8 @@ public class SqlActivityQueryBuilder {
                 PRISM_BLOCKS.DATA,
                 PRISM_ACTIVITIES.SERIALIZED_DATA,
                 coalesce(PRISM_ACTIVITIES.SERIALIZER_VERSION, 1).as("serializer_version"),
+                REPLACED_BLOCKS.NS,
+                REPLACED_BLOCKS.NAME,
                 REPLACED_BLOCKS.DATA
             );
         }
