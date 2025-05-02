@@ -202,6 +202,7 @@ public class TagLib {
      * Materials that attach to the bottom of a block.
      */
     public static final CustomTag<Material> BOTTOM_DETACHABLES = new CustomTag<>(Material.class,
+        Material.HANGING_ROOTS,
         Material.SPORE_BLOSSOM,
         Material.LANTERN,
         Material.SOUL_LANTERN
