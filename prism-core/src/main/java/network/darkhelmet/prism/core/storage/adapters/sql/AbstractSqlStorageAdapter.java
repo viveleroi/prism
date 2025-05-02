@@ -400,7 +400,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .primaryKey(PRISM_CAUSES.CAUSE_ID)
             .unique(PRISM_CAUSES.CAUSE)
             .constraints(
-                constraint("playerId").foreignKey(PRISM_CAUSES.PLAYER_ID)
+                constraint(String.format("%s_playerId", prefix)).foreignKey(PRISM_CAUSES.PLAYER_ID)
                     .references(PRISM_PLAYERS, PRISM_PLAYERS.PLAYER_ID).onDeleteCascade()
             )
             .execute();
@@ -460,19 +460,19 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .column(PRISM_ACTIVITIES.REVERSED)
             .primaryKey(PRISM_ACTIVITIES.ACTIVITY_ID)
             .constraints(
-                constraint("actionId").foreignKey(PRISM_ACTIVITIES.ACTION_ID)
+                constraint(String.format("%s_actionId", prefix)).foreignKey(PRISM_ACTIVITIES.ACTION_ID)
                     .references(PRISM_ACTIONS, PRISM_ACTIONS.ACTION_ID).onDeleteCascade(),
-                constraint("causeId").foreignKey(PRISM_ACTIVITIES.CAUSE_ID)
+                constraint(String.format("%s_causeId", prefix)).foreignKey(PRISM_ACTIVITIES.CAUSE_ID)
                     .references(PRISM_CAUSES, PRISM_CAUSES.CAUSE_ID).onDeleteCascade(),
-                constraint("entityTypeId").foreignKey(PRISM_ACTIVITIES.ENTITY_TYPE_ID)
+                constraint(String.format("%s_entityTypeId", prefix)).foreignKey(PRISM_ACTIVITIES.ENTITY_TYPE_ID)
                     .references(PRISM_ENTITY_TYPES, PRISM_ENTITY_TYPES.ENTITY_TYPE_ID).onDeleteCascade(),
-                constraint("itemId").foreignKey(PRISM_ACTIVITIES.ITEM_ID)
+                constraint(String.format("%s_itemId", prefix)).foreignKey(PRISM_ACTIVITIES.ITEM_ID)
                     .references(PRISM_ITEMS, PRISM_ITEMS.ITEM_ID).onDeleteCascade(),
-                constraint("blockId").foreignKey(PRISM_ACTIVITIES.BLOCK_ID)
+                constraint(String.format("%s_blockId", prefix)).foreignKey(PRISM_ACTIVITIES.BLOCK_ID)
                     .references(PRISM_BLOCKS, PRISM_BLOCKS.BLOCK_ID).onDeleteCascade(),
-                constraint("replacedBlockId").foreignKey(PRISM_ACTIVITIES.REPLACED_BLOCK_ID)
+                constraint(String.format("%s_replacedBlockId", prefix)).foreignKey(PRISM_ACTIVITIES.REPLACED_BLOCK_ID)
                     .references(PRISM_BLOCKS, PRISM_BLOCKS.BLOCK_ID).onDeleteCascade(),
-                constraint("worldId").foreignKey(PRISM_ACTIVITIES.WORLD_ID)
+                constraint(String.format("%s_worldId", prefix)).foreignKey(PRISM_ACTIVITIES.WORLD_ID)
                     .references(PRISM_WORLDS, PRISM_WORLDS.WORLD_ID).onDeleteCascade()
             )
             .execute();
