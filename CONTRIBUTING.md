@@ -51,6 +51,8 @@ Configure IntelliJ to run the `prism-bukkit-loader - runServer` task. It will bu
 
 Or, use gradle: `./gradlew -p prism-bukkit-loader runServer`.
 
+The version of the paper server used can be set via `paper-server-version` in `gradle.properties`.
+
 Server files and plugin configs will be inside `prism-bukkit-loader/run`.
 
 ## Pull Requests

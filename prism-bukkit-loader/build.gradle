@@ -37,7 +37,7 @@ artifacts {
 }
 
 runServer {
-    minecraftVersion(project.property('paper-api-version'))
+    minecraftVersion(project.property('paper-server-version'))
 }
 
 bukkitPluginYaml {
