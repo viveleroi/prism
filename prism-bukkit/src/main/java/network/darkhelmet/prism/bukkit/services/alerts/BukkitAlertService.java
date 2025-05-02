@@ -260,12 +260,16 @@ public class BukkitAlertService {
         blockBreakAlerts.clear();
         blockPlaceAlerts.clear();
 
-        for (var config : configurationService.prismConfig().alerts().blockBreakAlerts().alerts()) {
-            blockBreakAlerts.add(new BlockBreakAlert(config, loadMaterialTags(config)));
+        if (configurationService.prismConfig().alerts().blockBreakAlerts().enabled()) {
+            for (var config : configurationService.prismConfig().alerts().blockBreakAlerts().alerts()) {
+                blockBreakAlerts.add(new BlockBreakAlert(config, loadMaterialTags(config)));
+            }
         }
 
-        for (var config : configurationService.prismConfig().alerts().blockPlaceAlerts().alerts()) {
-            blockPlaceAlerts.add(new BlockAlert(config, loadMaterialTags(config)));
+        if (configurationService.prismConfig().alerts().blockPlaceAlerts().enabled()) {
+            for (var config : configurationService.prismConfig().alerts().blockPlaceAlerts().alerts()) {
+                blockPlaceAlerts.add(new BlockAlert(config, loadMaterialTags(config)));
+            }
         }
     }
 

@@ -30,7 +30,10 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
-public class BlockBreakAlertsConfiguration extends BlockAlertConfiguration {
+public class BlockBreakAlertsConfiguration {
+    @Comment("Enable or disable all alerts of this type.")
+    private boolean enabled = true;
+
     @Comment("Set the maximum light level that triggers the alert.")
     private final int maxLightLevel = 100;
 
