@@ -196,7 +196,7 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
 
     @Override
     public Component descriptorComponent() {
-        return Component.translatable(blockData.getMaterial().getBlockTranslationKey());
+        return Component.translatable(String.format("block.%s.%s", blockNamespace, blockName));
     }
 
     @Override
