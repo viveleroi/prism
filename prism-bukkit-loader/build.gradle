@@ -28,13 +28,13 @@ shadowJar {
         project(':prism-bukkit').tasks.shadowJar.archiveFile
     }
 
-    relocate 'com.typesafe', 'network.darkhelmet.prism.libs.typesafe'
-    relocate 'com.fasterxml.jackson', 'network.darkhelmet.prism.libs.jackson'
-    relocate 'dev.triumphteam', 'network.darkhelmet.prism.libs.triumphteam'
-    relocate 'net.kyori.moonshine', 'network.darkhelmet.prism.libs.kyori.moonshine'
-    relocate 'org.objectweb.asm', 'network.darkhelmet.prism.asm'
-    relocate 'org.spongepowered.configurate', 'network.darkhelmet.prism.libs.configurate'
-    relocate 'io.leangen.geantyref', 'network.darkhelmet.prism.libs.geantyref'
+    relocate 'com.typesafe', 'og.prism_mc.prism.libs.typesafe'
+    relocate 'com.fasterxml.jackson', 'og.prism_mc.prism.libs.jackson'
+    relocate 'dev.triumphteam', 'og.prism_mc.prism.libs.triumphteam'
+    relocate 'net.kyori.moonshine', 'og.prism_mc.prism.libs.kyori.moonshine'
+    relocate 'org.objectweb.asm', 'og.prism_mc.prism.asm'
+    relocate 'org.spongepowered.configurate', 'og.prism_mc.prism.libs.configurate'
+    relocate 'io.leangen.geantyref', 'og.prism_mc.prism.libs.geantyref'
 }
 
 artifacts {
@@ -48,7 +48,7 @@ runServer {
 bukkitPluginYaml {
     name.set('prism')
     version.set(project.property('version'))
-    main.set('network.darkhelmet.prism.bukkit.loader.PrismBukkitPluginLoader')
+    main.set('og.prism_mc.prism.bukkit.loader.PrismBukkitPluginLoader')
     apiVersion.set(project.property('paper-api-version'))
     website.set(project.property('website'))
     authors.add("viveleroi")
