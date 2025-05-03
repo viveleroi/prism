@@ -22,17 +22,16 @@ package network.darkhelmet.prism.core.storage.dbo.records;
 
 import org.jooq.Field;
 import org.jooq.Record1;
-import org.jooq.Record4;
-import org.jooq.Row4;
+import org.jooq.Record5;
+import org.jooq.Row5;
 import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.types.UInteger;
-import org.jooq.types.UShort;
 
 import static network.darkhelmet.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PrismBlocksRecord extends UpdatableRecordImpl<PrismBlocksRecord> implements
-        Record4<UInteger, String, String, String> {
+        Record5<UInteger, String, String, String, String> {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -111,18 +110,18 @@ public class PrismBlocksRecord extends UpdatableRecordImpl<PrismBlocksRecord> im
     }
 
     /**
-     * Setter for <code>prism_blocks.serializer_version</code>.
+     * Setter for <code>prism_blocks.translation_key</code>.
      */
-    public PrismBlocksRecord setSerializerVersion(UShort value) {
+    public PrismBlocksRecord setTranslationKey(String value) {
         set(5, value);
         return this;
     }
 
     /**
-     * Getter for <code>prism_blocks.serializer_version</code>.
+     * Getter for <code>prism_blocks.translation_key</code>.
      */
-    public UShort getSerializerVersion() {
-        return (UShort) get(5);
+    public String getTranslationKey() {
+        return (String) get(5);
     }
 
     // -------------------------------------------------------------------------
@@ -139,13 +138,13 @@ public class PrismBlocksRecord extends UpdatableRecordImpl<PrismBlocksRecord> im
     // -------------------------------------------------------------------------
 
     @Override
-    public Row4<UInteger, String, String, String> fieldsRow() {
-        return (Row4) super.fieldsRow();
+    public Row5<UInteger, String, String, String, String> fieldsRow() {
+        return (Row5) super.fieldsRow();
     }
 
     @Override
-    public Row4<UInteger, String, String, String> valuesRow() {
-        return (Row4) super.valuesRow();
+    public Row5<UInteger, String, String, String, String> valuesRow() {
+        return (Row5) super.valuesRow();
     }
 
     @Override
@@ -169,6 +168,11 @@ public class PrismBlocksRecord extends UpdatableRecordImpl<PrismBlocksRecord> im
     }
 
     @Override
+    public Field<String> field5() {
+        return PRISM_BLOCKS.TRANSLATION_KEY;
+    }
+
+    @Override
     public UInteger component1() {
         return getBlockId();
     }
@@ -186,6 +190,11 @@ public class PrismBlocksRecord extends UpdatableRecordImpl<PrismBlocksRecord> im
     @Override
     public String component4() {
         return getData();
+    }
+
+    @Override
+    public String component5() {
+        return getTranslationKey();
     }
 
     @Override
@@ -233,12 +242,24 @@ public class PrismBlocksRecord extends UpdatableRecordImpl<PrismBlocksRecord> im
     }
 
     @Override
+    public String value5() {
+        return getTranslationKey();
+    }
+
+    @Override
+    public PrismBlocksRecord value5(String value) {
+        setTranslationKey(value);
+        return this;
+    }
+
+    @Override
     public PrismBlocksRecord values(
-            UInteger value1, String value2, String value3, String value4) {
+            UInteger value1, String value2, String value3, String value4, String value5) {
         value1(value1);
         value2(value2);
         value3(value3);
         value4(value4);
+        value5(value5);
         return this;
     }
 
@@ -256,12 +277,13 @@ public class PrismBlocksRecord extends UpdatableRecordImpl<PrismBlocksRecord> im
     /**
      * Create a detached, initialised PrismBlocksRecord.
      */
-    public PrismBlocksRecord(UInteger blockId, String ns, String name, String data) {
+    public PrismBlocksRecord(UInteger blockId, String ns, String name, String data, String translationKey) {
         super(PRISM_BLOCKS);
 
         setBlockId(blockId);
         setNs(ns);
         setName(name);
         setData(data);
+        setTranslationKey(translationKey);
     }
 }
