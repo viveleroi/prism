@@ -64,6 +64,14 @@ Any changes to the repository by contributors should be opened as a Pull Request
 3. Make sure your code lints (`./gradlew check`).
 4. Open that pull request!
 
+## Prettier Formatting
+
+Prettier is an automatic code-formatting tool. Our repo will run this automatically when you open a PR, but it can be more convenient to run it yourself.
+
+1. Install [NodeJS](https://nodejs.org) and [PNPM](https://pnpm.io/).
+2. Run `pnpm install` once.
+3. Run `pnpm run format` before opening your PR or making updates.
+
 ## Updating Dependencies
 
 Dependency updates should be tested thoroughly. Some dependencies are downloaded by Prism at runtime
