@@ -388,6 +388,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .column(PRISM_BLOCKS.NS)
             .column(PRISM_BLOCKS.NAME)
             .column(PRISM_BLOCKS.DATA)
+            .column(PRISM_BLOCKS.TRANSLATION_KEY)
             .primaryKey(PRISM_BLOCKS.BLOCK_ID)
             .unique(PRISM_BLOCKS.NS, PRISM_BLOCKS.NAME, PRISM_BLOCKS.DATA)
             .execute();
@@ -683,6 +684,11 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                 timestamp = r.getValue(PRISM_ACTIVITIES.TIMESTAMP).longValue();
             }
 
+            String translationkey = null;
+            if (query.lookup()) {
+                translationkey = r.getValue(PRISM_BLOCKS.TRANSLATION_KEY);
+            }
+
             if (!query.grouped() && query.modification()) {
                 long activityId = r.getValue(PRISM_ACTIVITIES.ACTIVITY_ID).longValue();
 
@@ -708,7 +714,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                     customData,
                     descriptor,
                     metadata,
-                    customDataVersion.shortValue());
+                    customDataVersion.shortValue(),
+                    translationkey);
 
                 // Build the activity
                 try {
@@ -726,7 +733,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                 // Build the action data
                 ActionData actionData = new ActionData(
                     material, itemQuantity, itemData, blockNamespace, blockName, null, null, null,
-                    null, entityType, null, descriptor, metadata, (short) 0);
+                    null, entityType, null, descriptor, metadata, (short) 0, translationkey);
 
                 // Build the activity
                 try {
@@ -742,7 +749,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                 // Build the action data
                 ActionData actionData = new ActionData(
                     material, itemQuantity, itemData, blockNamespace, blockName, null, null, null,
-                    null, entityType, null, descriptor, metadata, (short) 0);
+                    null, entityType, null, descriptor, metadata, (short) 0, translationkey);
 
                 // Count
                 int count = r.getValue("groupcount", Integer.class);

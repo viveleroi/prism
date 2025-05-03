@@ -22,7 +22,8 @@ CREATE PROCEDURE %prefix%create_activity (
     IN `serializerVersion` SMALLINT,
     IN `serializedData` TEXT,
     IN `descriptor` VARCHAR(255),
-    IN `metadata` VARCHAR(255)
+    IN `metadata` VARCHAR(255),
+    IN `translationKey` VARCHAR(155)
 )
 BEGIN
     SET @entityId = NULL;
@@ -57,12 +58,12 @@ BEGIN
 
     -- Create the block
     IF `blockName` IS NOT NULL THEN
-        CALL %prefix%get_or_create_block(blockNamespace, blockName, blockData, @blockId);
+        CALL %prefix%get_or_create_block(blockNamespace, blockName, blockData, translationKey, @blockId);
     END IF;
 
     -- Create the replaced block
     IF `replacedBlockName` IS NOT NULL THEN
-        CALL %prefix%get_or_create_block(replacedBlockNamespace, replacedBlockName, replacedBlockData, @replacedBlockId);
+        CALL %prefix%get_or_create_block(replacedBlockNamespace, replacedBlockName, replacedBlockData, null, @replacedBlockId);
     END IF;
 
     -- Create the activities

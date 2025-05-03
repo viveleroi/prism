@@ -102,6 +102,7 @@ public class PlayerBucketEmptyListener extends AbstractListener implements Liste
 
         BlockData oldData = event.getBlock().getBlockData();
         BlockData newData;
+        String translationKey = event.getBlock().translationKey();
         if (event.getBlockClicked().getBlockData() instanceof Waterlogged waterlogged) {
             oldData = waterlogged;
             newData = oldData.clone();
@@ -115,9 +116,11 @@ public class PlayerBucketEmptyListener extends AbstractListener implements Liste
             waterlogged.setWaterlogged(true);
         } else {
             newData = Bukkit.createBlockData(newMaterial);
+            translationKey = newMaterial.getBlockTranslationKey();
         }
 
-        var blockPlaceAction = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_PLACE, newData, oldData);
+        var blockPlaceAction = new BukkitBlockAction(
+            BukkitActionTypeRegistry.BLOCK_PLACE, newData, translationKey, oldData);
 
         var activity = BukkitActivity.builder()
             .action(blockPlaceAction)

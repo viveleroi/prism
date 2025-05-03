@@ -20,19 +20,11 @@
 
 package network.darkhelmet.prism.api.actions;
 
-public record ActionData(
-    String material,
-    short itemQuantity,
-    String itemData,
-    String blockNamespace,
-    String blockName,
-    String blockData,
-    String replacedBlockNamespace,
-    String replacedBlockName,
-    String replacedBlockData,
-    String entityType,
-    String customData,
-    String descriptor,
-    String metadata,
-    short customDataVersion,
-    String translationKey) {}
+public interface Translatable {
+    /**
+     * Get the translation key.
+     *
+     * @return Translation key
+     */
+    String translationKey();
+}

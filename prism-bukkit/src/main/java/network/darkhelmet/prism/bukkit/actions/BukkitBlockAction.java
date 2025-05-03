@@ -98,6 +98,12 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
     private final BlockData replacedBlockData;
 
     /**
+     * The translation key.
+     */
+    @Getter
+    private final String translationKey;
+
+    /**
      * Construct a block state action.
      *
      * @param type The action type
@@ -115,7 +121,11 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
      * @param replacedBlockState The replaced block state
      */
     public BukkitBlockAction(ActionType type, BlockState blockState, @Nullable BlockState replacedBlockState) {
-        this(type, blockState.getBlockData(), replacedBlockState != null ? replacedBlockState.getBlockData() : null);
+        this(
+            type,
+            blockState.getBlockData(),
+            blockState.getBlock().translationKey(),
+            replacedBlockState != null ? replacedBlockState.getBlockData() : null);
 
         if (blockState instanceof TileState) {
             readWriteNbt = NBT.createNBTObject();
@@ -128,13 +138,19 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
      *
      * @param type The action type
      * @param blockData The block data
+     * @param translationKey The translation key
      * @param replacedBlockData The replaced block data
      */
-    public BukkitBlockAction(ActionType type, BlockData blockData, @Nullable BlockData replacedBlockData) {
+    public BukkitBlockAction(
+            ActionType type,
+            BlockData blockData,
+            String translationKey,
+            @Nullable BlockData replacedBlockData) {
         super(type);
 
         // Set new block data
         this.blockData = blockData;
+        this.translationKey = translationKey;
 
         // Removes all block data and splits the namespaced key into namespace/block name
         var segments = this.blockData.getAsString().replaceAll("\\[.*$", "").split(":");
@@ -172,6 +188,8 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
      * @param replacedBlockNamespace The replaced block namespace
      * @param replacedBlockName The replaced block name
      * @param replacedBlockData The replaced block data
+     * @param descriptor The descriptor
+     * @param translationKey The translation key
      */
     public BukkitBlockAction(
             ActionType type,
@@ -182,7 +200,8 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
             String replacedBlockNamespace,
             String replacedBlockName,
             BlockData replacedBlockData,
-            String descriptor) {
+            String descriptor,
+            String translationKey) {
         super(type, descriptor);
 
         this.blockNamespace = blockNamespace;
@@ -192,11 +211,13 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
         this.replacedBlockNamespace = replacedBlockNamespace;
         this.replacedBlockName = replacedBlockName;
         this.replacedBlockData = replacedBlockData;
+        this.translationKey = translationKey;
     }
 
     @Override
     public Component descriptorComponent() {
-        return Component.translatable(String.format("block.%s.%s", blockNamespace, blockName));
+        return Component.translatable(
+            translationKey == null ? blockData.getMaterial().getBlockTranslationKey() : translationKey);
     }
 
     @Override

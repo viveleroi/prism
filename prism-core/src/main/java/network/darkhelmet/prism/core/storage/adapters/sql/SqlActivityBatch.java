@@ -130,13 +130,15 @@ public class SqlActivityBatch implements ActivityBatch {
             record.setBlockId(UInteger.valueOf(getOrCreateBlockId(
                 blockAction.blockNamespace(),
                 blockAction.blockName(),
-                blockAction.serializeBlockData())));
+                blockAction.serializeBlockData(),
+                blockAction.translationKey())));
 
             if (blockAction.replacedBlockName() != null) {
                 record.setReplacedBlockId(UInteger.valueOf(getOrCreateBlockId(
                     blockAction.replacedBlockNamespace(),
                     blockAction.replacedBlockName(),
-                    blockAction.serializeReplacedBlockData())));
+                    blockAction.serializeReplacedBlockData(),
+                    blockAction.translationKey())));
             }
         }
 
@@ -226,7 +228,8 @@ public class SqlActivityBatch implements ActivityBatch {
      * @return The primary key
      * @throws SQLException The database exception
      */
-    private int getOrCreateBlockId(String namespace, String name, String blockData) throws SQLException {
+    private int getOrCreateBlockId(
+            String namespace, String name, String blockData, String translationKey) throws SQLException {
         String blockKey = namespace + ":" + name + (blockData == null ? "" : blockData);
         Integer blockPk = cacheService.blockDataPkMap().getIfPresent(blockKey);
         if (blockPk != null) {
@@ -249,8 +252,9 @@ public class SqlActivityBatch implements ActivityBatch {
         } else {
             // Create the record
             intPk = create
-                .insertInto(PRISM_BLOCKS, PRISM_BLOCKS.NS, PRISM_BLOCKS.NAME, PRISM_BLOCKS.DATA)
-                .values(namespace, name, blockData)
+                .insertInto(PRISM_BLOCKS,
+                    PRISM_BLOCKS.NS, PRISM_BLOCKS.NAME, PRISM_BLOCKS.DATA, PRISM_BLOCKS.TRANSLATION_KEY)
+                .values(namespace, name, blockData, translationKey)
                 .returningResult(PRISM_BLOCKS.BLOCK_ID)
                 .fetchOne(PRISM_BLOCKS.BLOCK_ID);
 

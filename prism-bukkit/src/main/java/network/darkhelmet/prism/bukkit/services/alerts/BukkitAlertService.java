@@ -171,7 +171,7 @@ public class BukkitAlertService {
 
         // Cache the block state as it's being changed
         var blockState = block.getState();
-        String blockTranslationKey = blockState.getBlock().getTranslationKey();
+        String blockTranslationKey = blockState.getBlock().translationKey();
 
         var query = BukkitActivityQuery.builder()
             .grouped(false)
@@ -237,7 +237,7 @@ public class BukkitAlertService {
         }
 
         var blockState = block.getState();
-        String blockTranslationKey = blockState.getBlock().getTranslationKey();
+        String blockTranslationKey = blockState.getBlock().translationKey();
         locations.put(blockState.getLocation(), player);
 
         TextColor color = TextColor.fromCSSHexString(alert.config().hexColor());

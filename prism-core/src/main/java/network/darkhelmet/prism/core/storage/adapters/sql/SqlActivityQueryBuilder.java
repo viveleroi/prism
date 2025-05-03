@@ -172,6 +172,7 @@ public class SqlActivityQueryBuilder {
         if (query.lookup()) {
             queryBuilder.addSelect(PRISM_ACTIVITIES.DESCRIPTOR);
             queryBuilder.addSelect(PRISM_ACTIVITIES.METADATA);
+            queryBuilder.addSelect(PRISM_BLOCKS.TRANSLATION_KEY);
             queryBuilder.addSelect(count().over().as("totalrows"));
         }
 
@@ -244,6 +245,10 @@ public class SqlActivityQueryBuilder {
                 PRISM_PLAYERS.PLAYER_UUID,
                 PRISM_ACTIVITIES.DESCRIPTOR,
                 PRISM_ACTIVITIES.METADATA);
+
+            if (query.lookup()) {
+                queryBuilder.addGroupBy(PRISM_BLOCKS.TRANSLATION_KEY);
+            }
         }
 
         // Order by

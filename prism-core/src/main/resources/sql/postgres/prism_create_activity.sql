@@ -22,7 +22,8 @@ CREATE OR REPLACE FUNCTION %prefix%create_activity (
     p_serializerVersion INTEGER,
     p_serializedData TEXT,
     p_descriptor VARCHAR(255),
-    p_metadata VARCHAR(255)
+    p_metadata VARCHAR(255),
+    p_translationKey VARCHAR(155)
 )
 RETURNS VOID AS $$
 DECLARE
@@ -62,12 +63,12 @@ BEGIN
 
     -- Get or create block id
     IF p_blockName IS NOT NULL THEN
-        SELECT %prefix%get_or_create_block(p_blockNamespace, p_blockName, p_blockData) INTO v_blockId;
+        SELECT %prefix%get_or_create_block(p_blockNamespace, p_blockName, p_blockData, p_translationKey) INTO v_blockId;
     END IF;
 
     -- Get or create replaced block id
     IF p_replacedBlockName IS NOT NULL THEN
-        SELECT %prefix%get_or_create_block(p_replacedBlockNamespace, p_replacedBlockName, p_replacedBlockData)
+        SELECT %prefix%get_or_create_block(p_replacedBlockNamespace, p_replacedBlockName, p_replacedBlockData, null)
         INTO v_replacedBlockId;
     END IF;
 

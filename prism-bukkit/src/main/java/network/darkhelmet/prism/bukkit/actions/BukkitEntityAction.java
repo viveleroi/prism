@@ -109,7 +109,7 @@ public class BukkitEntityAction extends BukkitAction implements EntityAction {
 
     @Override
     public Component descriptorComponent() {
-        return Component.translatable(entityType.getTranslationKey());
+        return Component.translatable(entityType.translationKey());
     }
 
     /**

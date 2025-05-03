@@ -91,7 +91,7 @@ public class PlayerBucketFillListener extends AbstractListener implements Listen
         }
 
         var blockPlaceAction = new BukkitBlockAction(
-            BukkitActionTypeRegistry.BLOCK_BREAK, blockData, null);
+            BukkitActionTypeRegistry.BLOCK_BREAK, blockData, event.getBlock().translationKey(), null);
 
         var blockPlaceActivity = BukkitActivity.builder()
             .action(blockPlaceAction)

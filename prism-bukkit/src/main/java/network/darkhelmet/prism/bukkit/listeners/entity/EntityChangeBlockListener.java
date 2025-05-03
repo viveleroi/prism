@@ -86,6 +86,7 @@ public class EntityChangeBlockListener extends AbstractListener implements Liste
             var action = new BukkitBlockAction(
                 BukkitActionTypeRegistry.ENTITY_EAT,
                 event.getBlock().getBlockData(),
+                event.getBlock().translationKey(),
                 Bukkit.createBlockData(Material.DIRT));
 
             var activity = BukkitActivity.builder()

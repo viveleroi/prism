@@ -91,7 +91,7 @@ public class SqlActivityProcedureBatch implements ActivityBatch {
 
         statement = connection.prepareCall(
             "{ CALL " + prefix
-                + "create_activity(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
+                + "create_activity(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
     }
 
     @Override
@@ -190,6 +190,13 @@ public class SqlActivityProcedureBatch implements ActivityBatch {
             }
         } else {
             statement.setNull(24, Types.VARCHAR);
+        }
+
+        // Translation keys
+        if (activity.action() instanceof BlockAction blockAction) {
+            statement.setString(25, blockAction.translationKey());
+        } else {
+            statement.setNull(25, Types.VARCHAR);
         }
 
         statement.addBatch();

@@ -22,7 +22,7 @@ package network.darkhelmet.prism.api.actions;
 
 import org.jetbrains.annotations.Nullable;
 
-public interface BlockAction extends CustomData {
+public interface BlockAction extends CustomData, Translatable {
     /**
      * The block namespace. Usually "minecraft"
      *

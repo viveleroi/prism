@@ -99,6 +99,15 @@ public class PrismBlocks extends TableImpl<PrismBlocksRecord> {
         this,
         "");
 
+    /**
+     * The column <code>prism_blocks.translation_key</code>.
+     */
+    public final TableField<PrismBlocksRecord, String> TRANSLATION_KEY = createField(
+        DSL.name("translation_key"),
+        SQLDataType.VARCHAR(155),
+        this,
+        "");
+
     private PrismBlocks(String prefix, Name alias, Table<PrismBlocksRecord> aliased) {
         this(prefix, alias, aliased, null);
     }

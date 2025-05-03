@@ -1,5 +1,11 @@
 CREATE PROCEDURE %prefix%get_or_create_block
-(IN `blockNamespace` VARCHAR(55), IN `blockName` VARCHAR(55), IN `blockData` VARCHAR(255), OUT `blockId` SMALLINT)
+(
+    IN `blockNamespace` VARCHAR(55),
+    IN `blockName` VARCHAR(55),
+    IN `blockData` VARCHAR(255),
+    IN `translationKey` VARCHAR(155),
+    OUT `blockId` SMALLINT
+)
 BEGIN
     IF blockData IS NOT NULL THEN
         SELECT block_id INTO `blockId` FROM
@@ -10,8 +16,8 @@ BEGIN
     END IF;
 
     IF `blockId` IS NULL THEN
-        INSERT INTO %prefix%blocks (`ns`, `name`, `data`)
-        VALUES (`blockNamespace`, `blockName`, `blockData`);
+        INSERT INTO %prefix%blocks (`ns`, `name`, `data`, `translation_key`)
+        VALUES (`blockNamespace`, `blockName`, `blockData`, `translationKey`);
 
         SET `blockId` = LAST_INSERT_ID();
     END IF;

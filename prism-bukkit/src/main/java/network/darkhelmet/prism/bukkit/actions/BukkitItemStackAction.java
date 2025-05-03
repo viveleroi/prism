@@ -106,7 +106,7 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
                 .append(Component.space());
         }
 
-        Component itemName = Component.translatable(itemStack.getTranslationKey());
+        Component itemName = Component.translatable(itemStack.translationKey());
         if (meta != null && meta.hasItemName()) {
             // Strip custom color/format codes out of item name for consistency
             itemName = Component.text(PlainTextComponentSerializer.plainText()
@@ -132,7 +132,7 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
 
                 complete.append(Component.space())
                     .append(Component.text("("))
-                    .append(Component.translatable(effect.getType().getTranslationKey()))
+                    .append(Component.translatable(effect.getType().translationKey()))
                     .append(Component.text(")"));
             }
         } else if (itemStack.getType().equals(Material.ENCHANTED_BOOK)
@@ -141,13 +141,8 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
                 var entry = enchantmentStorageMeta.getStoredEnchants().entrySet().iterator().next();
                 complete.append(Component.space())
                     .append(Component.text("("))
-                    .append(Component.translatable(entry.getKey().getTranslationKey()));
-
-                if (entry.getValue() > 1) {
-                    complete.append(Component.space()).append(Component.text(entry.getValue() == 2 ? "II" : "III"));
-                }
-
-                complete.append(Component.text(")"));
+                    .append(entry.getKey().displayName(entry.getValue()))
+                    .append(Component.text(")"));
             }
         } else if (meta instanceof BookMeta bookMeta && (bookMeta.hasTitle() || bookMeta.hasAuthor())) {
             complete.append(Component.space()).append(Component.text("("));

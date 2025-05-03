@@ -1,4 +1,8 @@
-CREATE OR REPLACE FUNCTION %prefix%get_or_create_block(blockNs VARCHAR(55), blockName VARCHAR(55), blockData VARCHAR(255))
+CREATE OR REPLACE FUNCTION %prefix%get_or_create_block(
+    blockNs VARCHAR(55),
+    blockName VARCHAR(55),
+    blockData VARCHAR(255),
+    translationKey VARCHAR(155))
 RETURNS INTEGER AS $$
 DECLARE
     blockId INTEGER;
@@ -12,8 +16,8 @@ BEGIN
     END IF;
 
     IF blockId IS NULL THEN
-        INSERT INTO %prefix%blocks (ns, name, data)
-        VALUES (blockNs, blockName, blockData) RETURNING block_id INTO blockId;
+        INSERT INTO %prefix%blocks (ns, name, data, translation_key)
+        VALUES (blockNs, blockName, blockData, translationKey) RETURNING block_id INTO blockId;
     END IF;
 
     RETURN blockId;
