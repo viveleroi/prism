@@ -86,9 +86,17 @@ public class TagLib {
         Material.SEAGRASS,
         Material.SWEET_BERRY_BUSH,
         Material.TALL_GRASS,
-        Material.TALL_SEAGRASS)
+        Material.TALL_SEAGRASS,
+        Material.SEA_PICKLE,
+        Material.BIG_DRIPLEAF)
         .append(Tag.WALL_CORALS)
         .append(Tag.CORALS);
+
+    static {
+        if (VersionUtils.atLeast(1, 21, 5)) {
+            PLANTS.append(Material.CACTUS_FLOWER, Material.SHORT_DRY_GRASS);
+        }
+    }
 
     /**
      * Plants that have a two-block structure.
@@ -101,6 +109,12 @@ public class TagLib {
         Material.TALL_GRASS,
         Material.LARGE_FERN,
         Material.TALL_SEAGRASS);
+
+    static {
+        if (VersionUtils.atLeast(1, 21, 5)) {
+            TALL_PLANTS.append(Material.TALL_DRY_GRASS);
+        }
+    }
 
     /**
      * All plants (not counting crops).
@@ -192,6 +206,7 @@ public class TagLib {
      * All materials that can attach to themselves on the bottom (breaks travel downward).
      */
     public static final CustomTag<Material> RECURSIVE_BOTTOM_DETACHABLES = new CustomTag<>(Material.class,
+        Material.BIG_DRIPLEAF_STEM,
         Material.POINTED_DRIPSTONE,
         Material.VINE,
         Material.WEEPING_VINES,
@@ -233,7 +248,7 @@ public class TagLib {
         Material.LEVER,
         Material.SCAFFOLDING,
         Material.TRIPWIRE_HOOK)
-        .append(Tag.BUTTONS, Tag.WALL_SIGNS, Tag.CLIMBABLE)
+        .append(Tag.BUTTONS, Tag.WALL_SIGNS, Tag.CLIMBABLE, Tag.WALL_CORALS)
         .append(WALL_BANNERS, DETACHABLES);
 
     /**
@@ -241,6 +256,7 @@ public class TagLib {
      */
     public static final CustomTag<Material> RECURSIVE_TOP_DETACHABLES = new CustomTag<>(Material.class,
         Material.BAMBOO,
+        Material.BIG_DRIPLEAF_STEM,
         Material.KELP_PLANT,
         Material.KELP,
         Material.CACTUS,
@@ -270,7 +286,8 @@ public class TagLib {
         Material.ITEM_FRAME,
         Material.LANTERN,
         Material.CONDUIT,
-        Material.BELL)
+        Material.BELL,
+        Material.MOSS_CARPET)
         .append(
             Tag.DOORS,
             Tag.RAILS,

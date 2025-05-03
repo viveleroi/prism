@@ -247,9 +247,9 @@ public class BlockUtils {
     protected static List<Block> topDetachables(List<Block> accumulator, Block startBlock) {
         Block neighbor = startBlock.getRelative(BlockFace.UP);
         if (TagLib.TOP_DETACHABLES.isTagged(neighbor.getType())) {
-            // Some detachables are also bisected so if both are, don't count the neighbor
-            // because it's really the other half of the bisected block
-            if (!(startBlock.getBlockData() instanceof Bisected) && !(neighbor.getBlockData() instanceof Bisected)) {
+            // Some detachables are also bisected so only count this if the neighbor is the bottom half
+            if (!(neighbor.getBlockData() instanceof Bisected bisected)
+                    || bisected.getHalf().equals(Bisected.Half.BOTTOM)) {
                 accumulator.add(neighbor);
             }
 
