@@ -18,7 +18,7 @@ Prism v4 is **in testing and should not be used in a real server yet**.
 - Simple permissions.
 - Rollback, restore, and preview commands.
 - Inspect, rollback, and restore wands.
-- Peek command to view complete items in an inventory.
+- Vault command to view complete items in an inventory.
 - Report command to explain skipped modifications.
 - Sensible default configuration settings.
 - Commented and well-organized config files.
