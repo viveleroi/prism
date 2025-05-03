@@ -94,7 +94,7 @@ public class TagLib {
 
     static {
         if (VersionUtils.atLeast(1, 21, 5)) {
-            PLANTS.append(Material.CACTUS_FLOWER, Material.SHORT_DRY_GRASS);
+            PLANTS.append(Material.CACTUS_FLOWER, Material.SHORT_DRY_GRASS, Material.FIREFLY_BUSH);
         }
     }
 
