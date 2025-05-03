@@ -70,6 +70,7 @@ public class ModificationConfiguration {
         blockBlacklist.add("tnt");
 
         entityBlacklist.add("creeper");
+        entityBlacklist.add("tnt_minecart");
 
         removeBlocks.add("tnt");
         removeBlocks.add("fire");
