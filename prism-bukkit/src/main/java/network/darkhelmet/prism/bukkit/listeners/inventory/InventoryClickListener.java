@@ -168,6 +168,9 @@ public class InventoryClickListener extends AbstractListener implements Listener
             case PLACE_ONE -> {
                 recordItemInsertActivity(location, player, heldItem, 1);
             }
+            case PLACE_SOME -> {
+                recordItemInsertActivity(location, player, heldItem, heldItem.getMaxStackSize() - slotItem.getAmount());
+            }
             case SWAP_WITH_CURSOR -> {
                 recordItemRemoveActivity(location, player, slotItem);
                 recordItemInsertActivity(location, player, heldItem);
