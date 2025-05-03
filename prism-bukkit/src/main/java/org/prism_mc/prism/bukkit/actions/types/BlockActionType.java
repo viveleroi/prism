@@ -22,20 +22,18 @@ package org.prism_mc.prism.bukkit.actions.types;
 
 import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.iface.ReadWriteNBT;
-
 import javax.annotation.Nullable;
-
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 import org.prism_mc.prism.api.actions.Action;
 import org.prism_mc.prism.api.actions.ActionData;
 import org.prism_mc.prism.api.actions.types.ActionResultType;
 import org.prism_mc.prism.api.actions.types.ActionType;
 import org.prism_mc.prism.bukkit.actions.BukkitBlockAction;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.block.data.BlockData;
-
 public class BlockActionType extends ActionType {
+
     /**
      * Construct a new block action type.
      *
@@ -50,7 +48,10 @@ public class BlockActionType extends ActionType {
     @Override
     public Action createAction(ActionData actionData) {
         BlockData blockData = createBlockData(
-            actionData.blockNamespace(), actionData.blockName(), actionData.blockData());
+            actionData.blockNamespace(),
+            actionData.blockName(),
+            actionData.blockData()
+        );
 
         ReadWriteNBT readWriteNbt = null;
         if (actionData.customData() != null && actionData.customDataVersion() > 0) {
@@ -60,23 +61,27 @@ public class BlockActionType extends ActionType {
         BlockData replacedBlockData = null;
         if (actionData.replacedBlockData() != null) {
             replacedBlockData = createBlockData(
-                actionData.replacedBlockNamespace(), actionData.replacedBlockName(), actionData.replacedBlockData());
+                actionData.replacedBlockNamespace(),
+                actionData.replacedBlockName(),
+                actionData.replacedBlockData()
+            );
         } else {
             replacedBlockData = Bukkit.createBlockData(Material.AIR);
         }
 
         return new BukkitBlockAction(
             this,
-                actionData.blockNamespace(),
-                actionData.blockName(),
-                blockData,
-                readWriteNbt,
-                actionData.replacedBlockNamespace(),
-                actionData.replacedBlockName(),
-                replacedBlockData,
-                actionData.descriptor(),
-                actionData.translationKey(),
-                null);
+            actionData.blockNamespace(),
+            actionData.blockName(),
+            blockData,
+            readWriteNbt,
+            actionData.replacedBlockNamespace(),
+            actionData.replacedBlockName(),
+            replacedBlockData,
+            actionData.descriptor(),
+            actionData.translationKey(),
+            null
+        );
     }
 
     /**

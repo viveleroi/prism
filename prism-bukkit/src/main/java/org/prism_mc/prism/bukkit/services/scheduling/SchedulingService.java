@@ -20,6 +20,8 @@
 
 package org.prism_mc.prism.bukkit.services.scheduling;
 
+import static org.quartz.JobBuilder.newJob;
+
 import com.cronutils.model.Cron;
 import com.cronutils.model.CronType;
 import com.cronutils.model.definition.CronDefinition;
@@ -28,16 +30,13 @@ import com.cronutils.model.time.ExecutionTime;
 import com.cronutils.parser.CronParser;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
-
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.configuration.purge.CommandScheduleConfiguration;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
-
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.JobDetail;
@@ -47,10 +46,9 @@ import org.quartz.SchedulerFactory;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
-import static org.quartz.JobBuilder.newJob;
-
 @Singleton
 public class SchedulingService {
+
     /**
      * The cron parser.
      */
@@ -135,7 +133,8 @@ public class SchedulingService {
             }
         } else {
             loggingService.warn(
-                "Skipping command due to an execution time with no future executions: {0}", commandConfig.command()
+                "Skipping command due to an execution time with no future executions: {0}",
+                commandConfig.command()
             );
         }
     }

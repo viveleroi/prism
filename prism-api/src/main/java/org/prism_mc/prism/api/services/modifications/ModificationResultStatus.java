@@ -21,5 +21,8 @@
 package org.prism_mc.prism.api.services.modifications;
 
 public enum ModificationResultStatus {
-    APPLIED, ERRORED, PLANNED, SKIPPED
+    APPLIED,
+    ERRORED,
+    PLANNED,
+    SKIPPED,
 }

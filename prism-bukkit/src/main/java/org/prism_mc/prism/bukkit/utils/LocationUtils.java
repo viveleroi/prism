@@ -21,14 +21,13 @@
 package org.prism_mc.prism.bukkit.utils;
 
 import lombok.experimental.UtilityClass;
-
-import org.prism_mc.prism.api.util.Coordinate;
-
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.prism_mc.prism.api.util.Coordinate;
 
 @UtilityClass
 public class LocationUtils {
+
     /**
      * Returns the minimum coordinate for the chunk.
      *

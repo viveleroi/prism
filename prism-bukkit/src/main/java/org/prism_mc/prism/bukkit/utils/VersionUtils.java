@@ -21,11 +21,11 @@
 package org.prism_mc.prism.bukkit.utils;
 
 import lombok.experimental.UtilityClass;
-
 import org.bukkit.Bukkit;
 
 @UtilityClass
 public class VersionUtils {
+
     /**
      * The server major version.
      */
@@ -58,7 +58,7 @@ public class VersionUtils {
      * @return True if the server is at least the version
      */
     public static boolean atLeast(int major, int minor, int patch) {
-        return serverMajorVersion >= major && serverMinorVersion >= minor && serverPatchVersion >= patch;
+        return (serverMajorVersion >= major && serverMinorVersion >= minor && serverPatchVersion >= patch);
     }
 
     /**

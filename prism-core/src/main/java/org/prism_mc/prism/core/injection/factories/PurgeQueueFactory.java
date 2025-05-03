@@ -21,7 +21,6 @@
 package org.prism_mc.prism.core.injection.factories;
 
 import java.util.function.Consumer;
-
 import org.prism_mc.prism.api.services.purges.PurgeCycleResult;
 import org.prism_mc.prism.api.services.purges.PurgeQueue;
 import org.prism_mc.prism.api.services.purges.PurgeResult;

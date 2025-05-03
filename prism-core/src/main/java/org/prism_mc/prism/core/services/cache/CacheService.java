@@ -24,13 +24,10 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
 import lombok.Getter;
-
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.configuration.cache.CacheConfiguration;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
@@ -38,6 +35,7 @@ import org.prism_mc.prism.loader.services.logging.LoggingService;
 @Getter
 @Singleton
 public class CacheService {
+
     /**
      * A convenient place to reference all caches for reporting purposes.
      */
@@ -110,10 +108,14 @@ public class CacheService {
                 loggingService.debug(msg, key, value, cause);
             });
 
-        if (cacheConfiguration.pkCacheActionKey().expiresAfterAccess() != null
-                && cacheConfiguration.pkCacheActionKey().expiresAfterAccess().duration() != null) {
-            actionBuilder.expireAfterAccess(cacheConfiguration.pkCacheActionKey().expiresAfterAccess().duration(),
-                cacheConfiguration.pkCacheActionKey().expiresAfterAccess().timeUnit());
+        if (
+            cacheConfiguration.pkCacheActionKey().expiresAfterAccess() != null &&
+            cacheConfiguration.pkCacheActionKey().expiresAfterAccess().duration() != null
+        ) {
+            actionBuilder.expireAfterAccess(
+                cacheConfiguration.pkCacheActionKey().expiresAfterAccess().duration(),
+                cacheConfiguration.pkCacheActionKey().expiresAfterAccess().timeUnit()
+            );
         }
 
         if (cacheConfiguration.recordStats()) {
@@ -135,10 +137,14 @@ public class CacheService {
                 loggingService.debug(msg, key, value, cause);
             });
 
-        if (cacheConfiguration.pkCacheBlockData().expiresAfterAccess() != null
-                && cacheConfiguration.pkCacheBlockData().expiresAfterAccess().duration() != null) {
-            blockBuilder.expireAfterAccess(cacheConfiguration.pkCacheBlockData().expiresAfterAccess().duration(),
-                cacheConfiguration.pkCacheBlockData().expiresAfterAccess().timeUnit());
+        if (
+            cacheConfiguration.pkCacheBlockData().expiresAfterAccess() != null &&
+            cacheConfiguration.pkCacheBlockData().expiresAfterAccess().duration() != null
+        ) {
+            blockBuilder.expireAfterAccess(
+                cacheConfiguration.pkCacheBlockData().expiresAfterAccess().duration(),
+                cacheConfiguration.pkCacheBlockData().expiresAfterAccess().timeUnit()
+            );
         }
 
         if (cacheConfiguration.recordStats()) {
@@ -160,10 +166,14 @@ public class CacheService {
                 loggingService.debug(msg, key, value, cause);
             });
 
-        if (cacheConfiguration.pkCacheEntityType().expiresAfterAccess() != null
-                && cacheConfiguration.pkCacheEntityType().expiresAfterAccess().duration() != null) {
-            entityBuilder.expireAfterAccess(cacheConfiguration.pkCacheEntityType().expiresAfterAccess().duration(),
-                cacheConfiguration.pkCacheEntityType().expiresAfterAccess().timeUnit());
+        if (
+            cacheConfiguration.pkCacheEntityType().expiresAfterAccess() != null &&
+            cacheConfiguration.pkCacheEntityType().expiresAfterAccess().duration() != null
+        ) {
+            entityBuilder.expireAfterAccess(
+                cacheConfiguration.pkCacheEntityType().expiresAfterAccess().duration(),
+                cacheConfiguration.pkCacheEntityType().expiresAfterAccess().timeUnit()
+            );
         }
 
         if (cacheConfiguration.recordStats()) {
@@ -185,10 +195,14 @@ public class CacheService {
                 loggingService.debug(msg, key, value, cause);
             });
 
-        if (cacheConfiguration.pkCacheItemData().expiresAfterAccess() != null
-                && cacheConfiguration.pkCacheItemData().expiresAfterAccess().duration() != null) {
-            itemBuilder.expireAfterAccess(cacheConfiguration.pkCacheItemData().expiresAfterAccess().duration(),
-                cacheConfiguration.pkCacheItemData().expiresAfterAccess().timeUnit());
+        if (
+            cacheConfiguration.pkCacheItemData().expiresAfterAccess() != null &&
+            cacheConfiguration.pkCacheItemData().expiresAfterAccess().duration() != null
+        ) {
+            itemBuilder.expireAfterAccess(
+                cacheConfiguration.pkCacheItemData().expiresAfterAccess().duration(),
+                cacheConfiguration.pkCacheItemData().expiresAfterAccess().timeUnit()
+            );
         }
 
         if (cacheConfiguration.recordStats()) {
@@ -210,10 +224,14 @@ public class CacheService {
                 loggingService.debug(msg, key, value, cause);
             });
 
-        if (cacheConfiguration.pkCacheNamedCause().expiresAfterAccess() != null
-                && cacheConfiguration.pkCacheNamedCause().expiresAfterAccess().duration() != null) {
-            namedCauseBuilder.expireAfterAccess(cacheConfiguration.pkCacheNamedCause().expiresAfterAccess().duration(),
-                cacheConfiguration.pkCacheNamedCause().expiresAfterAccess().timeUnit());
+        if (
+            cacheConfiguration.pkCacheNamedCause().expiresAfterAccess() != null &&
+            cacheConfiguration.pkCacheNamedCause().expiresAfterAccess().duration() != null
+        ) {
+            namedCauseBuilder.expireAfterAccess(
+                cacheConfiguration.pkCacheNamedCause().expiresAfterAccess().duration(),
+                cacheConfiguration.pkCacheNamedCause().expiresAfterAccess().timeUnit()
+            );
         }
 
         if (cacheConfiguration.recordStats()) {
@@ -235,10 +253,14 @@ public class CacheService {
                 loggingService.debug(msg, key, value, cause);
             });
 
-        if (cacheConfiguration.pkCachePlayer().expiresAfterAccess() != null
-                && cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration() != null) {
-            playerCauseBuilder.expireAfterAccess(cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration(),
-                cacheConfiguration.pkCachePlayer().expiresAfterAccess().timeUnit());
+        if (
+            cacheConfiguration.pkCachePlayer().expiresAfterAccess() != null &&
+            cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration() != null
+        ) {
+            playerCauseBuilder.expireAfterAccess(
+                cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration(),
+                cacheConfiguration.pkCachePlayer().expiresAfterAccess().timeUnit()
+            );
         }
 
         if (cacheConfiguration.recordStats()) {
@@ -260,10 +282,14 @@ public class CacheService {
                 loggingService.debug(msg, key, value, cause);
             });
 
-        if (cacheConfiguration.pkCachePlayer().expiresAfterAccess() != null
-                && cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration() != null) {
-            playerBuilder.expireAfterAccess(cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration(),
-                cacheConfiguration.pkCachePlayer().expiresAfterAccess().timeUnit());
+        if (
+            cacheConfiguration.pkCachePlayer().expiresAfterAccess() != null &&
+            cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration() != null
+        ) {
+            playerBuilder.expireAfterAccess(
+                cacheConfiguration.pkCachePlayer().expiresAfterAccess().duration(),
+                cacheConfiguration.pkCachePlayer().expiresAfterAccess().timeUnit()
+            );
         }
 
         if (cacheConfiguration.recordStats()) {
@@ -285,10 +311,14 @@ public class CacheService {
                 loggingService.debug(msg, key, value, cause);
             });
 
-        if (cacheConfiguration.pkCacheWorld().expiresAfterAccess() != null
-                && cacheConfiguration.pkCacheWorld().expiresAfterAccess().duration() != null) {
-            worldBuilder.expireAfterAccess(cacheConfiguration.pkCacheWorld().expiresAfterAccess().duration(),
-                cacheConfiguration.pkCacheWorld().expiresAfterAccess().timeUnit());
+        if (
+            cacheConfiguration.pkCacheWorld().expiresAfterAccess() != null &&
+            cacheConfiguration.pkCacheWorld().expiresAfterAccess().duration() != null
+        ) {
+            worldBuilder.expireAfterAccess(
+                cacheConfiguration.pkCacheWorld().expiresAfterAccess().duration(),
+                cacheConfiguration.pkCacheWorld().expiresAfterAccess().timeUnit()
+            );
         }
 
         if (cacheConfiguration.recordStats()) {

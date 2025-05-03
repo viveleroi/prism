@@ -25,17 +25,22 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 public class CommandScheduleConfiguration {
-    @Comment("""
-            The command to be executed.
-            Commands will be executed by the console and will effectively have OP permissions.
-            The default command will purge all records more than six weeks old.""")
+
+    @Comment(
+        """
+        The command to be executed.
+        Commands will be executed by the console and will effectively have OP permissions.
+        The default command will purge all records more than six weeks old."""
+    )
     private String command = "prism purge before:6w --nodefaults";
 
-    @Comment("""
-            Configure the execution time(s) of this command using cron syntax.
-            Here is a good crontab generator: https://www.freeformatter.com/cron-expression-generator-quartz.html
-            Times are always based on the timezone of the machine the server is running on.
-            The below example will run every day at midnight.""")
+    @Comment(
+        """
+        Configure the execution time(s) of this command using cron syntax.
+        Here is a good crontab generator: https://www.freeformatter.com/cron-expression-generator-quartz.html
+        Times are always based on the timezone of the machine the server is running on.
+        The below example will run every day at midnight."""
+    )
     private String cron = "0 0 0 ? * * *";
 
     @Comment("Toggle command schedule. When disabled, it will never run.")

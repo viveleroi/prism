@@ -22,7 +22,6 @@ package org.prism_mc.prism.api.actions.types;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-
 import org.prism_mc.prism.api.actions.Action;
 import org.prism_mc.prism.api.actions.ActionData;
 import org.prism_mc.prism.api.actions.metadata.Metadata;
@@ -30,6 +29,7 @@ import org.prism_mc.prism.api.actions.metadata.Metadata;
 @Getter
 @EqualsAndHashCode
 public abstract class ActionType {
+
     /**
      * The key.
      */
@@ -57,8 +57,7 @@ public abstract class ActionType {
      * @param resultType The result type
      * @param reversible If action is reversible
      */
-    public ActionType(
-            String key, ActionResultType resultType, boolean reversible) {
+    public ActionType(String key, ActionResultType resultType, boolean reversible) {
         this(key, resultType, reversible, null);
     }
 
@@ -70,8 +69,7 @@ public abstract class ActionType {
      * @param resultType The result type
      * @param reversible If action is reversible
      */
-    public ActionType(
-            String key, ActionResultType resultType, boolean reversible, Metadata metadata) {
+    public ActionType(String key, ActionResultType resultType, boolean reversible, Metadata metadata) {
         this.key = key;
         this.metadata = metadata;
         this.resultType = resultType;

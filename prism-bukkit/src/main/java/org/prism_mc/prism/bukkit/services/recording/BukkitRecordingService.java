@@ -22,20 +22,18 @@ package org.prism_mc.prism.bukkit.services.recording;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import java.util.concurrent.LinkedBlockingQueue;
-
+import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitTask;
 import org.prism_mc.prism.api.activities.Activity;
 import org.prism_mc.prism.api.services.recording.RecordingService;
 import org.prism_mc.prism.bukkit.PrismBukkit;
 import org.prism_mc.prism.bukkit.services.filters.BukkitFilterService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitTask;
-
 @Singleton
 public class BukkitRecordingService implements RecordingService {
+
     /**
      * The configuration service.
      */
@@ -70,7 +68,9 @@ public class BukkitRecordingService implements RecordingService {
      * The drain mode.
      */
     private enum RecordMode {
-        NORMAL, DRAIN_SYNC, STOPPED
+        NORMAL,
+        DRAIN_SYNC,
+        STOPPED,
     }
 
     /**
@@ -82,9 +82,10 @@ public class BukkitRecordingService implements RecordingService {
      */
     @Inject
     public BukkitRecordingService(
-            ConfigurationService configurationService,
-            BukkitFilterService filterService,
-            RecordingTask recordingTask) {
+        ConfigurationService configurationService,
+        BukkitFilterService filterService,
+        RecordingTask recordingTask
+    ) {
         this.configurationService = configurationService;
         this.filterService = filterService;
         this.recordingTask = recordingTask;
@@ -149,7 +150,8 @@ public class BukkitRecordingService implements RecordingService {
         }
 
         if (recordMode.equals(RecordMode.NORMAL)) {
-            task = Bukkit.getServer().getScheduler()
+            task = Bukkit.getServer()
+                .getScheduler()
                 .runTaskLaterAsynchronously(PrismBukkit.instance().loaderPlugin(), recordingTask, delay);
         }
     }

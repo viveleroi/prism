@@ -21,7 +21,6 @@
 package org.prism_mc.prism.api.services.recording;
 
 import java.util.concurrent.LinkedBlockingQueue;
-
 import org.prism_mc.prism.api.activities.Activity;
 
 public interface RecordingService {

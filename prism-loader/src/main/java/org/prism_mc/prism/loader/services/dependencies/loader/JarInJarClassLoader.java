@@ -59,7 +59,7 @@ public class JarInJarClassLoader extends URLClassLoader {
      * @throws LoadingException if something unexpectedly bad happens
      */
     public JarInJarClassLoader(ClassLoader loaderClassLoader, String jarResourcePath) throws LoadingException {
-        super(new URL[]{extractJar(loaderClassLoader, jarResourcePath)}, loaderClassLoader);
+        super(new URL[] { extractJar(loaderClassLoader, jarResourcePath) }, loaderClassLoader);
     }
 
     /**
@@ -98,8 +98,8 @@ public class JarInJarClassLoader extends URLClassLoader {
      * @param <T> the type of the loader plugin
      * @return the instantiated bootstrap plugin
      */
-    public <T> PrismBootstrap instantiatePlugin(
-            String bootstrapClass, Class<T> loaderPluginType, T loaderPlugin) throws LoadingException {
+    public <T> PrismBootstrap instantiatePlugin(String bootstrapClass, Class<T> loaderPluginType, T loaderPlugin)
+        throws LoadingException {
         Class<? extends PrismBootstrap> plugin;
         try {
             plugin = loadClass(bootstrapClass).asSubclass(PrismBootstrap.class);

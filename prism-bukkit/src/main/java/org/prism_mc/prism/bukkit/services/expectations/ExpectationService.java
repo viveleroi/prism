@@ -24,10 +24,8 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-
 import org.prism_mc.prism.core.services.cache.CacheService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.configuration.cache.CacheConfiguration;
@@ -35,6 +33,7 @@ import org.prism_mc.prism.loader.services.logging.LoggingService;
 
 @Singleton
 public class ExpectationService {
+
     /**
      * Cache expectations and wipe them if our expectations aren't met.
      */
@@ -47,9 +46,10 @@ public class ExpectationService {
      */
     @Inject
     public ExpectationService(
-            CacheService cacheService,
-            ConfigurationService configurationService,
-            LoggingService loggingService) {
+        CacheService cacheService,
+        ConfigurationService configurationService,
+        LoggingService loggingService
+    ) {
         CacheConfiguration cacheConfiguration = configurationService.prismConfig().cache();
 
         var cacheBuilder = Caffeine.newBuilder()

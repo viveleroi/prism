@@ -21,23 +21,7 @@
 package org.prism_mc.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
-
 import java.util.Optional;
-
-import org.prism_mc.prism.api.actions.Action;
-import org.prism_mc.prism.api.services.wands.Wand;
-import org.prism_mc.prism.api.util.Coordinate;
-import org.prism_mc.prism.bukkit.actions.BukkitBlockAction;
-import org.prism_mc.prism.bukkit.actions.BukkitItemStackAction;
-import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
-import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
-import org.prism_mc.prism.bukkit.listeners.AbstractListener;
-import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
-import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
-import org.prism_mc.prism.bukkit.services.wands.WandService;
-import org.prism_mc.prism.bukkit.utils.TagLib;
-import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -55,8 +39,22 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.prism_mc.prism.api.actions.Action;
+import org.prism_mc.prism.api.services.wands.Wand;
+import org.prism_mc.prism.api.util.Coordinate;
+import org.prism_mc.prism.bukkit.actions.BukkitBlockAction;
+import org.prism_mc.prism.bukkit.actions.BukkitItemStackAction;
+import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
+import org.prism_mc.prism.bukkit.listeners.AbstractListener;
+import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
+import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
+import org.prism_mc.prism.bukkit.services.wands.WandService;
+import org.prism_mc.prism.bukkit.utils.TagLib;
+import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
 public class PlayerInteractListener extends AbstractListener implements Listener {
+
     /**
      * The wand service.
      */
@@ -72,10 +70,11 @@ public class PlayerInteractListener extends AbstractListener implements Listener
      */
     @Inject
     public PlayerInteractListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService,
-            WandService wandService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService,
+        WandService wandService
+    ) {
         super(configurationService, expectationService, recordingService);
         this.wandService = wandService;
     }
@@ -108,8 +107,12 @@ public class PlayerInteractListener extends AbstractListener implements Listener
             }
 
             // Use the wand
-            wand.get().use(targetLocation.getWorld().getUID(),
-                new Coordinate(targetLocation.getX(), targetLocation.getY(), targetLocation.getZ()));
+            wand
+                .get()
+                .use(
+                    targetLocation.getWorld().getUID(),
+                    new Coordinate(targetLocation.getX(), targetLocation.getY(), targetLocation.getZ())
+                );
 
             // Cancel the event
             event.setCancelled(true);
@@ -141,8 +144,10 @@ public class PlayerInteractListener extends AbstractListener implements Listener
         final Location location = block.getLocation();
         final ItemStack heldItem = player.getInventory().getItemInMainHand();
 
-        if (event.getAction().equals(org.bukkit.event.block.Action.PHYSICAL)
-                && block.getType().equals(Material.FARMLAND)) {
+        if (
+            event.getAction().equals(org.bukkit.event.block.Action.PHYSICAL) &&
+            block.getType().equals(Material.FARMLAND)
+        ) {
             // Record block break for crop
             Block blockAbove = block.getRelative(BlockFace.UP);
             if (Tag.CROPS.isTagged(blockAbove.getType())) {
@@ -172,18 +177,16 @@ public class PlayerInteractListener extends AbstractListener implements Listener
             }
 
             // Ignore inventory holders that don't open (chiseled bookshelf, decorated pot)
-            if (inventoryHolder.getInventory().getType() == null
-                    || inventoryHolder.getInventory().getType().getMenuType() == null) {
+            if (
+                inventoryHolder.getInventory().getType() == null ||
+                inventoryHolder.getInventory().getType().getMenuType() == null
+            ) {
                 return;
             }
 
             var action = new BukkitBlockAction(BukkitActionTypeRegistry.INVENTORY_OPEN, blockState);
 
-            var activity = BukkitActivity.builder()
-                .action(action)
-                .player(player)
-                .location(location)
-                .build();
+            var activity = BukkitActivity.builder().action(action).player(player).location(location).build();
 
             recordingService.addToQueue(activity);
         } else if (TagLib.USABLE.isTagged(block.getType())) {
@@ -194,11 +197,7 @@ public class PlayerInteractListener extends AbstractListener implements Listener
 
             var action = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_USE, blockState);
 
-            var activity = BukkitActivity.builder()
-                .action(action)
-                .player(player)
-                .location(location)
-                .build();
+            var activity = BukkitActivity.builder().action(action).player(player).location(location).build();
 
             recordingService.addToQueue(activity);
         }
@@ -220,7 +219,9 @@ public class PlayerInteractListener extends AbstractListener implements Listener
             }
 
             action = new BukkitItemStackAction(
-                BukkitActionTypeRegistry.ITEM_REMOVE, new ItemStack(jukebox.getPlaying()));
+                BukkitActionTypeRegistry.ITEM_REMOVE,
+                new ItemStack(jukebox.getPlaying())
+            );
         } else {
             // Ignore if this event is disabled
             if (!configurationService.prismConfig().actions().itemInsert()) {
@@ -228,14 +229,12 @@ public class PlayerInteractListener extends AbstractListener implements Listener
             }
 
             action = new BukkitItemStackAction(
-                BukkitActionTypeRegistry.ITEM_INSERT, player.getInventory().getItemInMainHand());
+                BukkitActionTypeRegistry.ITEM_INSERT,
+                player.getInventory().getItemInMainHand()
+            );
         }
 
-        var activity = BukkitActivity.builder()
-            .action(action)
-            .player(player)
-            .location(location)
-            .build();
+        var activity = BukkitActivity.builder().action(action).player(player).location(location).build();
 
         recordingService.addToQueue(activity);
     }

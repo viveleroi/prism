@@ -21,24 +21,21 @@
 package org.prism_mc.prism.bukkit.commands;
 
 import com.google.inject.Inject;
-
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Optional;
-
 import java.util.List;
-
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.util.BoundingBox;
 import org.prism_mc.prism.bukkit.services.messages.MessageService;
 import org.prism_mc.prism.bukkit.services.modifications.state.BlockStateChange;
 import org.prism_mc.prism.bukkit.utils.BlockUtils;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.util.BoundingBox;
-
-@Command(value = "prism", alias = {"pr"})
+@Command(value = "prism", alias = { "pr" })
 public class DrainCommand {
+
     /**
      * The configuration service.
      */
@@ -64,6 +61,7 @@ public class DrainCommand {
     @Command("drain")
     @Permission("prism.drain")
     public class DrainSubCommand {
+
         /**
          * Run the command on lava.
          *
@@ -84,8 +82,11 @@ public class DrainCommand {
             double z2 = player.getLocation().getBlockZ() + radius;
             BoundingBox boundingBox = new BoundingBox(x1, y1, z1, x2, y2, z2);
 
-            List<BlockStateChange> changes = BlockUtils
-                .removeBlocksByMaterial(player.getWorld(), boundingBox, List.of(Material.LAVA));
+            List<BlockStateChange> changes = BlockUtils.removeBlocksByMaterial(
+                player.getWorld(),
+                boundingBox,
+                List.of(Material.LAVA)
+            );
             int removalCount = changes.size();
 
             if (removalCount > 0) {
@@ -115,8 +116,11 @@ public class DrainCommand {
             double z2 = player.getLocation().getBlockZ() + radius;
             BoundingBox boundingBox = new BoundingBox(x1, y1, z1, x2, y2, z2);
 
-            List<BlockStateChange> changes = BlockUtils
-                .removeBlocksByMaterial(player.getWorld(), boundingBox, List.of(Material.WATER));
+            List<BlockStateChange> changes = BlockUtils.removeBlocksByMaterial(
+                player.getWorld(),
+                boundingBox,
+                List.of(Material.WATER)
+            );
             int removalCount = changes.size();
 
             if (removalCount > 0) {

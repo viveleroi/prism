@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.prism_mc.prism.loader.services.dependencies.Dependency;
 import org.prism_mc.prism.loader.services.dependencies.DependencyService;
 import org.prism_mc.prism.loader.services.dependencies.loader.IsolatedClassLoader;
@@ -44,11 +43,15 @@ import org.prism_mc.prism.loader.services.dependencies.loader.IsolatedClassLoade
  * Handles class runtime relocation of packages in downloaded dependencies.
  */
 public class RelocationHandler {
+
     /**
      * The core dependencies.
      */
     public static final Set<Dependency> DEPENDENCIES = EnumSet.of(
-        Dependency.ASM, Dependency.ASM_COMMONS, Dependency.JAR_RELOCATOR);
+        Dependency.ASM,
+        Dependency.ASM_COMMONS,
+        Dependency.JAR_RELOCATOR
+    );
 
     /**
      * The jar-relocator package.

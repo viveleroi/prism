@@ -21,25 +21,29 @@
 package org.prism_mc.prism.loader.services.configuration.storage;
 
 import lombok.Getter;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
 public class MariaDbDataSourceConfiguration extends SqlDataSourceConfiguration {
-    @Comment("""
-            Toggle recommended Hikari Maria/MySQL datasource optimizations.
-            You can read about these here: https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration""")
+
+    @Comment(
+        """
+        Toggle recommended Hikari Maria/MySQL datasource optimizations.
+        You can read about these here: https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration"""
+    )
     private boolean useHikariOptimizations = true;
 
-    @Comment("""
-            Enable stored procedures. Stored procedures allow Prism to modify database records
-            more efficiently and with reduced network traffic.
-            However, your MariaDB account must have privileges to `CREATE ROUTINE`.
-            If you use a shared MariaDB database, you likely do NOT have such permission.
-            If you're unsure, Prism tells you in the server console during server startup.
-            Prism will force disable this setting if you do not have necessary permission.""")
+    @Comment(
+        """
+        Enable stored procedures. Stored procedures allow Prism to modify database records
+        more efficiently and with reduced network traffic.
+        However, your MariaDB account must have privileges to `CREATE ROUTINE`.
+        If you use a shared MariaDB database, you likely do NOT have such permission.
+        If you're unsure, Prism tells you in the server console during server startup.
+        Prism will force disable this setting if you do not have necessary permission."""
+    )
     private boolean useStoredProcedures = true;
 
     /**

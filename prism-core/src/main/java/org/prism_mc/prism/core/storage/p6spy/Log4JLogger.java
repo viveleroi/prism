@@ -22,7 +22,6 @@ package org.prism_mc.prism.core.storage.p6spy;
 
 import com.p6spy.engine.logging.Category;
 import com.p6spy.engine.spy.appender.FormattedLogger;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -30,6 +29,7 @@ import org.apache.logging.log4j.Logger;
  * log4j logger adapter for p6spy.
  */
 public class Log4JLogger extends FormattedLogger {
+
     /**
      * The logger.
      */
@@ -48,10 +48,16 @@ public class Log4JLogger extends FormattedLogger {
     }
 
     @Override
-    public void logSQL(int connectionId, String now, long elapsed,
-           Category category, String prepared, String sql, String url) {
-        final String msg = strategy.formatMessage(connectionId, now, elapsed,
-            category.toString(), prepared, sql, url);
+    public void logSQL(
+        int connectionId,
+        String now,
+        long elapsed,
+        Category category,
+        String prepared,
+        String sql,
+        String url
+    ) {
+        final String msg = strategy.formatMessage(connectionId, now, elapsed, category.toString(), prepared, sql, url);
 
         if (Category.ERROR.equals(category)) {
             logger.error(msg);

@@ -20,12 +20,12 @@
 
 package org.prism_mc.prism.bukkit.services.alerts;
 
-import org.prism_mc.prism.loader.services.configuration.alerts.BlockBreakAlertConfiguration;
-
 import org.bukkit.Material;
 import org.bukkit.Tag;
+import org.prism_mc.prism.loader.services.configuration.alerts.BlockBreakAlertConfiguration;
 
 public class BlockBreakAlert extends Alert<BlockBreakAlertConfiguration> {
+
     /**
      * Constructor.
      *

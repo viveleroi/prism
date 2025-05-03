@@ -21,13 +21,13 @@
 package org.prism_mc.prism.loader.services.configuration;
 
 import lombok.Getter;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
 public class RecordingConfiguration {
+
     @Comment("The delay (in ticks) between queued data being commit to the DB.")
     private long delay = 10;
 }

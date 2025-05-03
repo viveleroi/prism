@@ -21,5 +21,7 @@
 package org.prism_mc.prism.bukkit.services.filters;
 
 public enum ConditionResult {
-    MATCHED, NOT_APPLICABLE, NOT_MATCHED
+    MATCHED,
+    NOT_APPLICABLE,
+    NOT_MATCHED,
 }

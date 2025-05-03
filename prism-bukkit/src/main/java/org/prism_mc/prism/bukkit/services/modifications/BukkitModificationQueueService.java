@@ -24,14 +24,15 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-
+import org.bukkit.Location;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.activities.Activity;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.services.modifications.ModificationQueue;
@@ -49,13 +50,9 @@ import org.prism_mc.prism.core.services.cache.CacheService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.bukkit.Location;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
 @Singleton
 public class BukkitModificationQueueService implements ModificationQueueService {
+
     /**
      * The configuration service.
      */
@@ -98,12 +95,13 @@ public class BukkitModificationQueueService implements ModificationQueueService 
      */
     @Inject
     public BukkitModificationQueueService(
-            CacheService cacheService,
-            ConfigurationService configurationService,
-            LoggingService loggingService,
-            MessageService messageService,
-            RestoreFactory restoreFactory,
-            RollbackFactory rollbackFactory) {
+        CacheService cacheService,
+        ConfigurationService configurationService,
+        LoggingService loggingService,
+        MessageService messageService,
+        RestoreFactory restoreFactory,
+        RollbackFactory rollbackFactory
+    ) {
         this.configurationService = configurationService;
         this.messageService = messageService;
         this.restoreFactory = restoreFactory;
@@ -135,8 +133,7 @@ public class BukkitModificationQueueService implements ModificationQueueService 
      * @param arguments The arguments
      * @return The builder
      */
-    public ModificationRuleset.ModificationRulesetBuilder applyFlagsToModificationRuleset(
-            Arguments arguments) {
+    public ModificationRuleset.ModificationRulesetBuilder applyFlagsToModificationRuleset(Arguments arguments) {
         var builder = configurationService.prismConfig().modifications().toRulesetBuilder();
         builder.overwrite(arguments.hasFlag("overwrite"));
 
@@ -189,8 +186,10 @@ public class BukkitModificationQueueService implements ModificationQueueService 
         }
 
         if (owner instanceof Player player) {
-            for (final Iterator<ModificationResult> iterator = queueResult.results().listIterator();
-                 iterator.hasNext(); ) {
+            for (
+                final Iterator<ModificationResult> iterator = queueResult.results().listIterator();
+                iterator.hasNext();
+            ) {
                 final ModificationResult result = iterator.next();
 
                 if (result.stateChange() instanceof BlockStateChange blockStateChange) {
@@ -220,11 +219,12 @@ public class BukkitModificationQueueService implements ModificationQueueService 
 
     @Override
     public ModificationQueue newQueue(
-            Class<? extends ModificationQueue> clazz,
-            ModificationRuleset modificationRuleset,
-            Object owner,
-            ActivityQuery query,
-            List<Activity> modifications) {
+        Class<? extends ModificationQueue> clazz,
+        ModificationRuleset modificationRuleset,
+        Object owner,
+        ActivityQuery query,
+        List<Activity> modifications
+    ) {
         if (clazz.equals(BukkitRollback.class)) {
             return newRollbackQueue(modificationRuleset, owner, query, modifications);
         } else if (clazz.equals(BukkitRestore.class)) {
@@ -236,10 +236,11 @@ public class BukkitModificationQueueService implements ModificationQueueService 
 
     @Override
     public ModificationQueue newRollbackQueue(
-            ModificationRuleset modificationRuleset,
-            Object owner,
-            ActivityQuery query,
-            List<Activity> modifications) {
+        ModificationRuleset modificationRuleset,
+        Object owner,
+        ActivityQuery query,
+        List<Activity> modifications
+    ) {
         if (!queueAvailable()) {
             throw new IllegalStateException("No queue available until current queue finished.");
         }
@@ -254,10 +255,11 @@ public class BukkitModificationQueueService implements ModificationQueueService 
 
     @Override
     public ModificationQueue newRestoreQueue(
-            ModificationRuleset modificationRuleset,
-            Object owner,
-            ActivityQuery query,
-            List<Activity> modifications) {
+        ModificationRuleset modificationRuleset,
+        Object owner,
+        ActivityQuery query,
+        List<Activity> modifications
+    ) {
         if (!queueAvailable()) {
             throw new IllegalStateException("No queue available until current queue finished.");
         }

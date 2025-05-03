@@ -21,15 +21,14 @@
 package org.prism_mc.prism.loader.services.configuration.alerts;
 
 import java.util.List;
-
 import lombok.Getter;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
 public class BlockBreakAlertConfiguration extends BlockAlertConfiguration {
+
     @Comment("Limit how many neighboring blocks are scanned.")
     private int maxScanCount = 100;
 
@@ -47,9 +46,12 @@ public class BlockBreakAlertConfiguration extends BlockAlertConfiguration {
      * @param maxScanCount The max scan count
      */
     public BlockBreakAlertConfiguration(
-            List<String> materials, List<String> blockTags, String hexColor, int maxScanCount) {
+        List<String> materials,
+        List<String> blockTags,
+        String hexColor,
+        int maxScanCount
+    ) {
         super(materials, blockTags, hexColor);
-
         this.maxScanCount = maxScanCount;
     }
 }

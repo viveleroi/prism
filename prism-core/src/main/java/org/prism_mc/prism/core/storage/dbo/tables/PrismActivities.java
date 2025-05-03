@@ -20,13 +20,11 @@
 
 package org.prism_mc.prism.core.storage.dbo.tables;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
+
 import java.util.Arrays;
 import java.util.List;
-
-import org.prism_mc.prism.core.storage.dbo.Indexes;
-import org.prism_mc.prism.core.storage.dbo.Keys;
-import org.prism_mc.prism.core.storage.dbo.records.PrismActivitiesRecord;
-
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Identity;
@@ -45,12 +43,13 @@ import org.jooq.impl.TableImpl;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
-
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
+import org.prism_mc.prism.core.storage.dbo.Indexes;
+import org.prism_mc.prism.core.storage.dbo.Keys;
+import org.prism_mc.prism.core.storage.dbo.records.PrismActivitiesRecord;
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -73,7 +72,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("activity_id"),
         SQLDataType.INTEGERUNSIGNED.nullable(false).identity(true),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_activities.timestamp</code>.
@@ -82,7 +82,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("timestamp"),
         SQLDataType.INTEGERUNSIGNED.nullable(false),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_activities.world_id</code>.
@@ -91,7 +92,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("world_id"),
         SQLDataType.TINYINTUNSIGNED.nullable(false),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_activities.x</code>.
@@ -100,7 +102,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("x"),
         SQLDataType.INTEGER.nullable(false),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_activities.y</code>.
@@ -109,7 +112,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("y"),
         SQLDataType.INTEGER.nullable(false),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_activities.z</code>.
@@ -118,7 +122,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("z"),
         SQLDataType.INTEGER.nullable(false),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_activities.action_id</code>.
@@ -127,7 +132,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("action_id"),
         SQLDataType.TINYINTUNSIGNED.nullable(false),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_activities.item_id</code>.
@@ -136,7 +142,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("item_id"),
         SQLDataType.SMALLINTUNSIGNED,
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_activities.item_quantity</code>.
@@ -145,7 +152,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("item_quantity"),
         SQLDataType.SMALLINTUNSIGNED,
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_activities.block_id</code>.
@@ -154,7 +162,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("block_id"),
         SQLDataType.INTEGERUNSIGNED,
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_activities.replaced_block_id</code>.
@@ -163,7 +172,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("replaced_block_id"),
         SQLDataType.INTEGERUNSIGNED,
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_activities.entity_type_id</code>.
@@ -172,7 +182,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("entity_type_id"),
         SQLDataType.SMALLINTUNSIGNED,
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_activities.cause_id</code>.
@@ -181,7 +192,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("cause_id"),
         SQLDataType.INTEGERUNSIGNED.nullable(false),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_activities.descriptor</code>.
@@ -190,7 +202,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("descriptor"),
         SQLDataType.VARCHAR(155),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_activities.metadata</code>.
@@ -199,7 +212,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("metadata"),
         SQLDataType.VARCHAR(255),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_blocks.serializer_version</code>.
@@ -208,7 +222,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("serializer_version"),
         SQLDataType.SMALLINTUNSIGNED,
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_activities.serialized_data</code>.
@@ -217,7 +232,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("serialized_data"),
         SQLDataType.CLOB,
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_activities.reversed</code>.
@@ -226,7 +242,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
         DSL.name("reversed"),
         SQLDataType.BIT.nullable(false).defaultValue(false),
         this,
-        "");
+        ""
+    );
 
     private PrismActivities(String prefix, Name alias, Table<PrismActivitiesRecord> aliased) {
         this(prefix, alias, aliased, null);
@@ -256,7 +273,6 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
      */
     public <O extends Record> PrismActivities(String prefix, Table<O> child, ForeignKey<O, PrismActivitiesRecord> key) {
         super(child, key, PRISM_ACTIVITIES);
-
         this.prefix = prefix;
     }
 
@@ -275,7 +291,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
             Indexes.PRISM_ACTIVITIES_ITEMID,
             Indexes.PRISM_ACTIVITIES_BLOCKID,
             Indexes.PRISM_ACTIVITIES_REPLACEDBLOCKID,
-            Indexes.PRISM_ACTIVITIES_WORLDID);
+            Indexes.PRISM_ACTIVITIES_WORLDID
+        );
     }
 
     @Override
@@ -297,7 +314,8 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
             Keys.BLOCKID,
             Keys.REPLACEDBLOCKID,
             Keys.ENTITYTYPEID,
-            Keys.CAUSEID);
+            Keys.CAUSEID
+        );
     }
 
     private transient PrismWorlds prismWorlds;
@@ -414,24 +432,25 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
 
     @Override
     public Row18<
-            UInteger,
-            UInteger,
-            UByte,
-            Integer,
-            Integer,
-            Integer,
-            UByte,
-            UShort,
-            UShort,
-            UInteger,
-            UInteger,
-            UShort,
-            UInteger,
-            String,
-            String,
-            UShort,
-            String,
-            Boolean> fieldsRow() {
+        UInteger,
+        UInteger,
+        UByte,
+        Integer,
+        Integer,
+        Integer,
+        UByte,
+        UShort,
+        UShort,
+        UInteger,
+        UInteger,
+        UShort,
+        UInteger,
+        String,
+        String,
+        UShort,
+        String,
+        Boolean
+    > fieldsRow() {
         return (Row18) super.fieldsRow();
     }
 }

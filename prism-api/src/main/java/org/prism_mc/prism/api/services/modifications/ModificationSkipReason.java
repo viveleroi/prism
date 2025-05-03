@@ -39,5 +39,5 @@ public enum ModificationSkipReason {
     /**
      * The action has no implementation for the modification.
      */
-    NOT_IMPLEMENTED
+    NOT_IMPLEMENTED,
 }

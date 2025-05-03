@@ -21,14 +21,7 @@
 package org.prism_mc.prism.bukkit.listeners.inventory;
 
 import com.google.inject.Inject;
-
 import java.util.Map;
-
-import org.prism_mc.prism.bukkit.listeners.AbstractListener;
-import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
-import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
-import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -36,8 +29,13 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.ItemStack;
+import org.prism_mc.prism.bukkit.listeners.AbstractListener;
+import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
+import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
+import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
 public class InventoryDragListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -47,9 +45,10 @@ public class InventoryDragListener extends AbstractListener implements Listener 
      */
     @Inject
     public InventoryDragListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -84,7 +83,7 @@ public class InventoryDragListener extends AbstractListener implements Listener 
 
             if (rawSlot < event.getInventory().getSize()) {
                 ItemStack stack = event.getView().getItem(rawSlot);
-                int slotViewAmount = (stack == null)  ? 0 : stack.getAmount();
+                int slotViewAmount = (stack == null) ? 0 : stack.getAmount();
                 int amount = entry.getValue().getAmount() - slotViewAmount;
 
                 recordItemInsertActivity(location, player, entry.getValue(), amount);

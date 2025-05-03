@@ -27,6 +27,7 @@ import org.prism_mc.prism.api.actions.types.ActionType;
 import org.prism_mc.prism.bukkit.actions.GenericBukkitAction;
 
 public class GenericActionType extends ActionType {
+
     /**
      * Construct a new generic action type.
      *
@@ -34,8 +35,7 @@ public class GenericActionType extends ActionType {
      * @param resultType The result type
      * @param reversible If action is reversible
      */
-    public GenericActionType(
-            String key, ActionResultType resultType, boolean reversible) {
+    public GenericActionType(String key, ActionResultType resultType, boolean reversible) {
         super(key, resultType, reversible);
     }
 

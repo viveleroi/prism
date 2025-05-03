@@ -21,5 +21,7 @@
 package org.prism_mc.prism.api.services.modifications;
 
 public enum ModificationQueueMode {
-    UNDECIDED, PLANNING, COMPLETING
+    UNDECIDED,
+    PLANNING,
+    COMPLETING,
 }

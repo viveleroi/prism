@@ -23,19 +23,6 @@ package org.prism_mc.prism.bukkit.listeners;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import org.prism_mc.prism.api.actions.types.ActionType;
-import org.prism_mc.prism.bukkit.actions.BukkitBlockAction;
-import org.prism_mc.prism.bukkit.actions.BukkitEntityAction;
-import org.prism_mc.prism.bukkit.actions.BukkitItemStackAction;
-import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
-import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
-import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
-import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
-import org.prism_mc.prism.bukkit.utils.BlockUtils;
-import org.prism_mc.prism.bukkit.utils.TagLib;
-import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
-
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -54,8 +41,20 @@ import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.prism_mc.prism.api.actions.types.ActionType;
+import org.prism_mc.prism.bukkit.actions.BukkitBlockAction;
+import org.prism_mc.prism.bukkit.actions.BukkitEntityAction;
+import org.prism_mc.prism.bukkit.actions.BukkitItemStackAction;
+import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
+import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
+import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
+import org.prism_mc.prism.bukkit.utils.BlockUtils;
+import org.prism_mc.prism.bukkit.utils.TagLib;
+import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
 public class AbstractListener {
+
     /**
      * The configuration service.
      */
@@ -79,9 +78,10 @@ public class AbstractListener {
      * @param recordingService The recording service
      */
     public AbstractListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         this.configurationService = configurationService;
         this.expectationService = expectationService;
         this.recordingService = recordingService;
@@ -166,12 +166,13 @@ public class AbstractListener {
         if (configurationService.prismConfig().actions().blockBreak()) {
             for (Block affectedBlock : affectedBlocks) {
                 // Ignore the tops of bisected blocks or heads of beds
-                if ((affectedBlock.getBlockData() instanceof Bisected bisected
-                        && bisected.getHalf().equals(Bisected.Half.TOP)
-                        && !(bisected instanceof Stairs)
-                        && !(bisected instanceof TrapDoor))
-                        || (affectedBlock.getBlockData() instanceof Bed bed
-                        && bed.getPart().equals(Bed.Part.HEAD))) {
+                if (
+                    (affectedBlock.getBlockData() instanceof Bisected bisected &&
+                        bisected.getHalf().equals(Bisected.Half.TOP) &&
+                        !(bisected instanceof Stairs) &&
+                        !(bisected instanceof TrapDoor)) ||
+                    (affectedBlock.getBlockData() instanceof Bed bed && bed.getPart().equals(Bed.Part.HEAD))
+                ) {
                     continue;
                 }
 
@@ -250,8 +251,7 @@ public class AbstractListener {
      * @param itemStack The item stack
      * @param amount The amount
      */
-    protected void recordItemDropActivity(
-            Location location, Object cause, ItemStack itemStack, Integer amount) {
+    protected void recordItemDropActivity(Location location, Object cause, ItemStack itemStack, Integer amount) {
         if (!configurationService.prismConfig().actions().itemDrop()) {
             return;
         }
@@ -261,7 +261,7 @@ public class AbstractListener {
 
         if (cause instanceof Player _player) {
             player = _player;
-        } else  {
+        } else {
             namedCause = nameFromCause(cause);
         }
 
@@ -303,8 +303,11 @@ public class AbstractListener {
                 }
             }
 
-            recordItemDropFromInventory(inventory, block.getLocation(),
-                String.format("broken %s", nameFromCause(block)));
+            recordItemDropFromInventory(
+                inventory,
+                block.getLocation(),
+                String.format("broken %s", nameFromCause(block))
+            );
         }
     }
 
@@ -335,8 +338,7 @@ public class AbstractListener {
      * @param itemStack The item stack
      * @param amount The amount
      */
-    protected void recordItemInsertActivity(
-            Location location, Player player, ItemStack itemStack, int amount) {
+    protected void recordItemInsertActivity(Location location, Player player, ItemStack itemStack, int amount) {
         if (!configurationService.prismConfig().actions().itemInsert()) {
             return;
         }
@@ -351,8 +353,7 @@ public class AbstractListener {
      * @param player The player
      * @param itemStack The item stack
      */
-    protected void recordItemInsertActivity(
-            Location location, Player player, ItemStack itemStack) {
+    protected void recordItemInsertActivity(Location location, Player player, ItemStack itemStack) {
         if (!configurationService.prismConfig().actions().itemInsert()) {
             return;
         }
@@ -367,8 +368,7 @@ public class AbstractListener {
      * @param player The player
      * @param itemStack The item stack
      */
-    protected void recordItemRemoveActivity(
-            Location location, Player player, ItemStack itemStack) {
+    protected void recordItemRemoveActivity(Location location, Player player, ItemStack itemStack) {
         if (!configurationService.prismConfig().actions().itemInsert()) {
             return;
         }
@@ -384,8 +384,7 @@ public class AbstractListener {
      * @param itemStack The item stack
      * @param amount The amount
      */
-    protected void recordItemRemoveActivity(
-            Location location, Player player, ItemStack itemStack, int amount) {
+    protected void recordItemRemoveActivity(Location location, Player player, ItemStack itemStack, int amount) {
         if (!configurationService.prismConfig().actions().itemInsert()) {
             return;
         }
@@ -404,12 +403,13 @@ public class AbstractListener {
      * @param amount The amount
      */
     private void recordItemActivity(
-            ActionType actionType,
-            Location location,
-            Player player,
-            String cause,
-            ItemStack itemStack,
-            Integer amount) {
+        ActionType actionType,
+        Location location,
+        Player player,
+        String cause,
+        ItemStack itemStack,
+        Integer amount
+    ) {
         // Clone the item stack and set the quantity because
         // this is what we use to record the action
         ItemStack clonedStack = itemStack.clone();

@@ -23,26 +23,24 @@ package org.prism_mc.prism.bukkit.services.messages.resolvers;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Map;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.moonshine.placeholder.ConclusionValue;
 import net.kyori.moonshine.placeholder.ContinuanceValue;
 import net.kyori.moonshine.placeholder.IPlaceholderResolver;
 import net.kyori.moonshine.util.Either;
-
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 
 public class LongPlaceholderResolver implements IPlaceholderResolver<CommandSender, Long, Component> {
+
     @Override
-    public @Nullable Map<String, Either<ConclusionValue<? extends Component>, ContinuanceValue<?>>>
-    resolve(
-            final String placeholderName,
-            final Long value,
-            final CommandSender receiver,
-            final Type owner,
-            final Method method,
-            final @Nullable Object[] parameters
+    public @Nullable Map<String, Either<ConclusionValue<? extends Component>, ContinuanceValue<?>>> resolve(
+        final String placeholderName,
+        final Long value,
+        final CommandSender receiver,
+        final Type owner,
+        final Method method,
+        final @Nullable Object[] parameters
     ) {
         return Map.of(placeholderName, Either.left(ConclusionValue.conclusionValue(Component.text(value))));
     }

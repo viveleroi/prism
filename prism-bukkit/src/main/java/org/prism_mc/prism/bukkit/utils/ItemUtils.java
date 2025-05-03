@@ -21,15 +21,14 @@
 package org.prism_mc.prism.bukkit.utils;
 
 import java.util.Locale;
-
 import lombok.experimental.UtilityClass;
-
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 @UtilityClass
 public class ItemUtils {
+
     /**
      * Try our best to count the number of items that will be collected on double click.
      *

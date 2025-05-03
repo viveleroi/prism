@@ -21,12 +21,12 @@
 package org.prism_mc.prism.bukkit.services.alerts;
 
 import lombok.Getter;
-
 import org.bukkit.Material;
 import org.bukkit.Tag;
 
 @Getter
 public class Alert<T> {
+
     /**
      * The configuration.
      */

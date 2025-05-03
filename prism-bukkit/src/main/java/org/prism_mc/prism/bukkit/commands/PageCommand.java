@@ -21,21 +21,18 @@
 package org.prism_mc.prism.bukkit.commands;
 
 import com.google.inject.Inject;
-
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
-
 import java.util.Optional;
-
+import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.bukkit.services.lookup.LookupService;
 import org.prism_mc.prism.bukkit.services.messages.MessageService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.command.CommandSender;
-
-@Command(value = "prism", alias = {"pr"})
+@Command(value = "prism", alias = { "pr" })
 public class PageCommand {
+
     /**
      * The configuration service.
      */
@@ -58,9 +55,10 @@ public class PageCommand {
      */
     @Inject
     public PageCommand(
-            ConfigurationService configurationService,
-            LookupService lookupService,
-            MessageService messageService) {
+        ConfigurationService configurationService,
+        LookupService lookupService,
+        MessageService messageService
+    ) {
         this.configurationService = configurationService;
         this.lookupService = lookupService;
         this.messageService = messageService;

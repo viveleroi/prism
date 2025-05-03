@@ -22,13 +22,13 @@ package org.prism_mc.prism.api.services.modifications;
 
 import java.util.Arrays;
 import java.util.List;
-
 import lombok.Builder;
 import lombok.Getter;
 
 @Builder
 @Getter
 public class ModificationRuleset {
+
     /**
      * The block black list.
      */
@@ -81,8 +81,7 @@ public class ModificationRuleset {
      * @return True if a match found
      */
     public boolean blockBlacklistContainsAny(String... values) {
-        return blockBlacklist.stream().anyMatch(str ->
-            Arrays.stream(values).anyMatch(v -> v.equalsIgnoreCase(str)));
+        return blockBlacklist.stream().anyMatch(str -> Arrays.stream(values).anyMatch(v -> v.equalsIgnoreCase(str)));
     }
 
     /**
@@ -92,7 +91,6 @@ public class ModificationRuleset {
      * @return True if a match found
      */
     public boolean entityBlacklistContainsAny(String... values) {
-        return entityBlacklist.stream().anyMatch(str ->
-            Arrays.stream(values).anyMatch(v -> v.equalsIgnoreCase(str)));
+        return entityBlacklist.stream().anyMatch(str -> Arrays.stream(values).anyMatch(v -> v.equalsIgnoreCase(str)));
     }
 }

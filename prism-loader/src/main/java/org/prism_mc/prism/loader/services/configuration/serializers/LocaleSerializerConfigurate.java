@@ -23,16 +23,17 @@ package org.prism_mc.prism.loader.services.configuration.serializers;
 import java.lang.reflect.Type;
 import java.util.Locale;
 import java.util.Objects;
-
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 public class LocaleSerializerConfigurate implements TypeSerializer<Locale> {
+
     @Override
     public Locale deserialize(final Type type, final ConfigurationNode node) {
-        final @Nullable String value = node.getString();
+        @Nullable
+        final String value = node.getString();
 
         if (value == null) {
             return Locale.ENGLISH;

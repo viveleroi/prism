@@ -21,9 +21,11 @@
 package org.prism_mc.prism.bukkit.listeners.entity;
 
 import com.google.inject.Inject;
-
 import java.util.Locale;
-
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityTransformEvent;
 import org.prism_mc.prism.api.actions.metadata.Metadata;
 import org.prism_mc.prism.bukkit.actions.BukkitEntityAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
@@ -33,12 +35,8 @@ import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
 import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityTransformEvent;
-
 public class EntityTransformListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -48,9 +46,10 @@ public class EntityTransformListener extends AbstractListener implements Listene
      */
     @Inject
     public EntityTransformListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -66,11 +65,13 @@ public class EntityTransformListener extends AbstractListener implements Listene
             return;
         }
 
-        var metadata = Metadata.builder()
-            .using(event.getTransformReason().name().toLowerCase(Locale.ENGLISH)).build();
+        var metadata = Metadata.builder().using(event.getTransformReason().name().toLowerCase(Locale.ENGLISH)).build();
 
         var action = new BukkitEntityAction(
-            BukkitActionTypeRegistry.ENTITY_TRANSFORM, event.getTransformedEntity(), metadata);
+            BukkitActionTypeRegistry.ENTITY_TRANSFORM,
+            event.getTransformedEntity(),
+            metadata
+        );
 
         var activity = BukkitActivity.builder()
             .action(action)

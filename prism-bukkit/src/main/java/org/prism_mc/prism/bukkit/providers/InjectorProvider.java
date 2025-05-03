@@ -22,14 +22,13 @@ package org.prism_mc.prism.bukkit.providers;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import lombok.Getter;
-
 import org.prism_mc.prism.bukkit.PrismBukkit;
 import org.prism_mc.prism.bukkit.injection.PrismModule;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
 public class InjectorProvider {
+
     /**
      * The injector.
      */

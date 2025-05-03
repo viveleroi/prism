@@ -21,5 +21,7 @@
 package org.prism_mc.prism.api.services.wands;
 
 public enum WandMode {
-    INSPECT, ROLLBACK, RESTORE
+    INSPECT,
+    ROLLBACK,
+    RESTORE,
 }

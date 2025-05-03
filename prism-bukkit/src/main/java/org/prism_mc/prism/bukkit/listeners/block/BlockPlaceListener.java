@@ -21,7 +21,13 @@
 package org.prism_mc.prism.bukkit.listeners.block;
 
 import com.google.inject.Inject;
-
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.prism_mc.prism.bukkit.actions.BukkitBlockAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
@@ -31,15 +37,8 @@ import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
 import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockPlaceEvent;
-
 public class BlockPlaceListener extends AbstractListener implements Listener {
+
     /**
      * The alerts service.
      */
@@ -54,10 +53,11 @@ public class BlockPlaceListener extends AbstractListener implements Listener {
      */
     @Inject
     public BlockPlaceListener(
-            BukkitAlertService alertService,
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        BukkitAlertService alertService,
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
         this.alertService = alertService;
     }
@@ -84,7 +84,10 @@ public class BlockPlaceListener extends AbstractListener implements Listener {
         var action = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_PLACE, blockPlaced.getState(), replacedState);
 
         var activity = BukkitActivity.builder()
-            .action(action).location(blockPlaced.getLocation()).player(player).build();
+            .action(action)
+            .location(blockPlaced.getLocation())
+            .player(player)
+            .build();
 
         recordingService.addToQueue(activity);
     }

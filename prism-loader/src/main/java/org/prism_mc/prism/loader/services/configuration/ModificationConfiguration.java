@@ -22,17 +22,15 @@ package org.prism_mc.prism.loader.services.configuration;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.Getter;
-
 import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
 public class ModificationConfiguration {
+
     @Comment("List materials that should be excluded from modifications.")
     private List<String> blockBlacklist = new ArrayList<>();
 
@@ -42,10 +40,12 @@ public class ModificationConfiguration {
     @Comment("List entities that should be excluded from modifications.")
     private List<String> entityBlacklist = new ArrayList<>();
 
-    @Comment("""
-            Set a maximum number of modifications per task. Splitting up world changes
-            can help avoid overloading individual ticks and causing lag.
-            This can also reduce client lag as fewer changes are sent to clients at once.""")
+    @Comment(
+        """
+        Set a maximum number of modifications per task. Splitting up world changes
+        can help avoid overloading individual ticks and causing lag.
+        This can also reduce client lag as fewer changes are sent to clients at once."""
+    )
     private int maxPerTask = 1000;
 
     @Comment("Teleport entities out of the way.")

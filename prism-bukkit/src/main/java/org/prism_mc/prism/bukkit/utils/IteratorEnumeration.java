@@ -28,6 +28,7 @@ import java.util.Iterator;
  * @since 1.0
  */
 public class IteratorEnumeration<E> implements Enumeration<E> {
+
     /** The iterator being decorated. */
     private Iterator<? extends E> iterator;
 

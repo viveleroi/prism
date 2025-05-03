@@ -21,16 +21,14 @@
 package org.prism_mc.prism.bukkit.actions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.Setter;
-
 import net.kyori.adventure.text.Component;
-
 import org.prism_mc.prism.api.actions.Action;
 import org.prism_mc.prism.api.actions.metadata.Metadata;
 import org.prism_mc.prism.api.actions.types.ActionType;
 
 public abstract class BukkitAction implements Action {
+
     /**
      * The object mapper.
      */

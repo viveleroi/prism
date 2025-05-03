@@ -22,11 +22,7 @@ package org.prism_mc.prism.bukkit.utils;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.experimental.UtilityClass;
-
-import org.prism_mc.prism.bukkit.services.modifications.state.BlockStateChange;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -40,14 +36,20 @@ import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.util.BoundingBox;
+import org.prism_mc.prism.bukkit.services.modifications.state.BlockStateChange;
 
 @UtilityClass
 public class BlockUtils {
+
     /**
      * List all *side* block faces.
      */
     private static final BlockFace[] attachmentFacesSides = {
-        BlockFace.EAST, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH };
+        BlockFace.EAST,
+        BlockFace.WEST,
+        BlockFace.NORTH,
+        BlockFace.SOUTH,
+    };
 
     /**
      * Get the block material a bucket material would place/break.
@@ -75,9 +77,14 @@ public class BlockUtils {
      */
     public static int getLightLevel(Block block) {
         int light = 0;
-        final BlockFace[] blockFaces =
-            new BlockFace[] {BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST,
-                BlockFace.UP, BlockFace.DOWN};
+        final BlockFace[] blockFaces = new BlockFace[] {
+            BlockFace.NORTH,
+            BlockFace.SOUTH,
+            BlockFace.EAST,
+            BlockFace.WEST,
+            BlockFace.UP,
+            BlockFace.DOWN,
+        };
         for (BlockFace blockFace : blockFaces) {
             light = Math.max(light, block.getRelative(blockFace).getLightLevel());
             if (light >= 15) {
@@ -85,7 +92,7 @@ public class BlockUtils {
             }
         }
 
-        return light * 100 / 15;
+        return (light * 100) / 15;
     }
 
     /**
@@ -97,7 +104,10 @@ public class BlockUtils {
      * @return A list of block state changes
      */
     public static List<BlockStateChange> removeBlocksByMaterial(
-            World world, BoundingBox boundingBox, List<Material> materials) {
+        World world,
+        BoundingBox boundingBox,
+        List<Material> materials
+    ) {
         List<BlockStateChange> stateChanges = new ArrayList<>();
         for (int x = (int) boundingBox.getMinX(); x < boundingBox.getMaxX(); x++) {
             for (int y = (int) boundingBox.getMinY(); y < boundingBox.getMaxY(); y++) {
@@ -194,7 +204,10 @@ public class BlockUtils {
      * @return A list of any blocks that are considered "detachable"
      */
     protected static List<Block> allSideDetachables(
-            List<Block> matchAccumulator, List<Location> rejectAccumulator, Block startBlock) {
+        List<Block> matchAccumulator,
+        List<Location> rejectAccumulator,
+        Block startBlock
+    ) {
         for (BlockFace face : BlockFace.values()) {
             Block neighbor = startBlock.getRelative(face);
 
@@ -248,8 +261,10 @@ public class BlockUtils {
         Block neighbor = startBlock.getRelative(BlockFace.UP);
         if (TagLib.TOP_DETACHABLES.isTagged(neighbor.getType())) {
             // Some detachables are also bisected so only count this if the neighbor is the bottom half
-            if (!(neighbor.getBlockData() instanceof Bisected bisected)
-                    || bisected.getHalf().equals(Bisected.Half.BOTTOM)) {
+            if (
+                !(neighbor.getBlockData() instanceof Bisected bisected) ||
+                bisected.getHalf().equals(Bisected.Half.BOTTOM)
+            ) {
                 accumulator.add(neighbor);
             }
 
@@ -275,8 +290,10 @@ public class BlockUtils {
                 Block neighbor = startBlock.getRelative(face);
                 if (TagLib.SIDE_DETACHABLES.isTagged(neighbor.getType())) {
                     // Only record if the detachable is attached to us
-                    if (neighbor.getBlockData() instanceof Directional directional
-                            && directional.getFacing().equals(face)) {
+                    if (
+                        neighbor.getBlockData() instanceof Directional directional &&
+                        directional.getFacing().equals(face)
+                    ) {
                         accumulator.add(neighbor);
 
                         // Vines can extend down from a side attachment

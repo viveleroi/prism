@@ -23,24 +23,25 @@ package org.prism_mc.prism.loader.services.configuration;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-
 import lombok.Getter;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
 public class DefaultsConfiguration {
+
     @Comment("The default radius for the drain command.")
     private int drainRadius = 5;
 
     @Comment("The default radius for the extinguish command.")
     private int extinguishRadius = 5;
 
-    @Comment("""
-            The default locale for plugin messages. Messages given to players
-            will use their client locale settings.""")
+    @Comment(
+        """
+        The default locale for plugin messages. Messages given to players
+        will use their client locale settings."""
+    )
     private Locale defaultLocale = Locale.US;
 
     @Comment("Default parameters for lookups, rollbacks, restores. Leave empty for none.")

@@ -21,18 +21,17 @@
 package org.prism_mc.prism.bukkit.listeners.leaves;
 
 import com.google.inject.Inject;
-
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.LeavesDecayEvent;
 import org.prism_mc.prism.bukkit.listeners.AbstractListener;
 import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
 import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.LeavesDecayEvent;
-
 public class LeavesDecayListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -42,9 +41,10 @@ public class LeavesDecayListener extends AbstractListener implements Listener {
      */
     @Inject
     public LeavesDecayListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 

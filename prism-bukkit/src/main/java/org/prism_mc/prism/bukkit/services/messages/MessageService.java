@@ -22,7 +22,8 @@ package org.prism_mc.prism.bukkit.services.messages;
 
 import net.kyori.moonshine.annotation.Message;
 import net.kyori.moonshine.annotation.Placeholder;
-
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.PaginatedResults;
 import org.prism_mc.prism.api.activities.AbstractActivity;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueResult;
@@ -30,9 +31,6 @@ import org.prism_mc.prism.api.services.purges.PurgeCycleResult;
 import org.prism_mc.prism.api.services.wands.WandMode;
 import org.prism_mc.prism.bukkit.services.alerts.BlockAlertData;
 import org.prism_mc.prism.bukkit.services.alerts.BlockBreakAlertData;
-
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 public interface MessageService {
     @Message("rich.about")
@@ -48,8 +46,12 @@ public interface MessageService {
     void alertBlockPlace(CommandSender receiver, @Placeholder BlockAlertData data);
 
     @Message("rich.cache-list-entry")
-    void cacheListEntry(CommandSender receiver,
-        @Placeholder String name, @Placeholder Long size, @Placeholder Long hits);
+    void cacheListEntry(
+        CommandSender receiver,
+        @Placeholder String name,
+        @Placeholder Long size,
+        @Placeholder Long hits
+    );
 
     @Message("rich.cache-list-header")
     void cacheListHeader(CommandSender receiver);
@@ -182,7 +184,10 @@ public interface MessageService {
 
     @Message("rich.modifications-report-skipped-activity")
     void modificationsReportSkippedActivity(
-        CommandSender receiver, @Placeholder AbstractActivity activity, @Placeholder String skipreason);
+        CommandSender receiver,
+        @Placeholder AbstractActivity activity,
+        @Placeholder String skipreason
+    );
 
     @Message("rich.modifications-skipped")
     void modificationsSkipped(CommandSender receiver, @Placeholder ModificationQueueResult result);
@@ -224,8 +229,13 @@ public interface MessageService {
     void teleportingToActivity(CommandSender receiver, @Placeholder AbstractActivity activity);
 
     @Message("rich.teleporting-to")
-    void teleportingTo(CommandSender receiver,
-        @Placeholder String worldname, @Placeholder Integer x, @Placeholder Integer y, @Placeholder Integer z);
+    void teleportingTo(
+        CommandSender receiver,
+        @Placeholder String worldname,
+        @Placeholder Integer x,
+        @Placeholder Integer y,
+        @Placeholder Integer z
+    );
 
     @Message("rich.vault-header")
     void vaultHeader(CommandSender receiver, @Placeholder Integer results);

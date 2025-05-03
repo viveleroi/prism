@@ -21,9 +21,7 @@
 package org.prism_mc.prism.api.activities;
 
 import java.util.UUID;
-
 import lombok.Getter;
-
 import org.prism_mc.prism.api.actions.Action;
 import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.api.util.Pair;
@@ -34,6 +32,7 @@ import org.prism_mc.prism.api.util.Pair;
  */
 @Getter
 public final class GroupedActivity extends AbstractActivity {
+
     /**
      * The count.
      */
@@ -51,13 +50,14 @@ public final class GroupedActivity extends AbstractActivity {
      * @param count The count
      */
     public GroupedActivity(
-            Action action,
-            Pair<UUID, String> world,
-            Coordinate coordinate,
-            String cause,
-            Pair<UUID, String> player,
-            long timestamp,
-            int count) {
+        Action action,
+        Pair<UUID, String> world,
+        Coordinate coordinate,
+        String cause,
+        Pair<UUID, String> player,
+        long timestamp,
+        int count
+    ) {
         super(action, world, coordinate, cause, player, timestamp);
         this.count = count;
     }

@@ -21,7 +21,11 @@
 package org.prism_mc.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
-
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.prism_mc.prism.bukkit.actions.GenericBukkitAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
@@ -30,13 +34,8 @@ import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
 import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-
 public class PlayerJoinListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -46,9 +45,10 @@ public class PlayerJoinListener extends AbstractListener implements Listener {
      */
     @Inject
     public PlayerJoinListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -68,11 +68,7 @@ public class PlayerJoinListener extends AbstractListener implements Listener {
 
         var action = new GenericBukkitAction(BukkitActionTypeRegistry.PLAYER_JOIN);
 
-        var activity = BukkitActivity.builder()
-            .action(action)
-            .location(player.getLocation())
-            .player(player)
-            .build();
+        var activity = BukkitActivity.builder().action(action).location(player.getLocation()).player(player).build();
 
         recordingService.addToQueue(activity);
     }

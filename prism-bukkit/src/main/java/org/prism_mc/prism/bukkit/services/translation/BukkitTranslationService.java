@@ -22,7 +22,6 @@ package org.prism_mc.prism.bukkit.services.translation;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -46,21 +45,19 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
 import net.kyori.adventure.translation.Translator;
 import net.kyori.moonshine.message.IMessageSource;
-
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import org.prism_mc.prism.api.services.translation.TranslationService;
 import org.prism_mc.prism.bukkit.utils.SortedProperties;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
-
 @Singleton
 public class BukkitTranslationService implements IMessageSource<CommandSender, String>, TranslationService {
+
     /**
      * The default locale.
      */
@@ -96,9 +93,10 @@ public class BukkitTranslationService implements IMessageSource<CommandSender, S
      */
     @Inject
     public BukkitTranslationService(
-            ConfigurationService configurationService,
-            LoggingService loggingService,
-            Path dataDirectory) throws IOException {
+        ConfigurationService configurationService,
+        LoggingService loggingService,
+        Path dataDirectory
+    ) throws IOException {
         this.loggingService = loggingService;
         this.dataDirectory = dataDirectory;
         this.defaultLocale = configurationService.prismConfig().defaults().defaultLocale();
@@ -139,47 +137,67 @@ public class BukkitTranslationService implements IMessageSource<CommandSender, S
         }
 
         // Load localization files from the jar
-        this.walkPluginJar(stream -> stream.filter(Files::isRegularFile)
-            .filter(it -> {
-                final String pathString = it.toString();
-                return pathString.startsWith("/locale/messages-")
-                    && pathString.endsWith(".properties");
-            })
-            .forEach(localeFile -> {
-                final String localeString = localeFile.getFileName().toString().substring("messages-".length())
-                    .replace(".properties", "");
-                // MC uses no_NO when the player selects nb_NO...
-                final @Nullable Locale locale = Translator.parseLocale(localeString
-                    .replace("nb_NO", "no_NO"));
+        this.walkPluginJar(stream ->
+                stream
+                    .filter(Files::isRegularFile)
+                    .filter(it -> {
+                        final String pathString = it.toString();
+                        return (pathString.startsWith("/locale/messages-") && pathString.endsWith(".properties"));
+                    })
+                    .forEach(localeFile -> {
+                        final String localeString = localeFile
+                            .getFileName()
+                            .toString()
+                            .substring("messages-".length())
+                            .replace(".properties", "");
+                        // MC uses no_NO when the player selects nb_NO...
+                        @Nullable
+                        final Locale locale = Translator.parseLocale(localeString.replace("nb_NO", "no_NO"));
 
-                if (locale == null) {
-                    this.loggingService.warn("Unknown locale '{0}'?", localeString);
-                    return;
-                }
+                        if (locale == null) {
+                            this.loggingService.warn("Unknown locale '{0}'?", localeString);
+                            return;
+                        }
 
-                this.loggingService.info("Found locale {0} ({1}) in: {2}",
-                    locale.getDisplayName(), locale, localeFile);
-                final SortedProperties properties = new SortedProperties();
+                        this.loggingService.info(
+                                "Found locale {0} ({1}) in: {2}",
+                                locale.getDisplayName(),
+                                locale,
+                                localeFile
+                            );
+                        final SortedProperties properties = new SortedProperties();
 
-                try {
-                    this.loadProperties(properties, localeDirectory, localeFile);
-                    this.locales.put(locale, properties);
+                        try {
+                            this.loadProperties(properties, localeDirectory, localeFile);
+                            this.locales.put(locale, properties);
 
-                    this.loggingService.info("Successfully loaded locale {0} ({1})",
-                        locale.getDisplayName(), locale);
-                } catch (final IOException ex) {
-                    this.loggingService.warn("Unable to load locale {0} ({1}) from source: {2}",
-                        locale.getDisplayName(), locale, localeFile, ex);
-                }
-            }));
+                            this.loggingService.info(
+                                    "Successfully loaded locale {0} ({1})",
+                                    locale.getDisplayName(),
+                                    locale
+                                );
+                        } catch (final IOException ex) {
+                            this.loggingService.warn(
+                                    "Unable to load locale {0} ({1}) from source: {2}",
+                                    locale.getDisplayName(),
+                                    locale,
+                                    localeFile,
+                                    ex
+                                );
+                        }
+                    })
+            );
 
         // Load any unrecognized localization files
         for (var entry : loadProperties(localeDirectory).entrySet()) {
             if (!this.locales.containsKey(entry.getKey())) {
                 this.locales.put(entry.getKey(), entry.getValue());
 
-                this.loggingService.info("Successfully loaded custom locale {0} ({1})",
-                    entry.getKey().getDisplayName(), entry.getKey());
+                this.loggingService.info(
+                        "Successfully loaded custom locale {0} ({1})",
+                        entry.getKey().getDisplayName(),
+                        entry.getKey()
+                    );
             }
         }
     }
@@ -330,11 +348,8 @@ public class BukkitTranslationService implements IMessageSource<CommandSender, S
      * @param localeFile The locale file
      * @throws IOException IO Exception
      */
-    private void loadProperties(
-        final SortedProperties properties,
-        final Path localeDirectory,
-        final Path localeFile
-    ) throws IOException {
+    private void loadProperties(final SortedProperties properties, final Path localeDirectory, final Path localeFile)
+        throws IOException {
         final Path savedFile = localeDirectory.resolve(localeFile.getFileName().toString());
 
         // If the file in the localeDirectory exists, read it to the properties

@@ -21,15 +21,14 @@
 package org.prism_mc.prism.bukkit.api.activities;
 
 import lombok.experimental.SuperBuilder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-
 import org.prism_mc.prism.api.activities.Activity;
 
-@SuperBuilder()
+@SuperBuilder
 public class BukkitActivity extends Activity {
+
     /**
      * Get the location.
      *
@@ -41,7 +40,8 @@ public class BukkitActivity extends Activity {
     }
 
     public abstract static class BukkitActivityBuilder<C extends BukkitActivity, B extends BukkitActivityBuilder<C, B>>
-            extends ActivityBuilder<C, B> {
+        extends ActivityBuilder<C, B> {
+
         /**
          * Set the world and coordinate from a Location.
          *

@@ -37,13 +37,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import org.prism_mc.prism.loader.services.dependencies.loader.PluginLoader;
 
 /**
  * A little utility for thread pools, primarily used for library downloads.
  */
 public class ThreadPoolScheduler {
+
     private static final int PARALLELISM = 16;
 
     /**
@@ -105,8 +105,7 @@ public class ThreadPoolScheduler {
         this.worker.shutdown();
         try {
             if (!this.worker.awaitTermination(1, TimeUnit.MINUTES)) {
-                this.loader.loggingService().warn(
-                    "Timed out waiting for the Prism worker thread pool to terminate");
+                this.loader.loggingService().warn("Timed out waiting for the Prism worker thread pool to terminate");
                 reportRunningTasks(thread -> thread.getName().startsWith("prism-worker-"));
             }
         } catch (InterruptedException e) {
@@ -115,17 +114,22 @@ public class ThreadPoolScheduler {
     }
 
     private void reportRunningTasks(Predicate<Thread> predicate) {
-        Thread.getAllStackTraces().forEach((thread, stack) -> {
-            if (predicate.test(thread)) {
-                this.loader.loggingService().warn(
-                    "Thread " + thread.getName() + " is blocked, and may be the reason for the slow shutdown!\n"
-                    + Arrays.stream(stack).map(el -> "  " + el).collect(Collectors.joining("\n"))
-                );
-            }
-        });
+        Thread.getAllStackTraces()
+            .forEach((thread, stack) -> {
+                if (predicate.test(thread)) {
+                    this.loader.loggingService()
+                        .warn(
+                            "Thread " +
+                            thread.getName() +
+                            " is blocked, and may be the reason for the slow shutdown!\n" +
+                            Arrays.stream(stack).map(el -> "  " + el).collect(Collectors.joining("\n"))
+                        );
+                }
+            });
     }
 
     private static final class WorkerThreadFactory implements ForkJoinPool.ForkJoinWorkerThreadFactory {
+
         private static final AtomicInteger COUNT = new AtomicInteger(0);
 
         @Override
@@ -138,6 +142,7 @@ public class ThreadPoolScheduler {
     }
 
     private final class ExceptionHandler implements UncaughtExceptionHandler {
+
         @Override
         public void uncaughtException(Thread t, Throwable e) {
             ThreadPoolScheduler.this.loader.loggingService()

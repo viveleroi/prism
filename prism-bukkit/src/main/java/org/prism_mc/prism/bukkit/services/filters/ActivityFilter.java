@@ -22,7 +22,10 @@ package org.prism_mc.prism.bukkit.services.filters;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.NotNull;
 import org.prism_mc.prism.api.activities.Activity;
 import org.prism_mc.prism.api.services.filters.FilterBehavior;
 import org.prism_mc.prism.bukkit.actions.BukkitEntityAction;
@@ -30,12 +33,8 @@ import org.prism_mc.prism.bukkit.actions.BukkitMaterialAction;
 import org.prism_mc.prism.bukkit.utils.CustomTag;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
-import org.jetbrains.annotations.NotNull;
-
 public class ActivityFilter {
+
     /**
      * The name.
      */
@@ -88,14 +87,15 @@ public class ActivityFilter {
      * @param worldNames The world names
      */
     public ActivityFilter(
-            @NotNull String name,
-            @NotNull FilterBehavior behavior,
-            @NotNull List<String> actions,
-            @NotNull List<String> causes,
-            @NotNull CustomTag<EntityType> entityTypeTag,
-            @NotNull CustomTag<Material> materialTag,
-            @NotNull List<String> permissions,
-            @NotNull List<String> worldNames) {
+        @NotNull String name,
+        @NotNull FilterBehavior behavior,
+        @NotNull List<String> actions,
+        @NotNull List<String> causes,
+        @NotNull CustomTag<EntityType> entityTypeTag,
+        @NotNull CustomTag<Material> materialTag,
+        @NotNull List<String> permissions,
+        @NotNull List<String> worldNames
+    ) {
         this.name = name;
         this.actions = actions;
         this.behavior = behavior;
@@ -192,8 +192,13 @@ public class ActivityFilter {
         var allNotApplicable = nonApplicable == results.size();
 
         if (debug) {
-            loggingService.debug("All: {0}; Not Applicable: {1}; Matched: {2}; Not Matched: {3}",
-                results.size(), nonApplicable, matched, notMatched);
+            loggingService.debug(
+                "All: {0}; Not Applicable: {1}; Matched: {2}; Not Matched: {3}",
+                results.size(),
+                nonApplicable,
+                matched,
+                notMatched
+            );
         }
 
         // No filters applied, allow

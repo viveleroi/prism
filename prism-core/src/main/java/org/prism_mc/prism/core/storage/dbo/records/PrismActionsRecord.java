@@ -20,6 +20,8 @@
 
 package org.prism_mc.prism.core.storage.dbo.records;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
+
 import org.jooq.Field;
 import org.jooq.Record1;
 import org.jooq.Record2;
@@ -27,10 +29,9 @@ import org.jooq.Row2;
 import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.types.UByte;
 
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
-
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PrismActionsRecord extends UpdatableRecordImpl<PrismActionsRecord> implements Record2<UByte, String> {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -151,7 +152,6 @@ public class PrismActionsRecord extends UpdatableRecordImpl<PrismActionsRecord> 
      */
     public PrismActionsRecord(UByte actionId, String action) {
         super(PRISM_ACTIONS);
-
         setActionId(actionId);
         setAction(action);
     }

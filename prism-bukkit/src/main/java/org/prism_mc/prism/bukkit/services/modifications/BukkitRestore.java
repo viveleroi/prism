@@ -22,10 +22,8 @@ package org.prism_mc.prism.bukkit.services.modifications;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-
 import java.util.List;
 import java.util.function.Consumer;
-
 import org.prism_mc.prism.api.activities.Activity;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueMode;
@@ -38,6 +36,7 @@ import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
 public class BukkitRestore extends AbstractWorldModificationQueue implements Restore {
+
     /**
      * The storage adapter.
      */
@@ -65,7 +64,6 @@ public class BukkitRestore extends AbstractWorldModificationQueue implements Res
         @Assisted Consumer<ModificationQueueResult> onEnd
     ) {
         super(loggingService, modificationRuleset, owner, query, modifications, onEnd);
-
         this.storageAdapter = storageAdapter;
     }
 
@@ -78,9 +76,12 @@ public class BukkitRestore extends AbstractWorldModificationQueue implements Res
     protected void onEnd(ModificationQueueResult result) {
         if (result.mode().equals(ModificationQueueMode.COMPLETING)) {
             // Get PKs of all applied activities
-            List<Long> primarykeys = result.results().stream().filter(
-                r -> r.status().equals(ModificationResultStatus.APPLIED)).map(
-                    r -> (long) ((Activity) r.activity()).primaryKey()).toList();
+            List<Long> primarykeys = result
+                .results()
+                .stream()
+                .filter(r -> r.status().equals(ModificationResultStatus.APPLIED))
+                .map(r -> (long) ((Activity) r.activity()).primaryKey())
+                .toList();
 
             try {
                 storageAdapter.markReversed(primarykeys, false);

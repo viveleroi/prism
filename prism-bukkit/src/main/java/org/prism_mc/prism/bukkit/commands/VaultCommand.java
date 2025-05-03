@@ -21,7 +21,6 @@
 package org.prism_mc.prism.bukkit.commands;
 
 import com.google.inject.Inject;
-
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.CommandFlags;
@@ -30,14 +29,14 @@ import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.PaginatedGui;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.bukkit.PrismBukkit;
 import org.prism_mc.prism.bukkit.actions.BukkitItemStackAction;
@@ -49,12 +48,9 @@ import org.prism_mc.prism.bukkit.services.query.QueryService;
 import org.prism_mc.prism.bukkit.services.translation.BukkitTranslationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-
-@Command(value = "prism", alias = {"pr"})
+@Command(value = "prism", alias = { "pr" })
 public class VaultCommand {
+
     /**
      * The action registry.
      */
@@ -114,14 +110,15 @@ public class VaultCommand {
      */
     @Inject
     public VaultCommand(
-            BukkitActionTypeRegistry actionRegistry,
-            LoggingService loggingService,
-            LookupService lookupService,
-            MessageService messageService,
-            QueryService queryService,
-            StorageAdapter storageAdapter,
-            TaskChainProvider taskChainProvider,
-            BukkitTranslationService translationService) {
+        BukkitActionTypeRegistry actionRegistry,
+        LoggingService loggingService,
+        LookupService lookupService,
+        MessageService messageService,
+        QueryService queryService,
+        StorageAdapter storageAdapter,
+        TaskChainProvider taskChainProvider,
+        BukkitTranslationService translationService
+    ) {
         this.actionRegistry = actionRegistry;
         this.loggingService = loggingService;
         this.lookupService = lookupService;
@@ -147,13 +144,17 @@ public class VaultCommand {
         optionalBuilder.ifPresent(builder -> {
             // If not action parameter, use our defaults
             if (arguments.getListArgument("a", String.class).isEmpty()) {
-                builder.actionTypes(List.of(BukkitActionTypeRegistry.ITEM_DISPENSE,
-                    BukkitActionTypeRegistry.ITEM_REMOVE,
-                    BukkitActionTypeRegistry.ITEM_ROTATE,
-                    BukkitActionTypeRegistry.ITEM_DROP,
-                    BukkitActionTypeRegistry.ITEM_INSERT,
-                    BukkitActionTypeRegistry.ITEM_PICKUP,
-                    BukkitActionTypeRegistry.ITEM_THROW));
+                builder.actionTypes(
+                    List.of(
+                        BukkitActionTypeRegistry.ITEM_DISPENSE,
+                        BukkitActionTypeRegistry.ITEM_REMOVE,
+                        BukkitActionTypeRegistry.ITEM_ROTATE,
+                        BukkitActionTypeRegistry.ITEM_DROP,
+                        BukkitActionTypeRegistry.ITEM_INSERT,
+                        BukkitActionTypeRegistry.ITEM_PICKUP,
+                        BukkitActionTypeRegistry.ITEM_THROW
+                    )
+                );
             } else {
                 // Validate that only item actions were provided
                 for (var actionKey : arguments.getListArgument("a", String.class).get()) {
@@ -163,7 +164,8 @@ public class VaultCommand {
                         return;
                     } else {
                         for (var actionType : actionRegistry.actionTypesInFamily(
-                                actionKey.toLowerCase(Locale.ENGLISH))) {
+                            actionKey.toLowerCase(Locale.ENGLISH)
+                        )) {
                             if (!actionType.key().startsWith("item-")) {
                                 messageService.errorNonItemAction(player);
 
@@ -185,49 +187,71 @@ public class VaultCommand {
                         messageService.defaultsUsed(player, String.join(" ", query.defaultsUsed()));
                     }
 
-                    var title = MiniMessage.miniMessage().deserialize(
-                        translationService.messageOf(player, "rich.vault-gui-title"));
+                    var title = MiniMessage.miniMessage()
+                        .deserialize(translationService.messageOf(player, "rich.vault-gui-title"));
 
-                    var next = MiniMessage.miniMessage().deserialize(
-                        translationService.messageOf(player, "rich.vault-gui-next"));
+                    var next = MiniMessage.miniMessage()
+                        .deserialize(translationService.messageOf(player, "rich.vault-gui-next"));
 
-                    var prev = MiniMessage.miniMessage().deserialize(
-                        translationService.messageOf(player, "rich.vault-gui-previous"));
+                    var prev = MiniMessage.miniMessage()
+                        .deserialize(translationService.messageOf(player, "rich.vault-gui-previous"));
 
-                    Bukkit.getServer().getScheduler().runTask(PrismBukkit.instance().loaderPlugin(), () -> {
-                        var gui = Gui.paginated().title(title)
-                            .disableAllInteractions().enableItemTake().rows(6).create();
+                    Bukkit.getServer()
+                        .getScheduler()
+                        .runTask(PrismBukkit.instance().loaderPlugin(), () -> {
+                            var gui = Gui.paginated()
+                                .title(title)
+                                .disableAllInteractions()
+                                .enableItemTake()
+                                .rows(6)
+                                .create();
 
-                        for (var activity : results) {
-                            if (activity.action() instanceof BukkitItemStackAction itemStackAction) {
-                                gui.addItem(ItemBuilder.from(itemStackAction.itemStack()).asGuiItem(event -> {
-                                    reversedKeys.add((Long) activity.primaryKey());
-                                    loggingService.info("{0} took {1} for activity #{2} from the vault inventory",
-                                        player.getName(),
-                                        itemStackAction.itemStack().getType().toString().toLowerCase(Locale.ENGLISH),
-                                        activity.primaryKey());
-                                }));
+                            for (var activity : results) {
+                                if (activity.action() instanceof BukkitItemStackAction itemStackAction) {
+                                    gui.addItem(
+                                        ItemBuilder.from(itemStackAction.itemStack()).asGuiItem(event -> {
+                                            reversedKeys.add((Long) activity.primaryKey());
+                                            loggingService.info(
+                                                "{0} took {1} for activity #{2} from the vault inventory",
+                                                player.getName(),
+                                                itemStackAction
+                                                    .itemStack()
+                                                    .getType()
+                                                    .toString()
+                                                    .toLowerCase(Locale.ENGLISH),
+                                                activity.primaryKey()
+                                            );
+                                        })
+                                    );
+                                }
                             }
-                        }
 
-                        for (var column = 1; column <= 9; column++) {
-                            gui.setItem(6, column, ItemBuilder.from(
-                                Material.BLACK_STAINED_GLASS_PANE).asGuiItem(event -> event.setCancelled(true)));
-                        }
+                            for (var column = 1; column <= 9; column++) {
+                                gui.setItem(
+                                    6,
+                                    column,
+                                    ItemBuilder.from(Material.BLACK_STAINED_GLASS_PANE).asGuiItem(event ->
+                                        event.setCancelled(true)
+                                    )
+                                );
+                            }
 
-                        updateGuiButtons(gui, prev, next);
+                            updateGuiButtons(gui, prev, next);
 
-                        gui.open(player);
+                            gui.open(player);
 
-                        gui.setCloseGuiAction(event -> {
-                            var keys = new ArrayList<>(reversedKeys);
-                            taskChainProvider.newChain().async(() -> {
-                                storageAdapter.markReversed(keys, true);
-                            }).execute();
+                            gui.setCloseGuiAction(event -> {
+                                var keys = new ArrayList<>(reversedKeys);
+                                taskChainProvider
+                                    .newChain()
+                                    .async(() -> {
+                                        storageAdapter.markReversed(keys, true);
+                                    })
+                                    .execute();
 
-                            reversedKeys.clear();
+                                reversedKeys.clear();
+                            });
                         });
-                    });
                 }
             });
         });
@@ -242,31 +266,47 @@ public class VaultCommand {
      */
     protected void updateGuiButtons(PaginatedGui gui, Component prev, Component next) {
         if (gui.getCurrentPageNum() > 1) {
-            gui.setItem(6, 3, ItemBuilder.from(Material.PAPER).name(prev)
-                .asGuiItem(event -> {
-                    event.setCancelled(true);
+            gui.setItem(
+                6,
+                3,
+                ItemBuilder.from(Material.PAPER)
+                    .name(prev)
+                    .asGuiItem(event -> {
+                        event.setCancelled(true);
 
-                    gui.previous();
+                        gui.previous();
 
-                    updateGuiButtons(gui, prev, next);
-                }));
+                        updateGuiButtons(gui, prev, next);
+                    })
+            );
         } else {
-            gui.setItem(6, 3, ItemBuilder.from(
-                Material.BLACK_STAINED_GLASS_PANE).asGuiItem(event -> event.setCancelled(true)));
+            gui.setItem(
+                6,
+                3,
+                ItemBuilder.from(Material.BLACK_STAINED_GLASS_PANE).asGuiItem(event -> event.setCancelled(true))
+            );
         }
 
         if (gui.getCurrentPageNum() < gui.getPagesNum()) {
-            gui.setItem(6, 7, ItemBuilder.from(Material.PAPER).name(next)
-                .asGuiItem(event -> {
-                    event.setCancelled(true);
+            gui.setItem(
+                6,
+                7,
+                ItemBuilder.from(Material.PAPER)
+                    .name(next)
+                    .asGuiItem(event -> {
+                        event.setCancelled(true);
 
-                    gui.next();
+                        gui.next();
 
-                    updateGuiButtons(gui, prev, next);
-                }));
+                        updateGuiButtons(gui, prev, next);
+                    })
+            );
         } else {
-            gui.setItem(6, 7, ItemBuilder.from(
-                Material.BLACK_STAINED_GLASS_PANE).asGuiItem(event -> event.setCancelled(true)));
+            gui.setItem(
+                6,
+                7,
+                ItemBuilder.from(Material.BLACK_STAINED_GLASS_PANE).asGuiItem(event -> event.setCancelled(true))
+            );
         }
 
         gui.update();

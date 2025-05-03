@@ -21,13 +21,12 @@
 package org.prism_mc.prism.bukkit.commands;
 
 import com.google.inject.Inject;
-
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.CommandFlags;
 import dev.triumphteam.cmd.core.annotations.NamedArguments;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
-
+import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.services.purges.PurgeQueue;
 import org.prism_mc.prism.bukkit.services.messages.MessageService;
@@ -35,10 +34,9 @@ import org.prism_mc.prism.bukkit.services.purge.PurgeService;
 import org.prism_mc.prism.bukkit.services.query.QueryService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.command.CommandSender;
-
-@Command(value = "prism", alias = {"pr"})
+@Command(value = "prism", alias = { "pr" })
 public class PurgeCommand {
+
     /**
      * The configuration service.
      */
@@ -69,10 +67,11 @@ public class PurgeCommand {
      */
     @Inject
     public PurgeCommand(
-            ConfigurationService configurationService,
-            MessageService messageService,
-            QueryService queryService,
-            PurgeService purgeService) {
+        ConfigurationService configurationService,
+        MessageService messageService,
+        QueryService queryService,
+        PurgeService purgeService
+    ) {
         this.configurationService = configurationService;
         this.messageService = messageService;
         this.queryService = queryService;
@@ -96,7 +95,8 @@ public class PurgeCommand {
 
         var builder = queryService.queryFromArguments(sender, arguments);
         if (builder.isPresent()) {
-            final ActivityQuery query = builder.get()
+            final ActivityQuery query = builder
+                .get()
                 .limit(configurationService.prismConfig().purges().limit())
                 .build();
 
@@ -104,9 +104,12 @@ public class PurgeCommand {
                 messageService.defaultsUsed(sender, String.join(" ", query.defaultsUsed()));
             }
 
-            PurgeQueue purgeQueue = purgeService.newQueue(result -> {
-                messageService.purgeCycle(sender, result);
-            }, result -> messageService.purgeComplete(sender, result.deleted()));
+            PurgeQueue purgeQueue = purgeService.newQueue(
+                result -> {
+                    messageService.purgeCycle(sender, result);
+                },
+                result -> messageService.purgeComplete(sender, result.deleted())
+            );
 
             purgeQueue.add(query);
             purgeQueue.start();

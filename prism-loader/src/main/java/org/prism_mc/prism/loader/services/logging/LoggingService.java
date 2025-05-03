@@ -22,10 +22,10 @@ package org.prism_mc.prism.loader.services.logging;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
 public class LoggingService {
+
     /**
      * The configuration service.
      */

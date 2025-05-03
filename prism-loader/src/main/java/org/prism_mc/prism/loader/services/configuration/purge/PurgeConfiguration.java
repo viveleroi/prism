@@ -23,30 +23,32 @@ package org.prism_mc.prism.loader.services.configuration.purge;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import lombok.Getter;
-
 import org.prism_mc.prism.loader.services.configuration.cache.DurationConfiguration;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
 public class PurgeConfiguration {
-    @Comment("""
-            Set the maximum number of records to delete in each "purge batch".
-            Deleting records often locks every affected row which can block other
-            queries or new data waiting for insert. If purging is causing performance
-            issues or errors in the console, lower this value.
-            Please see https://docs.prism-mc.org/features/purges/ for more.
-            """)
+
+    @Comment(
+        """
+        Set the maximum number of records to delete in each "purge batch".
+        Deleting records often locks every affected row which can block other
+        queries or new data waiting for insert. If purging is causing performance
+        issues or errors in the console, lower this value.
+        Please see https://docs.prism-mc.org/features/purges/ for more.
+        """
+    )
     private int limit = 5000;
 
-    @Comment("""
-            Configure the delay between purge cycles. Adding a delay helps break up
-            the purge queries over time, which helps avoid purges dominating the db.
-            """)
+    @Comment(
+        """
+        Configure the delay between purge cycles. Adding a delay helps break up
+        the purge queries over time, which helps avoid purges dominating the db.
+        """
+    )
     private DurationConfiguration cycleDelay = new DurationConfiguration(2, TimeUnit.SECONDS);
 
     private List<CommandScheduleConfiguration> commandSchedules = new ArrayList<>();

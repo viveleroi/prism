@@ -22,11 +22,11 @@ package org.prism_mc.prism.core.storage.adapters.sql;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
 @Singleton
 public class SqlSchemaUpdater {
+
     /**
      * The logger.
      */

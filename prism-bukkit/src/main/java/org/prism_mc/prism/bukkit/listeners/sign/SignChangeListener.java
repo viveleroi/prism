@@ -21,10 +21,14 @@
 package org.prism_mc.prism.bukkit.listeners.sign;
 
 import com.google.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.List;
-
+import org.bukkit.block.sign.Side;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.SignChangeEvent;
 import org.prism_mc.prism.bukkit.actions.BukkitBlockAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
@@ -33,14 +37,8 @@ import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
 import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.block.sign.Side;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.SignChangeEvent;
-
 public class SignChangeListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -50,9 +48,10 @@ public class SignChangeListener extends AbstractListener implements Listener {
      */
     @Inject
     public SignChangeListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -83,7 +82,8 @@ public class SignChangeListener extends AbstractListener implements Listener {
         var activity = BukkitActivity.builder()
             .action(action)
             .location(event.getBlock().getLocation())
-            .player(player).build();
+            .player(player)
+            .build();
 
         recordingService.addToQueue(activity);
     }

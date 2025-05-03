@@ -21,9 +21,7 @@
 package org.prism_mc.prism.bukkit.services.wands;
 
 import com.google.inject.Inject;
-
 import java.util.UUID;
-
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueService;
 import org.prism_mc.prism.api.services.wands.Wand;
@@ -37,6 +35,7 @@ import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
 public class RollbackWand extends AbstractModificationWand implements Wand {
+
     /**
      * Construct a new inspection wand.
      *
@@ -49,19 +48,21 @@ public class RollbackWand extends AbstractModificationWand implements Wand {
      */
     @Inject
     public RollbackWand(
-            ConfigurationService configurationService,
-            StorageAdapter storageAdapter,
-            MessageService messageService,
-            ModificationQueueService modificationQueueService,
-            TaskChainProvider taskChainProvider,
-            LoggingService loggingService) {
+        ConfigurationService configurationService,
+        StorageAdapter storageAdapter,
+        MessageService messageService,
+        ModificationQueueService modificationQueueService,
+        TaskChainProvider taskChainProvider,
+        LoggingService loggingService
+    ) {
         super(
             configurationService,
             storageAdapter,
             messageService,
             modificationQueueService,
             taskChainProvider,
-            loggingService);
+            loggingService
+        );
     }
 
     @Override
@@ -77,7 +78,11 @@ public class RollbackWand extends AbstractModificationWand implements Wand {
     @Override
     public void use(UUID worldUuid, Coordinate coordinate) {
         final ActivityQuery query = ActivityQuery.builder()
-            .worldUuid(worldUuid).coordinate(coordinate).limit(1).rollback().build();
+            .worldUuid(worldUuid)
+            .coordinate(coordinate)
+            .limit(1)
+            .rollback()
+            .build();
 
         super.use(query, BukkitRollback.class);
     }

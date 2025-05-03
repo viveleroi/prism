@@ -21,13 +21,6 @@
 package org.prism_mc.prism.bukkit.listeners.inventory;
 
 import com.google.inject.Inject;
-
-import org.prism_mc.prism.bukkit.listeners.AbstractListener;
-import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
-import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
-import org.prism_mc.prism.bukkit.utils.ItemUtils;
-import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -37,8 +30,14 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.prism_mc.prism.bukkit.listeners.AbstractListener;
+import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
+import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
+import org.prism_mc.prism.bukkit.utils.ItemUtils;
+import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
 public class InventoryClickListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -48,9 +47,10 @@ public class InventoryClickListener extends AbstractListener implements Listener
      */
     @Inject
     public InventoryClickListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -65,20 +65,22 @@ public class InventoryClickListener extends AbstractListener implements Listener
         ItemStack heldItem = event.getCursor();
         ItemStack slotItem = event.getCurrentItem();
 
-        boolean clickedTopInventory = event.getClickedInventory() != null
-            && event.getClickedInventory().equals(event.getInventory());
+        boolean clickedTopInventory =
+            event.getClickedInventory() != null && event.getClickedInventory().equals(event.getInventory());
 
         // Ignore:
         // - Clicks with the creative menu open
         // - Useless/unknown clicks
         // - Drop item events because those are tracked by the PlayerDropItemListener
-        if (event.getClick().equals(ClickType.CREATIVE)
-                || event.getAction().equals(InventoryAction.NOTHING)
-                || event.getAction().equals(InventoryAction.UNKNOWN)
-                || event.getAction().equals(InventoryAction.DROP_ALL_CURSOR)
-                || event.getAction().equals(InventoryAction.DROP_ALL_SLOT)
-                || event.getAction().equals(InventoryAction.DROP_ONE_CURSOR)
-                || event.getAction().equals(InventoryAction.DROP_ONE_SLOT)) {
+        if (
+            event.getClick().equals(ClickType.CREATIVE) ||
+            event.getAction().equals(InventoryAction.NOTHING) ||
+            event.getAction().equals(InventoryAction.UNKNOWN) ||
+            event.getAction().equals(InventoryAction.DROP_ALL_CURSOR) ||
+            event.getAction().equals(InventoryAction.DROP_ALL_SLOT) ||
+            event.getAction().equals(InventoryAction.DROP_ONE_CURSOR) ||
+            event.getAction().equals(InventoryAction.DROP_ONE_SLOT)
+        ) {
             return;
         }
 
@@ -95,8 +97,10 @@ public class InventoryClickListener extends AbstractListener implements Listener
         }
 
         // Ignore non-players or player's working only within their own inventory
-        if (!(event.getWhoClicked() instanceof Player player)
-                || event.getInventory().getHolder() instanceof Player other && other.equals(player)) {
+        if (
+            !(event.getWhoClicked() instanceof Player player) ||
+            (event.getInventory().getHolder() instanceof Player other && other.equals(player))
+        ) {
             return;
         }
 
@@ -104,16 +108,27 @@ public class InventoryClickListener extends AbstractListener implements Listener
         if (!clickedTopInventory) {
             if (event.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
                 int quantityAccepted = ItemUtils.inventoryAcceptsQuantity(
-                    event.getInventory(), slotItem.getType(), slotItem.getType().getMaxStackSize());
+                    event.getInventory(),
+                    slotItem.getType(),
+                    slotItem.getType().getMaxStackSize()
+                );
                 if (quantityAccepted > 0) {
                     recordItemInsertActivity(
-                        location, player, slotItem, Integer.min(quantityAccepted, slotItem.getAmount()));
+                        location,
+                        player,
+                        slotItem,
+                        Integer.min(quantityAccepted, slotItem.getAmount())
+                    );
                 }
 
                 return;
             } else if (event.getAction().equals(InventoryAction.COLLECT_TO_CURSOR)) {
                 int totalCollected = ItemUtils.countCollectedToCursor(
-                    player.getInventory(), event.getInventory(), heldItem.getType(), heldItem.getAmount());
+                    player.getInventory(),
+                    event.getInventory(),
+                    heldItem.getType(),
+                    heldItem.getAmount()
+                );
                 if (totalCollected > 0) {
                     recordItemRemoveActivity(location, player, heldItem, totalCollected);
                 }
@@ -128,7 +143,11 @@ public class InventoryClickListener extends AbstractListener implements Listener
         switch (event.getAction()) {
             case COLLECT_TO_CURSOR -> {
                 int totalCollected = ItemUtils.countCollectedToCursor(
-                    player.getInventory(), event.getInventory(), heldItem.getType(), heldItem.getAmount());
+                    player.getInventory(),
+                    event.getInventory(),
+                    heldItem.getType(),
+                    heldItem.getAmount()
+                );
                 if (totalCollected > 0) {
                     recordItemRemoveActivity(location, player, heldItem, totalCollected);
                 }
@@ -150,10 +169,17 @@ public class InventoryClickListener extends AbstractListener implements Listener
             }
             case MOVE_TO_OTHER_INVENTORY -> {
                 int quantityAccepted = ItemUtils.inventoryAcceptsQuantity(
-                    player.getInventory(), slotItem.getType(), slotItem.getType().getMaxStackSize());
+                    player.getInventory(),
+                    slotItem.getType(),
+                    slotItem.getType().getMaxStackSize()
+                );
                 if (quantityAccepted > 0) {
                     recordItemRemoveActivity(
-                        location, player, slotItem, Integer.min(quantityAccepted, slotItem.getAmount()));
+                        location,
+                        player,
+                        slotItem,
+                        Integer.min(quantityAccepted, slotItem.getAmount())
+                    );
                 }
             }
             case PICKUP_HALF -> {

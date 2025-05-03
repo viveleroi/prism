@@ -21,26 +21,23 @@
 package org.prism_mc.prism.bukkit.services.messages.resolvers;
 
 import com.google.inject.Singleton;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Map;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.moonshine.placeholder.ConclusionValue;
 import net.kyori.moonshine.placeholder.ContinuanceValue;
 import net.kyori.moonshine.placeholder.IPlaceholderResolver;
 import net.kyori.moonshine.util.Either;
-
-import org.prism_mc.prism.api.services.purges.PurgeCycleResult;
-
 import org.bukkit.command.CommandSender;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.prism_mc.prism.api.services.purges.PurgeCycleResult;
 
 @Singleton
-public class PurgeCycleResultPlaceholderResolver implements
-        IPlaceholderResolver<CommandSender, PurgeCycleResult, Component> {
+public class PurgeCycleResultPlaceholderResolver
+    implements IPlaceholderResolver<CommandSender, PurgeCycleResult, Component> {
+
     @Override
     public @NonNull Map<String, Either<ConclusionValue<? extends Component>, ContinuanceValue<?>>> resolve(
         final String placeholderName,
@@ -54,8 +51,13 @@ public class PurgeCycleResultPlaceholderResolver implements
         Component lowerbound = Component.text(value.minPrimaryKey());
         Component upperbound = Component.text(value.maxPrimaryKey());
 
-        return Map.of(placeholderName + "_count", Either.left(ConclusionValue.conclusionValue(count)),
-            placeholderName + "_lowerbound", Either.left(ConclusionValue.conclusionValue(lowerbound)),
-            placeholderName + "_upperbound", Either.left(ConclusionValue.conclusionValue(upperbound)));
+        return Map.of(
+            placeholderName + "_count",
+            Either.left(ConclusionValue.conclusionValue(count)),
+            placeholderName + "_lowerbound",
+            Either.left(ConclusionValue.conclusionValue(lowerbound)),
+            placeholderName + "_upperbound",
+            Either.left(ConclusionValue.conclusionValue(upperbound))
+        );
     }
 }

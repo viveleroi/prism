@@ -21,7 +21,8 @@
 package org.prism_mc.prism.bukkit.services.wands;
 
 import com.google.inject.Inject;
-
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.services.modifications.ModificationQueue;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueService;
@@ -32,10 +33,8 @@ import org.prism_mc.prism.bukkit.services.messages.MessageService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
 public abstract class AbstractModificationWand {
+
     /**
      * The configuration service.
      */
@@ -83,12 +82,13 @@ public abstract class AbstractModificationWand {
      */
     @Inject
     public AbstractModificationWand(
-            ConfigurationService configurationService,
-            StorageAdapter storageAdapter,
-            MessageService messageService,
-            ModificationQueueService modificationQueueService,
-            TaskChainProvider taskChainProvider,
-            LoggingService loggingService) {
+        ConfigurationService configurationService,
+        StorageAdapter storageAdapter,
+        MessageService messageService,
+        ModificationQueueService modificationQueueService,
+        TaskChainProvider taskChainProvider,
+        LoggingService loggingService
+    ) {
         this.configurationService = configurationService;
         this.storageAdapter = storageAdapter;
         this.messageService = messageService;
@@ -111,26 +111,34 @@ public abstract class AbstractModificationWand {
             return;
         }
 
-        taskChainProvider.newChain().asyncFirst(() -> {
-            try {
-                return storageAdapter.queryActivities(query);
-            } catch (Exception e) {
-                messageService.errorQueryExec((CommandSender) owner);
-                loggingService.handleException(e);
-            }
+        taskChainProvider
+            .newChain()
+            .asyncFirst(() -> {
+                try {
+                    return storageAdapter.queryActivities(query);
+                } catch (Exception e) {
+                    messageService.errorQueryExec((CommandSender) owner);
+                    loggingService.handleException(e);
+                }
 
-            return null;
-        }).abortIfNull().syncLast(modifications -> {
-            if (modifications.isEmpty()) {
-                messageService.noResults((Player) owner);
+                return null;
+            })
+            .abortIfNull()
+            .syncLast(modifications -> {
+                if (modifications.isEmpty()) {
+                    messageService.noResults((Player) owner);
 
-                return;
-            }
+                    return;
+                }
 
-            ModificationRuleset modificationRuleset = configurationService
-                .prismConfig().modifications().toRulesetBuilder().build();
+                ModificationRuleset modificationRuleset = configurationService
+                    .prismConfig()
+                    .modifications()
+                    .toRulesetBuilder()
+                    .build();
 
-            modificationQueueService.newQueue(clazz, modificationRuleset, owner, query, modifications).apply();
-        }).execute();
+                modificationQueueService.newQueue(clazz, modificationRuleset, owner, query, modifications).apply();
+            })
+            .execute();
     }
 }

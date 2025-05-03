@@ -20,20 +20,6 @@
 
 package org.prism_mc.prism.core.storage.adapters.h2;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
-import org.prism_mc.prism.api.activities.ActivityQuery;
-import org.prism_mc.prism.core.storage.adapters.sql.SqlActivityQueryBuilder;
-import org.prism_mc.prism.core.storage.dbo.records.PrismActivitiesRecord;
-import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
-
-import org.jooq.DSLContext;
-import org.jooq.DeleteQuery;
-import org.jooq.Record;
-import org.jooq.SelectQuery;
-import org.jooq.types.UInteger;
-
 import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
 import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
 import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
@@ -42,7 +28,20 @@ import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAda
 import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
 import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+import org.jooq.DSLContext;
+import org.jooq.DeleteQuery;
+import org.jooq.Record;
+import org.jooq.SelectQuery;
+import org.jooq.types.UInteger;
+import org.prism_mc.prism.api.activities.ActivityQuery;
+import org.prism_mc.prism.core.storage.adapters.sql.SqlActivityQueryBuilder;
+import org.prism_mc.prism.core.storage.dbo.records.PrismActivitiesRecord;
+import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+
 public class H2ActivityQueryBuilder extends SqlActivityQueryBuilder {
+
     /**
      * Construct a new query builder.
      *
@@ -50,9 +49,7 @@ public class H2ActivityQueryBuilder extends SqlActivityQueryBuilder {
      * @param create The DSL context
      */
     @Inject
-    public H2ActivityQueryBuilder(
-            ConfigurationService configurationService,
-            @Assisted DSLContext create) {
+    public H2ActivityQueryBuilder(ConfigurationService configurationService, @Assisted DSLContext create) {
         super(configurationService, create);
     }
 
@@ -84,12 +81,13 @@ public class H2ActivityQueryBuilder extends SqlActivityQueryBuilder {
 
         if (!query.entityTypes().isEmpty()) {
             selectQueryBuilder.addJoin(
-                PRISM_ENTITY_TYPES, PRISM_ENTITY_TYPES.ENTITY_TYPE_ID.equal(PRISM_ACTIVITIES.ENTITY_TYPE_ID));
+                PRISM_ENTITY_TYPES,
+                PRISM_ENTITY_TYPES.ENTITY_TYPE_ID.equal(PRISM_ACTIVITIES.ENTITY_TYPE_ID)
+            );
         }
 
         if (!query.materials().isEmpty()) {
-            selectQueryBuilder.addJoin(
-                    PRISM_ITEMS, PRISM_ITEMS.ITEM_ID.equal(PRISM_ACTIVITIES.ITEM_ID));
+            selectQueryBuilder.addJoin(PRISM_ITEMS, PRISM_ITEMS.ITEM_ID.equal(PRISM_ACTIVITIES.ITEM_ID));
         }
 
         if (!query.playerNames().isEmpty()) {
@@ -105,13 +103,16 @@ public class H2ActivityQueryBuilder extends SqlActivityQueryBuilder {
         selectQueryBuilder.addConditions(conditions(query));
 
         // Limit
-        selectQueryBuilder.addConditions(PRISM_ACTIVITIES.ACTIVITY_ID
-            .between(UInteger.valueOf(cycleMinPrimaryKey), UInteger.valueOf(cycleMaxPrimaryKey)));
+        selectQueryBuilder.addConditions(
+            PRISM_ACTIVITIES.ACTIVITY_ID.between(
+                UInteger.valueOf(cycleMinPrimaryKey),
+                UInteger.valueOf(cycleMaxPrimaryKey)
+            )
+        );
 
         // Build the delete query
         DeleteQuery<PrismActivitiesRecord> deleteQueryBuilder = create.deleteQuery(PRISM_ACTIVITIES);
-        deleteQueryBuilder
-            .addConditions(PRISM_ACTIVITIES.ACTIVITY_ID.in(selectQueryBuilder.asField()));
+        deleteQueryBuilder.addConditions(PRISM_ACTIVITIES.ACTIVITY_ID.in(selectQueryBuilder.asField()));
 
         return deleteQueryBuilder.execute();
     }

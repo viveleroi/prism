@@ -25,16 +25,15 @@ import java.nio.file.Path;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.prism_mc.prism.loader.services.configuration.serializers.LocaleSerializerConfigurate;
 import org.prism_mc.prism.loader.services.configuration.storage.StorageConfiguration;
-
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 import org.spongepowered.configurate.loader.ConfigurationLoader;
 
 public class ConfigurationService {
+
     /**
      * The plugin data path.
      */
@@ -92,11 +91,17 @@ public class ConfigurationService {
         // Load the main config
         File prismConfigFile = new File(dataPath.toFile(), "prism.conf");
         prismConfiguration = getOrWriteConfiguration(
-            PrismConfiguration.class, prismConfigFile, new PrismConfiguration());
+            PrismConfiguration.class,
+            prismConfigFile,
+            new PrismConfiguration()
+        );
 
         File storageConfigFile = new File(dataPath.toFile(), "storage.conf");
         storageConfiguration = getOrWriteConfiguration(
-            StorageConfiguration.class, storageConfigFile, new StorageConfiguration());
+            StorageConfiguration.class,
+            storageConfigFile,
+            new StorageConfiguration()
+        );
     }
 
     /**
@@ -108,12 +113,16 @@ public class ConfigurationService {
     public ConfigurationLoader<?> configurationLoader(final Path file) {
         HoconConfigurationLoader.Builder builder = HoconConfigurationLoader.builder();
         builder.prettyPrinting(true);
-        builder.defaultOptions(opts -> opts.shouldCopyDefaults(true)
-                .implicitInitialization(false).serializers(serializerBuilder ->
-            serializerBuilder.register(Locale.class, new LocaleSerializerConfigurate())));
+        builder.defaultOptions(opts ->
+            opts
+                .shouldCopyDefaults(true)
+                .implicitInitialization(false)
+                .serializers(serializerBuilder ->
+                    serializerBuilder.register(Locale.class, new LocaleSerializerConfigurate())
+                )
+        );
         builder.path(file);
-        return builder
-            .build();
+        return builder.build();
     }
 
     /**

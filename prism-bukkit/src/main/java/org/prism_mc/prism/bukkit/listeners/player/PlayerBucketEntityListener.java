@@ -21,7 +21,10 @@
 package org.prism_mc.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
-
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerBucketEntityEvent;
 import org.prism_mc.prism.api.actions.metadata.Metadata;
 import org.prism_mc.prism.bukkit.actions.BukkitEntityAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
@@ -32,12 +35,8 @@ import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.bukkit.utils.ItemUtils;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerBucketEntityEvent;
-
 public class PlayerBucketEntityListener extends AbstractListener implements Listener {
+
     /**
      * Constructor.
      *
@@ -47,9 +46,10 @@ public class PlayerBucketEntityListener extends AbstractListener implements List
      */
     @Inject
     public PlayerBucketEntityListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -66,8 +66,7 @@ public class PlayerBucketEntityListener extends AbstractListener implements List
         }
 
         var metadata = Metadata.builder().using(ItemUtils.materialName(event.getOriginalBucket())).build();
-        var action = new BukkitEntityAction(
-            BukkitActionTypeRegistry.ENTITY_REMOVE, event.getEntity(), metadata);
+        var action = new BukkitEntityAction(BukkitActionTypeRegistry.ENTITY_REMOVE, event.getEntity(), metadata);
 
         var bucketEmptyActivity = BukkitActivity.builder()
             .action(action)

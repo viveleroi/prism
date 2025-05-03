@@ -29,4 +29,5 @@ public record BlockBreakAlertData(
     TextColor color,
     String count,
     int lightLevel,
-    Key itemKey) {}
+    Key itemKey
+) {}

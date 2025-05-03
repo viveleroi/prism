@@ -22,34 +22,36 @@ package org.prism_mc.prism.loader.services.configuration;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.Getter;
-
 import org.prism_mc.prism.loader.services.configuration.alerts.AlertsConfiguration;
 import org.prism_mc.prism.loader.services.configuration.cache.CacheConfiguration;
 import org.prism_mc.prism.loader.services.configuration.filters.FilterConfiguration;
 import org.prism_mc.prism.loader.services.configuration.purge.PurgeConfiguration;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
 public class PrismConfiguration {
-    @Comment("""
-            Actions are in-game events/changes that Prism can record data for.
-            Some are purely informational, some can be reversed/restored.
-            Disabling any here will completely prevent prism from recording them.
-            Actions that are disabled by default may need some consideration/filters
-            before enabling them. Blanket-enabling everything is a recipe for
-            exponential database growth.""")
+
+    @Comment(
+        """
+        Actions are in-game events/changes that Prism can record data for.
+        Some are purely informational, some can be reversed/restored.
+        Disabling any here will completely prevent prism from recording them.
+        Actions that are disabled by default may need some consideration/filters
+        before enabling them. Blanket-enabling everything is a recipe for
+        exponential database growth."""
+    )
     private ActionsConfiguration actions = new ActionsConfiguration();
 
     private AlertsConfiguration alerts = new AlertsConfiguration();
 
-    @Comment("""
-            Configure how Prism caches data. Probably best to leave
-            these settings alone unless you have specific reasons to change them.""")
+    @Comment(
+        """
+        Configure how Prism caches data. Probably best to leave
+        these settings alone unless you have specific reasons to change them."""
+    )
     private CacheConfiguration cache = new CacheConfiguration();
 
     private CommandsConfiguration commands = new CommandsConfiguration();
@@ -62,9 +64,11 @@ public class PrismConfiguration {
 
     private DefaultsConfiguration defaults = new DefaultsConfiguration();
 
-    @Comment("""
-            Filters allow fine-grained control over what prism records.
-            Please see https://docs.prism-mc.org/configs/filters/""")
+    @Comment(
+        """
+        Filters allow fine-grained control over what prism records.
+        Please see https://docs.prism-mc.org/configs/filters/"""
+    )
     private List<FilterConfiguration> filters = new ArrayList<>();
 
     @Comment("Configure rules for modifications (rollbacks/restores).")

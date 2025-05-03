@@ -29,6 +29,7 @@ import org.prism_mc.prism.api.services.modifications.ModificationResult;
 import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
 
 public class GenericBukkitAction extends BukkitAction implements Action {
+
     /**
      * Construct a new generic action.
      *
@@ -68,25 +69,26 @@ public class GenericBukkitAction extends BukkitAction implements Action {
      */
     public GenericBukkitAction(ActionType type, String descriptor, String metadata) throws Exception {
         super(type, descriptor);
-
         this.metadata = ObjectMapper.readValue(metadata, Metadata.class);
     }
 
     @Override
     public ModificationResult applyRollback(
-            ModificationRuleset modificationRuleset,
-            Object owner,
-            Activity activityContext,
-            ModificationQueueMode mode) {
+        ModificationRuleset modificationRuleset,
+        Object owner,
+        Activity activityContext,
+        ModificationQueueMode mode
+    ) {
         return ModificationResult.builder().activity(activityContext).build();
     }
 
     @Override
     public ModificationResult applyRestore(
-            ModificationRuleset modificationRuleset,
-            Object owner,
-            Activity activityContext,
-            ModificationQueueMode mode) {
+        ModificationRuleset modificationRuleset,
+        Object owner,
+        Activity activityContext,
+        ModificationQueueMode mode
+    ) {
         return ModificationResult.builder().activity(activityContext).build();
     }
 }

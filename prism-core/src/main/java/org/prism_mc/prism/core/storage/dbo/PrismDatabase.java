@@ -22,12 +22,12 @@ package org.prism_mc.prism.core.storage.dbo;
 
 import java.io.Serial;
 import java.util.List;
-
 import org.jetbrains.annotations.NotNull;
 import org.jooq.Table;
 import org.jooq.impl.SchemaImpl;
 
 public class PrismDatabase extends SchemaImpl {
+
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -44,7 +44,6 @@ public class PrismDatabase extends SchemaImpl {
      */
     public PrismDatabase(DefaultCatalog catalog, String database, List<Table<?>> tables) {
         super(database, catalog);
-
         this.tables = tables;
     }
 

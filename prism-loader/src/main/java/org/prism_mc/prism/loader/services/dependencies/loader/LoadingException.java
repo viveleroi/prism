@@ -30,6 +30,7 @@ package org.prism_mc.prism.loader.services.dependencies.loader;
  * Runtime exception used if there is a problem during loading.
  */
 public class LoadingException extends RuntimeException {
+
     /**
      * Constructor.
      *

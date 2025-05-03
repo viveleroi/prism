@@ -21,9 +21,8 @@
 package org.prism_mc.prism.bukkit.services.wands;
 
 import com.google.inject.Inject;
-
 import java.util.UUID;
-
+import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.services.wands.Wand;
 import org.prism_mc.prism.api.services.wands.WandMode;
@@ -31,9 +30,8 @@ import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.bukkit.services.lookup.LookupService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.command.CommandSender;
-
 public class InspectionWand implements Wand {
+
     /**
      * The configuration service.
      */
@@ -56,9 +54,7 @@ public class InspectionWand implements Wand {
      * @param lookupService The lookup server
      */
     @Inject
-    public InspectionWand(
-            ConfigurationService configurationService,
-            LookupService lookupService) {
+    public InspectionWand(ConfigurationService configurationService, LookupService lookupService) {
         this.configurationService = configurationService;
         this.lookupService = lookupService;
     }
@@ -75,8 +71,11 @@ public class InspectionWand implements Wand {
 
     @Override
     public void use(UUID worldUuid, Coordinate coordinate) {
-        final ActivityQuery query = ActivityQuery.builder().worldUuid(worldUuid)
-            .coordinate(coordinate).limit(configurationService.prismConfig().defaults().perPage()).build();
+        final ActivityQuery query = ActivityQuery.builder()
+            .worldUuid(worldUuid)
+            .coordinate(coordinate)
+            .limit(configurationService.prismConfig().defaults().perPage())
+            .build();
 
         lookupService.lookup((CommandSender) owner, query);
     }

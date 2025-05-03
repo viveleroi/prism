@@ -20,6 +20,8 @@
 
 package org.prism_mc.prism.core.storage.dbo.records;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_META;
+
 import org.jooq.Field;
 import org.jooq.Record1;
 import org.jooq.Record3;
@@ -27,10 +29,9 @@ import org.jooq.Row3;
 import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.types.UByte;
 
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_META;
-
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PrismMetaRecord extends UpdatableRecordImpl<PrismMetaRecord> implements Record3<UByte, String, String> {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -188,7 +189,6 @@ public class PrismMetaRecord extends UpdatableRecordImpl<PrismMetaRecord> implem
      */
     public PrismMetaRecord(UByte metaId, String k, String v) {
         super(PRISM_META);
-
         setMetaId(metaId);
         setK(k);
         setV(v);

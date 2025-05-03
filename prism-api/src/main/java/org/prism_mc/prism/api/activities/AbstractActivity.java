@@ -21,11 +21,9 @@
 package org.prism_mc.prism.api.activities;
 
 import java.util.UUID;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-
 import org.prism_mc.prism.api.actions.Action;
 import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.api.util.Pair;
@@ -38,6 +36,7 @@ import org.prism_mc.prism.api.util.Pair;
 @SuperBuilder
 @Getter
 public abstract class AbstractActivity {
+
     /**
      * The action.
      */
@@ -79,12 +78,13 @@ public abstract class AbstractActivity {
      * @param timestamp The timestamp (or average)
      */
     public AbstractActivity(
-            Action action,
-            Pair<UUID, String> world,
-            Coordinate coordinate,
-            String cause,
-            Pair<UUID, String> player,
-            Long timestamp) {
+        Action action,
+        Pair<UUID, String> world,
+        Coordinate coordinate,
+        String cause,
+        Pair<UUID, String> player,
+        Long timestamp
+    ) {
         this.action = action;
         this.cause = cause;
         this.coordinate = coordinate;
@@ -102,6 +102,7 @@ public abstract class AbstractActivity {
         return world.key();
     }
 
-    public abstract static class AbstractActivityBuilder
-        <C extends AbstractActivity, B extends AbstractActivityBuilder<C, B>> {}
+    public abstract static class AbstractActivityBuilder<
+        C extends AbstractActivity, B extends AbstractActivityBuilder<C, B>
+    > {}
 }

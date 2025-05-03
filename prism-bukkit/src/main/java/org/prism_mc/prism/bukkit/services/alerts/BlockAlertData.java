@@ -23,8 +23,4 @@ package org.prism_mc.prism.bukkit.services.alerts;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.TextColor;
 
-public record BlockAlertData(
-    String playerName,
-    String blockTranslationKey,
-    TextColor color,
-    Key itemKey) {}
+public record BlockAlertData(String playerName, String blockTranslationKey, TextColor color, Key itemKey) {}

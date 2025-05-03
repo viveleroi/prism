@@ -21,14 +21,13 @@
 package org.prism_mc.prism.loader.services.configuration.filters;
 
 import java.util.List;
-
 import lombok.Getter;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
 @Getter
 public class FilterConditionsConfiguration {
+
     /**
      * Actions.
      */

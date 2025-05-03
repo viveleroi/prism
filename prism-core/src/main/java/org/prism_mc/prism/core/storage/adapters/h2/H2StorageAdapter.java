@@ -23,10 +23,9 @@ package org.prism_mc.prism.core.storage.adapters.h2;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-
 import java.io.File;
 import java.nio.file.Path;
-
+import org.jooq.SQLDialect;
 import org.prism_mc.prism.api.actions.types.ActionTypeRegistry;
 import org.prism_mc.prism.core.injection.factories.FileSqlActivityQueryBuilderFactory;
 import org.prism_mc.prism.core.services.cache.CacheService;
@@ -36,10 +35,9 @@ import org.prism_mc.prism.core.storage.adapters.sql.SqlSchemaUpdater;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.jooq.SQLDialect;
-
 @Singleton
 public class H2StorageAdapter extends AbstractSqlStorageAdapter {
+
     /**
      * Constructor.
      *
@@ -52,14 +50,15 @@ public class H2StorageAdapter extends AbstractSqlStorageAdapter {
      */
     @Inject
     public H2StorageAdapter(
-            LoggingService loggingService,
-            ConfigurationService configurationService,
-            ActionTypeRegistry actionRegistry,
-            SqlSchemaUpdater schemaUpdater,
-            FileSqlActivityQueryBuilderFactory queryBuilderFactory,
-            CacheService cacheService,
-            @Named("serializerVersion") short serializerVersion,
-            Path dataPath) {
+        LoggingService loggingService,
+        ConfigurationService configurationService,
+        ActionTypeRegistry actionRegistry,
+        SqlSchemaUpdater schemaUpdater,
+        FileSqlActivityQueryBuilderFactory queryBuilderFactory,
+        CacheService cacheService,
+        @Named("serializerVersion") short serializerVersion,
+        Path dataPath
+    ) {
         super(
             loggingService,
             configurationService,
@@ -67,8 +66,8 @@ public class H2StorageAdapter extends AbstractSqlStorageAdapter {
             schemaUpdater,
             null,
             cacheService,
-            serializerVersion);
-
+            serializerVersion
+        );
         try {
             File prismH2File = new File(dataPath.toFile(), configurationService.storageConfig().h2().database());
 

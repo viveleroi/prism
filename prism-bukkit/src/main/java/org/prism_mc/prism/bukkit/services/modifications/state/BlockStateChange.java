@@ -20,11 +20,11 @@
 
 package org.prism_mc.prism.bukkit.services.modifications.state;
 
+import org.bukkit.block.BlockState;
 import org.prism_mc.prism.api.services.modifications.StateChange;
 
-import org.bukkit.block.BlockState;
-
 public class BlockStateChange extends StateChange<BlockState> {
+
     /**
      * Construct a new block state change.
      *

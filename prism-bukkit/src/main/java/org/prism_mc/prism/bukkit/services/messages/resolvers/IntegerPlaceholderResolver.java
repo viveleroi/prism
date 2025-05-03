@@ -23,20 +23,18 @@ package org.prism_mc.prism.bukkit.services.messages.resolvers;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Map;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.moonshine.placeholder.ConclusionValue;
 import net.kyori.moonshine.placeholder.ContinuanceValue;
 import net.kyori.moonshine.placeholder.IPlaceholderResolver;
 import net.kyori.moonshine.util.Either;
-
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 
 public class IntegerPlaceholderResolver implements IPlaceholderResolver<CommandSender, Integer, Component> {
+
     @Override
-    public @Nullable Map<String, Either<ConclusionValue<? extends Component>, ContinuanceValue<?>>>
-    resolve(
+    public @Nullable Map<String, Either<ConclusionValue<? extends Component>, ContinuanceValue<?>>> resolve(
         final String placeholderName,
         final Integer value,
         final CommandSender receiver,

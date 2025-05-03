@@ -30,6 +30,7 @@ package org.prism_mc.prism.loader.services.dependencies;
  * Exception thrown if a dependency cannot be downloaded.
  */
 public class DependencyDownloadException extends Exception {
+
     /**
      * Constructor.
      *

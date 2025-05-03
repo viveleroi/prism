@@ -20,6 +20,8 @@
 
 package org.prism_mc.prism.core.storage.dbo.records;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
+
 import org.jooq.Field;
 import org.jooq.Record1;
 import org.jooq.Record3;
@@ -27,11 +29,11 @@ import org.jooq.Row3;
 import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.types.UInteger;
 
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
-
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
-public class PrismCausesRecord extends UpdatableRecordImpl<PrismCausesRecord> implements
-        Record3<UInteger, String, UInteger> {
+public class PrismCausesRecord
+    extends UpdatableRecordImpl<PrismCausesRecord>
+    implements Record3<UInteger, String, UInteger> {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -189,7 +191,6 @@ public class PrismCausesRecord extends UpdatableRecordImpl<PrismCausesRecord> im
      */
     public PrismCausesRecord(UInteger causeId, String cause, UInteger playerId) {
         super(PRISM_CAUSES);
-
         setCauseId(causeId);
         setCause(cause);
         setPlayerId(playerId);

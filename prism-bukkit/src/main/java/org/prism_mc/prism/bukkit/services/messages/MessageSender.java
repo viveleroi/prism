@@ -21,14 +21,13 @@
 package org.prism_mc.prism.bukkit.services.messages;
 
 import com.google.inject.Singleton;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.moonshine.message.IMessageSender;
-
 import org.bukkit.command.CommandSender;
 
 @Singleton
 public class MessageSender implements IMessageSender<CommandSender, Component> {
+
     @Override
     public void send(final CommandSender receiver, final Component renderedMessage) {
         receiver.sendMessage(renderedMessage);

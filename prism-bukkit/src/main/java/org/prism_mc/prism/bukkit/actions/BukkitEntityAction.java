@@ -22,12 +22,15 @@ package org.prism_mc.prism.bukkit.actions;
 
 import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.iface.ReadWriteNBT;
-
 import java.util.Locale;
 import java.util.UUID;
-
 import net.kyori.adventure.text.Component;
-
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.Nullable;
 import org.prism_mc.prism.api.actions.EntityAction;
 import org.prism_mc.prism.api.actions.metadata.Metadata;
 import org.prism_mc.prism.api.actions.types.ActionResultType;
@@ -40,14 +43,8 @@ import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.bukkit.PrismBukkit;
 import org.prism_mc.prism.bukkit.services.nbt.NbtService;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.jetbrains.annotations.Nullable;
-
 public class BukkitEntityAction extends BukkitAction implements EntityAction {
+
     /**
      * The read/write nbt.
      */
@@ -67,7 +64,6 @@ public class BukkitEntityAction extends BukkitAction implements EntityAction {
      */
     public BukkitEntityAction(ActionType type, Entity entity, Metadata metadata) {
         this(type, entity);
-
         this.metadata = metadata;
     }
 
@@ -79,7 +75,6 @@ public class BukkitEntityAction extends BukkitAction implements EntityAction {
      */
     public BukkitEntityAction(ActionType type, Entity entity) {
         super(type);
-
         this.entityType = entity.getType();
 
         readWriteNbt = NBT.createNBTObject();
@@ -100,9 +95,13 @@ public class BukkitEntityAction extends BukkitAction implements EntityAction {
      * @param metadata The metadata
      */
     public BukkitEntityAction(
-            ActionType type, EntityType entityType, ReadWriteNBT readWriteNbt, String descriptor, Metadata metadata) {
+        ActionType type,
+        EntityType entityType,
+        ReadWriteNBT readWriteNbt,
+        String descriptor,
+        Metadata metadata
+    ) {
         super(type, descriptor, metadata);
-
         this.entityType = entityType;
         this.readWriteNbt = readWriteNbt;
     }
@@ -138,28 +137,31 @@ public class BukkitEntityAction extends BukkitAction implements EntityAction {
 
     @Override
     public ModificationResult applyRollback(
-            ModificationRuleset modificationRuleset,
-            Object owner,
-            Activity activityContext,
-            ModificationQueueMode mode) {
+        ModificationRuleset modificationRuleset,
+        Object owner,
+        Activity activityContext,
+        ModificationQueueMode mode
+    ) {
         return modifyEntity(true, modificationRuleset, owner, activityContext, mode);
     }
 
     @Override
     public ModificationResult applyRestore(
-            ModificationRuleset modificationRuleset,
-            Object owner,
-            Activity activityContext,
-            ModificationQueueMode mode) {
+        ModificationRuleset modificationRuleset,
+        Object owner,
+        Activity activityContext,
+        ModificationQueueMode mode
+    ) {
         return modifyEntity(false, modificationRuleset, owner, activityContext, mode);
     }
 
     protected ModificationResult modifyEntity(
-            boolean isRollback,
-            ModificationRuleset modificationRuleset,
-            Object owner,
-            Activity activityContext,
-            ModificationQueueMode mode) {
+        boolean isRollback,
+        ModificationRuleset modificationRuleset,
+        Object owner,
+        Activity activityContext,
+        ModificationQueueMode mode
+    ) {
         // Skip if entity is in the blacklist
         if (modificationRuleset.entityBlacklistContainsAny(entityType.toString())) {
             return ModificationResult.builder().activity(activityContext).build();
@@ -171,8 +173,9 @@ public class BukkitEntityAction extends BukkitAction implements EntityAction {
             return ModificationResult.builder().activity(activityContext).build();
         }
 
-        boolean shouldSpawn = (isRollback && type().resultType().equals(ActionResultType.REMOVES))
-            || (!isRollback && type().resultType().equals(ActionResultType.CREATES));
+        boolean shouldSpawn =
+            (isRollback && type().resultType().equals(ActionResultType.REMOVES)) ||
+            (!isRollback && type().resultType().equals(ActionResultType.CREATES));
 
         if (shouldSpawn) {
             if (entityType.getEntityClass() != null) {

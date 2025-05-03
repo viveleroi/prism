@@ -22,7 +22,6 @@ package org.prism_mc.prism.core.injection.factories;
 
 import java.util.List;
 import java.util.function.Consumer;
-
 import org.prism_mc.prism.api.activities.Activity;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueResult;
@@ -45,5 +44,6 @@ public interface RollbackFactory {
         Object owner,
         ActivityQuery query,
         List<Activity> modifications,
-        Consumer<ModificationQueueResult> onEnd);
+        Consumer<ModificationQueueResult> onEnd
+    );
 }

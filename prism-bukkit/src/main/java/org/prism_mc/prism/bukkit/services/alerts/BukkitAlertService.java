@@ -24,14 +24,22 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.TextColor;
-
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Tag;
+import org.bukkit.block.Block;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import org.prism_mc.prism.bukkit.api.activities.BukkitActivityQuery;
 import org.prism_mc.prism.bukkit.services.lookup.LookupService;
@@ -47,20 +55,9 @@ import org.prism_mc.prism.loader.services.configuration.alerts.BlockAlertConfigu
 import org.prism_mc.prism.loader.services.configuration.cache.CacheConfiguration;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Tag;
-import org.bukkit.block.Block;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-
 @Singleton
 public class BukkitAlertService {
+
     /**
      * Cache all block break alerts.
      */
@@ -110,11 +107,12 @@ public class BukkitAlertService {
      */
     @Inject
     public BukkitAlertService(
-            CacheService cacheService,
-            ConfigurationService configurationService,
-            LoggingService loggingService,
-            LookupService lookupService,
-            MessageService messageService) {
+        CacheService cacheService,
+        ConfigurationService configurationService,
+        LoggingService loggingService,
+        LookupService lookupService,
+        MessageService messageService
+    ) {
         this.configurationService = configurationService;
         this.loggingService = loggingService;
         this.lookupService = lookupService;
@@ -124,8 +122,10 @@ public class BukkitAlertService {
 
         var cacheBuilder = Caffeine.newBuilder()
             .maximumSize(cacheConfiguration.alertedLocations().maxSize())
-            .expireAfterAccess(cacheConfiguration.alertedLocations().expiresAfterAccess().duration(),
-                cacheConfiguration.alertedLocations().expiresAfterAccess().timeUnit())
+            .expireAfterAccess(
+                cacheConfiguration.alertedLocations().expiresAfterAccess().duration(),
+                cacheConfiguration.alertedLocations().expiresAfterAccess().timeUnit()
+            )
             .evictionListener((key, value, cause) -> {
                 String msg = "Evicting alerted location from cache: Key: %s, Value: %s, Removal Cause: %s";
                 loggingService.debug(String.format(msg, key, value, cause));
@@ -164,8 +164,10 @@ public class BukkitAlertService {
 
         // Apply light level bounds
         int lightLevel = BlockUtils.getLightLevel(block);
-        if (lightLevel < configurationService.prismConfig().alerts().blockBreakAlerts().minLightLevel()
-                || lightLevel > configurationService.prismConfig().alerts().blockBreakAlerts().maxLightLevel()) {
+        if (
+            lightLevel < configurationService.prismConfig().alerts().blockBreakAlerts().minLightLevel() ||
+            lightLevel > configurationService.prismConfig().alerts().blockBreakAlerts().maxLightLevel()
+        ) {
             return;
         }
 
@@ -206,8 +208,13 @@ public class BukkitAlertService {
             }
 
             var data = new BlockBreakAlertData(
-                player.getName(), blockTranslationKey, color, count, lightLevel,
-                    Key.key(blockState.getType().getKey().toString()));
+                player.getName(),
+                blockTranslationKey,
+                color,
+                count,
+                lightLevel,
+                Key.key(blockState.getType().getKey().toString())
+            );
 
             for (CommandSender receiver : getReceivers(player)) {
                 if (usingNightVision) {
@@ -246,7 +253,8 @@ public class BukkitAlertService {
             player.getName(),
             blockTranslationKey,
             color,
-            Key.key(blockState.getType().getKey().toString()));
+            Key.key(blockState.getType().getKey().toString())
+        );
 
         for (CommandSender receiver : getReceivers(player)) {
             messageService.alertBlockPlace(receiver, data);
@@ -317,8 +325,7 @@ public class BukkitAlertService {
                 try {
                     materialTag.append(Material.valueOf(materialKey.toUpperCase(Locale.ENGLISH)));
                 } catch (IllegalArgumentException e) {
-                    loggingService.warn(
-                        "Alert config error: No material matching {0}", materialKey);
+                    loggingService.warn("Alert config error: No material matching {0}", materialKey);
                 }
             }
         }
@@ -355,8 +362,10 @@ public class BukkitAlertService {
         List<CommandSender> receivers = new ArrayList<>();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!player.hasPermission("prism.alerts.receive")
-                    || (configurationService.prismConfig().alerts().ignoreSelf() && player.equals(causingPlayer))) {
+            if (
+                !player.hasPermission("prism.alerts.receive") ||
+                (configurationService.prismConfig().alerts().ignoreSelf() && player.equals(causingPlayer))
+            ) {
                 continue;
             }
 
@@ -375,8 +384,10 @@ public class BukkitAlertService {
      */
     protected boolean shouldAlert(Player player, Location location) {
         // Ignore creative
-        if (configurationService.prismConfig().alerts().ignoreCreative()
-                && player.getGameMode().equals(GameMode.CREATIVE)) {
+        if (
+            configurationService.prismConfig().alerts().ignoreCreative() &&
+            player.getGameMode().equals(GameMode.CREATIVE)
+        ) {
             return false;
         }
 

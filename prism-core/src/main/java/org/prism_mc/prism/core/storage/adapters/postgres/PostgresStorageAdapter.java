@@ -24,14 +24,13 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.zaxxer.hikari.HikariConfig;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-
+import org.jooq.SQLDialect;
 import org.prism_mc.prism.api.actions.types.ActionTypeRegistry;
 import org.prism_mc.prism.api.storage.ActivityBatch;
 import org.prism_mc.prism.core.injection.factories.SqlActivityQueryBuilderFactory;
@@ -43,10 +42,9 @@ import org.prism_mc.prism.core.storage.adapters.sql.SqlSchemaUpdater;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.jooq.SQLDialect;
-
 @Singleton
 public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
+
     /**
      * The schema/table prefix.
      */
@@ -66,14 +64,15 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
      */
     @Inject
     public PostgresStorageAdapter(
-            LoggingService loggingService,
-            ConfigurationService configurationService,
-            ActionTypeRegistry actionRegistry,
-            SqlSchemaUpdater schemaUpdater,
-            SqlActivityQueryBuilderFactory queryBuilderFactory,
-            CacheService cacheService,
-            @Named("serializerVersion") short serializerVersion,
-            Path dataPath) {
+        LoggingService loggingService,
+        ConfigurationService configurationService,
+        ActionTypeRegistry actionRegistry,
+        SqlSchemaUpdater schemaUpdater,
+        SqlActivityQueryBuilderFactory queryBuilderFactory,
+        CacheService cacheService,
+        @Named("serializerVersion") short serializerVersion,
+        Path dataPath
+    ) {
         super(
             loggingService,
             configurationService,
@@ -81,8 +80,8 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
             schemaUpdater,
             queryBuilderFactory,
             cacheService,
-            serializerVersion);
-
+            serializerVersion
+        );
         try {
             prefix = configurationService.storageConfig().postgres().prefix();
 
@@ -129,13 +128,15 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
                 boolean supportsProcedures = databaseMetaData.supportsStoredProcedures();
                 loggingService.info("supports procedures: {0}", supportsProcedures);
 
-                var canCreateFunctions = create.fetchSingle(
-                    "SELECT bool_or(has_schema_privilege(oid, 'CREATE')) FROM pg_catalog.pg_namespace;")
-                        .into(Boolean.class);
+                var canCreateFunctions = create
+                    .fetchSingle("SELECT bool_or(has_schema_privilege(oid, 'CREATE')) FROM pg_catalog.pg_namespace;")
+                    .into(Boolean.class);
                 loggingService.info("can create functions: {0}", canCreateFunctions);
 
-                usingStoredProcedures = supportsProcedures && canCreateFunctions
-                    && configurationService.storageConfig().postgres().useStoredProcedures();
+                usingStoredProcedures =
+                    supportsProcedures &&
+                    canCreateFunctions &&
+                    configurationService.storageConfig().postgres().useStoredProcedures();
 
                 if (!usingStoredProcedures) {
                     configurationService.storageConfig().postgres().disallowStoredProcedures();

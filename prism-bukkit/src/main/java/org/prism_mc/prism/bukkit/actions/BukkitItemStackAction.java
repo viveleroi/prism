@@ -22,24 +22,10 @@ package org.prism_mc.prism.bukkit.actions;
 
 import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.iface.ReadWriteNBT;
-
 import lombok.Getter;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-
-import org.prism_mc.prism.api.actions.ItemAction;
-import org.prism_mc.prism.api.actions.types.ActionResultType;
-import org.prism_mc.prism.api.actions.types.ActionType;
-import org.prism_mc.prism.api.activities.Activity;
-import org.prism_mc.prism.api.services.modifications.ModificationQueueMode;
-import org.prism_mc.prism.api.services.modifications.ModificationResult;
-import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
-import org.prism_mc.prism.api.services.modifications.ModificationSkipReason;
-import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
-import org.prism_mc.prism.bukkit.services.modifications.state.ItemStackStateChange;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -51,8 +37,19 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.prism_mc.prism.api.actions.ItemAction;
+import org.prism_mc.prism.api.actions.types.ActionResultType;
+import org.prism_mc.prism.api.actions.types.ActionType;
+import org.prism_mc.prism.api.activities.Activity;
+import org.prism_mc.prism.api.services.modifications.ModificationQueueMode;
+import org.prism_mc.prism.api.services.modifications.ModificationResult;
+import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
+import org.prism_mc.prism.api.services.modifications.ModificationSkipReason;
+import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import org.prism_mc.prism.bukkit.services.modifications.state.ItemStackStateChange;
 
 public class BukkitItemStackAction extends BukkitMaterialAction implements ItemAction {
+
     /**
      * The item stack.
      */
@@ -72,7 +69,6 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
      */
     public BukkitItemStackAction(ActionType type, ItemStack itemStack) {
         this(type, itemStack, itemStack.getAmount(), null);
-
         this.descriptor = PlainTextComponentSerializer.plainText().serialize(descriptorComponent());
     }
 
@@ -86,7 +82,6 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
      */
     public BukkitItemStackAction(ActionType type, ItemStack itemStack, int quantity, String descriptor) {
         super(type, itemStack.getType(), descriptor);
-
         this.itemStack = itemStack;
         this.readWriteNbt = NBT.itemStackToNBT(itemStack);
         this.readWriteNbt.removeKey("count");
@@ -102,44 +97,53 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
         var complete = Component.text();
 
         if (itemStack.getAmount() > 1) {
-            complete.append(Component.text(itemStack.getAmount()))
-                .append(Component.space());
+            complete.append(Component.text(itemStack.getAmount())).append(Component.space());
         }
 
         Component itemName = Component.translatable(itemStack.translationKey());
         if (meta != null && meta.hasItemName()) {
             // Strip custom color/format codes out of item name for consistency
-            itemName = Component.text(PlainTextComponentSerializer.plainText()
-                .serialize(LegacyComponentSerializer.legacySection().deserialize(meta.getItemName())));
+            itemName = Component.text(
+                PlainTextComponentSerializer.plainText()
+                    .serialize(LegacyComponentSerializer.legacySection().deserialize(meta.getItemName()))
+            );
         } else if (meta instanceof SkullMeta skullMeta && skullMeta.hasOwner()) {
-            itemName = Component.translatable("block.minecraft.player_head.named",
-                Component.text(skullMeta.getOwningPlayer().getName()));
+            itemName = Component.translatable(
+                "block.minecraft.player_head.named",
+                Component.text(skullMeta.getOwningPlayer().getName())
+            );
         }
 
         complete.append(itemName);
 
         if (meta != null && meta.hasDisplayName() && !meta.getDisplayName().isEmpty()) {
-            complete.append(Component.space())
+            complete
+                .append(Component.space())
                 .append(Component.text("\""))
                 .append(Component.text(meta.getDisplayName()))
                 .append(Component.text("\""));
         }
 
         if (meta instanceof PotionMeta potionMeta) {
-            if (potionMeta.getBasePotionType() != null
-                    && !potionMeta.getBasePotionType().getPotionEffects().isEmpty()) {
+            if (
+                potionMeta.getBasePotionType() != null && !potionMeta.getBasePotionType().getPotionEffects().isEmpty()
+            ) {
                 var effect = potionMeta.getBasePotionType().getPotionEffects().getFirst();
 
-                complete.append(Component.space())
+                complete
+                    .append(Component.space())
                     .append(Component.text("("))
                     .append(Component.translatable(effect.getType().translationKey()))
                     .append(Component.text(")"));
             }
-        } else if (itemStack.getType().equals(Material.ENCHANTED_BOOK)
-                && meta instanceof EnchantmentStorageMeta enchantmentStorageMeta) {
+        } else if (
+            itemStack.getType().equals(Material.ENCHANTED_BOOK) &&
+            meta instanceof EnchantmentStorageMeta enchantmentStorageMeta
+        ) {
             if (!enchantmentStorageMeta.getStoredEnchants().isEmpty()) {
                 var entry = enchantmentStorageMeta.getStoredEnchants().entrySet().iterator().next();
-                complete.append(Component.space())
+                complete
+                    .append(Component.space())
                     .append(Component.text("("))
                     .append(entry.getKey().displayName(entry.getValue()))
                     .append(Component.text(")"));
@@ -173,15 +177,18 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
 
     @Override
     public ModificationResult applyRollback(
-            ModificationRuleset modificationRuleset,
-            Object owner,
-            Activity activityContext,
-            ModificationQueueMode mode) {
+        ModificationRuleset modificationRuleset,
+        Object owner,
+        Activity activityContext,
+        ModificationQueueMode mode
+    ) {
         // Ignore non-player item rollbacks because they should always be serialized as contents
         // of a broken inventory holder, killed entity, etc.
         if (activityContext.player() == null) {
-            return ModificationResult.builder().activity(activityContext)
-                .skipReason(ModificationSkipReason.NOT_APPLICABLE).build();
+            return ModificationResult.builder()
+                .activity(activityContext)
+                .skipReason(ModificationSkipReason.NOT_APPLICABLE)
+                .build();
         }
 
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(activityContext.player().key());
@@ -197,10 +204,12 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
             return ModificationResult.builder().activity(activityContext).applied().stateChange(stateChange).build();
         } else if (type().resultType().equals(ActionResultType.REMOVES)) {
             var world = Bukkit.getServer().getWorld(activityContext.world().key());
-            var location = new Location(world,
+            var location = new Location(
+                world,
                 activityContext.coordinate().intX(),
                 activityContext.coordinate().intY(),
-                activityContext.coordinate().intZ());
+                activityContext.coordinate().intZ()
+            );
 
             if (location.getBlock().getState() instanceof InventoryHolder holder) {
                 holder.getInventory().addItem(itemStack);
@@ -208,7 +217,10 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
                 ItemStackStateChange stateChange = new ItemStackStateChange(itemStack.clone(), null);
 
                 return ModificationResult.builder()
-                        .activity(activityContext).applied().stateChange(stateChange).build();
+                    .activity(activityContext)
+                    .applied()
+                    .stateChange(stateChange)
+                    .build();
             }
         }
 
@@ -217,10 +229,11 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
 
     @Override
     public ModificationResult applyRestore(
-            ModificationRuleset modificationRuleset,
-            Object owner,
-            Activity activityContext,
-            ModificationQueueMode mode) {
+        ModificationRuleset modificationRuleset,
+        Object owner,
+        Activity activityContext,
+        ModificationQueueMode mode
+    ) {
         return ModificationResult.builder().activity(activityContext).build();
     }
 

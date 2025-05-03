@@ -21,11 +21,9 @@
 package org.prism_mc.prism.bukkit.services.messages.resolvers;
 
 import com.google.inject.Inject;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Map;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -33,17 +31,16 @@ import net.kyori.moonshine.placeholder.ConclusionValue;
 import net.kyori.moonshine.placeholder.ContinuanceValue;
 import net.kyori.moonshine.placeholder.IPlaceholderResolver;
 import net.kyori.moonshine.util.Either;
-
-import org.prism_mc.prism.api.services.modifications.ModificationQueueResult;
-import org.prism_mc.prism.bukkit.services.translation.BukkitTranslationService;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.prism_mc.prism.api.services.modifications.ModificationQueueResult;
+import org.prism_mc.prism.bukkit.services.translation.BukkitTranslationService;
 
 public class ModificationQueueResultPlaceholderResolver
-        implements IPlaceholderResolver<CommandSender, ModificationQueueResult, Component> {
+    implements IPlaceholderResolver<CommandSender, ModificationQueueResult, Component> {
+
     /**
      * The translation service.
      */
@@ -61,12 +58,13 @@ public class ModificationQueueResultPlaceholderResolver
 
     @Override
     public @NonNull Map<String, Either<ConclusionValue<? extends Component>, ContinuanceValue<?>>> resolve(
-            final String placeholderName,
-            final ModificationQueueResult value,
-            final CommandSender receiver,
-            final Type owner,
-            final Method method,
-            final @Nullable Object[] parameters) {
+        final String placeholderName,
+        final ModificationQueueResult value,
+        final CommandSender receiver,
+        final Type owner,
+        final Method method,
+        final @Nullable Object[] parameters
+    ) {
         Component skipped = skipped(receiver, value.skipped());
 
         return Map.of(placeholderName + "_skipped", Either.left(ConclusionValue.conclusionValue(skipped)));
@@ -83,8 +81,12 @@ public class ModificationQueueResultPlaceholderResolver
         var builder = Component.text().append(Component.text(skipped));
 
         if (receiver instanceof Player) {
-            builder.hoverEvent(HoverEvent.showText(Component.text(
-                translationService.messageOf(receiver, "text.click-to-view-skips"))))
+            builder
+                .hoverEvent(
+                    HoverEvent.showText(
+                        Component.text(translationService.messageOf(receiver, "text.click-to-view-skips"))
+                    )
+                )
                 .clickEvent(ClickEvent.runCommand("/prism report skips"));
         }
 

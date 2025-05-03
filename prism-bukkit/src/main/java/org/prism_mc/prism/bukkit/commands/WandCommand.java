@@ -21,19 +21,17 @@
 package org.prism_mc.prism.bukkit.commands;
 
 import com.google.inject.Inject;
-
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Optional;
-
+import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.services.wands.Wand;
 import org.prism_mc.prism.api.services.wands.WandMode;
 import org.prism_mc.prism.bukkit.services.messages.MessageService;
 import org.prism_mc.prism.bukkit.services.wands.WandService;
 
-import org.bukkit.entity.Player;
-
-@Command(value = "prism", alias = {"pr"})
+@Command(value = "prism", alias = { "pr" })
 public class WandCommand {
+
     /**
      * The message service.
      */
@@ -74,9 +72,11 @@ public class WandCommand {
         // Set mode if none selected
         wandMode = wandMode == null ? WandMode.INSPECT : wandMode;
 
-        if ((wandMode == WandMode.INSPECT && !player.hasPermission("prism.lookup"))
-            || (wandMode == WandMode.ROLLBACK && !player.hasPermission("prism.modify"))
-            || (wandMode == WandMode.RESTORE && !player.hasPermission("prism.modify"))) {
+        if (
+            (wandMode == WandMode.INSPECT && !player.hasPermission("prism.lookup")) ||
+            (wandMode == WandMode.ROLLBACK && !player.hasPermission("prism.modify")) ||
+            (wandMode == WandMode.RESTORE && !player.hasPermission("prism.modify"))
+        ) {
             messageService.errorInsufficientPermission(player);
 
             return;

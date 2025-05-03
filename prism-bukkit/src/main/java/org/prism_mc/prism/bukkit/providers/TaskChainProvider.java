@@ -23,14 +23,12 @@ package org.prism_mc.prism.bukkit.providers;
 import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
-
 import lombok.Getter;
-
+import org.bukkit.plugin.Plugin;
 import org.prism_mc.prism.loader.services.dependencies.loader.PluginLoader;
 
-import org.bukkit.plugin.Plugin;
-
 public class TaskChainProvider {
+
     /**
      * The plugin.
      */

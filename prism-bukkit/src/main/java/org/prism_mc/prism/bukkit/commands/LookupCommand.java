@@ -21,22 +21,20 @@
 package org.prism_mc.prism.bukkit.commands;
 
 import com.google.inject.Inject;
-
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.CommandFlags;
 import dev.triumphteam.cmd.core.annotations.NamedArguments;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
-
+import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.bukkit.services.lookup.LookupService;
 import org.prism_mc.prism.bukkit.services.query.QueryService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.command.CommandSender;
-
-@Command(value = "prism", alias = {"pr"})
+@Command(value = "prism", alias = { "pr" })
 public class LookupCommand {
+
     /**
      * The configuration service.
      */
@@ -61,9 +59,10 @@ public class LookupCommand {
      */
     @Inject
     public LookupCommand(
-            ConfigurationService configurationService,
-            QueryService queryService,
-            LookupService lookupService) {
+        ConfigurationService configurationService,
+        QueryService queryService,
+        LookupService lookupService
+    ) {
         this.configurationService = configurationService;
         this.queryService = queryService;
         this.lookupService = lookupService;
@@ -77,13 +76,15 @@ public class LookupCommand {
      */
     @CommandFlags(key = "query-flags")
     @NamedArguments("query-parameters")
-    @Command(value = "lookup", alias = {"l"})
+    @Command(value = "lookup", alias = { "l" })
     @Permission("prism.lookup")
     public void onLookup(final CommandSender sender, final Arguments arguments) {
         var builder = queryService.queryFromArguments(sender, arguments);
         if (builder.isPresent()) {
-            final ActivityQuery query = builder.get()
-                .limit(configurationService.prismConfig().defaults().perPage()).build();
+            final ActivityQuery query = builder
+                .get()
+                .limit(configurationService.prismConfig().defaults().perPage())
+                .build();
             lookupService.lookup(sender, query);
         }
     }

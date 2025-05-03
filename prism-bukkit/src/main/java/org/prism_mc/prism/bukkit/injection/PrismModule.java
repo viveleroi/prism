@@ -27,16 +27,15 @@ import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.name.Named;
-
 import io.leangen.geantyref.TypeToken;
-
 import java.nio.file.Path;
-
 import net.kyori.moonshine.Moonshine;
 import net.kyori.moonshine.exception.scan.UnscannableMethodException;
 import net.kyori.moonshine.strategy.StandardPlaceholderResolverStrategy;
 import net.kyori.moonshine.strategy.supertype.StandardSupertypeThenInterfaceSupertypeStrategy;
-
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 import org.prism_mc.prism.api.actions.types.ActionTypeRegistry;
 import org.prism_mc.prism.api.activities.AbstractActivity;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueResult;
@@ -104,11 +103,8 @@ import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 import org.prism_mc.prism.loader.storage.StorageType;
 
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.Plugin;
-
 public class PrismModule extends AbstractModule {
+
     /**
      * The plugin.
      */
@@ -190,21 +186,24 @@ public class PrismModule extends AbstractModule {
     @Singleton
     @Inject
     public MessageService getMessageService(
-            BukkitTranslationService translationService,
-            MessageRenderer messageRenderer,
-            MessageSender messageSender,
-            ActivityPlaceholderResolver activityPlaceholderResolver,
-            ModificationQueueResultPlaceholderResolver modificationQueueResultPlaceholderResolver,
-            WandModePlaceholderResolver wandModePlaceholderResolver) {
+        BukkitTranslationService translationService,
+        MessageRenderer messageRenderer,
+        MessageSender messageSender,
+        ActivityPlaceholderResolver activityPlaceholderResolver,
+        ModificationQueueResultPlaceholderResolver modificationQueueResultPlaceholderResolver,
+        WandModePlaceholderResolver wandModePlaceholderResolver
+    ) {
         try {
-            return Moonshine.<MessageService, CommandSender>builder(
-                    TypeToken.get(MessageService.class))
+            return Moonshine.<MessageService, CommandSender>builder(TypeToken.get(MessageService.class))
                 .receiverLocatorResolver(new ReceiverResolver(), 0)
                 .sourced(translationService)
                 .rendered(messageRenderer)
                 .sent(messageSender)
-                .resolvingWithStrategy(new StandardPlaceholderResolverStrategy<>(
-                    new StandardSupertypeThenInterfaceSupertypeStrategy(false)))
+                .resolvingWithStrategy(
+                    new StandardPlaceholderResolverStrategy<>(
+                        new StandardSupertypeThenInterfaceSupertypeStrategy(false)
+                    )
+                )
                 .weightedPlaceholderResolver(Integer.class, new IntegerPlaceholderResolver(), 0)
                 .weightedPlaceholderResolver(Long.class, new LongPlaceholderResolver(), 0)
                 .weightedPlaceholderResolver(String.class, new StringPlaceholderResolver(), 0)
@@ -212,12 +211,13 @@ public class PrismModule extends AbstractModule {
                 .weightedPlaceholderResolver(AbstractActivity.class, activityPlaceholderResolver, 0)
                 .weightedPlaceholderResolver(WandMode.class, wandModePlaceholderResolver, 0)
                 .weightedPlaceholderResolver(
-                    ModificationQueueResult.class, modificationQueueResultPlaceholderResolver, 0)
-                .weightedPlaceholderResolver(new TypeToken<>(){}, new PaginatedResultsPlaceholderResolver(), 0)
-                    .weightedPlaceholderResolver(
-                        BlockAlertData.class, new BlockAlertDataPlaceholderResolver(), 0)
-                .weightedPlaceholderResolver(
-                    BlockBreakAlertData.class, new BlockBreakAlertDataPlaceholderResolver(), 0)
+                    ModificationQueueResult.class,
+                    modificationQueueResultPlaceholderResolver,
+                    0
+                )
+                .weightedPlaceholderResolver(new TypeToken<>() {}, new PaginatedResultsPlaceholderResolver(), 0)
+                .weightedPlaceholderResolver(BlockAlertData.class, new BlockAlertDataPlaceholderResolver(), 0)
+                .weightedPlaceholderResolver(BlockBreakAlertData.class, new BlockBreakAlertDataPlaceholderResolver(), 0)
                 .create(this.getClass().getClassLoader());
         } catch (UnscannableMethodException e) {
             e.printStackTrace();
@@ -264,20 +264,20 @@ public class PrismModule extends AbstractModule {
         // Service - Nbt
         bind(NbtService.class).in(Singleton.class);
 
-        install(new FactoryModuleBuilder()
-            .implement(Restore.class, BukkitRestore.class)
-            .build(RestoreFactory.class));
+        install(new FactoryModuleBuilder().implement(Restore.class, BukkitRestore.class).build(RestoreFactory.class));
 
-        install(new FactoryModuleBuilder()
-            .implement(Rollback.class, BukkitRollback.class)
-            .build(RollbackFactory.class));
+        install(
+            new FactoryModuleBuilder().implement(Rollback.class, BukkitRollback.class).build(RollbackFactory.class)
+        );
 
         // Service - Purge
         bind(PurgeService.class).in(Singleton.class);
 
-        install(new FactoryModuleBuilder()
-            .implement(PurgeQueue.class, BukkitPurgeQueue.class)
-            .build(PurgeQueueFactory.class));
+        install(
+            new FactoryModuleBuilder()
+                .implement(PurgeQueue.class, BukkitPurgeQueue.class)
+                .build(PurgeQueueFactory.class)
+        );
 
         // Service - Recording
         bind(RecordingService.class).to(BukkitRecordingService.class).in(Singleton.class);
@@ -307,13 +307,17 @@ public class PrismModule extends AbstractModule {
 
         // Install the correct query builder
         if (storageType.equals(StorageType.SQLITE) || storageType.equals(StorageType.H2)) {
-            install(new FactoryModuleBuilder()
-                .implement(SqlActivityQueryBuilder.class, FileSqlActivityQueryBuilder.class)
-                .build(FileSqlActivityQueryBuilderFactory.class));
+            install(
+                new FactoryModuleBuilder()
+                    .implement(SqlActivityQueryBuilder.class, FileSqlActivityQueryBuilder.class)
+                    .build(FileSqlActivityQueryBuilderFactory.class)
+            );
         } else {
-            install(new FactoryModuleBuilder()
-                .implement(SqlActivityQueryBuilder.class, SqlActivityQueryBuilder.class)
-                .build(SqlActivityQueryBuilderFactory.class));
+            install(
+                new FactoryModuleBuilder()
+                    .implement(SqlActivityQueryBuilder.class, SqlActivityQueryBuilder.class)
+                    .build(SqlActivityQueryBuilderFactory.class)
+            );
         }
 
         // Bind the correct storage adapter

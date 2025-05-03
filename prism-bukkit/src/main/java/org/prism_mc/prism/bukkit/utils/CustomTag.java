@@ -23,13 +23,13 @@ package org.prism_mc.prism.bukkit.utils;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
-
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
 import org.jetbrains.annotations.NotNull;
 
 public class CustomTag<T extends Enum<T> & Keyed> implements Tag<T> {
+
     /**
      * Cache the generic class.
      */
@@ -131,7 +131,6 @@ public class CustomTag<T extends Enum<T> & Keyed> implements Tag<T> {
                     }
                 }
                 break;
-
             case SUFFIX:
                 for (var value : clazz.getEnumConstants()) {
                     if (value.name().endsWith(segment)) {
@@ -139,7 +138,6 @@ public class CustomTag<T extends Enum<T> & Keyed> implements Tag<T> {
                     }
                 }
                 break;
-
             case CONTAINS:
                 for (var value : clazz.getEnumConstants()) {
                     if (value.name().contains(segment)) {
@@ -201,7 +199,6 @@ public class CustomTag<T extends Enum<T> & Keyed> implements Tag<T> {
                     }
                 }
                 break;
-
             case SUFFIX:
                 for (var value : clazz.getEnumConstants()) {
                     if (value.name().endsWith(segment)) {
@@ -209,7 +206,6 @@ public class CustomTag<T extends Enum<T> & Keyed> implements Tag<T> {
                     }
                 }
                 break;
-
             case CONTAINS:
                 for (var value : clazz.getEnumConstants()) {
                     if (value.name().contains(segment)) {
@@ -252,6 +248,6 @@ public class CustomTag<T extends Enum<T> & Keyed> implements Tag<T> {
     public enum MatchMode {
         PREFIX,
         SUFFIX,
-        CONTAINS
+        CONTAINS,
     }
 }

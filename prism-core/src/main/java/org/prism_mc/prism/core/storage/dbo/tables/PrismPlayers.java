@@ -20,12 +20,11 @@
 
 package org.prism_mc.prism.core.storage.dbo.tables;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
+
 import java.util.Arrays;
 import java.util.List;
-
-import org.prism_mc.prism.core.storage.dbo.Keys;
-import org.prism_mc.prism.core.storage.dbo.records.PrismPlayersRecord;
-
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Identity;
@@ -41,12 +40,12 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
 import org.jooq.types.UInteger;
-
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
+import org.prism_mc.prism.core.storage.dbo.Keys;
+import org.prism_mc.prism.core.storage.dbo.records.PrismPlayersRecord;
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PrismPlayers extends TableImpl<PrismPlayersRecord> {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -69,7 +68,8 @@ public class PrismPlayers extends TableImpl<PrismPlayersRecord> {
         DSL.name("player_id"),
         SQLDataType.INTEGERUNSIGNED.nullable(false).identity(true),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_players.player</code>.
@@ -78,7 +78,8 @@ public class PrismPlayers extends TableImpl<PrismPlayersRecord> {
         DSL.name("player"),
         SQLDataType.VARCHAR(32).nullable(false),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_players.player_uuid</code>.
@@ -87,7 +88,8 @@ public class PrismPlayers extends TableImpl<PrismPlayersRecord> {
         DSL.name("player_uuid"),
         SQLDataType.CHAR(36).nullable(false),
         this,
-        "");
+        ""
+    );
 
     private PrismPlayers(String prefix, Name alias, Table<PrismPlayersRecord> aliased) {
         this(prefix, alias, aliased, null);
@@ -95,7 +97,6 @@ public class PrismPlayers extends TableImpl<PrismPlayersRecord> {
 
     private PrismPlayers(String prefix, Name alias, Table<PrismPlayersRecord> aliased, Field<?>[] parameters) {
         super(alias, null, aliased, parameters, DSL.comment(""), TableOptions.table());
-
         this.prefix = prefix;
     }
 
@@ -118,7 +119,6 @@ public class PrismPlayers extends TableImpl<PrismPlayersRecord> {
      */
     public <O extends Record> PrismPlayers(String prefix, Table<O> child, ForeignKey<O, PrismPlayersRecord> key) {
         super(child, key, PRISM_PLAYERS);
-
         this.prefix = prefix;
     }
 

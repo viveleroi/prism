@@ -38,12 +38,13 @@ import java.util.stream.Stream;
  * @since 4.2
  */
 public class SortedProperties extends Properties {
+
     private static final long serialVersionUID = 1L;
 
     @Override
     public Set<Map.Entry<Object, Object>> entrySet() {
-        final Stream<SimpleEntry<Object, Object>> stream = sortedKeys().map(k ->
-            new AbstractMap.SimpleEntry<>(k, getProperty(k)));
+        final Stream<SimpleEntry<Object, Object>> stream = sortedKeys()
+            .map(k -> new AbstractMap.SimpleEntry<>(k, getProperty(k)));
         return stream.collect(Collectors.toCollection(LinkedHashSet::new));
     }
 

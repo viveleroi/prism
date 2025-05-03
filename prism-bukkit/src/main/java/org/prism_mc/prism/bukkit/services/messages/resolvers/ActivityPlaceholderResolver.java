@@ -22,13 +22,11 @@ package org.prism_mc.prism.bukkit.services.messages.resolvers;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -39,7 +37,12 @@ import net.kyori.moonshine.placeholder.ConclusionValue;
 import net.kyori.moonshine.placeholder.ContinuanceValue;
 import net.kyori.moonshine.placeholder.IPlaceholderResolver;
 import net.kyori.moonshine.util.Either;
-
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.Nullable;
 import org.prism_mc.prism.api.actions.types.ActionResultType;
 import org.prism_mc.prism.api.actions.types.ActionType;
 import org.prism_mc.prism.api.activities.AbstractActivity;
@@ -49,15 +52,9 @@ import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.api.util.Pair;
 import org.prism_mc.prism.bukkit.services.translation.BukkitTranslationService;
 
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.jetbrains.annotations.Nullable;
-
 @Singleton
 public class ActivityPlaceholderResolver implements IPlaceholderResolver<CommandSender, AbstractActivity, Component> {
+
     /**
      * The translation service.
      */
@@ -101,22 +98,31 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
 
         Component sign;
         if (value.action().type().resultType().equals(ActionResultType.REMOVES)) {
-            sign = MiniMessage.miniMessage().deserialize(
-                translationService.messageOf(receiver, "text.sign-minus"));
+            sign = MiniMessage.miniMessage().deserialize(translationService.messageOf(receiver, "text.sign-minus"));
         } else {
-            sign = MiniMessage.miniMessage().deserialize(
-                translationService.messageOf(receiver, "text.sign-plus"));
+            sign = MiniMessage.miniMessage().deserialize(translationService.messageOf(receiver, "text.sign-plus"));
         }
 
-        return Map.of(placeholderName + "_action", Either.left(ConclusionValue.conclusionValue(action)),
-            placeholderName + "_action_past_tense", Either.left(ConclusionValue.conclusionValue(actionPastTense)),
-            placeholderName + "_id", Either.left(ConclusionValue.conclusionValue(activityId)),
-            placeholderName + "_cause", Either.left(ConclusionValue.conclusionValue(cause)),
-            placeholderName + "_count", Either.left(ConclusionValue.conclusionValue(count)),
-            placeholderName + "_sign", Either.left(ConclusionValue.conclusionValue(sign)),
-            placeholderName + "_location", Either.left(ConclusionValue.conclusionValue(location)),
-            placeholderName + "_since", Either.left(ConclusionValue.conclusionValue(since)),
-            placeholderName + "_descriptor", Either.left(ConclusionValue.conclusionValue(descriptor)));
+        return Map.of(
+            placeholderName + "_action",
+            Either.left(ConclusionValue.conclusionValue(action)),
+            placeholderName + "_action_past_tense",
+            Either.left(ConclusionValue.conclusionValue(actionPastTense)),
+            placeholderName + "_id",
+            Either.left(ConclusionValue.conclusionValue(activityId)),
+            placeholderName + "_cause",
+            Either.left(ConclusionValue.conclusionValue(cause)),
+            placeholderName + "_count",
+            Either.left(ConclusionValue.conclusionValue(count)),
+            placeholderName + "_sign",
+            Either.left(ConclusionValue.conclusionValue(sign)),
+            placeholderName + "_location",
+            Either.left(ConclusionValue.conclusionValue(location)),
+            placeholderName + "_since",
+            Either.left(ConclusionValue.conclusionValue(since)),
+            placeholderName + "_descriptor",
+            Either.left(ConclusionValue.conclusionValue(descriptor))
+        );
     }
 
     /**
@@ -138,10 +144,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
             .append(Component.text(actionType.familyKey(), TextColor.fromCSSHexString("#ffd782")))
             .build();
 
-        return Component.text()
-            .append(Component.text(pastTense))
-            .hoverEvent(HoverEvent.showText(actionHover))
-            .build();
+        return Component.text().append(Component.text(pastTense)).hoverEvent(HoverEvent.showText(actionHover)).build();
     }
 
     /**
@@ -154,17 +157,17 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         if (player != null) {
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.key());
 
-            Component playerHeading = MiniMessage.miniMessage().deserialize(
-                translationService.messageOf(receiver, "rich.player-hover-header"));
+            Component playerHeading = MiniMessage.miniMessage()
+                .deserialize(translationService.messageOf(receiver, "rich.player-hover-header"));
 
-            Component uuid = MiniMessage.miniMessage().deserialize(
-                translationService.messageOf(receiver, "rich.player-hover-uuid"));
+            Component uuid = MiniMessage.miniMessage()
+                .deserialize(translationService.messageOf(receiver, "rich.player-hover-uuid"));
 
-            Component online = MiniMessage.miniMessage().deserialize(
-                translationService.messageOf(receiver, "rich.player-hover-online"));
+            Component online = MiniMessage.miniMessage()
+                .deserialize(translationService.messageOf(receiver, "rich.player-hover-online"));
 
-            Component banned = MiniMessage.miniMessage().deserialize(
-                translationService.messageOf(receiver, "rich.player-hover-banned"));
+            Component banned = MiniMessage.miniMessage()
+                .deserialize(translationService.messageOf(receiver, "rich.player-hover-banned"));
 
             String yes = translationService.messageOf(receiver, "text.player-hover-yes");
             String no = translationService.messageOf(receiver, "text.player-hover-no");
@@ -192,8 +195,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         }
 
         if (cause != null) {
-            Component hover = Component.text()
-                .append(Component.text("Non-player", NamedTextColor.GRAY)).build();
+            Component hover = Component.text().append(Component.text("Non-player", NamedTextColor.GRAY)).build();
 
             return Component.text().append(Component.text(cause)).hoverEvent(HoverEvent.showText(hover)).build();
         } else {
@@ -213,15 +215,20 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         if (value.action().descriptor() != null) {
             var builder = Component.text().append(value.action().descriptorComponent());
 
-            if (value.action().metadata() != null && value.action().metadata().data() != null
-                    && !value.action().metadata().data().isEmpty()) {
+            if (
+                value.action().metadata() != null &&
+                value.action().metadata().data() != null &&
+                !value.action().metadata().data().isEmpty()
+            ) {
                 var metadataBuilder = Component.text();
 
                 int size = value.action().metadata().data().entrySet().size();
                 int i = 0;
                 for (var entry : value.action().metadata().data().entrySet()) {
-                    var key = translationService.messageOf(receiver,
-                        String.format("text.metadata-hover-%s", entry.getKey().toLowerCase(Locale.ROOT)));
+                    var key = translationService.messageOf(
+                        receiver,
+                        String.format("text.metadata-hover-%s", entry.getKey().toLowerCase(Locale.ROOT))
+                    );
 
                     metadataBuilder
                         .append(Component.text(key + ": ", NamedTextColor.GRAY))
@@ -263,12 +270,14 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
             .hoverEvent(HoverEvent.showText(hover));
 
         if (receiver instanceof Player player) {
-            var command = String.format("/prism teleport loc %s %s %d %d %d",
+            var command = String.format(
+                "/prism teleport loc %s %s %d %d %d",
                 player.getName(),
                 world.value(),
                 coordinate.intX(),
                 coordinate.intY(),
-                coordinate.intZ());
+                coordinate.intZ()
+            );
             builder.clickEvent(ClickEvent.runCommand(command));
         }
 
@@ -294,7 +303,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         final long[] diff = {
             diffInSeconds / period,
             (diffInSeconds / (period /= 24)) % 24,
-            (diffInSeconds / (period / 60)) % 60
+            (diffInSeconds / (period / 60)) % 60,
         };
 
         StringBuilder timeAgo = new StringBuilder();

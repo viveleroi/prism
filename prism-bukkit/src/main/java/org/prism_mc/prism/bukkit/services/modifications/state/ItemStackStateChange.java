@@ -20,11 +20,11 @@
 
 package org.prism_mc.prism.bukkit.services.modifications.state;
 
+import org.bukkit.inventory.ItemStack;
 import org.prism_mc.prism.api.services.modifications.StateChange;
 
-import org.bukkit.inventory.ItemStack;
-
 public class ItemStackStateChange extends StateChange<ItemStack> {
+
     /**
      * Construct a new item stack state change.
      *

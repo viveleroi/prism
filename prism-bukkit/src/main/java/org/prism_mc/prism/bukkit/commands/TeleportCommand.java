@@ -21,24 +21,22 @@
 package org.prism_mc.prism.bukkit.commands;
 
 import com.google.inject.Inject;
-
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Suggestion;
-
-import org.prism_mc.prism.api.activities.ActivityQuery;
-import org.prism_mc.prism.bukkit.PrismBukkit;
-import org.prism_mc.prism.bukkit.services.lookup.LookupService;
-import org.prism_mc.prism.bukkit.services.messages.MessageService;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.prism_mc.prism.api.activities.ActivityQuery;
+import org.prism_mc.prism.bukkit.PrismBukkit;
+import org.prism_mc.prism.bukkit.services.lookup.LookupService;
+import org.prism_mc.prism.bukkit.services.messages.MessageService;
 
-@Command(value = "prism", alias = {"pr"})
+@Command(value = "prism", alias = { "pr" })
 public class TeleportCommand {
+
     /**
      * The lookup service.
      */
@@ -56,18 +54,18 @@ public class TeleportCommand {
      * @param messageService The message service
      */
     @Inject
-    public TeleportCommand(
-            LookupService lookupService,
-            MessageService messageService) {
+    public TeleportCommand(LookupService lookupService, MessageService messageService) {
         this.lookupService = lookupService;
         this.messageService = messageService;
     }
 
     @Command("teleport")
     public class TeleportSubCommand {
+
         @Command("id")
         @Permission("prism.lookup")
         public class TeleportToActivity {
+
             /**
              * Run the teleport command. Teleports to the world/location of a specific record id.
              *
@@ -85,12 +83,18 @@ public class TeleportCommand {
                         messageService.teleportingToActivity(player, activity);
 
                         World world = Bukkit.getServer().getWorld(activity.world().key());
-                        Bukkit.getServer().getScheduler().runTask(PrismBukkit.instance().loaderPlugin(), () -> {
-                            player.teleport(new Location(world,
-                                activity.coordinate().intX(),
-                                activity.coordinate().intY(),
-                                activity.coordinate().intZ()));
-                        });
+                        Bukkit.getServer()
+                            .getScheduler()
+                            .runTask(PrismBukkit.instance().loaderPlugin(), () -> {
+                                player.teleport(
+                                    new Location(
+                                        world,
+                                        activity.coordinate().intX(),
+                                        activity.coordinate().intY(),
+                                        activity.coordinate().intZ()
+                                    )
+                                );
+                            });
                     }
                 });
             }
@@ -99,6 +103,7 @@ public class TeleportCommand {
         @Command("loc")
         @Permission("prism.lookup")
         public class TeleportToLocation {
+
             /**
              * Run the teleport command. Teleports to the world/location of a specific record id.
              *

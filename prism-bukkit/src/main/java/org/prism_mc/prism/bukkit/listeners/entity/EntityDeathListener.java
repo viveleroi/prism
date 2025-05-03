@@ -21,15 +21,6 @@
 package org.prism_mc.prism.bukkit.listeners.entity;
 
 import com.google.inject.Inject;
-
-import org.prism_mc.prism.bukkit.actions.BukkitEntityAction;
-import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
-import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
-import org.prism_mc.prism.bukkit.listeners.AbstractListener;
-import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
-import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
-import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
-
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -42,8 +33,16 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.projectiles.BlockProjectileSource;
+import org.prism_mc.prism.bukkit.actions.BukkitEntityAction;
+import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
+import org.prism_mc.prism.bukkit.listeners.AbstractListener;
+import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
+import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
+import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
 public class EntityDeathListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -53,9 +52,10 @@ public class EntityDeathListener extends AbstractListener implements Listener {
      */
     @Inject
     public EntityDeathListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -112,7 +112,10 @@ public class EntityDeathListener extends AbstractListener implements Listener {
         // While event.getDrops() would include these items, it would also list loot which we do not track
         if (entity instanceof InventoryHolder inventoryHolder) {
             recordItemDropFromInventory(
-                inventoryHolder.getInventory(), event.getEntity().getLocation(), event.getEntity());
+                inventoryHolder.getInventory(),
+                event.getEntity().getLocation(),
+                event.getEntity()
+            );
         }
     }
 }

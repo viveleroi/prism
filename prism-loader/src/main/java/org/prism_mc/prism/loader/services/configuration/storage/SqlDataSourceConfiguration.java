@@ -21,13 +21,13 @@
 package org.prism_mc.prism.loader.services.configuration.storage;
 
 import lombok.Getter;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
 public class SqlDataSourceConfiguration extends DataSourceConfiguration {
+
     @Comment("Configure the hostname.")
     private String host = "localhost";
 

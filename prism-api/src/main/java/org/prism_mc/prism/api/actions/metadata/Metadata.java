@@ -22,7 +22,6 @@ package org.prism_mc.prism.api.actions.metadata;
 
 import java.util.Locale;
 import java.util.Map;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,8 +32,9 @@ import lombok.Singular;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Metadata {
+
     private enum MetadataKey {
-        USING
+        USING,
     }
 
     @Getter
@@ -42,6 +42,7 @@ public class Metadata {
     public Map<String, String> data;
 
     public static class MetadataBuilder {
+
         /**
          * Set the using metadata.
          *

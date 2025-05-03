@@ -21,23 +21,20 @@
 package org.prism_mc.prism.bukkit.commands;
 
 import com.google.inject.Inject;
-
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
-
 import java.util.Locale;
 import java.util.Optional;
-
+import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueResult;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueService;
 import org.prism_mc.prism.api.services.modifications.ModificationResult;
 import org.prism_mc.prism.api.services.modifications.ModificationResultStatus;
 import org.prism_mc.prism.bukkit.services.messages.MessageService;
 
-import org.bukkit.command.CommandSender;
-
-@Command(value = "prism", alias = {"pr"})
+@Command(value = "prism", alias = { "pr" })
 public class ReportCommand {
+
     /**
      * The message service.
      */
@@ -55,9 +52,7 @@ public class ReportCommand {
      * @param modificationQueueService The modification queue service
      */
     @Inject
-    public ReportCommand(
-            MessageService messageService,
-            ModificationQueueService modificationQueueService) {
+    public ReportCommand(MessageService messageService, ModificationQueueService modificationQueueService) {
         this.messageService = messageService;
         this.modificationQueueService = modificationQueueService;
     }
@@ -65,6 +60,7 @@ public class ReportCommand {
     @Command("report")
     @Permission("prism.modify")
     public class ReportSubCommand {
+
         /**
          * Run the modification skips report command.
          *
@@ -86,8 +82,10 @@ public class ReportCommand {
             for (ModificationResult result : queueResult.results()) {
                 if (result.status().equals(ModificationResultStatus.SKIPPED)) {
                     messageService.modificationsReportSkippedActivity(
-                        sender, result.activity(), result.skipReason().toString()
-                            .replaceAll("_", " ").toLowerCase(Locale.ROOT));
+                        sender,
+                        result.activity(),
+                        result.skipReason().toString().replaceAll("_", " ").toLowerCase(Locale.ROOT)
+                    );
                 }
             }
         }

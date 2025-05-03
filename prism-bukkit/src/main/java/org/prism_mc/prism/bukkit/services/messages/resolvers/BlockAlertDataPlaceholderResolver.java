@@ -21,11 +21,9 @@
 package org.prism_mc.prism.bukkit.services.messages.resolvers;
 
 import com.google.inject.Singleton;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Map;
-
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -33,32 +31,36 @@ import net.kyori.moonshine.placeholder.ConclusionValue;
 import net.kyori.moonshine.placeholder.ContinuanceValue;
 import net.kyori.moonshine.placeholder.IPlaceholderResolver;
 import net.kyori.moonshine.util.Either;
-
-import org.prism_mc.prism.bukkit.services.alerts.BlockAlertData;
-
 import org.bukkit.command.CommandSender;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.prism_mc.prism.bukkit.services.alerts.BlockAlertData;
 
 @Singleton
-public class BlockAlertDataPlaceholderResolver implements
-        IPlaceholderResolver<CommandSender, BlockAlertData, Component> {
+public class BlockAlertDataPlaceholderResolver
+    implements IPlaceholderResolver<CommandSender, BlockAlertData, Component> {
+
     @Override
     public @NonNull Map<String, Either<ConclusionValue<? extends Component>, ContinuanceValue<?>>> resolve(
-            final String placeholderName,
-            final BlockAlertData value,
-            final CommandSender receiver,
-            final Type owner,
-            final Method method,
-            final @Nullable Object[] parameters
+        final String placeholderName,
+        final BlockAlertData value,
+        final CommandSender receiver,
+        final Type owner,
+        final Method method,
+        final @Nullable Object[] parameters
     ) {
         Component color = Component.text().color(value.color()).build();
         Component blockName = block(value.blockTranslationKey(), value.itemKey());
         Component playerName = Component.text(value.playerName());
 
-        return Map.of(placeholderName + "_color", Either.left(ConclusionValue.conclusionValue(color)),
-            placeholderName + "_player", Either.left(ConclusionValue.conclusionValue(playerName)),
-            placeholderName + "_block", Either.left(ConclusionValue.conclusionValue(blockName)));
+        return Map.of(
+            placeholderName + "_color",
+            Either.left(ConclusionValue.conclusionValue(color)),
+            placeholderName + "_player",
+            Either.left(ConclusionValue.conclusionValue(playerName)),
+            placeholderName + "_block",
+            Either.left(ConclusionValue.conclusionValue(blockName))
+        );
     }
 
     /**
@@ -71,8 +73,7 @@ public class BlockAlertDataPlaceholderResolver implements
     protected Component block(String blockTranslationKey, Key itemKey) {
         return Component.text()
             .append(Component.translatable(blockTranslationKey))
-            .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_ITEM,
-                HoverEvent.ShowItem.showItem(itemKey, 1)))
+            .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_ITEM, HoverEvent.ShowItem.showItem(itemKey, 1)))
             .build();
     }
 }

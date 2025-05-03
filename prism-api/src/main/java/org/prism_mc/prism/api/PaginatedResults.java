@@ -22,11 +22,7 @@ package org.prism_mc.prism.api;
 
 import java.util.List;
 
-public record PaginatedResults<T>(
-    List<T> results,
-    int perPage,
-    int totalResults,
-    int currentPage) {
+public record PaginatedResults<T>(List<T> results, int perPage, int totalResults, int currentPage) {
     /**
      * Check if these results have a next page.
      *

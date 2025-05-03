@@ -21,7 +21,11 @@
 package org.prism_mc.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
-
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.prism_mc.prism.bukkit.actions.GenericBukkitAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
@@ -30,13 +34,8 @@ import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
 import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerExpChangeEvent;
-
 public class PlayerExpChangeListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -46,9 +45,10 @@ public class PlayerExpChangeListener extends AbstractListener implements Listene
      */
     @Inject
     public PlayerExpChangeListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -74,11 +74,7 @@ public class PlayerExpChangeListener extends AbstractListener implements Listene
 
         var action = new GenericBukkitAction(BukkitActionTypeRegistry.XP_PICKUP, descriptor);
 
-        var activity = BukkitActivity.builder()
-            .action(action)
-            .location(player.getLocation())
-            .player(player)
-            .build();
+        var activity = BukkitActivity.builder().action(action).location(player.getLocation()).player(player).build();
 
         recordingService.addToQueue(activity);
     }

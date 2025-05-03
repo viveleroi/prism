@@ -23,16 +23,17 @@ package org.prism_mc.prism.api.services.modifications;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
-
 import org.prism_mc.prism.api.activities.Activity;
 
 @Builder
 @Getter
 public final class ModificationResult {
+
     /**
      * The original activity.
      */
-    @NonNull private final Activity activity;
+    @NonNull
+    private final Activity activity;
 
     /**
      * The state changes.
@@ -53,6 +54,7 @@ public final class ModificationResult {
     private final ModificationSkipReason skipReason = ModificationSkipReason.NOT_IMPLEMENTED;
 
     public static class ModificationResultBuilder {
+
         /**
          * Set the status to APPLIED.
          *

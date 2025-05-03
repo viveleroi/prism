@@ -20,16 +20,16 @@
 
 package org.prism_mc.prism.core.storage.dbo;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
+
 import java.io.Serial;
 import java.util.List;
-
 import org.jetbrains.annotations.NotNull;
 import org.jooq.Schema;
 import org.jooq.impl.CatalogImpl;
 
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
-
 public class DefaultCatalog extends CatalogImpl {
+
     @Serial
     private static final long serialVersionUID = 1L;
 

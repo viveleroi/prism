@@ -21,13 +21,12 @@
 package org.prism_mc.prism.bukkit.actions;
 
 import java.util.Locale;
-
+import org.bukkit.Material;
 import org.prism_mc.prism.api.actions.MaterialAction;
 import org.prism_mc.prism.api.actions.types.ActionType;
 
-import org.bukkit.Material;
-
 public abstract class BukkitMaterialAction extends BukkitAction implements MaterialAction {
+
     /**
      * The material.
      */
@@ -41,7 +40,6 @@ public abstract class BukkitMaterialAction extends BukkitAction implements Mater
      */
     public BukkitMaterialAction(ActionType type, Material material, String descriptor) {
         super(type, descriptor, null);
-
         this.material = material;
 
         if (this.descriptor == null) {

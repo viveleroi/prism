@@ -21,21 +21,19 @@
 package org.prism_mc.prism.bukkit.commands;
 
 import com.google.inject.Inject;
-
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
-
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.bukkit.services.lookup.LookupService;
 import org.prism_mc.prism.bukkit.utils.LocationUtils;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-
-@Command(value = "prism", alias = {"pr"})
+@Command(value = "prism", alias = { "pr" })
 public class NearCommand {
+
     /**
      * The configuration service.
      */
@@ -53,9 +51,7 @@ public class NearCommand {
      * @param lookupService The lookup service
      */
     @Inject
-    public NearCommand(
-            ConfigurationService configurationService,
-            LookupService lookupService) {
+    public NearCommand(ConfigurationService configurationService, LookupService lookupService) {
         this.configurationService = configurationService;
         this.lookupService = lookupService;
     }
@@ -69,14 +65,20 @@ public class NearCommand {
     @Permission("prism.lookup")
     public void onNear(final Player player) {
         Location loc = player.getLocation();
-        Coordinate minCoordinate = LocationUtils
-            .getMinCoordinate(loc, configurationService.prismConfig().defaults().nearRadius());
-        Coordinate maxCoordinate = LocationUtils
-            .getMaxCoordinate(loc, configurationService.prismConfig().defaults().nearRadius());
+        Coordinate minCoordinate = LocationUtils.getMinCoordinate(
+            loc,
+            configurationService.prismConfig().defaults().nearRadius()
+        );
+        Coordinate maxCoordinate = LocationUtils.getMaxCoordinate(
+            loc,
+            configurationService.prismConfig().defaults().nearRadius()
+        );
 
-        final ActivityQuery query = ActivityQuery.builder().worldUuid(loc.getWorld().getUID())
+        final ActivityQuery query = ActivityQuery.builder()
+            .worldUuid(loc.getWorld().getUID())
             .boundingCoordinates(minCoordinate, maxCoordinate)
-            .limit(configurationService.prismConfig().defaults().perPage()).build();
+            .limit(configurationService.prismConfig().defaults().perPage())
+            .build();
         lookupService.lookup(player, query);
     }
 }

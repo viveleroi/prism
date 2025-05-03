@@ -20,11 +20,12 @@
 
 package org.prism_mc.prism.bukkit.actions.types;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import static org.prism_mc.prism.bukkit.actions.BukkitAction.ObjectMapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.iface.ReadWriteNBT;
-
+import org.bukkit.entity.EntityType;
 import org.prism_mc.prism.api.actions.Action;
 import org.prism_mc.prism.api.actions.ActionData;
 import org.prism_mc.prism.api.actions.metadata.Metadata;
@@ -32,11 +33,8 @@ import org.prism_mc.prism.api.actions.types.ActionResultType;
 import org.prism_mc.prism.api.actions.types.ActionType;
 import org.prism_mc.prism.bukkit.actions.BukkitEntityAction;
 
-import org.bukkit.entity.EntityType;
-
-import static org.prism_mc.prism.bukkit.actions.BukkitAction.ObjectMapper;
-
 public class EntityActionType extends ActionType {
+
     /**
      * Construct a new entity action type.
      *
@@ -44,8 +42,7 @@ public class EntityActionType extends ActionType {
      * @param resultType The result type
      * @param reversible If action is reversible
      */
-    public EntityActionType(
-            String key, ActionResultType resultType, boolean reversible) {
+    public EntityActionType(String key, ActionResultType resultType, boolean reversible) {
         super(key, resultType, reversible);
     }
 

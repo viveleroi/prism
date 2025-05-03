@@ -24,18 +24,15 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import lombok.Getter;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-
+import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.api.PaginatedResults;
 import org.prism_mc.prism.api.activities.AbstractActivity;
 import org.prism_mc.prism.api.activities.Activity;
@@ -49,10 +46,9 @@ import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.configuration.cache.CacheConfiguration;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.bukkit.command.CommandSender;
-
 @Singleton
 public class LookupService {
+
     /**
      * The message service.
      */
@@ -97,13 +93,14 @@ public class LookupService {
      */
     @Inject
     public LookupService(
-            CacheService cacheService,
-            ConfigurationService configurationService,
-            MessageService messageService,
-            StorageAdapter storageAdapter,
-            BukkitTranslationService translationService,
-            TaskChainProvider taskChainProvider,
-            LoggingService loggingService) {
+        CacheService cacheService,
+        ConfigurationService configurationService,
+        MessageService messageService,
+        StorageAdapter storageAdapter,
+        BukkitTranslationService translationService,
+        TaskChainProvider taskChainProvider,
+        LoggingService loggingService
+    ) {
         this.messageService = messageService;
         this.storageAdapter = storageAdapter;
         this.translationService = translationService;
@@ -114,8 +111,10 @@ public class LookupService {
 
         var cacheBuilder = Caffeine.newBuilder()
             .maximumSize(cacheConfiguration.lookupExpiration().maxSize())
-            .expireAfterAccess(cacheConfiguration.lookupExpiration().expiresAfterAccess().duration(),
-                cacheConfiguration.lookupExpiration().expiresAfterAccess().timeUnit())
+            .expireAfterAccess(
+                cacheConfiguration.lookupExpiration().expiresAfterAccess().duration(),
+                cacheConfiguration.lookupExpiration().expiresAfterAccess().timeUnit()
+            )
             .evictionListener((key, value, cause) -> {
                 String msg = "Evicting activity query from cache: Key: {0}, Value: {1}, Removal Cause: {2}";
                 loggingService.debug(msg, key, value, cause);
@@ -150,17 +149,20 @@ public class LookupService {
      * @param query The activity query
      */
     public void lookup(CommandSender sender, ActivityQuery query) {
-        taskChainProvider.newChain().async(() -> {
-            try {
-                show(sender, storageAdapter.queryActivitiesPaginated(query), query);
+        taskChainProvider
+            .newChain()
+            .async(() -> {
+                try {
+                    show(sender, storageAdapter.queryActivitiesPaginated(query), query);
 
-                // Cache this senders' most recent query
-                recentQueries.put(sender, query);
-            } catch (Exception ex) {
-                messageService.errorQueryExec(sender);
-                loggingService.handleException(ex);
-            }
-        }).execute();
+                    // Cache this senders' most recent query
+                    recentQueries.put(sender, query);
+                } catch (Exception ex) {
+                    messageService.errorQueryExec(sender);
+                    loggingService.handleException(ex);
+                }
+            })
+            .execute();
     }
 
     /**
@@ -170,13 +172,16 @@ public class LookupService {
      * @param consumer The result consumer
      */
     public void lookup(ActivityQuery query, Consumer<List<Activity>> consumer) {
-        taskChainProvider.newChain().async(() -> {
-            try {
-                consumer.accept(storageAdapter.queryActivities(query));
-            } catch (Exception ex) {
-                loggingService.handleException(ex);
-            }
-        }).execute();
+        taskChainProvider
+            .newChain()
+            .async(() -> {
+                try {
+                    consumer.accept(storageAdapter.queryActivities(query));
+                } catch (Exception ex) {
+                    loggingService.handleException(ex);
+                }
+            })
+            .execute();
     }
 
     /**
@@ -187,17 +192,20 @@ public class LookupService {
      * @param consumer The result consumer
      */
     public void lookup(CommandSender sender, ActivityQuery query, Consumer<List<Activity>> consumer) {
-        taskChainProvider.newChain().async(() -> {
-            try {
-                consumer.accept(storageAdapter.queryActivities(query));
+        taskChainProvider
+            .newChain()
+            .async(() -> {
+                try {
+                    consumer.accept(storageAdapter.queryActivities(query));
 
-                // Cache this senders' most recent query
-                recentQueries.put(sender, query);
-            } catch (Exception ex) {
-                messageService.errorQueryExec(sender);
-                loggingService.handleException(ex);
-            }
-        }).execute();
+                    // Cache this senders' most recent query
+                    recentQueries.put(sender, query);
+                } catch (Exception ex) {
+                    messageService.errorQueryExec(sender);
+                    loggingService.handleException(ex);
+                }
+            })
+            .execute();
     }
 
     /**
@@ -238,25 +246,23 @@ public class LookupService {
                 if (results.hasPrevPage()) {
                     String cmd = "/pr page " + (results.currentPage() - 1);
 
-                    Component hover = Component.text(
-                        translationService.messageOf(sender, "text.page-prev-hover"));
-                    prev = MiniMessage.miniMessage().deserialize(
-                            translationService.messageOf(sender, "rich.page-prev"))
+                    Component hover = Component.text(translationService.messageOf(sender, "text.page-prev-hover"));
+                    prev = MiniMessage.miniMessage()
+                        .deserialize(translationService.messageOf(sender, "rich.page-prev"))
                         .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, hover))
                         .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
                 }
 
-                Component splitter = MiniMessage.miniMessage().deserialize(
-                    translationService.messageOf(sender, "rich.page-separator"));
+                Component splitter = MiniMessage.miniMessage()
+                    .deserialize(translationService.messageOf(sender, "rich.page-separator"));
 
                 Component next = Component.empty();
                 if (results.hasNextPage()) {
                     String cmd = "/pr page " + (results.currentPage() + 1);
 
-                    Component hover = Component.text(
-                        translationService.messageOf(sender, "text.page-next-hover"));
-                    next = MiniMessage.miniMessage().deserialize(
-                            translationService.messageOf(sender, "rich.page-next"))
+                    Component hover = Component.text(translationService.messageOf(sender, "text.page-next-hover"));
+                    next = MiniMessage.miniMessage()
+                        .deserialize(translationService.messageOf(sender, "rich.page-next"))
                         .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, hover))
                         .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
                 }

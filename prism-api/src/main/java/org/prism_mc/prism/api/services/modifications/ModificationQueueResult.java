@@ -21,7 +21,6 @@
 package org.prism_mc.prism.api.services.modifications;
 
 import java.util.List;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -29,6 +28,7 @@ import lombok.NonNull;
 @Builder
 @Getter
 public final class ModificationQueueResult {
+
     /**
      * The count of activities applied.
      */

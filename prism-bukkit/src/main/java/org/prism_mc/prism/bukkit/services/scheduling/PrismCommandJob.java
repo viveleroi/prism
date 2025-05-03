@@ -20,14 +20,14 @@
 
 package org.prism_mc.prism.bukkit.services.scheduling;
 
-import org.prism_mc.prism.bukkit.PrismBukkit;
-
 import org.bukkit.Bukkit;
+import org.prism_mc.prism.bukkit.PrismBukkit;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 
 public class PrismCommandJob implements Job {
+
     /**
      * Execute this job.
      *
@@ -39,9 +39,10 @@ public class PrismCommandJob implements Job {
         String command = dataMap.getString("command");
         if (command != null) {
             // Jobs via the scheduler are async, but commands must execute on the game thread
-            Bukkit.getScheduler().runTask(PrismBukkit.instance().loaderPlugin(), () -> {
-                Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
-            });
+            Bukkit.getScheduler()
+                .runTask(PrismBukkit.instance().loaderPlugin(), () -> {
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
+                });
         }
     }
 }

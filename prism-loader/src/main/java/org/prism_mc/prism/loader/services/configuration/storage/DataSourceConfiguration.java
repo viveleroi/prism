@@ -21,13 +21,13 @@
 package org.prism_mc.prism.loader.services.configuration.storage;
 
 import lombok.Getter;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
 public class DataSourceConfiguration {
+
     @Comment("Set the max number of records saved to storage per batch.")
     private int batchMax = 500;
 

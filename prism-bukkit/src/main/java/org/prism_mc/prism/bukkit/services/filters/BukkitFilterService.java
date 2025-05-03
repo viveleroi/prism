@@ -22,11 +22,13 @@ package org.prism_mc.prism.bukkit.services.filters;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.EntityType;
 import org.prism_mc.prism.api.activities.Activity;
 import org.prism_mc.prism.api.services.filters.FilterBehavior;
 import org.prism_mc.prism.api.services.filters.FilterService;
@@ -37,13 +39,9 @@ import org.prism_mc.prism.loader.services.configuration.filters.FilterConditions
 import org.prism_mc.prism.loader.services.configuration.filters.FilterConfiguration;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.entity.EntityType;
-
 @Singleton
 public class BukkitFilterService implements FilterService {
+
     /**
      * The logging service.
      */
@@ -87,7 +85,7 @@ public class BukkitFilterService implements FilterService {
 
         // Convert all configured filters into Filter objects
         for (FilterConfiguration config : configurationService.prismConfig().filters()) {
-            var name = config.name() == null ||  config.name().isEmpty() ? "Unnamed" : config.name();
+            var name = config.name() == null || config.name().isEmpty() ? "Unnamed" : config.name();
             loadFilter(name, config.behavior(), config.conditions());
         }
     }
@@ -98,9 +96,10 @@ public class BukkitFilterService implements FilterService {
     protected void loadFilter(String filterName, FilterBehavior behavior, FilterConditionsConfiguration config) {
         // Behavior
         if (behavior == null) {
-            loggingService
-                .warn("Filter error: No behavior defined in filter {0}. Behavior must be either IGNORE or ALLOW.",
-                    filterName);
+            loggingService.warn(
+                "Filter error: No behavior defined in filter {0}. Behavior must be either IGNORE or ALLOW.",
+                filterName
+            );
 
             return;
         }
@@ -114,8 +113,11 @@ public class BukkitFilterService implements FilterService {
         // Unfortunately that also means we can't error when an invalid world is configured.
         List<String> worldNames = config.worlds();
 
-        if (!ListUtils.isNullOrEmpty(worldNames)
-                || !ListUtils.isNullOrEmpty(config.permissions()) || !ListUtils.isNullOrEmpty(config.actions())) {
+        if (
+            !ListUtils.isNullOrEmpty(worldNames) ||
+            !ListUtils.isNullOrEmpty(config.permissions()) ||
+            !ListUtils.isNullOrEmpty(config.actions())
+        ) {
             conditionExists = true;
         }
 
@@ -128,8 +130,7 @@ public class BukkitFilterService implements FilterService {
                     EntityType entityType = EntityType.valueOf(entityTypeKey.toUpperCase(Locale.ENGLISH));
                     entityTypeTags.append(entityType);
                 } catch (IllegalArgumentException e) {
-                    loggingService.warn(
-                        "Filter error in {0}: No entity type matching {1}", filterName, entityTypeKey);
+                    loggingService.warn("Filter error in {0}: No entity type matching {1}", filterName, entityTypeKey);
                 }
             }
 
@@ -150,8 +151,7 @@ public class BukkitFilterService implements FilterService {
                     }
                 }
 
-                loggingService.warn(
-                    "Filter error in {0}: Invalid entity type tag {1}", filterName, entityTypeTag);
+                loggingService.warn("Filter error in {0}: Invalid entity type tag {1}", filterName, entityTypeTag);
             }
         }
 
@@ -164,8 +164,7 @@ public class BukkitFilterService implements FilterService {
                     Material material = Material.valueOf(materialKey.toUpperCase(Locale.ENGLISH));
                     materialTags.append(material);
                 } catch (IllegalArgumentException e) {
-                    loggingService.warn(
-                        "Filter error in {0}: No material matching {1}", filterName, materialKey);
+                    loggingService.warn("Filter error in {0}: No material matching {1}", filterName, materialKey);
                 }
             }
 

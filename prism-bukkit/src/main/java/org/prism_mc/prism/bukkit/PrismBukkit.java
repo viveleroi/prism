@@ -21,7 +21,6 @@
 package org.prism_mc.prism.bukkit;
 
 import de.tr7zw.nbtapi.utils.DataFixerUtil;
-
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.core.argument.keyed.Argument;
@@ -30,16 +29,22 @@ import dev.triumphteam.cmd.core.argument.keyed.Flag;
 import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-
 import lombok.Getter;
-
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Tag;
+import org.bukkit.World;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.prism_mc.prism.api.Prism;
 import org.prism_mc.prism.api.actions.types.ActionTypeRegistry;
 import org.prism_mc.prism.api.services.recording.RecordingService;
@@ -129,17 +134,8 @@ import org.prism_mc.prism.loader.services.dependencies.DependencyService;
 import org.prism_mc.prism.loader.services.dependencies.loader.PluginLoader;
 import org.prism_mc.prism.loader.services.scheduler.ThreadPoolScheduler;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Tag;
-import org.bukkit.World;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
-import org.bukkit.plugin.java.JavaPlugin;
-
 public class PrismBukkit implements Prism {
+
     /**
      *  Get this instance.
      */
@@ -200,10 +196,7 @@ public class PrismBukkit implements Prism {
      * @return The platform dependencies
      */
     protected Set<Dependency> platformDependencies() {
-        return EnumSet.of(
-            Dependency.TASKCHAIN_BUKKIT,
-            Dependency.TASKCHAIN_CORE
-        );
+        return EnumSet.of(Dependency.TASKCHAIN_BUKKIT, Dependency.TASKCHAIN_CORE);
     }
 
     /**
@@ -312,12 +305,14 @@ public class PrismBukkit implements Prism {
             registerEvent(VehicleExitListener.class);
 
             // Register commands
-            BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(loaderPlugin(),
-                CommandOptions.Builder::suggestLowercaseEnum);
+            BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(
+                loaderPlugin(),
+                CommandOptions.Builder::suggestLowercaseEnum
+            );
 
             // Customize command messages
-            var messagingService =  injectorProvider.injector().getInstance(MessageService.class);
-            var configurationService =  injectorProvider.injector().getInstance(ConfigurationService.class);
+            var messagingService = injectorProvider.injector().getInstance(MessageService.class);
+            var configurationService = injectorProvider.injector().getInstance(ConfigurationService.class);
 
             commandManager.registerMessage(BukkitMessageKey.CONSOLE_ONLY, (sender, context) -> {
                 messagingService.errorConsoleOnly(sender);
@@ -350,8 +345,10 @@ public class PrismBukkit implements Prism {
             // Register action types auto-suggest
             commandManager.registerSuggestion(SuggestionKey.of("actions"), (sender, context) -> {
                 List<String> actionFamilies = new ArrayList<>();
-                for (var actionType : injectorProvider.injector()
-                        .getInstance(BukkitActionTypeRegistry.class).actionTypes()) {
+                for (var actionType : injectorProvider
+                    .injector()
+                    .getInstance(BukkitActionTypeRegistry.class)
+                    .actionTypes()) {
                     actionFamilies.add(actionType.familyKey());
                 }
 
@@ -377,13 +374,18 @@ public class PrismBukkit implements Prism {
                 for (Tag<Material> tag : Bukkit.getTags("blocks", Material.class)) {
                     var tagString = tag.getKey().toString();
 
-                    if (tagString.contains("minecraft:")
-                            && !configurationService.prismConfig().commands().allowMinecraftTags()) {
+                    if (
+                        tagString.contains("minecraft:") &&
+                        !configurationService.prismConfig().commands().allowMinecraftTags()
+                    ) {
                         continue;
                     }
 
-                    if (blockTagWhitelist.isEmpty()
-                            || !blockTagWhitelistEnabled || blockTagWhitelist.contains(tagString)) {
+                    if (
+                        blockTagWhitelist.isEmpty() ||
+                        !blockTagWhitelistEnabled ||
+                        blockTagWhitelist.contains(tagString)
+                    ) {
                         tags.add(tagString);
                     }
                 }
@@ -400,13 +402,16 @@ public class PrismBukkit implements Prism {
                 for (Tag<Material> tag : Bukkit.getTags("items", Material.class)) {
                     var tagString = tag.getKey().toString();
 
-                    if (tagString.contains("minecraft:")
-                            && !configurationService.prismConfig().commands().allowMinecraftTags()) {
+                    if (
+                        tagString.contains("minecraft:") &&
+                        !configurationService.prismConfig().commands().allowMinecraftTags()
+                    ) {
                         continue;
                     }
 
-                    if (itemTagWhitelist.isEmpty()
-                            || !itemTagWhitelistEnabled || itemTagWhitelist.contains(tagString)) {
+                    if (
+                        itemTagWhitelist.isEmpty() || !itemTagWhitelistEnabled || itemTagWhitelist.contains(tagString)
+                    ) {
                         tags.add(tagString);
                     }
                 }
@@ -415,29 +420,35 @@ public class PrismBukkit implements Prism {
             });
 
             // Register entity tags auto-suggest
-            commandManager.registerSuggestion(SuggestionKey.of("entitytypetags"),
-                    (sender, context) -> {
-                    var entityTypeTagWhitelistEnabled = configurationService.prismConfig()
-                        .commands().entityTypeTagWhitelistEnabled();
-                    var entityTypeTagWhitelist = configurationService.prismConfig().commands().entityTypeTagWhitelist();
+            commandManager.registerSuggestion(SuggestionKey.of("entitytypetags"), (sender, context) -> {
+                var entityTypeTagWhitelistEnabled = configurationService
+                    .prismConfig()
+                    .commands()
+                    .entityTypeTagWhitelistEnabled();
+                var entityTypeTagWhitelist = configurationService.prismConfig().commands().entityTypeTagWhitelist();
 
-                    List<String> tags = new ArrayList<>();
-                    for (Tag<EntityType> tag : Bukkit.getTags("entity_types", EntityType.class)) {
-                        var tagString = tag.getKey().toString();
+                List<String> tags = new ArrayList<>();
+                for (Tag<EntityType> tag : Bukkit.getTags("entity_types", EntityType.class)) {
+                    var tagString = tag.getKey().toString();
 
-                        if (tagString.contains("minecraft:")
-                                && !configurationService.prismConfig().commands().allowMinecraftTags()) {
-                            continue;
-                        }
-
-                        if (entityTypeTagWhitelist.isEmpty()
-                                || !entityTypeTagWhitelistEnabled || entityTypeTagWhitelist.contains(tagString)) {
-                            tags.add(tagString);
-                        }
+                    if (
+                        tagString.contains("minecraft:") &&
+                        !configurationService.prismConfig().commands().allowMinecraftTags()
+                    ) {
+                        continue;
                     }
 
-                    return tags;
-                });
+                    if (
+                        entityTypeTagWhitelist.isEmpty() ||
+                        !entityTypeTagWhitelistEnabled ||
+                        entityTypeTagWhitelist.contains(tagString)
+                    ) {
+                        tags.add(tagString);
+                    }
+                }
+
+                return tags;
+            });
 
             // Register world auto-suggest
             commandManager.registerSuggestion(SuggestionKey.of("worlds"), (sender, context) -> {
@@ -451,13 +462,16 @@ public class PrismBukkit implements Prism {
 
             // Register "in" parameter
             commandManager.registerSuggestion(SuggestionKey.of("ins"), (sender, context) ->
-                Arrays.asList("chunk", "world", "worldedit"));
+                Arrays.asList("chunk", "world", "worldedit")
+            );
 
-            commandManager.registerFlags(FlagKey.of("query-flags"),
+            commandManager.registerFlags(
+                FlagKey.of("query-flags"),
                 Flag.flag("dl").longFlag("drainlava").argument(Boolean.class).build(),
                 Flag.flag("ow").longFlag("overwrite").build(),
                 Flag.flag("nd").longFlag("nodefaults").build(),
-                Flag.flag("ng").longFlag("nogroup").build());
+                Flag.flag("ng").longFlag("nogroup").build()
+            );
 
             commandManager.registerNamedArguments(
                 ArgumentKey.of("query-parameters"),
@@ -507,7 +521,9 @@ public class PrismBukkit implements Prism {
      * @param <T> The type
      */
     protected <T> void registerEvent(Class<? extends Listener> type) {
-        loaderPlugin().getServer().getPluginManager()
+        loaderPlugin()
+            .getServer()
+            .getPluginManager()
             .registerEvents(injectorProvider.injector().getInstance(type), loaderPlugin());
     }
 
@@ -551,9 +567,12 @@ public class PrismBukkit implements Prism {
     public void onDisable() {
         if (recordingService != null) {
             if (!recordingService.queue().isEmpty()) {
-                loader().loggingService().warn(
-                    "Server is shutting down yet there are {0} activities in the queue",
-                        recordingService.queue().size());
+                loader()
+                    .loggingService()
+                    .warn(
+                        "Server is shutting down yet there are {0} activities in the queue",
+                        recordingService.queue().size()
+                    );
             }
 
             recordingService.stop();

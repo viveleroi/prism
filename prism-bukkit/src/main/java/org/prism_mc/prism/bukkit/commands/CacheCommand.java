@@ -21,18 +21,16 @@
 package org.prism_mc.prism.bukkit.commands;
 
 import com.google.inject.Inject;
-
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
-
+import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.bukkit.services.messages.MessageService;
 import org.prism_mc.prism.core.services.cache.CacheService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.command.CommandSender;
-
-@Command(value = "prism", alias = {"pr"})
+@Command(value = "prism", alias = { "pr" })
 public class CacheCommand {
+
     /**
      * The cache service.
      */
@@ -57,9 +55,10 @@ public class CacheCommand {
      */
     @Inject
     public CacheCommand(
-            CacheService cacheService,
-            ConfigurationService configurationService,
-            MessageService messageService) {
+        CacheService cacheService,
+        ConfigurationService configurationService,
+        MessageService messageService
+    ) {
         this.cacheService = cacheService;
         this.configurationService = configurationService;
         this.messageService = messageService;
@@ -67,9 +66,11 @@ public class CacheCommand {
 
     @Command("cache")
     public class CacheSubCommand {
+
         @Command("list")
         @Permission("prism.admin")
         public class ListCaches {
+
             /**
              * Run the command.
              *
@@ -86,13 +87,21 @@ public class CacheCommand {
                 messageService.cacheListHeader(sender);
 
                 for (var entry : cacheService.primaryKeyCaches().entrySet()) {
-                    messageService.cacheListEntry(sender, entry.getKey(),
-                        entry.getValue().estimatedSize(), entry.getValue().stats().hitCount());
+                    messageService.cacheListEntry(
+                        sender,
+                        entry.getKey(),
+                        entry.getValue().estimatedSize(),
+                        entry.getValue().stats().hitCount()
+                    );
                 }
 
                 for (var entry : cacheService.caches().entrySet()) {
-                    messageService.cacheListEntry(sender, entry.getKey(),
-                        entry.getValue().estimatedSize(), entry.getValue().stats().hitCount());
+                    messageService.cacheListEntry(
+                        sender,
+                        entry.getKey(),
+                        entry.getValue().estimatedSize(),
+                        entry.getValue().stats().hitCount()
+                    );
                 }
             }
         }

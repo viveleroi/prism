@@ -21,15 +21,6 @@
 package org.prism_mc.prism.bukkit.listeners.vehicle;
 
 import com.google.inject.Inject;
-
-import org.prism_mc.prism.bukkit.actions.BukkitEntityAction;
-import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
-import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
-import org.prism_mc.prism.bukkit.listeners.AbstractListener;
-import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
-import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
-import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
-
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
@@ -38,8 +29,16 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
+import org.prism_mc.prism.bukkit.actions.BukkitEntityAction;
+import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
+import org.prism_mc.prism.bukkit.listeners.AbstractListener;
+import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
+import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
+import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
 public class VehicleEnterListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -49,9 +48,10 @@ public class VehicleEnterListener extends AbstractListener implements Listener {
      */
     @Inject
     public VehicleEnterListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -70,10 +70,12 @@ public class VehicleEnterListener extends AbstractListener implements Listener {
         }
 
         // Ignore if this event is disabled
-        if ((actionType.equals(BukkitActionTypeRegistry.VEHICLE_RIDE)
-                && !configurationService.prismConfig().actions().vehicleRide())
-                || (actionType.equals(BukkitActionTypeRegistry.ENTITY_RIDE)
-                    && !configurationService.prismConfig().actions().entityRide())) {
+        if (
+            (actionType.equals(BukkitActionTypeRegistry.VEHICLE_RIDE) &&
+                !configurationService.prismConfig().actions().vehicleRide()) ||
+            (actionType.equals(BukkitActionTypeRegistry.ENTITY_RIDE) &&
+                !configurationService.prismConfig().actions().entityRide())
+        ) {
             return;
         }
 

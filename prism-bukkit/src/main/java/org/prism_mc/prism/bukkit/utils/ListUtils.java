@@ -18,11 +18,11 @@
 package org.prism_mc.prism.bukkit.utils;
 
 import java.util.List;
-
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ListUtils {
+
     /**
      * A convenience method to check if a list is null or empty.
      * @param list The list

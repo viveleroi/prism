@@ -21,19 +21,18 @@
 package org.prism_mc.prism.bukkit.listeners.block;
 
 import com.google.inject.Inject;
-
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.prism_mc.prism.bukkit.listeners.AbstractListener;
 import org.prism_mc.prism.bukkit.services.alerts.BukkitAlertService;
 import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
 import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-
 public class BlockBreakListener extends AbstractListener implements Listener {
+
     /**
      * The alert service.
      */
@@ -49,12 +48,12 @@ public class BlockBreakListener extends AbstractListener implements Listener {
      */
     @Inject
     public BlockBreakListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitAlertService alertService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitAlertService alertService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
-
         this.alertService = alertService;
     }
 

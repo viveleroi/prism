@@ -21,11 +21,9 @@
 package org.prism_mc.prism.api.activities;
 
 import java.util.UUID;
-
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.experimental.Tolerate;
-
 import org.prism_mc.prism.api.actions.Action;
 import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.api.util.Pair;
@@ -35,8 +33,9 @@ import org.prism_mc.prism.api.util.Pair;
  * recorded to store or read back without grouping (e.g. modifications).
  */
 @Getter
-@SuperBuilder()
+@SuperBuilder
 public class Activity extends AbstractActivity {
+
     /**
      * The storage engine primary key.
      */
@@ -54,26 +53,34 @@ public class Activity extends AbstractActivity {
      * @param timestamp The timestamp
      */
     public Activity(
-            Object primaryKey,
-            Action action,
-            Pair<UUID, String> world,
-            Coordinate coordinate,
-            String cause,
-            Pair<UUID, String> player,
-            long timestamp) {
+        Object primaryKey,
+        Action action,
+        Pair<UUID, String> world,
+        Coordinate coordinate,
+        String cause,
+        Pair<UUID, String> player,
+        long timestamp
+    ) {
         super(action, world, coordinate, cause, player, timestamp);
-
         this.primaryKey = primaryKey;
     }
 
     @Override
     public String toString() {
-        return String.format("Activity{action=%s,cause=%s,player=%s,world=%s,coordinate=%s,timestamp=%s}",
-            action, cause, player, world, coordinate, timestamp);
+        return String.format(
+            "Activity{action=%s,cause=%s,player=%s,world=%s,coordinate=%s,timestamp=%s}",
+            action,
+            cause,
+            player,
+            world,
+            coordinate,
+            timestamp
+        );
     }
 
     public abstract static class ActivityBuilder<C extends Activity, B extends ActivityBuilder<C, B>>
-            extends AbstractActivityBuilder<C, B> {
+        extends AbstractActivityBuilder<C, B> {
+
         @Tolerate
         public B world(UUID worldUuid, String worldName) {
             this.world(new Pair<>(worldUuid, worldName));

@@ -22,25 +22,9 @@ package org.prism_mc.prism.bukkit.actions;
 
 import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.iface.ReadWriteNBT;
-
 import java.util.UUID;
-
 import lombok.Getter;
-
 import net.kyori.adventure.text.Component;
-
-import org.prism_mc.prism.api.actions.BlockAction;
-import org.prism_mc.prism.api.actions.types.ActionResultType;
-import org.prism_mc.prism.api.actions.types.ActionType;
-import org.prism_mc.prism.api.activities.Activity;
-import org.prism_mc.prism.api.services.modifications.ModificationQueueMode;
-import org.prism_mc.prism.api.services.modifications.ModificationResult;
-import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
-import org.prism_mc.prism.api.services.modifications.ModificationSkipReason;
-import org.prism_mc.prism.api.services.modifications.StateChange;
-import org.prism_mc.prism.api.util.Coordinate;
-import org.prism_mc.prism.bukkit.services.modifications.state.BlockStateChange;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -56,8 +40,20 @@ import org.bukkit.block.data.type.Stairs;
 import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
+import org.prism_mc.prism.api.actions.BlockAction;
+import org.prism_mc.prism.api.actions.types.ActionResultType;
+import org.prism_mc.prism.api.actions.types.ActionType;
+import org.prism_mc.prism.api.activities.Activity;
+import org.prism_mc.prism.api.services.modifications.ModificationQueueMode;
+import org.prism_mc.prism.api.services.modifications.ModificationResult;
+import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
+import org.prism_mc.prism.api.services.modifications.ModificationSkipReason;
+import org.prism_mc.prism.api.services.modifications.StateChange;
+import org.prism_mc.prism.api.util.Coordinate;
+import org.prism_mc.prism.bukkit.services.modifications.state.BlockStateChange;
 
 public class BukkitBlockAction extends BukkitAction implements BlockAction {
+
     /**
      * The block namespace.
      */
@@ -132,7 +128,8 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
             blockState,
             blockState.getBlock().translationKey(),
             replacedBlockState,
-            replacedBlockState != null ? replacedBlockState.getBlock().translationKey() : null);
+            replacedBlockState != null ? replacedBlockState.getBlock().translationKey() : null
+        );
     }
 
     /**
@@ -143,18 +140,19 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
      * @param replacedBlockState The replaced block state
      */
     public BukkitBlockAction(
-            ActionType type,
-            BlockState blockState,
-            String translationKey,
-            @Nullable BlockState replacedBlockState,
-            @Nullable String replacedBlockTranslationKey) {
+        ActionType type,
+        BlockState blockState,
+        String translationKey,
+        @Nullable BlockState replacedBlockState,
+        @Nullable String replacedBlockTranslationKey
+    ) {
         this(
             type,
             blockState.getBlockData(),
             translationKey,
             replacedBlockState != null ? replacedBlockState.getBlockData() : null,
-            replacedBlockTranslationKey);
-
+            replacedBlockTranslationKey
+        );
         if (blockState instanceof TileState) {
             readWriteNbt = NBT.createNBTObject();
             NBT.get(blockState, readWriteNbt::mergeCompound);
@@ -170,13 +168,13 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
      * @param replacedBlockData The replaced block data
      */
     public BukkitBlockAction(
-            ActionType type,
-            BlockData blockData,
-            String translationKey,
-            @Nullable BlockData replacedBlockData,
-            @Nullable String replacedBlockTranslationKey) {
+        ActionType type,
+        BlockData blockData,
+        String translationKey,
+        @Nullable BlockData replacedBlockData,
+        @Nullable String replacedBlockTranslationKey
+    ) {
         super(type);
-
         // Set new block data
         this.blockData = blockData;
         this.translationKey = translationKey;
@@ -197,8 +195,7 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
         // Set replaced block data
         this.replacedBlockData = replacedBlockData;
         if (replacedBlockData != null) {
-            var replacedSegments = this.replacedBlockData.getAsString()
-                .replaceAll("\\[.*$", "").split(":");
+            var replacedSegments = this.replacedBlockData.getAsString().replaceAll("\\[.*$", "").split(":");
             this.replacedBlockNamespace = replacedSegments[0];
             this.replacedBlockName = replacedSegments[1];
         } else {
@@ -223,19 +220,19 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
      * @param replacedBlockTranslationKey The replaced block translation key
      */
     public BukkitBlockAction(
-            ActionType type,
-            String blockNamespace,
-            String blockName,
-            BlockData blockData,
-            ReadWriteNBT teData,
-            String replacedBlockNamespace,
-            String replacedBlockName,
-            BlockData replacedBlockData,
-            String descriptor,
-            String translationKey,
-            String replacedBlockTranslationKey) {
+        ActionType type,
+        String blockNamespace,
+        String blockName,
+        BlockData blockData,
+        ReadWriteNBT teData,
+        String replacedBlockNamespace,
+        String replacedBlockName,
+        BlockData replacedBlockData,
+        String descriptor,
+        String translationKey,
+        String replacedBlockTranslationKey
+    ) {
         super(type, descriptor);
-
         this.blockNamespace = blockNamespace;
         this.blockName = blockName;
         this.blockData = blockData;
@@ -250,7 +247,8 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
     @Override
     public Component descriptorComponent() {
         return Component.translatable(
-            translationKey == null ? blockData.getMaterial().getBlockTranslationKey() : translationKey);
+            translationKey == null ? blockData.getMaterial().getBlockTranslationKey() : translationKey
+        );
     }
 
     @Override
@@ -294,19 +292,24 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
 
     @Override
     public ModificationResult applyRollback(
-            ModificationRuleset modificationRuleset,
-            Object owner,
-            Activity activityContext,
-            ModificationQueueMode mode) {
+        ModificationRuleset modificationRuleset,
+        Object owner,
+        Activity activityContext,
+        ModificationQueueMode mode
+    ) {
         // Skip if either material is in the blacklist
         if (modificationRuleset.blockBlacklistContainsAny(blockName)) {
             return ModificationResult.builder()
-                .activity(activityContext).skipReason(ModificationSkipReason.BLACKLISTED).build();
+                .activity(activityContext)
+                .skipReason(ModificationSkipReason.BLACKLISTED)
+                .build();
         }
 
         if (replacedBlockName != null && modificationRuleset.blockBlacklistContainsAny(replacedBlockName)) {
             return ModificationResult.builder()
-                .activity(activityContext).skipReason(ModificationSkipReason.BLACKLISTED).build();
+                .activity(activityContext)
+                .skipReason(ModificationSkipReason.BLACKLISTED)
+                .build();
         }
 
         var location = location(activityContext.worldUuid(), activityContext.coordinate());
@@ -328,14 +331,7 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
             }
 
             // If the action type removes a block, rollback means we re-set it
-            stateChange = setBlock(
-                block,
-                location,
-                blockData,
-                replacedBlockData,
-                readWriteNbt,
-                owner,
-                mode);
+            stateChange = setBlock(block, location, blockData, replacedBlockData, readWriteNbt, owner, mode);
         } else if (type().resultType().equals(ActionResultType.CREATES)) {
             var canSet = canSet(block, replacedBlockData, modificationRuleset, activityContext);
             if (canSet != null) {
@@ -347,24 +343,32 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
         }
 
         return ModificationResult.builder()
-            .activity(activityContext).statusFromMode(mode).stateChange(stateChange).build();
+            .activity(activityContext)
+            .statusFromMode(mode)
+            .stateChange(stateChange)
+            .build();
     }
 
     @Override
     public ModificationResult applyRestore(
-            ModificationRuleset modificationRuleset,
-            Object owner,
-            Activity activityContext,
-            ModificationQueueMode mode) {
+        ModificationRuleset modificationRuleset,
+        Object owner,
+        Activity activityContext,
+        ModificationQueueMode mode
+    ) {
         // Skip if either material is in the blacklist
         if (modificationRuleset.blockBlacklistContainsAny(blockName)) {
             return ModificationResult.builder()
-                .activity(activityContext).skipReason(ModificationSkipReason.BLACKLISTED).build();
+                .activity(activityContext)
+                .skipReason(ModificationSkipReason.BLACKLISTED)
+                .build();
         }
 
         if (replacedBlockName != null && modificationRuleset.blockBlacklistContainsAny(replacedBlockName)) {
             return ModificationResult.builder()
-                .activity(activityContext).skipReason(ModificationSkipReason.BLACKLISTED).build();
+                .activity(activityContext)
+                .skipReason(ModificationSkipReason.BLACKLISTED)
+                .build();
         }
 
         var location = location(activityContext.worldUuid(), activityContext.coordinate());
@@ -398,7 +402,10 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
         }
 
         return ModificationResult.builder()
-            .activity(activityContext).statusFromMode(mode).stateChange(stateChange).build();
+            .activity(activityContext)
+            .statusFromMode(mode)
+            .stateChange(stateChange)
+            .build();
     }
 
     /**
@@ -423,10 +430,16 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
      * @return True if already set
      */
     protected ModificationResult canSet(
-            Block block, BlockData newBlockData, ModificationRuleset modificationRuleset, Activity activityContext) {
+        Block block,
+        BlockData newBlockData,
+        ModificationRuleset modificationRuleset,
+        Activity activityContext
+    ) {
         if (!modificationRuleset.overwrite() && block.getBlockData().matches(newBlockData)) {
             return ModificationResult.builder()
-                .activity(activityContext).skipReason(ModificationSkipReason.ALREADY_SET).build();
+                .activity(activityContext)
+                .skipReason(ModificationSkipReason.ALREADY_SET)
+                .build();
         }
 
         return null;
@@ -521,7 +534,11 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
 
     @Override
     public String toString() {
-        return String.format("BlockAction{type=%s,blockData=%s,replacedBlockData=%s}",
-            type, blockData, replacedBlockData);
+        return String.format(
+            "BlockAction{type=%s,blockData=%s,replacedBlockData=%s}",
+            type,
+            blockData,
+            replacedBlockData
+        );
     }
 }

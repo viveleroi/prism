@@ -21,26 +21,22 @@
 package org.prism_mc.prism.bukkit.services.messages.resolvers;
 
 import com.google.inject.Inject;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Locale;
 import java.util.Map;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.moonshine.placeholder.ConclusionValue;
 import net.kyori.moonshine.placeholder.ContinuanceValue;
 import net.kyori.moonshine.placeholder.IPlaceholderResolver;
 import net.kyori.moonshine.util.Either;
-
+import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Nullable;
 import org.prism_mc.prism.api.services.wands.WandMode;
 import org.prism_mc.prism.bukkit.services.translation.BukkitTranslationService;
 
-import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.Nullable;
+public class WandModePlaceholderResolver implements IPlaceholderResolver<CommandSender, WandMode, Component> {
 
-public class WandModePlaceholderResolver implements
-        IPlaceholderResolver<CommandSender, WandMode, Component> {
     /**
      * The translation service.
      */
@@ -57,8 +53,7 @@ public class WandModePlaceholderResolver implements
     }
 
     @Override
-    public @Nullable Map<String, Either<ConclusionValue<? extends Component>, ContinuanceValue<?>>>
-    resolve(
+    public @Nullable Map<String, Either<ConclusionValue<? extends Component>, ContinuanceValue<?>>> resolve(
         final String placeholderName,
         final WandMode value,
         final CommandSender receiver,
@@ -66,8 +61,10 @@ public class WandModePlaceholderResolver implements
         final Method method,
         final @Nullable Object[] parameters
     ) {
-        String translated = translationService.messageOf(receiver, "text.wand-mode-"
-            + value.toString().toLowerCase(Locale.ENGLISH));
+        String translated = translationService.messageOf(
+            receiver,
+            "text.wand-mode-" + value.toString().toLowerCase(Locale.ENGLISH)
+        );
         return Map.of(placeholderName, Either.left(ConclusionValue.conclusionValue(Component.text(translated))));
     }
 }

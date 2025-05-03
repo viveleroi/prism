@@ -26,6 +26,7 @@ import lombok.Getter;
 @Builder
 @Getter
 public class PurgeCycleResult {
+
     /**
      * Number of records deleted this cycle.
      */

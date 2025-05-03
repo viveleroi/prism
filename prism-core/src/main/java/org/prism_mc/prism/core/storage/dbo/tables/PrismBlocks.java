@@ -20,12 +20,11 @@
 
 package org.prism_mc.prism.core.storage.dbo.tables;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
+
 import java.util.Arrays;
 import java.util.List;
-
-import org.prism_mc.prism.core.storage.dbo.Keys;
-import org.prism_mc.prism.core.storage.dbo.records.PrismBlocksRecord;
-
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Identity;
@@ -42,12 +41,12 @@ import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
-
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
+import org.prism_mc.prism.core.storage.dbo.Keys;
+import org.prism_mc.prism.core.storage.dbo.records.PrismBlocksRecord;
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PrismBlocks extends TableImpl<PrismBlocksRecord> {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -70,7 +69,8 @@ public class PrismBlocks extends TableImpl<PrismBlocksRecord> {
         DSL.name("block_id"),
         SQLDataType.INTEGERUNSIGNED.nullable(false).identity(true),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_blocks.ns</code>.
@@ -79,7 +79,8 @@ public class PrismBlocks extends TableImpl<PrismBlocksRecord> {
         DSL.name("ns"),
         SQLDataType.VARCHAR(55),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_blocks.name</code>.
@@ -88,7 +89,8 @@ public class PrismBlocks extends TableImpl<PrismBlocksRecord> {
         DSL.name("name"),
         SQLDataType.VARCHAR(55),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_blocks.data</code>.
@@ -97,7 +99,8 @@ public class PrismBlocks extends TableImpl<PrismBlocksRecord> {
         DSL.name("data"),
         SQLDataType.VARCHAR(255),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_blocks.translation_key</code>.
@@ -106,7 +109,8 @@ public class PrismBlocks extends TableImpl<PrismBlocksRecord> {
         DSL.name("translation_key"),
         SQLDataType.VARCHAR(155),
         this,
-        "");
+        ""
+    );
 
     private PrismBlocks(String prefix, Name alias, Table<PrismBlocksRecord> aliased) {
         this(prefix, alias, aliased, null);
@@ -114,7 +118,6 @@ public class PrismBlocks extends TableImpl<PrismBlocksRecord> {
 
     private PrismBlocks(String prefix, Name alias, Table<PrismBlocksRecord> aliased, Field<?>[] parameters) {
         super(alias, null, aliased, parameters, DSL.comment(""), TableOptions.table());
-
         this.prefix = prefix;
     }
 
@@ -137,7 +140,6 @@ public class PrismBlocks extends TableImpl<PrismBlocksRecord> {
      */
     public <O extends Record> PrismBlocks(String prefix, Table<O> child, ForeignKey<O, PrismBlocksRecord> key) {
         super(child, key, PRISM_BLOCKS);
-
         this.prefix = prefix;
     }
 

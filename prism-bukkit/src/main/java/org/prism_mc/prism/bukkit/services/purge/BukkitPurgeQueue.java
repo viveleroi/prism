@@ -22,15 +22,12 @@ package org.prism_mc.prism.bukkit.services.purge;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-
 import lombok.Getter;
-
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.services.purges.PurgeCycleResult;
 import org.prism_mc.prism.api.services.purges.PurgeQueue;
@@ -42,6 +39,7 @@ import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
 public class BukkitPurgeQueue implements PurgeQueue {
+
     /**
      * The configuration service.
      */
@@ -100,12 +98,13 @@ public class BukkitPurgeQueue implements PurgeQueue {
      */
     @Inject
     public BukkitPurgeQueue(
-            ConfigurationService configurationService,
-            LoggingService loggingService,
-            TaskChainProvider taskChainProvider,
-            StorageAdapter storageAdapter,
-            @Assisted Consumer<PurgeCycleResult> onCycle,
-            @Assisted Consumer<PurgeResult> onEnd) {
+        ConfigurationService configurationService,
+        LoggingService loggingService,
+        TaskChainProvider taskChainProvider,
+        StorageAdapter storageAdapter,
+        @Assisted Consumer<PurgeCycleResult> onCycle,
+        @Assisted Consumer<PurgeResult> onEnd
+    ) {
         this.configurationService = configurationService;
         this.loggingService = loggingService;
         this.taskChainProvider = taskChainProvider;
@@ -123,14 +122,17 @@ public class BukkitPurgeQueue implements PurgeQueue {
     public void start() {
         running = true;
 
-        taskChainProvider.newChain().asyncFirst(() -> {
-            Pair<Integer, Integer> keys = storageAdapter.getActivitiesPkBounds();
+        taskChainProvider
+            .newChain()
+            .asyncFirst(() -> {
+                Pair<Integer, Integer> keys = storageAdapter.getActivitiesPkBounds();
 
-            loggingService.debug("Absolute purge lower/bound primary keys: {0}, {1}",
-                keys.key(), keys.value());
+                loggingService.debug("Absolute purge lower/bound primary keys: {0}, {1}", keys.key(), keys.value());
 
-            return keys;
-        }).syncLast(keys -> executeNext(keys.key(), keys.value())).execute();
+                return keys;
+            })
+            .syncLast(keys -> executeNext(keys.key(), keys.value()))
+            .execute();
     }
 
     /**
@@ -170,40 +172,50 @@ public class BukkitPurgeQueue implements PurgeQueue {
 
         // Get the query
         ActivityQuery query = purgeQueue.get(0);
-        taskChainProvider.newChain().asyncFirst(() -> {
-            loggingService.info("Executing next purge for query {0}...", query);
+        taskChainProvider
+            .newChain()
+            .asyncFirst(() -> {
+                loggingService.info("Executing next purge for query {0}...", query);
 
-            // Calculate the cycle upper bound
-            int cycleMaxPrimaryKey = cycleMinPrimaryKey + configurationService.prismConfig().purges().limit();
-            loggingService.debug("Limiting cycle to primary keys {0} - {1}",
-                cycleMinPrimaryKey, cycleMaxPrimaryKey);
+                // Calculate the cycle upper bound
+                int cycleMaxPrimaryKey = cycleMinPrimaryKey + configurationService.prismConfig().purges().limit();
+                loggingService.debug(
+                    "Limiting cycle to primary keys {0} - {1}",
+                    cycleMinPrimaryKey,
+                    cycleMaxPrimaryKey
+                );
 
-            // Delete this batch and store the count
-            int count = storageAdapter.deleteActivities(query, cycleMinPrimaryKey, cycleMaxPrimaryKey);
-            deleted += count;
+                // Delete this batch and store the count
+                int count = storageAdapter.deleteActivities(query, cycleMinPrimaryKey, cycleMaxPrimaryKey);
+                deleted += count;
 
-            // Emit information to the cycle callback
-            onCycle.accept(PurgeCycleResult.builder()
-                .deleted(count)
-                .minPrimaryKey(cycleMinPrimaryKey)
-                .maxPrimaryKey(cycleMaxPrimaryKey)
-                .build());
-            loggingService.info("Purged {0} activity records", count);
+                // Emit information to the cycle callback
+                onCycle.accept(
+                    PurgeCycleResult.builder()
+                        .deleted(count)
+                        .minPrimaryKey(cycleMinPrimaryKey)
+                        .maxPrimaryKey(cycleMaxPrimaryKey)
+                        .build()
+                );
+                loggingService.info("Purged {0} activity records", count);
 
-            // Advance our starting pk for the next cycle
-            int nextCycleMinPrimaryKey = cycleMinPrimaryKey + configurationService.prismConfig().purges().limit();
+                // Advance our starting pk for the next cycle
+                int nextCycleMinPrimaryKey = cycleMinPrimaryKey + configurationService.prismConfig().purges().limit();
 
-            // If we deleted less than our limit, or our next pk exceeds the max,
-            // remove this query from the queue
-            if (nextCycleMinPrimaryKey >= maxPrimaryKey) {
-                purgeQueue.remove(0);
-            }
+                // If we deleted less than our limit, or our next pk exceeds the max,
+                // remove this query from the queue
+                if (nextCycleMinPrimaryKey >= maxPrimaryKey) {
+                    purgeQueue.remove(0);
+                }
 
-            loggingService.info("Scheduling next cycle (and any configured delay)");
+                loggingService.info("Scheduling next cycle (and any configured delay)");
 
-            return nextCycleMinPrimaryKey;
-        }).delay(cycleDuration.intValue(), cycleTimeUnit).syncLast(nextCycleMinPrimaryKey -> {
-            this.executeNext(nextCycleMinPrimaryKey, maxPrimaryKey);
-        }).execute();
+                return nextCycleMinPrimaryKey;
+            })
+            .delay(cycleDuration.intValue(), cycleTimeUnit)
+            .syncLast(nextCycleMinPrimaryKey -> {
+                this.executeNext(nextCycleMinPrimaryKey, maxPrimaryKey);
+            })
+            .execute();
     }
 }

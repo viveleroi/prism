@@ -21,7 +21,13 @@
 package org.prism_mc.prism.bukkit.listeners.projectile;
 
 import com.google.inject.Inject;
-
+import org.bukkit.entity.Firework;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.ThrowableProjectile;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.prism_mc.prism.api.actions.Action;
 import org.prism_mc.prism.bukkit.actions.BukkitItemStackAction;
 import org.prism_mc.prism.bukkit.actions.GenericBukkitAction;
@@ -32,15 +38,8 @@ import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
 import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.entity.Firework;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.ThrowableProjectile;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
-
 public class ProjectileLaunchListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -50,9 +49,10 @@ public class ProjectileLaunchListener extends AbstractListener implements Listen
      */
     @Inject
     public ProjectileLaunchListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -73,7 +73,9 @@ public class ProjectileLaunchListener extends AbstractListener implements Listen
             action = new BukkitItemStackAction(BukkitActionTypeRegistry.ITEM_THROW, throwableProjectile.getItem());
         } else if (event.getEntity() instanceof Firework) {
             action = new GenericBukkitAction(
-                BukkitActionTypeRegistry.FIREWORK_LAUNCH, nameFromCause(event.getEntity()));
+                BukkitActionTypeRegistry.FIREWORK_LAUNCH,
+                nameFromCause(event.getEntity())
+            );
         } else {
             action = new GenericBukkitAction(BukkitActionTypeRegistry.ITEM_THROW, nameFromCause(event.getEntity()));
         }

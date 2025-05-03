@@ -29,10 +29,10 @@ package org.prism_mc.prism.loader.services.dependencies.classpath;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
-
 import org.prism_mc.prism.loader.services.dependencies.loader.JarInJarClassLoader;
 
 public class JarInJarClassPathAppender implements ClassPathAppender {
+
     /**
      * The class loader.
      */
@@ -45,8 +45,9 @@ public class JarInJarClassPathAppender implements ClassPathAppender {
      */
     public JarInJarClassPathAppender(ClassLoader classLoader) {
         if (!(classLoader instanceof JarInJarClassLoader)) {
-            throw new IllegalArgumentException("Loader is not a JarInJarClassLoader: "
-                + classLoader.getClass().getName());
+            throw new IllegalArgumentException(
+                "Loader is not a JarInJarClassLoader: " + classLoader.getClass().getName()
+            );
         }
 
         this.classLoader = (JarInJarClassLoader) classLoader;

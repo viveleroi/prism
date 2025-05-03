@@ -21,7 +21,6 @@
 package org.prism_mc.prism.api.storage;
 
 import java.util.List;
-
 import org.prism_mc.prism.api.PaginatedResults;
 import org.prism_mc.prism.api.activities.AbstractActivity;
 import org.prism_mc.prism.api.activities.Activity;

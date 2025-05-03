@@ -21,15 +21,14 @@
 package org.prism_mc.prism.loader.services.configuration.cache;
 
 import java.util.concurrent.TimeUnit;
-
 import lombok.Getter;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
 public class DurationConfiguration {
+
     @Comment("The duration value.")
     private Long duration;
 

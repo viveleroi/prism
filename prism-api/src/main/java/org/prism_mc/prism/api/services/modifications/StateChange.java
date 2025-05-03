@@ -24,6 +24,7 @@ import lombok.Getter;
 
 @Getter
 public abstract class StateChange<B> {
+
     /**
      * The old state.
      */

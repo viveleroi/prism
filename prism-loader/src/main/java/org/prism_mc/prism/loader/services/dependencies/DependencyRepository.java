@@ -27,7 +27,6 @@
 package org.prism_mc.prism.loader.services.dependencies;
 
 import com.google.common.io.ByteStreams;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -149,9 +148,14 @@ public enum DependencyRepository {
 
         // ensure the hash matches the expected checksum
         if (!dependency.checksumMatches(hash)) {
-            throw new DependencyDownloadException("Downloaded file had an invalid hash. "
-                + "Expected: " + Base64.getEncoder().encodeToString(dependency.checksum()) + " "
-                + "Actual: " + Base64.getEncoder().encodeToString(hash));
+            throw new DependencyDownloadException(
+                "Downloaded file had an invalid hash. " +
+                "Expected: " +
+                Base64.getEncoder().encodeToString(dependency.checksum()) +
+                " " +
+                "Actual: " +
+                Base64.getEncoder().encodeToString(hash)
+            );
         }
 
         return bytes;

@@ -20,6 +20,8 @@
 
 package org.prism_mc.prism.core.storage.dbo.records;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ITEMS;
+
 import org.jooq.Field;
 import org.jooq.Record1;
 import org.jooq.Record3;
@@ -27,11 +29,9 @@ import org.jooq.Row3;
 import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.types.UShort;
 
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ITEMS;
-
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
-public class PrismItemsRecord extends UpdatableRecordImpl<PrismItemsRecord> implements
-        Record3<UShort, String, String> {
+public class PrismItemsRecord extends UpdatableRecordImpl<PrismItemsRecord> implements Record3<UShort, String, String> {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -189,7 +189,6 @@ public class PrismItemsRecord extends UpdatableRecordImpl<PrismItemsRecord> impl
      */
     public PrismItemsRecord(UShort itemId, String material, String data) {
         super(PRISM_ITEMS);
-
         setItemId(itemId);
         setMaterial(material);
         setData(data);

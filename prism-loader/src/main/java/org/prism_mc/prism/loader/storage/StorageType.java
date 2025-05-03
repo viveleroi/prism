@@ -21,5 +21,9 @@
 package org.prism_mc.prism.loader.storage;
 
 public enum StorageType {
-    H2, MARIADB, MYSQL, POSTGRES, SQLITE
+    H2,
+    MARIADB,
+    MYSQL,
+    POSTGRES,
+    SQLITE,
 }

@@ -21,12 +21,10 @@
 package org.prism_mc.prism.bukkit.commands;
 
 import com.google.inject.Inject;
-
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
-
 import java.io.IOException;
-
+import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.bukkit.services.alerts.BukkitAlertService;
 import org.prism_mc.prism.bukkit.services.filters.BukkitFilterService;
 import org.prism_mc.prism.bukkit.services.messages.MessageService;
@@ -34,10 +32,9 @@ import org.prism_mc.prism.bukkit.services.translation.BukkitTranslationService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.bukkit.command.CommandSender;
-
-@Command(value = "prism", alias = {"pr"})
+@Command(value = "prism", alias = { "pr" })
 public class ReloadCommand {
+
     /**
      * The alert service.
      */
@@ -79,12 +76,13 @@ public class ReloadCommand {
      */
     @Inject
     public ReloadCommand(
-            BukkitAlertService alertService,
-            LoggingService loggingService,
-            MessageService messageService,
-            BukkitTranslationService translationService,
-            ConfigurationService configurationService,
-            BukkitFilterService filterService) {
+        BukkitAlertService alertService,
+        LoggingService loggingService,
+        MessageService messageService,
+        BukkitTranslationService translationService,
+        ConfigurationService configurationService,
+        BukkitFilterService filterService
+    ) {
         this.alertService = alertService;
         this.loggingService = loggingService;
         this.messageService = messageService;

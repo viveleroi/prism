@@ -29,6 +29,7 @@ package org.prism_mc.prism.loader.services.dependencies.relocation;
 import java.util.Objects;
 
 public final class Relocation {
+
     /**
      * The relocation destination.
      */
@@ -94,8 +95,9 @@ public final class Relocation {
         }
 
         Relocation that = (Relocation) o;
-        return Objects.equals(this.pattern, that.pattern)
-            && Objects.equals(this.relocatedPattern, that.relocatedPattern);
+        return (
+            Objects.equals(this.pattern, that.pattern) && Objects.equals(this.relocatedPattern, that.relocatedPattern)
+        );
     }
 
     @Override

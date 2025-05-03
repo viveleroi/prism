@@ -20,6 +20,8 @@
 
 package org.prism_mc.prism.core.storage.dbo.records;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
+
 import org.jooq.Field;
 import org.jooq.Record1;
 import org.jooq.Record2;
@@ -27,11 +29,11 @@ import org.jooq.Row2;
 import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.types.UShort;
 
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
-
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
-public class PrismEntityTypesRecord extends UpdatableRecordImpl<PrismEntityTypesRecord> implements
-        Record2<UShort, String> {
+public class PrismEntityTypesRecord
+    extends UpdatableRecordImpl<PrismEntityTypesRecord>
+    implements Record2<UShort, String> {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -152,7 +154,6 @@ public class PrismEntityTypesRecord extends UpdatableRecordImpl<PrismEntityTypes
      */
     public PrismEntityTypesRecord(UShort entityTypeId, String entityType) {
         super(PRISM_ENTITY_TYPES);
-
         setEntityTypeId(entityTypeId);
         setEntityType(entityType);
     }

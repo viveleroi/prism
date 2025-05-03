@@ -20,6 +20,8 @@
 
 package org.prism_mc.prism.core.storage.dbo.records;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
+
 import org.jooq.Field;
 import org.jooq.Record1;
 import org.jooq.Record3;
@@ -27,11 +29,11 @@ import org.jooq.Row3;
 import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.types.UInteger;
 
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
-
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
-public class PrismPlayersRecord extends UpdatableRecordImpl<PrismPlayersRecord> implements
-        Record3<UInteger, String, String> {
+public class PrismPlayersRecord
+    extends UpdatableRecordImpl<PrismPlayersRecord>
+    implements Record3<UInteger, String, String> {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -189,7 +191,6 @@ public class PrismPlayersRecord extends UpdatableRecordImpl<PrismPlayersRecord> 
      */
     public PrismPlayersRecord(UInteger playerId, String player, String playerUuid) {
         super(PRISM_PLAYERS);
-
         setPlayerId(playerId);
         setPlayer(player);
         setPlayerUuid(playerUuid);

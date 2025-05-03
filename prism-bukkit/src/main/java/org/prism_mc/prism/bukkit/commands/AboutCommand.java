@@ -22,21 +22,18 @@ package org.prism_mc.prism.bukkit.commands;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-
+import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.bukkit.services.messages.MessageService;
 
-import org.bukkit.command.CommandSender;
-
-@Command(value = "prism", alias = {"pr"})
+@Command(value = "prism", alias = { "pr" })
 public class AboutCommand {
+
     /**
      * The message service.
      */
@@ -54,9 +51,7 @@ public class AboutCommand {
      * @param version The prism version
      */
     @Inject
-    public AboutCommand(
-            MessageService messageService,
-            @Named("version") String version) {
+    public AboutCommand(MessageService messageService, @Named("version") String version) {
         this.messageService = messageService;
         this.version = version;
     }
@@ -75,7 +70,8 @@ public class AboutCommand {
             .append(Component.text("Links: ", NamedTextColor.GRAY))
             .append(link("Discord", "https://discord.gg/7FxZScH4EJ"))
             .append(Component.text(" "))
-            .append(link("Docs", "https://docs.prism-mc.org")).build();
+            .append(link("Docs", "https://docs.prism-mc.org"))
+            .build();
 
         sender.sendMessage(links);
     }
@@ -104,7 +100,7 @@ public class AboutCommand {
             .append(Component.text(label, NamedTextColor.WHITE))
             .append(Component.text("]", NamedTextColor.AQUA))
             .clickEvent(ClickEvent.openUrl(url))
-                .hoverEvent(HoverEvent.showText(Component.text("Click to open in a browser")))
+            .hoverEvent(HoverEvent.showText(Component.text("Click to open in a browser")))
             .build();
     }
 }

@@ -20,12 +20,11 @@
 
 package org.prism_mc.prism.core.storage.dbo.tables;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
+
 import java.util.Arrays;
 import java.util.List;
-
-import org.prism_mc.prism.core.storage.dbo.Keys;
-import org.prism_mc.prism.core.storage.dbo.records.PrismActionsRecord;
-
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Identity;
@@ -41,12 +40,12 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
 import org.jooq.types.UByte;
-
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
+import org.prism_mc.prism.core.storage.dbo.Keys;
+import org.prism_mc.prism.core.storage.dbo.records.PrismActionsRecord;
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PrismActions extends TableImpl<PrismActionsRecord> {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -69,7 +68,8 @@ public class PrismActions extends TableImpl<PrismActionsRecord> {
         DSL.name("action_id"),
         SQLDataType.TINYINTUNSIGNED.nullable(false).identity(true),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_actions.action</code>.
@@ -78,7 +78,8 @@ public class PrismActions extends TableImpl<PrismActionsRecord> {
         DSL.name("action"),
         SQLDataType.VARCHAR(25).nullable(false),
         this,
-        "");
+        ""
+    );
 
     private PrismActions(String prefix, Name alias, Table<PrismActionsRecord> aliased) {
         this(prefix, alias, aliased, null);
@@ -86,7 +87,6 @@ public class PrismActions extends TableImpl<PrismActionsRecord> {
 
     private PrismActions(String prefix, Name alias, Table<PrismActionsRecord> aliased, Field<?>[] parameters) {
         super(alias, null, aliased, parameters, DSL.comment(""), TableOptions.table());
-
         this.prefix = prefix;
     }
 
@@ -109,7 +109,6 @@ public class PrismActions extends TableImpl<PrismActionsRecord> {
      */
     public <O extends Record> PrismActions(String prefix, Table<O> child, ForeignKey<O, PrismActionsRecord> key) {
         super(child, key, PRISM_ACTIONS);
-
         this.prefix = prefix;
     }
 

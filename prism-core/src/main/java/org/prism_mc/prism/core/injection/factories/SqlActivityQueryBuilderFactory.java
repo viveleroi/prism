@@ -20,9 +20,8 @@
 
 package org.prism_mc.prism.core.injection.factories;
 
-import org.prism_mc.prism.core.storage.adapters.sql.SqlActivityQueryBuilder;
-
 import org.jooq.DSLContext;
+import org.prism_mc.prism.core.storage.adapters.sql.SqlActivityQueryBuilder;
 
 public interface SqlActivityQueryBuilderFactory {
     /**

@@ -47,5 +47,5 @@ public enum ActionResultType {
      *
      * <p>Example: dying sheep, etc.</p>
      */
-    REPLACES
+    REPLACES,
 }

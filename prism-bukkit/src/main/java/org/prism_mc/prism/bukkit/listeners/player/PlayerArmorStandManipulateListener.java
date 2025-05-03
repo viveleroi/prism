@@ -21,7 +21,11 @@
 package org.prism_mc.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
-
+import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.prism_mc.prism.api.actions.Action;
 import org.prism_mc.prism.bukkit.actions.BukkitItemStackAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
@@ -33,13 +37,8 @@ import org.prism_mc.prism.bukkit.utils.ItemUtils;
 import org.prism_mc.prism.bukkit.utils.TagLib;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.Material;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-
 public class PlayerArmorStandManipulateListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -49,9 +48,10 @@ public class PlayerArmorStandManipulateListener extends AbstractListener impleme
      */
     @Inject
     public PlayerArmorStandManipulateListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -65,16 +65,20 @@ public class PlayerArmorStandManipulateListener extends AbstractListener impleme
         Action action = null;
         if (event.getArmorStandItem().getType() == Material.AIR) {
             // Ignore if this event is disabled or the player is not holding a valid item
-            if (!configurationService.prismConfig().actions().itemInsert()
-                    || !TagLib.ALL_ARMOR.isTagged(event.getPlayerItem().getType())) {
+            if (
+                !configurationService.prismConfig().actions().itemInsert() ||
+                !TagLib.ALL_ARMOR.isTagged(event.getPlayerItem().getType())
+            ) {
                 return;
             }
 
             action = new BukkitItemStackAction(BukkitActionTypeRegistry.ITEM_INSERT, event.getPlayerItem());
         } else {
             // Ignore if this event is disabled or the player is holding an item
-            if (!configurationService.prismConfig().actions().itemRemove()
-                    || !ItemUtils.nullOrAir(event.getPlayerItem())) {
+            if (
+                !configurationService.prismConfig().actions().itemRemove() ||
+                !ItemUtils.nullOrAir(event.getPlayerItem())
+            ) {
                 return;
             }
 

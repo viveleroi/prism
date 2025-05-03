@@ -21,16 +21,15 @@
 package org.prism_mc.prism.bukkit.loader;
 
 import dev.triumphteam.gui.TriumphGui;
-
+import org.bukkit.plugin.java.JavaPlugin;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.dependencies.loader.JarInJarClassLoader;
 import org.prism_mc.prism.loader.services.dependencies.loader.PluginLoader;
 import org.prism_mc.prism.loader.services.dependencies.loader.PrismBootstrap;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.bukkit.plugin.java.JavaPlugin;
-
 public class PrismBukkitPluginLoader extends JavaPlugin implements PluginLoader {
+
     /**
      * The file name of the "JarInJar".
      */

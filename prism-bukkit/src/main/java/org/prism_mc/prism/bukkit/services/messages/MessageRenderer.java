@@ -22,23 +22,20 @@ package org.prism_mc.prism.bukkit.services.messages;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Map;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.moonshine.message.IMessageRenderer;
-
-import org.prism_mc.prism.bukkit.services.translation.BukkitTranslationService;
-
 import org.bukkit.command.CommandSender;
+import org.prism_mc.prism.bukkit.services.translation.BukkitTranslationService;
 
 @Singleton
 public class MessageRenderer implements IMessageRenderer<CommandSender, String, Component, Component> {
+
     /**
      * The translation service.
      */
@@ -62,15 +59,19 @@ public class MessageRenderer implements IMessageRenderer<CommandSender, String, 
         final Method method,
         final Type owner
     ) {
-        TagResolver.Single headingTemplate = Placeholder.parsed("prefix",
-            translationService.messageOf(receiver, "rich.prefix"));
+        TagResolver.Single headingTemplate = Placeholder.parsed(
+            "prefix",
+            translationService.messageOf(receiver, "rich.prefix")
+        );
 
         TagResolver.Builder builder = TagResolver.builder();
         builder.resolver(headingTemplate);
         for (final var entry : resolvedPlaceholders.entrySet()) {
             if (entry.getKey().contains("color")) {
-                intermediateMessage = intermediateMessage.replaceAll(entry.getKey(),
-                    entry.getValue().color().asHexString());
+                intermediateMessage = intermediateMessage.replaceAll(
+                    entry.getKey(),
+                    entry.getValue().color().asHexString()
+                );
             } else {
                 builder.resolver(Placeholder.component(entry.getKey(), entry.getValue()));
             }

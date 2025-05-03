@@ -21,9 +21,7 @@
 package org.prism_mc.prism.bukkit.services.query;
 
 import com.google.inject.Inject;
-
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -35,18 +33,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.annotation.Nullable;
-
-import org.prism_mc.prism.api.activities.ActivityQuery;
-import org.prism_mc.prism.api.util.Coordinate;
-import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
-import org.prism_mc.prism.bukkit.api.activities.BukkitActivityQuery;
-import org.prism_mc.prism.bukkit.integrations.worldedit.WorldEditIntegration;
-import org.prism_mc.prism.bukkit.services.messages.MessageService;
-import org.prism_mc.prism.bukkit.utils.LocationUtils;
-import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -56,8 +43,17 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.prism_mc.prism.api.activities.ActivityQuery;
+import org.prism_mc.prism.api.util.Coordinate;
+import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import org.prism_mc.prism.bukkit.api.activities.BukkitActivityQuery;
+import org.prism_mc.prism.bukkit.integrations.worldedit.WorldEditIntegration;
+import org.prism_mc.prism.bukkit.services.messages.MessageService;
+import org.prism_mc.prism.bukkit.utils.LocationUtils;
+import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
 public class QueryService {
+
     /**
      * The action registry.
      */
@@ -85,10 +81,11 @@ public class QueryService {
      */
     @Inject
     public QueryService(
-            BukkitActionTypeRegistry actionRegistry,
-            ConfigurationService configurationService,
-            MessageService messageService,
-            @Nullable WorldEditIntegration worldEditIntegration) {
+        BukkitActionTypeRegistry actionRegistry,
+        ConfigurationService configurationService,
+        MessageService messageService,
+        @Nullable WorldEditIntegration worldEditIntegration
+    ) {
         this.actionRegistry = actionRegistry;
         this.configurationService = configurationService;
         this.messageService = messageService;
@@ -103,7 +100,9 @@ public class QueryService {
      * @return The activity query builder
      */
     public Optional<BukkitActivityQuery.BukkitActivityQueryBuilder<?, ?>> queryFromArguments(
-            CommandSender sender, Arguments arguments) {
+        CommandSender sender,
+        Arguments arguments
+    ) {
         if (sender instanceof Player player) {
             return queryFromArguments(sender, arguments, player.getLocation());
         } else {
@@ -119,7 +118,10 @@ public class QueryService {
      * @return The activity query builder
      */
     public Optional<BukkitActivityQuery.BukkitActivityQueryBuilder<?, ?>> queryFromArguments(
-            CommandSender sender, Arguments arguments, Location referenceLocation) {
+        CommandSender sender,
+        Arguments arguments,
+        Location referenceLocation
+    ) {
         var builder = BukkitActivityQuery.builder();
         World world = referenceLocation != null ? referenceLocation.getWorld() : null;
 
@@ -139,8 +141,10 @@ public class QueryService {
         String worldName = null;
         if (arguments.getArgument("world", String.class).isPresent()) {
             worldName = arguments.getArgument("world", String.class).get();
-        } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("world")) {
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("world")
+        ) {
             worldName = configurationService.prismConfig().defaults().parameters().get("world");
 
             builder.defaultUsed("world:" + worldName);
@@ -163,8 +167,10 @@ public class QueryService {
         String at = null;
         if (arguments.getArgument("at", String.class).isPresent()) {
             at = arguments.getArgument("at", String.class).get();
-        } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("at")) {
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("at")
+        ) {
             at = configurationService.prismConfig().defaults().parameters().get("at");
 
             builder.defaultUsed("at:" + at);
@@ -197,8 +203,10 @@ public class QueryService {
         String in = null;
         if (arguments.getArgument("in", String.class).isPresent()) {
             in = arguments.getArgument("in", String.class).get();
-        } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("in")) {
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("in")
+        ) {
             in = configurationService.prismConfig().defaults().parameters().get("in");
 
             builder.defaultUsed("in:" + in);
@@ -243,8 +251,12 @@ public class QueryService {
             }
 
             r = arguments.getArgument("r", Integer.class).get();
-        } else if (in == null && at == null && !arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("r")) {
+        } else if (
+            in == null &&
+            at == null &&
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("r")
+        ) {
             r = Integer.parseInt(configurationService.prismConfig().defaults().parameters().get("r"));
 
             builder.defaultUsed("r:" + r);
@@ -258,7 +270,8 @@ public class QueryService {
                 return Optional.empty();
             } else if (referenceLocation != null && at == null) {
                 builder.referenceCoordinate(
-                    new Coordinate(referenceLocation.getX(), referenceLocation.getY(), referenceLocation.getZ()));
+                    new Coordinate(referenceLocation.getX(), referenceLocation.getY(), referenceLocation.getZ())
+                );
 
                 builder.worldUuid(world.getUID());
                 builder.radius(r);
@@ -271,8 +284,10 @@ public class QueryService {
         String bounds = null;
         if (arguments.getArgument("bounds", String.class).isPresent()) {
             bounds = arguments.getArgument("bounds", String.class).get();
-        } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("bounds")) {
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("bounds")
+        ) {
             bounds = configurationService.prismConfig().defaults().parameters().get("bounds");
 
             builder.defaultUsed("bounds:" + bounds);
@@ -329,8 +344,10 @@ public class QueryService {
         String before = null;
         if (arguments.getArgument("before", String.class).isPresent()) {
             before = arguments.getArgument("before", String.class).get();
-        } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("before")) {
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("before")
+        ) {
             before = configurationService.prismConfig().defaults().parameters().get("before");
 
             builder.defaultUsed("before:" + before);
@@ -345,8 +362,10 @@ public class QueryService {
         String since = null;
         if (arguments.getArgument("since", String.class).isPresent()) {
             since = arguments.getArgument("since", String.class).get();
-        } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("since")) {
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("since")
+        ) {
             since = configurationService.prismConfig().defaults().parameters().get("since");
 
             builder.defaultUsed("since:" + since);
@@ -361,8 +380,10 @@ public class QueryService {
         String cause = null;
         if (arguments.getArgument("cause", String.class).isPresent()) {
             cause = arguments.getArgument("cause", String.class).get();
-        } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("cause")) {
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("cause")
+        ) {
             cause = configurationService.prismConfig().defaults().parameters().get("cause");
 
             builder.defaultUsed("cause:" + cause);
@@ -377,8 +398,10 @@ public class QueryService {
         List<String> a = new ArrayList<>();
         if (arguments.getListArgument("a", String.class).isPresent()) {
             a = arguments.getListArgument("a", String.class).get();
-        } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("a")) {
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("a")
+        ) {
             String activityString = configurationService.prismConfig().defaults().parameters().get("a");
             a = Arrays.stream(activityString.split(",")).toList();
 
@@ -393,11 +416,16 @@ public class QueryService {
         // Read "b" parameter from arguments or defaults
         final Set<String> blocks = new HashSet<>();
         if (arguments.getListArgument("b", String.class).isPresent()) {
-            arguments.getListArgument("b", String.class).get().forEach(block -> {
-                blocks.add(block.toLowerCase(Locale.ENGLISH));
-            });
-        } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("b")) {
+            arguments
+                .getListArgument("b", String.class)
+                .get()
+                .forEach(block -> {
+                    blocks.add(block.toLowerCase(Locale.ENGLISH));
+                });
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("b")
+        ) {
             String blocksString = configurationService.prismConfig().defaults().parameters().get("b");
             Collections.addAll(blocks, blocksString.split(","));
 
@@ -408,8 +436,10 @@ public class QueryService {
         final List<String> blockTags = new ArrayList<>();
         if (arguments.getListArgument("btag", String.class).isPresent()) {
             blockTags.addAll(arguments.getListArgument("btag", String.class).get());
-        } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("btag")) {
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("btag")
+        ) {
             String blockTagString = configurationService.prismConfig().defaults().parameters().get("btag");
             Collections.addAll(blockTags, blockTagString.split(","));
 
@@ -433,9 +463,11 @@ public class QueryService {
                     return Optional.empty();
                 }
 
-                tag.getValues().forEach(material -> {
-                    blocks.add(material.toString().toLowerCase(Locale.ENGLISH));
-                });
+                tag
+                    .getValues()
+                    .forEach(material -> {
+                        blocks.add(material.toString().toLowerCase(Locale.ENGLISH));
+                    });
             }
         }
 
@@ -446,11 +478,16 @@ public class QueryService {
         // Read "m" parameter from arguments or defaults
         final Set<String> materials = new HashSet<>();
         if (arguments.getListArgument("m", Material.class).isPresent()) {
-            arguments.getListArgument("m", Material.class).get().forEach(material -> {
-                materials.add(material.toString().toLowerCase(Locale.ENGLISH));
-            });
-        } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("m")) {
+            arguments
+                .getListArgument("m", Material.class)
+                .get()
+                .forEach(material -> {
+                    materials.add(material.toString().toLowerCase(Locale.ENGLISH));
+                });
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("m")
+        ) {
             String materialString = configurationService.prismConfig().defaults().parameters().get("m");
             Collections.addAll(materials, materialString.split(","));
 
@@ -461,8 +498,10 @@ public class QueryService {
         final List<String> itemTags = new ArrayList<>();
         if (arguments.getListArgument("itag", String.class).isPresent()) {
             itemTags.addAll(arguments.getListArgument("itag", String.class).get());
-        } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("itag")) {
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("itag")
+        ) {
             String itemTagString = configurationService.prismConfig().defaults().parameters().get("itag");
             Collections.addAll(itemTags, itemTagString.split(","));
 
@@ -486,9 +525,11 @@ public class QueryService {
                     return Optional.empty();
                 }
 
-                tag.getValues().forEach(material -> {
-                    materials.add(material.toString().toLowerCase(Locale.ENGLISH));
-                });
+                tag
+                    .getValues()
+                    .forEach(material -> {
+                        materials.add(material.toString().toLowerCase(Locale.ENGLISH));
+                    });
             }
         }
 
@@ -499,11 +540,16 @@ public class QueryService {
         // Read "e" parameter from arguments or defaults
         final Set<String> entityTypes = new HashSet<>();
         if (arguments.getListArgument("e", EntityType.class).isPresent()) {
-            arguments.getListArgument("e", EntityType.class).get().forEach(entity -> {
-                entityTypes.add(entity.toString().toLowerCase(Locale.ENGLISH));
-            });
-        } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("e")) {
+            arguments
+                .getListArgument("e", EntityType.class)
+                .get()
+                .forEach(entity -> {
+                    entityTypes.add(entity.toString().toLowerCase(Locale.ENGLISH));
+                });
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("e")
+        ) {
             String entityString = configurationService.prismConfig().defaults().parameters().get("e");
             Collections.addAll(entityTypes, entityString.split(","));
 
@@ -514,8 +560,10 @@ public class QueryService {
         final List<String> entityTypeTags = new ArrayList<>();
         if (arguments.getListArgument("etag", String.class).isPresent()) {
             entityTypeTags.addAll(arguments.getListArgument("etag", String.class).get());
-        } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("etag")) {
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("etag")
+        ) {
             String entityTypeTagString = configurationService.prismConfig().defaults().parameters().get("etag");
             Collections.addAll(entityTypeTags, entityTypeTagString.split(","));
 
@@ -539,9 +587,11 @@ public class QueryService {
                     return Optional.empty();
                 }
 
-                tag.getValues().forEach(entityType -> {
-                    entityTypes.add(entityType.toString().toLowerCase(Locale.ENGLISH));
-                });
+                tag
+                    .getValues()
+                    .forEach(entityType -> {
+                        entityTypes.add(entityType.toString().toLowerCase(Locale.ENGLISH));
+                    });
             }
         }
 
@@ -553,11 +603,16 @@ public class QueryService {
         // Read "p" parameter from arguments or defaults
         final List<String> p = new ArrayList<>();
         if (arguments.getListArgument("p", Player.class).isPresent()) {
-            arguments.getListArgument("p", Player.class).get().forEach(player -> {
-                p.add(player.getName());
-            });
-        } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("p")) {
+            arguments
+                .getListArgument("p", Player.class)
+                .get()
+                .forEach(player -> {
+                    p.add(player.getName());
+                });
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("p")
+        ) {
             String playerString = configurationService.prismConfig().defaults().parameters().get("p");
             Collections.addAll(p, playerString.split(","));
 
@@ -578,10 +633,16 @@ public class QueryService {
         Boolean reversed = null;
         if (arguments.getArgument("reversed", Boolean.class).isPresent()) {
             reversed = arguments.getArgument("reversed", Boolean.class).get();
-        } else if (!arguments.hasFlag("nodefaults")
-                && configurationService.prismConfig().defaults().parameters().containsKey("reversed")) {
-            reversed = configurationService.prismConfig()
-                .defaults().parameters().get("reversed").equalsIgnoreCase("true");
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("reversed")
+        ) {
+            reversed = configurationService
+                .prismConfig()
+                .defaults()
+                .parameters()
+                .get("reversed")
+                .equalsIgnoreCase("true");
 
             builder.defaultUsed("reversed:" + reversed);
         }

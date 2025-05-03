@@ -22,7 +22,6 @@ package org.prism_mc.prism.bukkit.utils;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -30,6 +29,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 
 public class VeinScanner {
+
     /**
      * The current scan count.
      */

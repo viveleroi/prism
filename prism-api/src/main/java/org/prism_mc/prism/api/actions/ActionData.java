@@ -35,4 +35,5 @@ public record ActionData(
     String descriptor,
     String metadata,
     short customDataVersion,
-    String translationKey) {}
+    String translationKey
+) {}

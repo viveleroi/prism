@@ -21,7 +21,11 @@
 package org.prism_mc.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
-
+import org.bukkit.Location;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.prism_mc.prism.api.actions.metadata.Metadata;
 import org.prism_mc.prism.bukkit.actions.GenericBukkitAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
@@ -31,13 +35,8 @@ import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
 import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.Location;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerTeleportEvent;
-
 public class PlayerTeleportListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -47,9 +46,10 @@ public class PlayerTeleportListener extends AbstractListener implements Listener
      */
     @Inject
     public PlayerTeleportListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -69,8 +69,13 @@ public class PlayerTeleportListener extends AbstractListener implements Listener
 
         String descriptor = "to unknown";
         if (to != null && to.getWorld() != null) {
-            descriptor = String.format("%s %d,%d,%d",
-                to.getWorld().getName(), to.getBlockX(), to.getBlockY(), to.getBlockZ());
+            descriptor = String.format(
+                "%s %d,%d,%d",
+                to.getWorld().getName(),
+                to.getBlockX(),
+                to.getBlockY(),
+                to.getBlockZ()
+            );
         }
 
         var metadata = Metadata.builder().using(event.getCause().name().toLowerCase()).build();

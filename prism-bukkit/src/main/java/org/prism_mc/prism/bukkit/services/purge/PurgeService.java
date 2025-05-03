@@ -22,9 +22,7 @@ package org.prism_mc.prism.bukkit.services.purge;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import java.util.function.Consumer;
-
 import org.prism_mc.prism.api.services.purges.PurgeCycleResult;
 import org.prism_mc.prism.api.services.purges.PurgeQueue;
 import org.prism_mc.prism.api.services.purges.PurgeResult;
@@ -32,6 +30,7 @@ import org.prism_mc.prism.core.injection.factories.PurgeQueueFactory;
 
 @Singleton
 public class PurgeService {
+
     /**
      * The purge queue factory.
      */

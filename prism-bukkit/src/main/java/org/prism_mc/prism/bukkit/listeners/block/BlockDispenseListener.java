@@ -21,7 +21,10 @@
 package org.prism_mc.prism.bukkit.listeners.block;
 
 import com.google.inject.Inject;
-
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockDispenseEvent;
 import org.prism_mc.prism.bukkit.actions.BukkitItemStackAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
@@ -30,12 +33,8 @@ import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
 import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockDispenseEvent;
-
 public class BlockDispenseListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -45,9 +44,10 @@ public class BlockDispenseListener extends AbstractListener implements Listener 
      */
     @Inject
     public BlockDispenseListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 

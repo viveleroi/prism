@@ -21,7 +21,14 @@
 package org.prism_mc.prism.bukkit.listeners.entity;
 
 import com.google.inject.Inject;
-
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.block.BlockState;
+import org.bukkit.entity.EntityType;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.prism_mc.prism.api.actions.Action;
 import org.prism_mc.prism.bukkit.actions.BukkitBlockAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
@@ -31,16 +38,8 @@ import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
 import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.block.BlockState;
-import org.bukkit.entity.EntityType;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
-
 public class EntityChangeBlockListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -50,9 +49,10 @@ public class EntityChangeBlockListener extends AbstractListener implements Liste
      */
     @Inject
     public EntityChangeBlockListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -88,11 +88,14 @@ public class EntityChangeBlockListener extends AbstractListener implements Liste
                 event.getBlock().getBlockData(),
                 event.getBlock().translationKey(),
                 Bukkit.createBlockData(Material.DIRT),
-                Material.DIRT.translationKey());
+                Material.DIRT.translationKey()
+            );
 
             var activity = BukkitActivity.builder()
-                .action(action).location(event.getBlock().getLocation())
-                .cause(nameFromCause(event.getEntity())).build();
+                .action(action)
+                .location(event.getBlock().getLocation())
+                .cause(nameFromCause(event.getEntity()))
+                .build();
 
             recordingService.addToQueue(activity);
 
@@ -121,7 +124,10 @@ public class EntityChangeBlockListener extends AbstractListener implements Liste
         }
 
         var activity = BukkitActivity.builder()
-            .action(action).location(event.getBlock().getLocation()).cause(nameFromCause(event.getEntity())).build();
+            .action(action)
+            .location(event.getBlock().getLocation())
+            .cause(nameFromCause(event.getEntity()))
+            .build();
 
         recordingService.addToQueue(activity);
     }

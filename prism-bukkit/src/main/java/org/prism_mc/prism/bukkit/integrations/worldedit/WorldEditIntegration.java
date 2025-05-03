@@ -27,15 +27,14 @@ import com.sk89q.worldedit.bukkit.BukkitPlayer;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.world.World;
-
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.api.util.Pair;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-
 public class WorldEditIntegration {
+
     /**
      * The world edit instance.
      */
@@ -75,12 +74,14 @@ public class WorldEditIntegration {
             final Coordinate minCoordinate = new Coordinate(
                 region.getMinimumPoint().x(),
                 region.getMinimumPoint().y(),
-                region.getMinimumPoint().z());
+                region.getMinimumPoint().z()
+            );
 
             final Coordinate maxCoordinate = new Coordinate(
                 region.getMaximumPoint().x(),
                 region.getMaximumPoint().y(),
-                region.getMaximumPoint().z());
+                region.getMaximumPoint().z()
+            );
 
             return new Pair<>(minCoordinate, maxCoordinate);
         } catch (final IncompleteRegionException e) {

@@ -21,12 +21,10 @@
 package org.prism_mc.prism.core.storage.adapters.sql;
 
 import com.zaxxer.hikari.HikariDataSource;
-
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
-
 import org.prism_mc.prism.api.actions.BlockAction;
 import org.prism_mc.prism.api.actions.CustomData;
 import org.prism_mc.prism.api.actions.EntityAction;
@@ -36,6 +34,7 @@ import org.prism_mc.prism.api.storage.ActivityBatch;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
 public class SqlActivityProcedureBatch implements ActivityBatch {
+
     /**
      * The logging service.
      */
@@ -75,10 +74,11 @@ public class SqlActivityProcedureBatch implements ActivityBatch {
      * @param prefix The schema/table prefix
      */
     public SqlActivityProcedureBatch(
-            LoggingService loggingService,
-            HikariDataSource hikariDataSource,
-            short serializerVersion,
-            String prefix) {
+        LoggingService loggingService,
+        HikariDataSource hikariDataSource,
+        short serializerVersion,
+        String prefix
+    ) {
         this.loggingService = loggingService;
         this.hikariDataSource = hikariDataSource;
         this.serializerVersion = serializerVersion;
@@ -90,8 +90,10 @@ public class SqlActivityProcedureBatch implements ActivityBatch {
         connection = hikariDataSource.getConnection();
 
         statement = connection.prepareCall(
-            "{ CALL " + prefix
-                + "create_activity(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }");
+            "{ CALL " +
+            prefix +
+            "create_activity(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }"
+        );
     }
 
     @Override

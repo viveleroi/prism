@@ -21,15 +21,13 @@
 package org.prism_mc.prism.bukkit.commands;
 
 import com.google.inject.Inject;
-
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.NamedArguments;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
-
 import java.util.List;
 import java.util.Optional;
-
+import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.actions.Action;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.services.modifications.ModificationQueue;
@@ -44,10 +42,9 @@ import org.prism_mc.prism.bukkit.services.modifications.BukkitRollback;
 import org.prism_mc.prism.bukkit.services.query.QueryService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.bukkit.entity.Player;
-
-@Command(value = "prism", alias = {"pr"})
+@Command(value = "prism", alias = { "pr" })
 public class PreviewCommand {
+
     /**
      * The storage adapter.
      */
@@ -90,12 +87,13 @@ public class PreviewCommand {
      */
     @Inject
     public PreviewCommand(
-            StorageAdapter storageAdapter,
-            MessageService messageService,
-            BukkitModificationQueueService modificationQueueService,
-            QueryService queryService,
-            TaskChainProvider taskChainProvider,
-            LoggingService loggingService) {
+        StorageAdapter storageAdapter,
+        MessageService messageService,
+        BukkitModificationQueueService modificationQueueService,
+        QueryService queryService,
+        TaskChainProvider taskChainProvider,
+        LoggingService loggingService
+    ) {
         this.storageAdapter = storageAdapter;
         this.messageService = messageService;
         this.modificationQueueService = modificationQueueService;
@@ -151,7 +149,7 @@ public class PreviewCommand {
      * @param arguments The arguments
      */
     @NamedArguments("query-parameters")
-    @Command(value = "preview-restore", alias = {"prs"})
+    @Command(value = "preview-restore", alias = { "prs" })
     @Permission("prism.modify")
     public void onPreviewRestore(final Player player, final Arguments arguments) {
         var builder = queryService.queryFromArguments(player, arguments);
@@ -172,7 +170,7 @@ public class PreviewCommand {
      * @param arguments The arguments
      */
     @NamedArguments("query-parameters")
-    @Command(value = "preview-rollback", alias = {"prb"})
+    @Command(value = "preview-rollback", alias = { "prb" })
     @Permission("prism.modify")
     public void onPreviewRollback(final Player player, final Arguments arguments) {
         var builder = queryService.queryFromArguments(player, arguments);
@@ -206,31 +204,41 @@ public class PreviewCommand {
             return;
         }
 
-        taskChainProvider.newChain().asyncFirst(() -> {
-            try {
-                return storageAdapter.queryActivities(query);
-            } catch (Exception e) {
-                messageService.errorQueryExec(player);
-                loggingService.handleException(e);
-            }
-
-            return null;
-        }).abortIfNull().<List<Action>>sync(results -> {
-            if (results.isEmpty()) {
-                messageService.noResults(player);
+        taskChainProvider
+            .newChain()
+            .asyncFirst(() -> {
+                try {
+                    return storageAdapter.queryActivities(query);
+                } catch (Exception e) {
+                    messageService.errorQueryExec(player);
+                    loggingService.handleException(e);
+                }
 
                 return null;
-            }
+            })
+            .abortIfNull()
+            .<List<Action>>sync(results -> {
+                if (results.isEmpty()) {
+                    messageService.noResults(player);
 
-            ModificationQueue queue = modificationQueueService
-                .newQueue(clazz, modificationRuleset, player, query, results);
-            if (queue instanceof Previewable previewable) {
-                previewable.preview();
-            } else {
-                messageService.errorNotPreviewable(player);
-            }
+                    return null;
+                }
 
-            return null;
-        }).execute();
+                ModificationQueue queue = modificationQueueService.newQueue(
+                    clazz,
+                    modificationRuleset,
+                    player,
+                    query,
+                    results
+                );
+                if (queue instanceof Previewable previewable) {
+                    previewable.preview();
+                } else {
+                    messageService.errorNotPreviewable(player);
+                }
+
+                return null;
+            })
+            .execute();
     }
 }

@@ -21,13 +21,12 @@
 package org.prism_mc.prism.bukkit.commands;
 
 import com.google.inject.Inject;
-
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.CommandFlags;
 import dev.triumphteam.cmd.core.annotations.NamedArguments;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
-
+import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.bukkit.providers.TaskChainProvider;
@@ -36,10 +35,9 @@ import org.prism_mc.prism.bukkit.services.modifications.BukkitModificationQueueS
 import org.prism_mc.prism.bukkit.services.query.QueryService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.bukkit.command.CommandSender;
-
-@Command(value = "prism", alias = {"pr"})
+@Command(value = "prism", alias = { "pr" })
 public class RestoreCommand {
+
     /**
      * The storage adapter.
      */
@@ -82,12 +80,13 @@ public class RestoreCommand {
      */
     @Inject
     public RestoreCommand(
-            StorageAdapter storageAdapter,
-            MessageService messageService,
-            BukkitModificationQueueService modificationQueueService,
-            QueryService queryService,
-            TaskChainProvider taskChainProvider,
-            LoggingService loggingService) {
+        StorageAdapter storageAdapter,
+        MessageService messageService,
+        BukkitModificationQueueService modificationQueueService,
+        QueryService queryService,
+        TaskChainProvider taskChainProvider,
+        LoggingService loggingService
+    ) {
         this.storageAdapter = storageAdapter;
         this.messageService = messageService;
         this.modificationQueueService = modificationQueueService;
@@ -103,7 +102,7 @@ public class RestoreCommand {
      */
     @CommandFlags(key = "query-flags")
     @NamedArguments("query-parameters")
-    @Command(value = "restore", alias = {"rs"})
+    @Command(value = "restore", alias = { "rs" })
     @Permission("prism.modify")
     public void onRestore(final CommandSender sender, final Arguments arguments) {
         // Ensure a queue is free
@@ -116,31 +115,38 @@ public class RestoreCommand {
         var builder = queryService.queryFromArguments(sender, arguments);
         if (builder.isPresent()) {
             final ActivityQuery query = builder.get().restore().build();
-            taskChainProvider.newChain().asyncFirst(() -> {
-                try {
-                    return storageAdapter.queryActivities(query);
-                } catch (Exception e) {
-                    messageService.errorQueryExec(sender);
-                    loggingService.handleException(e);
-                }
+            taskChainProvider
+                .newChain()
+                .asyncFirst(() -> {
+                    try {
+                        return storageAdapter.queryActivities(query);
+                    } catch (Exception e) {
+                        messageService.errorQueryExec(sender);
+                        loggingService.handleException(e);
+                    }
 
-                return null;
-            }).abortIfNull().syncLast(modifications -> {
-                if (modifications.isEmpty()) {
-                    messageService.noResults(sender);
+                    return null;
+                })
+                .abortIfNull()
+                .syncLast(modifications -> {
+                    if (modifications.isEmpty()) {
+                        messageService.noResults(sender);
 
-                    return;
-                }
+                        return;
+                    }
 
-                if (!query.defaultsUsed().isEmpty()) {
-                    messageService.defaultsUsed(sender, String.join(" ", query.defaultsUsed()));
-                }
+                    if (!query.defaultsUsed().isEmpty()) {
+                        messageService.defaultsUsed(sender, String.join(" ", query.defaultsUsed()));
+                    }
 
-                // Load the modification ruleset from the configs, and apply flags
-                var modificationRuleset = modificationQueueService.applyFlagsToModificationRuleset(arguments).build();
+                    // Load the modification ruleset from the configs, and apply flags
+                    var modificationRuleset = modificationQueueService
+                        .applyFlagsToModificationRuleset(arguments)
+                        .build();
 
-                modificationQueueService.newRestoreQueue(modificationRuleset, sender, query, modifications).apply();
-            }).execute();
+                    modificationQueueService.newRestoreQueue(modificationRuleset, sender, query, modifications).apply();
+                })
+                .execute();
         }
     }
 }

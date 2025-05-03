@@ -25,11 +25,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.prism_mc.prism.api.actions.types.ActionType;
 import org.prism_mc.prism.api.actions.types.ActionTypeRegistry;
 
 public class AbstractActionTypeRegistry implements ActionTypeRegistry {
+
     /**
      * Cache of action types by key.
      */
@@ -42,8 +42,11 @@ public class AbstractActionTypeRegistry implements ActionTypeRegistry {
 
     @Override
     public Collection<ActionType> actionTypesInFamily(String family) {
-        return actionsTypes.values().stream().filter(
-            a -> a.familyKey().equalsIgnoreCase(family)).collect(Collectors.toList());
+        return actionsTypes
+            .values()
+            .stream()
+            .filter(a -> a.familyKey().equalsIgnoreCase(family))
+            .collect(Collectors.toList());
     }
 
     @Override

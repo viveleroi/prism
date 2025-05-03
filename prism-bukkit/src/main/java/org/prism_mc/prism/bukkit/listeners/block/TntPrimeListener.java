@@ -21,9 +21,12 @@
 package org.prism_mc.prism.bukkit.listeners.block;
 
 import com.google.inject.Inject;
-
 import java.util.Locale;
-
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.TNTPrimeEvent;
 import org.prism_mc.prism.bukkit.actions.BukkitBlockAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
@@ -32,13 +35,8 @@ import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
 import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.TNTPrimeEvent;
-
 public class TntPrimeListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -48,9 +46,10 @@ public class TntPrimeListener extends AbstractListener implements Listener {
      */
     @Inject
     public TntPrimeListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -68,9 +67,7 @@ public class TntPrimeListener extends AbstractListener implements Listener {
 
         var action = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_IGNITE, event.getBlock().getState());
 
-        var builder = BukkitActivity.builder()
-            .action(action)
-            .location(event.getBlock().getLocation());
+        var builder = BukkitActivity.builder().action(action).location(event.getBlock().getLocation());
 
         if (event.getPrimingEntity() instanceof Player player) {
             builder.player(player);

@@ -21,15 +21,6 @@
 package org.prism_mc.prism.bukkit.listeners.block;
 
 import com.google.inject.Inject;
-
-import org.prism_mc.prism.bukkit.actions.BukkitBlockAction;
-import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
-import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
-import org.prism_mc.prism.bukkit.listeners.AbstractListener;
-import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
-import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
-import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -38,8 +29,16 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPistonRetractEvent;
+import org.prism_mc.prism.bukkit.actions.BukkitBlockAction;
+import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
+import org.prism_mc.prism.bukkit.listeners.AbstractListener;
+import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
+import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
+import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
 public class BlockPistonRetractListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -49,9 +48,10 @@ public class BlockPistonRetractListener extends AbstractListener implements List
      */
     @Inject
     public BlockPistonRetractListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -69,15 +69,19 @@ public class BlockPistonRetractListener extends AbstractListener implements List
 
         for (Block block : event.getBlocks()) {
             // Ignore blocks that we already tracked or won't be affected
-            if (block.getType().equals(Material.AIR)
-                    || !block.getPistonMoveReaction().equals(PistonMoveReaction.MOVE)) {
+            if (
+                block.getType().equals(Material.AIR) || !block.getPistonMoveReaction().equals(PistonMoveReaction.MOVE)
+            ) {
                 continue;
             }
 
             Location newBlockLocation = block.getRelative(event.getDirection()).getLocation();
 
             var action = new BukkitBlockAction(
-                BukkitActionTypeRegistry.BLOCK_SHIFT, block.getState(), newBlockLocation.getBlock().getState());
+                BukkitActionTypeRegistry.BLOCK_SHIFT,
+                block.getState(),
+                newBlockLocation.getBlock().getState()
+            );
 
             var activity = BukkitActivity.builder().action(action).location(newBlockLocation).cause("piston").build();
 

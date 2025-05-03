@@ -21,11 +21,11 @@
 package org.prism_mc.prism.bukkit.utils;
 
 import java.nio.charset.StandardCharsets;
-
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class StringUtils {
+
     /**
      * Get the utf8mb4 byte length of a string.
      *

@@ -21,24 +21,21 @@
 package org.prism_mc.prism.bukkit.commands;
 
 import com.google.inject.Inject;
-
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Optional;
-
 import java.util.List;
-
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.util.BoundingBox;
 import org.prism_mc.prism.bukkit.services.messages.MessageService;
 import org.prism_mc.prism.bukkit.services.modifications.state.BlockStateChange;
 import org.prism_mc.prism.bukkit.utils.BlockUtils;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.util.BoundingBox;
-
-@Command(value = "prism", alias = {"pr"})
+@Command(value = "prism", alias = { "pr" })
 public class ExtinguishCommand {
+
     /**
      * The configuration service.
      */
@@ -67,7 +64,7 @@ public class ExtinguishCommand {
      * @param player The player
      * @param radius The radius
      */
-    @Command(value = "extinguish", alias = {"ex"})
+    @Command(value = "extinguish", alias = { "ex" })
     @Permission("prism.extinguish")
     public void onExtinguish(final Player player, @Optional Integer radius) {
         if (radius == null) {
@@ -82,8 +79,11 @@ public class ExtinguishCommand {
         double z2 = player.getLocation().getBlockZ() + radius;
         BoundingBox boundingBox = new BoundingBox(x1, y1, z1, x2, y2, z2);
 
-        List<BlockStateChange> changes = BlockUtils
-            .removeBlocksByMaterial(player.getWorld(), boundingBox, List.of(Material.FIRE));
+        List<BlockStateChange> changes = BlockUtils.removeBlocksByMaterial(
+            player.getWorld(),
+            boundingBox,
+            List.of(Material.FIRE)
+        );
         int removalCount = changes.size();
 
         if (removalCount > 0) {

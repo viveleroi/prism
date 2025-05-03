@@ -21,17 +21,16 @@
 package org.prism_mc.prism.bukkit.actions.types;
 
 import de.tr7zw.nbtapi.NBT;
-
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.prism_mc.prism.api.actions.Action;
 import org.prism_mc.prism.api.actions.ActionData;
 import org.prism_mc.prism.api.actions.types.ActionResultType;
 import org.prism_mc.prism.api.actions.types.ActionType;
 import org.prism_mc.prism.bukkit.actions.BukkitItemStackAction;
 
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-
 public class ItemActionType extends ActionType {
+
     /**
      * Construct a new item action type.
      *

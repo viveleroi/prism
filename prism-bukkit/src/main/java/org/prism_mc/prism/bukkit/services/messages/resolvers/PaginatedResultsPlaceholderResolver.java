@@ -23,21 +23,19 @@ package org.prism_mc.prism.bukkit.services.messages.resolvers;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Map;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.moonshine.placeholder.ConclusionValue;
 import net.kyori.moonshine.placeholder.ContinuanceValue;
 import net.kyori.moonshine.placeholder.IPlaceholderResolver;
 import net.kyori.moonshine.util.Either;
-
-import org.prism_mc.prism.api.PaginatedResults;
-
 import org.bukkit.command.CommandSender;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.prism_mc.prism.api.PaginatedResults;
 
 public class PaginatedResultsPlaceholderResolver
     implements IPlaceholderResolver<CommandSender, PaginatedResults<?>, Component> {
+
     @Override
     public @NonNull Map<String, Either<ConclusionValue<? extends Component>, ContinuanceValue<?>>> resolve(
         final String placeholderName,
@@ -45,7 +43,8 @@ public class PaginatedResultsPlaceholderResolver
         final CommandSender receiver,
         final Type owner,
         final Method method,
-        final @Nullable Object[] parameters) {
+        final @Nullable Object[] parameters
+    ) {
         int showing = value.totalResults() < value.perPage() ? value.totalResults() : value.perPage();
 
         Component perPage = Component.text(showing);
@@ -53,9 +52,15 @@ public class PaginatedResultsPlaceholderResolver
         Component totalPages = Component.text(Math.max(value.totalPages(), 1));
         Component totalResults = Component.text(value.totalResults());
 
-        return Map.of(placeholderName + "_per_page", Either.left(ConclusionValue.conclusionValue(perPage)),
-                placeholderName + "_total_results", Either.left(ConclusionValue.conclusionValue(totalResults)),
-                placeholderName + "_current_page", Either.left(ConclusionValue.conclusionValue(currentPage)),
-                placeholderName + "_total_pages", Either.left(ConclusionValue.conclusionValue(totalPages)));
+        return Map.of(
+            placeholderName + "_per_page",
+            Either.left(ConclusionValue.conclusionValue(perPage)),
+            placeholderName + "_total_results",
+            Either.left(ConclusionValue.conclusionValue(totalResults)),
+            placeholderName + "_current_page",
+            Either.left(ConclusionValue.conclusionValue(currentPage)),
+            placeholderName + "_total_pages",
+            Either.left(ConclusionValue.conclusionValue(totalPages))
+        );
     }
 }

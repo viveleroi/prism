@@ -20,18 +20,22 @@
 
 package org.prism_mc.prism.core.storage.adapters.sql;
 
+import static org.jooq.impl.DSL.avg;
+import static org.jooq.impl.DSL.coalesce;
+import static org.jooq.impl.DSL.count;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ITEMS;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
+
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import org.prism_mc.prism.api.activities.ActivityQuery;
-import org.prism_mc.prism.core.storage.dbo.records.PrismActivitiesRecord;
-import org.prism_mc.prism.core.storage.dbo.tables.PrismBlocks;
-import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
-import org.prism_mc.prism.loader.services.configuration.storage.StorageConfiguration;
-
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.DeleteQuery;
@@ -41,20 +45,14 @@ import org.jooq.Result;
 import org.jooq.SelectQuery;
 import org.jooq.impl.DSL;
 import org.jooq.types.UInteger;
-
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ITEMS;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
-import static org.jooq.impl.DSL.avg;
-import static org.jooq.impl.DSL.coalesce;
-import static org.jooq.impl.DSL.count;
+import org.prism_mc.prism.api.activities.ActivityQuery;
+import org.prism_mc.prism.core.storage.dbo.records.PrismActivitiesRecord;
+import org.prism_mc.prism.core.storage.dbo.tables.PrismBlocks;
+import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+import org.prism_mc.prism.loader.services.configuration.storage.StorageConfiguration;
 
 public class SqlActivityQueryBuilder {
+
     /**
      * The configuration service.
      */
@@ -82,9 +80,7 @@ public class SqlActivityQueryBuilder {
      * @param create The DSL context
      */
     @Inject
-    public SqlActivityQueryBuilder(
-            ConfigurationService configurationService,
-            @Assisted DSLContext create) {
+    public SqlActivityQueryBuilder(ConfigurationService configurationService, @Assisted DSLContext create) {
         this.configurationService = configurationService;
         storageConfiguration = configurationService.storageConfig();
         this.create = create;
@@ -138,8 +134,12 @@ public class SqlActivityQueryBuilder {
         queryBuilder.addConditions(conditions(query));
 
         // Limit
-        queryBuilder.addConditions(PRISM_ACTIVITIES.ACTIVITY_ID
-            .between(UInteger.valueOf(cycleMinPrimaryKey), UInteger.valueOf(cycleMaxPrimaryKey)));
+        queryBuilder.addConditions(
+            PRISM_ACTIVITIES.ACTIVITY_ID.between(
+                UInteger.valueOf(cycleMinPrimaryKey),
+                UInteger.valueOf(cycleMaxPrimaryKey)
+            )
+        );
 
         return queryBuilder.execute();
     }
@@ -166,7 +166,8 @@ public class SqlActivityQueryBuilder {
             PRISM_ACTIONS.ACTION,
             PRISM_CAUSES.CAUSE,
             PRISM_PLAYERS.PLAYER_UUID,
-            PRISM_PLAYERS.PLAYER);
+            PRISM_PLAYERS.PLAYER
+        );
 
         // Add fields useful only for lookups
         if (query.lookup()) {
@@ -183,7 +184,8 @@ public class SqlActivityQueryBuilder {
                 avg(PRISM_ACTIVITIES.Y),
                 avg(PRISM_ACTIVITIES.Z),
                 avg(PRISM_ACTIVITIES.TIMESTAMP),
-                count().as("groupcount"));
+                count().as("groupcount")
+            );
         } else {
             // Add fields for non-grouped queries
             queryBuilder.addSelect(
@@ -209,20 +211,35 @@ public class SqlActivityQueryBuilder {
 
         queryBuilder.addFrom(PRISM_ACTIVITIES);
         queryBuilder.addJoin(PRISM_ACTIONS, PRISM_ACTIONS.ACTION_ID.equal(PRISM_ACTIVITIES.ACTION_ID));
-        queryBuilder.addJoin(PRISM_BLOCKS, JoinType.LEFT_OUTER_JOIN, PRISM_BLOCKS.BLOCK_ID
-            .equal(PRISM_ACTIVITIES.BLOCK_ID));
+        queryBuilder.addJoin(
+            PRISM_BLOCKS,
+            JoinType.LEFT_OUTER_JOIN,
+            PRISM_BLOCKS.BLOCK_ID.equal(PRISM_ACTIVITIES.BLOCK_ID)
+        );
         queryBuilder.addJoin(PRISM_WORLDS, PRISM_WORLDS.WORLD_ID.equal(PRISM_ACTIVITIES.WORLD_ID));
-        queryBuilder.addJoin(PRISM_ENTITY_TYPES, JoinType.LEFT_OUTER_JOIN, PRISM_ENTITY_TYPES.ENTITY_TYPE_ID
-            .equal(PRISM_ACTIVITIES.ENTITY_TYPE_ID));
-        queryBuilder.addJoin(PRISM_ITEMS, JoinType.LEFT_OUTER_JOIN, PRISM_ITEMS.ITEM_ID
-            .equal(PRISM_ACTIVITIES.ITEM_ID));
+        queryBuilder.addJoin(
+            PRISM_ENTITY_TYPES,
+            JoinType.LEFT_OUTER_JOIN,
+            PRISM_ENTITY_TYPES.ENTITY_TYPE_ID.equal(PRISM_ACTIVITIES.ENTITY_TYPE_ID)
+        );
+        queryBuilder.addJoin(
+            PRISM_ITEMS,
+            JoinType.LEFT_OUTER_JOIN,
+            PRISM_ITEMS.ITEM_ID.equal(PRISM_ACTIVITIES.ITEM_ID)
+        );
         queryBuilder.addJoin(PRISM_CAUSES, PRISM_CAUSES.CAUSE_ID.equal(PRISM_ACTIVITIES.CAUSE_ID));
-        queryBuilder.addJoin(PRISM_PLAYERS, JoinType.LEFT_OUTER_JOIN, PRISM_PLAYERS.PLAYER_ID
-            .equal(PRISM_CAUSES.PLAYER_ID));
+        queryBuilder.addJoin(
+            PRISM_PLAYERS,
+            JoinType.LEFT_OUTER_JOIN,
+            PRISM_PLAYERS.PLAYER_ID.equal(PRISM_CAUSES.PLAYER_ID)
+        );
 
         if (query.modification()) {
-            queryBuilder.addJoin(REPLACED_BLOCKS, JoinType.LEFT_OUTER_JOIN, REPLACED_BLOCKS.BLOCK_ID
-                .equal(PRISM_ACTIVITIES.REPLACED_BLOCK_ID));
+            queryBuilder.addJoin(
+                REPLACED_BLOCKS,
+                JoinType.LEFT_OUTER_JOIN,
+                REPLACED_BLOCKS.BLOCK_ID.equal(PRISM_ACTIVITIES.REPLACED_BLOCK_ID)
+            );
         }
 
         // Add all conditions
@@ -244,7 +261,8 @@ public class SqlActivityQueryBuilder {
                 PRISM_PLAYERS.PLAYER,
                 PRISM_PLAYERS.PLAYER_UUID,
                 PRISM_ACTIVITIES.DESCRIPTOR,
-                PRISM_ACTIVITIES.METADATA);
+                PRISM_ACTIVITIES.METADATA
+            );
 
             if (query.lookup()) {
                 queryBuilder.addGroupBy(PRISM_BLOCKS.TRANSLATION_KEY);
@@ -269,17 +287,16 @@ public class SqlActivityQueryBuilder {
             // In order to do this, we tell hanging blocks to sort *after* everything else,
             // then we sort everything by `y asc` and sort these hanging blocks by `y desc`.
             // cave_vines are sorted to come after cave_vines_plant so the plant is rebuilt first.
-            queryBuilder.addOrderBy(DSL.decode()
-                .when(PRISM_BLOCKS.NAME.in("cave_vines", "weeping_vines"), 1)
-                .else_(-1).asc());
-            queryBuilder.addOrderBy(DSL.decode()
-                .when(PRISM_BLOCKS.NAME.in("cave_vines_plant", "weeping_vines_plant"), 1)
-                .else_(-1).asc());
+            queryBuilder.addOrderBy(
+                DSL.decode().when(PRISM_BLOCKS.NAME.in("cave_vines", "weeping_vines"), 1).else_(-1).asc()
+            );
+            queryBuilder.addOrderBy(
+                DSL.decode().when(PRISM_BLOCKS.NAME.in("cave_vines_plant", "weeping_vines_plant"), 1).else_(-1).asc()
+            );
 
-            queryBuilder.addOrderBy(DSL.decode()
-                .when(PRISM_BLOCKS.NAME
-                .in("vine", "pointed_dripstone"), 1)
-                .else_(-1).asc());
+            queryBuilder.addOrderBy(
+                DSL.decode().when(PRISM_BLOCKS.NAME.in("vine", "pointed_dripstone"), 1).else_(-1).asc()
+            );
 
             queryBuilder.addOrderBy(PRISM_ACTIVITIES.X.asc());
             queryBuilder.addOrderBy(PRISM_ACTIVITIES.Z.asc());
@@ -288,17 +305,16 @@ public class SqlActivityQueryBuilder {
                 "pointed_dripstone",
                 "cave_vines_plant",
                 "weeping_vines_plant",
-                "vine");
+                "vine"
+            );
 
-            queryBuilder.addOrderBy(DSL.decode()
-                .when(PRISM_BLOCKS.NAME
-                .in(blocksToBuildUp), PRISM_ACTIVITIES.Y)
-                .desc());
+            queryBuilder.addOrderBy(
+                DSL.decode().when(PRISM_BLOCKS.NAME.in(blocksToBuildUp), PRISM_ACTIVITIES.Y).desc()
+            );
 
-            queryBuilder.addOrderBy(DSL.decode()
-                .when(PRISM_BLOCKS.NAME
-                .notIn(blocksToBuildUp), PRISM_ACTIVITIES.Y)
-                .asc());
+            queryBuilder.addOrderBy(
+                DSL.decode().when(PRISM_BLOCKS.NAME.notIn(blocksToBuildUp), PRISM_ACTIVITIES.Y).asc()
+            );
         }
 
         // Limits
@@ -359,12 +375,9 @@ public class SqlActivityQueryBuilder {
             conditions.add(PRISM_ACTIVITIES.Y.equal(query.coordinate().intY()));
             conditions.add(PRISM_ACTIVITIES.Z.equal(query.coordinate().intZ()));
         } else if (query.minCoordinate() != null && query.maxCoordinate() != null) {
-            conditions.add(PRISM_ACTIVITIES.X
-                .between(query.minCoordinate().intX(), query.maxCoordinate().intX()));
-            conditions.add(PRISM_ACTIVITIES.Y
-                .between(query.minCoordinate().intY(), query.maxCoordinate().intY()));
-            conditions.add(PRISM_ACTIVITIES.Z
-                .between(query.minCoordinate().intZ(), query.maxCoordinate().intZ()));
+            conditions.add(PRISM_ACTIVITIES.X.between(query.minCoordinate().intX(), query.maxCoordinate().intX()));
+            conditions.add(PRISM_ACTIVITIES.Y.between(query.minCoordinate().intY(), query.maxCoordinate().intY()));
+            conditions.add(PRISM_ACTIVITIES.Z.between(query.minCoordinate().intZ(), query.maxCoordinate().intZ()));
         }
 
         // Materials
@@ -384,8 +397,9 @@ public class SqlActivityQueryBuilder {
 
         // Timestamps
         if (query.after() != null && query.before() != null) {
-            conditions.add(PRISM_ACTIVITIES.TIMESTAMP
-                    .between(UInteger.valueOf(query.after()), UInteger.valueOf(query.before())));
+            conditions.add(
+                PRISM_ACTIVITIES.TIMESTAMP.between(UInteger.valueOf(query.after()), UInteger.valueOf(query.before()))
+            );
         } else if (query.after() != null) {
             conditions.add(PRISM_ACTIVITIES.TIMESTAMP.greaterThan(UInteger.valueOf(query.after())));
         } else if (query.before() != null) {

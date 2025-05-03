@@ -21,7 +21,11 @@
 package org.prism_mc.prism.bukkit.listeners.block;
 
 import com.google.inject.Inject;
-
+import org.bukkit.block.Block;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockFormEvent;
 import org.prism_mc.prism.bukkit.actions.BukkitBlockAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
@@ -30,13 +34,8 @@ import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
 import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.block.Block;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockFormEvent;
-
 public class BlockFormListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -46,9 +45,10 @@ public class BlockFormListener extends AbstractListener implements Listener {
      */
     @Inject
     public BlockFormListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -71,7 +71,8 @@ public class BlockFormListener extends AbstractListener implements Listener {
             event.getNewState(),
             event.getNewState().getType().getBlockTranslationKey(),
             block.getState(),
-            block.translationKey());
+            block.translationKey()
+        );
 
         var activity = BukkitActivity.builder()
             .action(action)

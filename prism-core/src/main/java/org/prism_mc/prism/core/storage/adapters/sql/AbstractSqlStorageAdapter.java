@@ -20,11 +20,16 @@
 
 package org.prism_mc.prism.core.storage.adapters.sql;
 
+import static org.jooq.impl.DSL.avg;
+import static org.jooq.impl.DSL.coalesce;
+import static org.jooq.impl.DSL.constraint;
+import static org.jooq.impl.DSL.max;
+import static org.jooq.impl.DSL.min;
+
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -41,7 +46,13 @@ import java.util.Locale;
 import java.util.Scanner;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
+import org.jooq.DSLContext;
+import org.jooq.Record2;
+import org.jooq.Result;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UInteger;
+import org.jooq.types.UShort;
 import org.prism_mc.prism.api.PaginatedResults;
 import org.prism_mc.prism.api.actions.ActionData;
 import org.prism_mc.prism.api.actions.types.ActionTypeRegistry;
@@ -74,21 +85,8 @@ import org.prism_mc.prism.core.storage.dbo.tables.PrismWorlds;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.jooq.DSLContext;
-import org.jooq.Record2;
-import org.jooq.Result;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UInteger;
-import org.jooq.types.UShort;
-
-import static org.jooq.impl.DSL.avg;
-import static org.jooq.impl.DSL.coalesce;
-import static org.jooq.impl.DSL.constraint;
-import static org.jooq.impl.DSL.max;
-import static org.jooq.impl.DSL.min;
-
 public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
+
     /**
      * The prism database object model.
      */
@@ -217,13 +215,14 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
      */
     @Inject
     public AbstractSqlStorageAdapter(
-            LoggingService loggingService,
-            ConfigurationService configurationService,
-            ActionTypeRegistry actionRegistry,
-            SqlSchemaUpdater schemaUpdater,
-            SqlActivityQueryBuilderFactory queryBuilderFactory,
-            CacheService cacheService,
-            @Named("serializerVersion") short serializerVersion) {
+        LoggingService loggingService,
+        ConfigurationService configurationService,
+        ActionTypeRegistry actionRegistry,
+        SqlSchemaUpdater schemaUpdater,
+        SqlActivityQueryBuilderFactory queryBuilderFactory,
+        CacheService cacheService,
+        @Named("serializerVersion") short serializerVersion
+    ) {
         this.loggingService = loggingService;
         this.configurationService = configurationService;
         this.actionRegistry = actionRegistry;
@@ -233,10 +232,12 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
         this.serializerVersion = serializerVersion;
 
         this.prefix = configurationService.storageConfig().primaryDataSource().prefix();
-        loggingService.info("Catalog {0}; Schema {1}; Prefix {2}",
+        loggingService.info(
+            "Catalog {0}; Schema {1}; Prefix {2}",
             configurationService.storageConfig().primaryDataSource().catalog(),
             configurationService.storageConfig().primaryDataSource().schema(),
-            prefix);
+            prefix
+        );
 
         var catalog = new DefaultCatalog(configurationService.storageConfig().primaryDataSource().catalog());
 
@@ -251,18 +252,19 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
         PRISM_PLAYERS = new PrismPlayers(prefix);
         PRISM_WORLDS = new PrismWorlds(prefix);
         PRISM_DATABASE = new PrismDatabase(
-                catalog,
-                configurationService.storageConfig().primaryDataSource().schema(),
-                Arrays.asList(
-            PRISM_ACTIONS,
-            PRISM_ACTIVITIES,
-            PRISM_CAUSES,
-            PRISM_ENTITY_TYPES,
-                        PRISM_ITEMS,
-            PRISM_META,
-            PRISM_PLAYERS,
-            PRISM_WORLDS
-        ));
+            catalog,
+            configurationService.storageConfig().primaryDataSource().schema(),
+            Arrays.asList(
+                PRISM_ACTIONS,
+                PRISM_ACTIVITIES,
+                PRISM_CAUSES,
+                PRISM_ENTITY_TYPES,
+                PRISM_ITEMS,
+                PRISM_META,
+                PRISM_PLAYERS,
+                PRISM_WORLDS
+            )
+        );
 
         // Table aliases
         REPLACED_BLOCKS = PRISM_BLOCKS.as("replaced_blocks");
@@ -298,13 +300,14 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             }
 
             return true;
-        }  catch (Exception e) {
-            String msg = "Failed to connect to your database server. Please check:\n"
-                + "- the ip/address\n"
-                + "- the port\n"
-                + "- your username/password\n"
-                + "- any firewall rules\n"
-                + "- that the database server is running\n";
+        } catch (Exception e) {
+            String msg =
+                "Failed to connect to your database server. Please check:\n" +
+                "- the ip/address\n" +
+                "- the port\n" +
+                "- your username/password\n" +
+                "- any firewall rules\n" +
+                "- that the database server is running\n";
             loggingService.warn(msg);
         }
 
@@ -347,7 +350,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
      */
     protected void prepareSchema() throws Exception {
         // Create the metadata table
-        create.createTableIfNotExists(PRISM_META)
+        create
+            .createTableIfNotExists(PRISM_META)
             .column(PRISM_META.META_ID)
             .column(PRISM_META.K)
             .column(PRISM_META.V)
@@ -368,13 +372,12 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             updateSchemas(schemaVersion);
         } else {
             // Insert the schema version
-            create.insertInto(PRISM_META, PRISM_META.K, PRISM_META.V)
-                .values("schema_ver", "400")
-                .execute();
+            create.insertInto(PRISM_META, PRISM_META.K, PRISM_META.V).values("schema_ver", "400").execute();
         }
 
         // Create the players table
-        create.createTableIfNotExists(PRISM_PLAYERS)
+        create
+            .createTableIfNotExists(PRISM_PLAYERS)
             .column(PRISM_PLAYERS.PLAYER_ID)
             .column(PRISM_PLAYERS.PLAYER)
             .column(PRISM_PLAYERS.PLAYER_UUID)
@@ -383,7 +386,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .execute();
 
         // Create the blocks table
-        create.createTableIfNotExists(PRISM_BLOCKS)
+        create
+            .createTableIfNotExists(PRISM_BLOCKS)
             .column(PRISM_BLOCKS.BLOCK_ID)
             .column(PRISM_BLOCKS.NS)
             .column(PRISM_BLOCKS.NAME)
@@ -394,20 +398,24 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .execute();
 
         // Create the causes table
-        create.createTableIfNotExists(PRISM_CAUSES)
+        create
+            .createTableIfNotExists(PRISM_CAUSES)
             .column(PRISM_CAUSES.CAUSE_ID)
             .column(PRISM_CAUSES.CAUSE)
             .column(PRISM_CAUSES.PLAYER_ID)
             .primaryKey(PRISM_CAUSES.CAUSE_ID)
             .unique(PRISM_CAUSES.CAUSE)
             .constraints(
-                constraint(String.format("%s_playerId", prefix)).foreignKey(PRISM_CAUSES.PLAYER_ID)
-                    .references(PRISM_PLAYERS, PRISM_PLAYERS.PLAYER_ID).onDeleteCascade()
+                constraint(String.format("%s_playerId", prefix))
+                    .foreignKey(PRISM_CAUSES.PLAYER_ID)
+                    .references(PRISM_PLAYERS, PRISM_PLAYERS.PLAYER_ID)
+                    .onDeleteCascade()
             )
             .execute();
 
         // Create the entity types table
-        create.createTableIfNotExists(PRISM_ENTITY_TYPES)
+        create
+            .createTableIfNotExists(PRISM_ENTITY_TYPES)
             .column(PRISM_ENTITY_TYPES.ENTITY_TYPE_ID)
             .column(PRISM_ENTITY_TYPES.ENTITY_TYPE)
             .primaryKey(PRISM_ENTITY_TYPES.ENTITY_TYPE_ID)
@@ -415,7 +423,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .execute();
 
         // Create actions table
-        create.createTableIfNotExists(PRISM_ACTIONS)
+        create
+            .createTableIfNotExists(PRISM_ACTIONS)
             .column(PRISM_ACTIONS.ACTION_ID)
             .column(PRISM_ACTIONS.ACTION)
             .primaryKey(PRISM_ACTIONS.ACTION_ID)
@@ -423,7 +432,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .execute();
 
         // Create the item table
-        create.createTableIfNotExists(PRISM_ITEMS)
+        create
+            .createTableIfNotExists(PRISM_ITEMS)
             .column(PRISM_ITEMS.ITEM_ID)
             .column(PRISM_ITEMS.MATERIAL)
             .column(PRISM_ITEMS.DATA)
@@ -431,7 +441,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .execute();
 
         // Create the worlds table
-        create.createTableIfNotExists(PRISM_WORLDS)
+        create
+            .createTableIfNotExists(PRISM_WORLDS)
             .column(PRISM_WORLDS.WORLD_ID)
             .column(PRISM_WORLDS.WORLD)
             .column(PRISM_WORLDS.WORLD_UUID)
@@ -440,7 +451,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .execute();
 
         // Create the activities table. This one's the fatso.
-        create.createTableIfNotExists(PRISM_ACTIVITIES)
+        create
+            .createTableIfNotExists(PRISM_ACTIVITIES)
             .column(PRISM_ACTIVITIES.ACTIVITY_ID)
             .column(PRISM_ACTIVITIES.TIMESTAMP)
             .column(PRISM_ACTIVITIES.WORLD_ID)
@@ -461,66 +473,105 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .column(PRISM_ACTIVITIES.REVERSED)
             .primaryKey(PRISM_ACTIVITIES.ACTIVITY_ID)
             .constraints(
-                constraint(String.format("%s_actionId", prefix)).foreignKey(PRISM_ACTIVITIES.ACTION_ID)
-                    .references(PRISM_ACTIONS, PRISM_ACTIONS.ACTION_ID).onDeleteCascade(),
-                constraint(String.format("%s_causeId", prefix)).foreignKey(PRISM_ACTIVITIES.CAUSE_ID)
-                    .references(PRISM_CAUSES, PRISM_CAUSES.CAUSE_ID).onDeleteCascade(),
-                constraint(String.format("%s_entityTypeId", prefix)).foreignKey(PRISM_ACTIVITIES.ENTITY_TYPE_ID)
-                    .references(PRISM_ENTITY_TYPES, PRISM_ENTITY_TYPES.ENTITY_TYPE_ID).onDeleteCascade(),
-                constraint(String.format("%s_itemId", prefix)).foreignKey(PRISM_ACTIVITIES.ITEM_ID)
-                    .references(PRISM_ITEMS, PRISM_ITEMS.ITEM_ID).onDeleteCascade(),
-                constraint(String.format("%s_blockId", prefix)).foreignKey(PRISM_ACTIVITIES.BLOCK_ID)
-                    .references(PRISM_BLOCKS, PRISM_BLOCKS.BLOCK_ID).onDeleteCascade(),
-                constraint(String.format("%s_replacedBlockId", prefix)).foreignKey(PRISM_ACTIVITIES.REPLACED_BLOCK_ID)
-                    .references(PRISM_BLOCKS, PRISM_BLOCKS.BLOCK_ID).onDeleteCascade(),
-                constraint(String.format("%s_worldId", prefix)).foreignKey(PRISM_ACTIVITIES.WORLD_ID)
-                    .references(PRISM_WORLDS, PRISM_WORLDS.WORLD_ID).onDeleteCascade()
+                constraint(String.format("%s_actionId", prefix))
+                    .foreignKey(PRISM_ACTIVITIES.ACTION_ID)
+                    .references(PRISM_ACTIONS, PRISM_ACTIONS.ACTION_ID)
+                    .onDeleteCascade(),
+                constraint(String.format("%s_causeId", prefix))
+                    .foreignKey(PRISM_ACTIVITIES.CAUSE_ID)
+                    .references(PRISM_CAUSES, PRISM_CAUSES.CAUSE_ID)
+                    .onDeleteCascade(),
+                constraint(String.format("%s_entityTypeId", prefix))
+                    .foreignKey(PRISM_ACTIVITIES.ENTITY_TYPE_ID)
+                    .references(PRISM_ENTITY_TYPES, PRISM_ENTITY_TYPES.ENTITY_TYPE_ID)
+                    .onDeleteCascade(),
+                constraint(String.format("%s_itemId", prefix))
+                    .foreignKey(PRISM_ACTIVITIES.ITEM_ID)
+                    .references(PRISM_ITEMS, PRISM_ITEMS.ITEM_ID)
+                    .onDeleteCascade(),
+                constraint(String.format("%s_blockId", prefix))
+                    .foreignKey(PRISM_ACTIVITIES.BLOCK_ID)
+                    .references(PRISM_BLOCKS, PRISM_BLOCKS.BLOCK_ID)
+                    .onDeleteCascade(),
+                constraint(String.format("%s_replacedBlockId", prefix))
+                    .foreignKey(PRISM_ACTIVITIES.REPLACED_BLOCK_ID)
+                    .references(PRISM_BLOCKS, PRISM_BLOCKS.BLOCK_ID)
+                    .onDeleteCascade(),
+                constraint(String.format("%s_worldId", prefix))
+                    .foreignKey(PRISM_ACTIVITIES.WORLD_ID)
+                    .references(PRISM_WORLDS, PRISM_WORLDS.WORLD_ID)
+                    .onDeleteCascade()
             )
             .execute();
 
         // Sqlite doesn't support creating indexes inline with create table and IF NOT EXISTS isn't a thing for indexes
-        var indexNames = create.meta().getIndexes().stream().map(org.jooq.Named::getName)
+        var indexNames = create
+            .meta()
+            .getIndexes()
+            .stream()
+            .map(org.jooq.Named::getName)
             .collect(Collectors.toCollection(ArrayList::new));
 
         if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_ACTIONID.getName())) {
-            create.createIndex(Indexes.PRISM_ACTIVITIES_ACTIONID)
-                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.ACTION_ID).execute();
+            create
+                .createIndex(Indexes.PRISM_ACTIVITIES_ACTIONID)
+                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.ACTION_ID)
+                .execute();
         }
 
         if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_CAUSEID.getName())) {
-            create.createIndex(Indexes.PRISM_ACTIVITIES_CAUSEID)
-                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.CAUSE_ID).execute();
+            create
+                .createIndex(Indexes.PRISM_ACTIVITIES_CAUSEID)
+                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.CAUSE_ID)
+                .execute();
         }
 
         if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_COORDINATE.getName())) {
-            create.createIndex(Indexes.PRISM_ACTIVITIES_COORDINATE)
-                .on(PRISM_ACTIVITIES,
-                    PRISM_ACTIVITIES.X, PRISM_ACTIVITIES.Y, PRISM_ACTIVITIES.Z, PRISM_ACTIVITIES.TIMESTAMP).execute();
+            create
+                .createIndex(Indexes.PRISM_ACTIVITIES_COORDINATE)
+                .on(
+                    PRISM_ACTIVITIES,
+                    PRISM_ACTIVITIES.X,
+                    PRISM_ACTIVITIES.Y,
+                    PRISM_ACTIVITIES.Z,
+                    PRISM_ACTIVITIES.TIMESTAMP
+                )
+                .execute();
         }
 
         if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_ENTITYTYPEID.getName())) {
-            create.createIndex(Indexes.PRISM_ACTIVITIES_ENTITYTYPEID)
-                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.ENTITY_TYPE_ID).execute();
+            create
+                .createIndex(Indexes.PRISM_ACTIVITIES_ENTITYTYPEID)
+                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.ENTITY_TYPE_ID)
+                .execute();
         }
 
         if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_ITEMID.getName())) {
-            create.createIndex(Indexes.PRISM_ACTIVITIES_ITEMID)
-                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.ITEM_ID).execute();
+            create
+                .createIndex(Indexes.PRISM_ACTIVITIES_ITEMID)
+                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.ITEM_ID)
+                .execute();
         }
 
         if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_BLOCKID.getName())) {
-            create.createIndex(Indexes.PRISM_ACTIVITIES_BLOCKID)
-                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.BLOCK_ID).execute();
+            create
+                .createIndex(Indexes.PRISM_ACTIVITIES_BLOCKID)
+                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.BLOCK_ID)
+                .execute();
         }
 
         if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_REPLACEDBLOCKID.getName())) {
-            create.createIndex(Indexes.PRISM_ACTIVITIES_REPLACEDBLOCKID)
-                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.BLOCK_ID).execute();
+            create
+                .createIndex(Indexes.PRISM_ACTIVITIES_REPLACEDBLOCKID)
+                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.BLOCK_ID)
+                .execute();
         }
 
         if (!indexNames.contains(Indexes.PRISM_ACTIVITIES_WORLDID.getName())) {
-            create.createIndex(Indexes.PRISM_ACTIVITIES_WORLDID)
-                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.WORLD_ID).execute();
+            create
+                .createIndex(Indexes.PRISM_ACTIVITIES_WORLDID)
+                .on(PRISM_ACTIVITIES, PRISM_ACTIVITIES.WORLD_ID)
+                .execute();
         }
     }
 
@@ -715,12 +766,20 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                     descriptor,
                     metadata,
                     customDataVersion.shortValue(),
-                    translationkey);
+                    translationkey
+                );
 
                 // Build the activity
                 try {
-                    var activity = new Activity(activityId, actionType.createAction(actionData),
-                        world, coordinate, cause, player, timestamp);
+                    var activity = new Activity(
+                        activityId,
+                        actionType.createAction(actionData),
+                        world,
+                        coordinate,
+                        cause,
+                        player,
+                        timestamp
+                    );
 
                     // Add to result list
                     activities.add(activity);
@@ -732,13 +791,34 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
 
                 // Build the action data
                 ActionData actionData = new ActionData(
-                    material, itemQuantity, itemData, blockNamespace, blockName, null, null, null,
-                    null, entityType, null, descriptor, metadata, (short) 0, translationkey);
+                    material,
+                    itemQuantity,
+                    itemData,
+                    blockNamespace,
+                    blockName,
+                    null,
+                    null,
+                    null,
+                    null,
+                    entityType,
+                    null,
+                    descriptor,
+                    metadata,
+                    (short) 0,
+                    translationkey
+                );
 
                 // Build the activity
                 try {
-                    var activity = new Activity(activityId, actionType.createAction(actionData),
-                        world, coordinate, cause, player, timestamp);
+                    var activity = new Activity(
+                        activityId,
+                        actionType.createAction(actionData),
+                        world,
+                        coordinate,
+                        cause,
+                        player,
+                        timestamp
+                    );
 
                     // Add to result list
                     activities.add(activity);
@@ -748,8 +828,22 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             } else {
                 // Build the action data
                 ActionData actionData = new ActionData(
-                    material, itemQuantity, itemData, blockNamespace, blockName, null, null, null,
-                    null, entityType, null, descriptor, metadata, (short) 0, translationkey);
+                    material,
+                    itemQuantity,
+                    itemData,
+                    blockNamespace,
+                    blockName,
+                    null,
+                    null,
+                    null,
+                    null,
+                    entityType,
+                    null,
+                    descriptor,
+                    metadata,
+                    (short) 0,
+                    translationkey
+                );
 
                 // Count
                 int count = r.getValue("groupcount", Integer.class);
@@ -757,7 +851,14 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                 // Build the grouped activity
                 try {
                     var activity = new GroupedActivity(
-                        actionType.createAction(actionData), world, coordinate, cause, player, timestamp, count);
+                        actionType.createAction(actionData),
+                        world,
+                        coordinate,
+                        cause,
+                        player,
+                        timestamp,
+                        count
+                    );
 
                     // Add to result list
                     activities.add(activity);
@@ -783,9 +884,12 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
     @Override
     public Pair<Integer, Integer> getActivitiesPkBounds() {
         Record2<UInteger, UInteger> result = create
-            .select(coalesce(min(PRISM_ACTIVITIES.ACTIVITY_ID), DSL.val(0)),
-                    coalesce(max(PRISM_ACTIVITIES.ACTIVITY_ID), DSL.val(0)))
-            .from(PRISM_ACTIVITIES).fetchOne();
+            .select(
+                coalesce(min(PRISM_ACTIVITIES.ACTIVITY_ID), DSL.val(0)),
+                coalesce(max(PRISM_ACTIVITIES.ACTIVITY_ID), DSL.val(0))
+            )
+            .from(PRISM_ACTIVITIES)
+            .fetchOne();
 
         int minPk = result != null ? result.value1().intValue() : 0;
         int maxPk = result != null ? result.value2().intValue() : 0;
@@ -799,7 +903,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             return;
         }
 
-        create.update(PRISM_ACTIVITIES)
+        create
+            .update(PRISM_ACTIVITIES)
             .set(PRISM_ACTIVITIES.REVERSED, reversed)
             .where(PRISM_ACTIVITIES.ACTIVITY_ID.in(activityIds))
             .execute();

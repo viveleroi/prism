@@ -27,7 +27,6 @@
 package org.prism_mc.prism.loader.services.dependencies;
 
 import com.google.common.collect.ImmutableSet;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -43,7 +42,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.dependencies.classpath.ClassPathAppender;
 import org.prism_mc.prism.loader.services.dependencies.loader.IsolatedClassLoader;
@@ -53,6 +51,7 @@ import org.prism_mc.prism.loader.services.logging.LoggingService;
 import org.prism_mc.prism.loader.services.scheduler.ThreadPoolScheduler;
 
 public class DependencyService {
+
     /**
      * The logging service.
      */
@@ -108,11 +107,12 @@ public class DependencyService {
      * @param threadPoolScheduler The scheduler adapter
      */
     public DependencyService(
-            LoggingService loggingService,
-            ConfigurationService configurationService,
-            Path dataPath,
-            ClassPathAppender classPathAppender,
-            ThreadPoolScheduler threadPoolScheduler) {
+        LoggingService loggingService,
+        ConfigurationService configurationService,
+        Path dataPath,
+        ClassPathAppender classPathAppender,
+        ThreadPoolScheduler threadPoolScheduler
+    ) {
         this.loggingService = loggingService;
         this.configurationService = configurationService;
         this.classPathAppender = classPathAppender;
@@ -155,8 +155,7 @@ public class DependencyService {
             return file;
         }
 
-        loggingService.info("Downloading dependency {0}...",
-            dependency.name().toLowerCase(Locale.ENGLISH));
+        loggingService.info("Downloading dependency {0}...", dependency.name().toLowerCase(Locale.ENGLISH));
 
         DependencyDownloadException lastError = null;
 
@@ -200,17 +199,21 @@ public class DependencyService {
         CountDownLatch latch = new CountDownLatch(dependencies.size());
 
         for (Dependency dependency : dependencies) {
-            threadPoolScheduler.async().execute(() -> {
-                try {
-                    loadDependency(dependency);
-                } catch (Exception e) {
-                    loggingService.warn("Unable to load dependency: {0}",
-                        dependency.name().toLowerCase(Locale.ENGLISH));
-                    loggingService.handleException(e);
-                } finally {
-                    latch.countDown();
-                }
-            });
+            threadPoolScheduler
+                .async()
+                .execute(() -> {
+                    try {
+                        loadDependency(dependency);
+                    } catch (Exception e) {
+                        loggingService.warn(
+                            "Unable to load dependency: {0}",
+                            dependency.name().toLowerCase(Locale.ENGLISH)
+                        );
+                        loggingService.handleException(e);
+                    } finally {
+                        latch.countDown();
+                    }
+                });
         }
 
         try {
@@ -264,7 +267,8 @@ public class DependencyService {
                 return classLoader;
             }
 
-            URL[] urls = set.stream()
+            URL[] urls = set
+                .stream()
                 .map(this.loaded::get)
                 .map(file -> {
                     try {

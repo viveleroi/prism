@@ -23,9 +23,7 @@ package org.prism_mc.prism.bukkit.utils;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
 import lombok.experimental.UtilityClass;
-
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
@@ -38,6 +36,7 @@ import org.bukkit.util.BoundingBox;
 
 @UtilityClass
 public class EntityUtils {
+
     /**
      * Moves entities up to ground level.
      *
@@ -71,9 +70,12 @@ public class EntityUtils {
                 entity.teleport(destination);
             } else {
                 // Teleport to the highest block
-                entity.teleport(world.getHighestBlockAt(
-                    entity.getLocation().getBlockX(), entity.getLocation().getBlockZ())
-                        .getRelative(BlockFace.UP).getLocation());
+                entity.teleport(
+                    world
+                        .getHighestBlockAt(entity.getLocation().getBlockX(), entity.getLocation().getBlockZ())
+                        .getRelative(BlockFace.UP)
+                        .getLocation()
+                );
             }
 
             totalMoved++;
@@ -89,9 +91,11 @@ public class EntityUtils {
      * @return True if entity type is hanging
      */
     private static boolean isHanging(EntityType entityType) {
-        return entityType.equals(EntityType.ITEM_FRAME)
-            || entityType.equals(EntityType.GLOW_ITEM_FRAME)
-            || entityType.equals(EntityType.PAINTING);
+        return (
+            entityType.equals(EntityType.ITEM_FRAME) ||
+            entityType.equals(EntityType.GLOW_ITEM_FRAME) ||
+            entityType.equals(EntityType.PAINTING)
+        );
     }
 
     /**
@@ -119,7 +123,10 @@ public class EntityUtils {
      * @return A list of matched entities
      */
     public static List<Entity> entitiesInRangeByClass(World world, BoundingBox boundingBox, Class<?>... entities) {
-        return world.getNearbyEntities(boundingBox).stream().filter(
-            e -> Arrays.stream(entities).anyMatch(clazz -> clazz.isInstance(e))).toList();
+        return world
+            .getNearbyEntities(boundingBox)
+            .stream()
+            .filter(e -> Arrays.stream(entities).anyMatch(clazz -> clazz.isInstance(e)))
+            .toList();
     }
 }

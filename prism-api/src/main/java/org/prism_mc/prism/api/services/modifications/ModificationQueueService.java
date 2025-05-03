@@ -22,7 +22,6 @@ package org.prism_mc.prism.api.services.modifications;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.prism_mc.prism.api.activities.Activity;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 
@@ -79,7 +78,8 @@ public interface ModificationQueueService {
         ModificationRuleset modificationRuleset,
         Object owner,
         ActivityQuery query,
-        List<Activity> modifications);
+        List<Activity> modifications
+    );
 
     /**
      * Create a new rollback queue.
@@ -94,7 +94,8 @@ public interface ModificationQueueService {
         ModificationRuleset modificationRuleset,
         Object owner,
         ActivityQuery query,
-        List<Activity> modifications);
+        List<Activity> modifications
+    );
 
     /**
      * Create a new restore queue.
@@ -109,7 +110,8 @@ public interface ModificationQueueService {
         ModificationRuleset modificationRuleset,
         Object owner,
         ActivityQuery query,
-        List<Activity> modifications);
+        List<Activity> modifications
+    );
 
     /**
      * Get a queue result for a given owner.

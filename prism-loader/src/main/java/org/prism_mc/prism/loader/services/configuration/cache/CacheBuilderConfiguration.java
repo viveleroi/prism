@@ -21,19 +21,21 @@
 package org.prism_mc.prism.loader.services.configuration.cache;
 
 import lombok.Getter;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
 public class CacheBuilderConfiguration {
+
     @Comment("Set a length of time (since last access) until entries are evicted.")
     private DurationConfiguration expiresAfterAccess;
 
-    @Comment("""
-            The max size of this cache.
-            Data will be evicted if the cache size reaches this limit.""")
+    @Comment(
+        """
+        The max size of this cache.
+        Data will be evicted if the cache size reaches this limit."""
+    )
     private long maxSize;
 
     /**

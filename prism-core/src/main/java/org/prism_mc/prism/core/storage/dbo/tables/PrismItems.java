@@ -20,8 +20,8 @@
 
 package org.prism_mc.prism.core.storage.dbo.tables;
 
-import org.prism_mc.prism.core.storage.dbo.Keys;
-import org.prism_mc.prism.core.storage.dbo.records.PrismItemsRecord;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ITEMS;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
@@ -38,12 +38,12 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
 import org.jooq.types.UShort;
-
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ITEMS;
+import org.prism_mc.prism.core.storage.dbo.Keys;
+import org.prism_mc.prism.core.storage.dbo.records.PrismItemsRecord;
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PrismItems extends TableImpl<PrismItemsRecord> {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -66,7 +66,8 @@ public class PrismItems extends TableImpl<PrismItemsRecord> {
         DSL.name("item_id"),
         SQLDataType.SMALLINTUNSIGNED.nullable(false).identity(true),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_items.material</code>.
@@ -75,16 +76,13 @@ public class PrismItems extends TableImpl<PrismItemsRecord> {
         DSL.name("material"),
         SQLDataType.VARCHAR(45),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_items.data</code>.
      */
-    public final TableField<PrismItemsRecord, String> DATA = createField(
-        DSL.name("data"),
-        SQLDataType.CLOB,
-        this,
-        "");
+    public final TableField<PrismItemsRecord, String> DATA = createField(DSL.name("data"), SQLDataType.CLOB, this, "");
 
     private PrismItems(String prefix, Name alias, Table<PrismItemsRecord> aliased) {
         this(prefix, alias, aliased, null);
@@ -92,7 +90,6 @@ public class PrismItems extends TableImpl<PrismItemsRecord> {
 
     private PrismItems(String prefix, Name alias, Table<PrismItemsRecord> aliased, Field<?>[] parameters) {
         super(alias, null, aliased, parameters, DSL.comment(""), TableOptions.table());
-
         this.prefix = prefix;
     }
 
@@ -115,7 +112,6 @@ public class PrismItems extends TableImpl<PrismItemsRecord> {
      */
     public <O extends Record> PrismItems(String prefix, Table<O> child, ForeignKey<O, PrismItemsRecord> key) {
         super(child, key, PRISM_ITEMS);
-
         this.prefix = prefix;
     }
 

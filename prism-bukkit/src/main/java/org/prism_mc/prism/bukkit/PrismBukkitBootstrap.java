@@ -27,6 +27,7 @@ import org.prism_mc.prism.loader.services.dependencies.loader.PrismBootstrap;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
 public class PrismBukkitBootstrap implements PrismBootstrap {
+
     /**
      * The loader plugin.
      */

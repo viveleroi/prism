@@ -21,7 +21,12 @@
 package org.prism_mc.prism.bukkit.listeners.sponge;
 
 import com.google.inject.Inject;
-
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.SpongeAbsorbEvent;
 import org.prism_mc.prism.bukkit.actions.BukkitBlockAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
@@ -30,14 +35,8 @@ import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
 import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.SpongeAbsorbEvent;
-
 public class SpongeAbsorbListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -47,9 +46,10 @@ public class SpongeAbsorbListener extends AbstractListener implements Listener {
      */
     @Inject
     public SpongeAbsorbListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 

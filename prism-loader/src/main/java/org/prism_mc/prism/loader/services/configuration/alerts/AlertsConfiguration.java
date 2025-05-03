@@ -21,13 +21,13 @@
 package org.prism_mc.prism.loader.services.configuration.alerts;
 
 import lombok.Getter;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
 public class AlertsConfiguration {
+
     @Comment("Do not alert for players in creative.")
     private final boolean ignoreCreative = true;
 

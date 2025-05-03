@@ -21,7 +21,6 @@
 package org.prism_mc.prism.api.services.wands;
 
 import java.util.UUID;
-
 import org.prism_mc.prism.api.util.Coordinate;
 
 public interface Wand {

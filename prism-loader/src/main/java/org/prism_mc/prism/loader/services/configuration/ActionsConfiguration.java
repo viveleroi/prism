@@ -21,13 +21,13 @@
 package org.prism_mc.prism.loader.services.configuration;
 
 import lombok.Getter;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
 public class ActionsConfiguration {
+
     @Comment("bed-enter is when a player or entity gets into bed.")
     private boolean bedEnter = false;
 
@@ -43,27 +43,33 @@ public class ActionsConfiguration {
     @Comment("block-harvest is when a player harvests a block without breaking it (sweet berries).")
     private boolean blockHarvest = true;
 
-    @Comment("""
-            block-ignite is when a block is lit on fire.
-            Note: Fire spreads to other blocks (block-spread). This records an initial ignition.""")
+    @Comment(
+        """
+        block-ignite is when a block is lit on fire.
+        Note: Fire spreads to other blocks (block-spread). This records an initial ignition."""
+    )
     private boolean blockIgnite = false;
 
     @Comment("block-place is when a player or entity places a block.")
     private boolean blockPlace = true;
 
-    @Comment("""
-            block-shift is when a piston pushes or pulls a block.
-            It's disabled by default because these are difficult to rollback
-            and can become extremely spammy due to redstone contraptions.
-            It WILL record dragon egg breaks even if block-shift is disabled.""")
+    @Comment(
+        """
+        block-shift is when a piston pushes or pulls a block.
+        It's disabled by default because these are difficult to rollback
+        and can become extremely spammy due to redstone contraptions.
+        It WILL record dragon egg breaks even if block-shift is disabled."""
+    )
     private boolean blockShift = false;
 
-    @Comment("""
-            block-spread is when a block spreads to a new block. Fire, mushrooms, etc.
-            This event can produce a lot of data. There's a lot of natural gen you may
-            wish to ignore. For example, vine/cave_vines all produce spread events
-            as they grow, and grass blocks as it's spreads to dirt.
-            A filter to ignore those is strongly recommended if you enable this.""")
+    @Comment(
+        """
+        block-spread is when a block spreads to a new block. Fire, mushrooms, etc.
+        This event can produce a lot of data. There's a lot of natural gen you may
+        wish to ignore. For example, vine/cave_vines all produce spread events
+        as they grow, and grass blocks as it's spreads to dirt.
+        A filter to ignore those is strongly recommended if you enable this."""
+    )
     private boolean blockSpread = false;
 
     @Comment("block-use is when a player uses a block (buttons, doors, anvil, enchanting table, etc).")
@@ -111,25 +117,31 @@ public class ActionsConfiguration {
     @Comment("firework-launch is when a player launches a firework rocket.")
     private boolean fireworkLaunch = false;
 
-    @Comment("""
-            fluid-flow tracks the flow of water and lava. Even when this is false,
-            prism will record blocks broken by either.
-            We very strongly recommend leaving this false and using
-            a drain command instead. This produces an insane amount of activity data.""")
+    @Comment(
+        """
+        fluid-flow tracks the flow of water and lava. Even when this is false,
+        prism will record blocks broken by either.
+        We very strongly recommend leaving this false and using
+        a drain command instead. This produces an insane amount of activity data."""
+    )
     private boolean fluidFlow = false;
 
-    @Comment("""
-            hanging-break is when an item frame or painting is broken/detached.
-            This event will operate if block-break is false, even for detachments.""")
+    @Comment(
+        """
+        hanging-break is when an item frame or painting is broken/detached.
+        This event will operate if block-break is false, even for detachments."""
+    )
     private boolean hangingBreak = true;
 
     @Comment("hanging-place is when an item frame or painting is hung up.")
     private boolean hangingPlace = true;
 
-    @Comment("""
-            inventory-open is when a player opens an inventory (chest, furnace, etc).
-            Item inserts or removes are tracked separately.
-            """)
+    @Comment(
+        """
+        inventory-open is when a player opens an inventory (chest, furnace, etc).
+        Item inserts or removes are tracked separately.
+        """
+    )
     private boolean inventoryOpen = false;
 
     @Comment("item-dispense is when a block dispenses an item.")

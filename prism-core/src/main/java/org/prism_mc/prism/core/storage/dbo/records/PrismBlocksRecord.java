@@ -20,6 +20,8 @@
 
 package org.prism_mc.prism.core.storage.dbo.records;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
+
 import org.jooq.Field;
 import org.jooq.Record1;
 import org.jooq.Record5;
@@ -27,11 +29,11 @@ import org.jooq.Row5;
 import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.types.UInteger;
 
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
-
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
-public class PrismBlocksRecord extends UpdatableRecordImpl<PrismBlocksRecord> implements
-        Record5<UInteger, String, String, String, String> {
+public class PrismBlocksRecord
+    extends UpdatableRecordImpl<PrismBlocksRecord>
+    implements Record5<UInteger, String, String, String, String> {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -253,8 +255,7 @@ public class PrismBlocksRecord extends UpdatableRecordImpl<PrismBlocksRecord> im
     }
 
     @Override
-    public PrismBlocksRecord values(
-            UInteger value1, String value2, String value3, String value4, String value5) {
+    public PrismBlocksRecord values(UInteger value1, String value2, String value3, String value4, String value5) {
         value1(value1);
         value2(value2);
         value3(value3);
@@ -279,7 +280,6 @@ public class PrismBlocksRecord extends UpdatableRecordImpl<PrismBlocksRecord> im
      */
     public PrismBlocksRecord(UInteger blockId, String ns, String name, String data, String translationKey) {
         super(PRISM_BLOCKS);
-
         setBlockId(blockId);
         setNs(ns);
         setName(name);

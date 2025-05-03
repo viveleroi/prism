@@ -21,5 +21,6 @@
 package org.prism_mc.prism.api.services.filters;
 
 public enum FilterBehavior {
-    ALLOW, IGNORE
+    ALLOW,
+    IGNORE,
 }

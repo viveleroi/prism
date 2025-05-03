@@ -20,6 +20,8 @@
 
 package org.prism_mc.prism.core.storage.dbo.records;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
+
 import org.jooq.Field;
 import org.jooq.Record1;
 import org.jooq.Record18;
@@ -29,10 +31,10 @@ import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
-
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
-public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRecord> implements
+public class PrismActivitiesRecord
+    extends UpdatableRecordImpl<PrismActivitiesRecord>
+    implements
         Record18<
             UInteger,
             UInteger,
@@ -51,7 +53,9 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
             String,
             UShort,
             String,
-            Boolean> {
+            Boolean
+        > {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -356,7 +360,8 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
         String,
         UShort,
         String,
-        Boolean> fieldsRow() {
+        Boolean
+    > fieldsRow() {
         return (Row18) super.fieldsRow();
     }
 
@@ -379,7 +384,8 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
         String,
         UShort,
         String,
-        Boolean> valuesRow() {
+        Boolean
+    > valuesRow() {
         return (Row18) super.valuesRow();
     }
 
@@ -763,24 +769,25 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
 
     @Override
     public PrismActivitiesRecord values(
-            UInteger value1,
-            UInteger value2,
-            UByte value3,
-            Integer value4,
-            Integer value5,
-            Integer value6,
-            UByte value7,
-            UShort value8,
-            UShort value9,
-            UInteger value10,
-            UInteger value11,
-            UShort value12,
-            UInteger value13,
-            String value14,
-            String value15,
-            UShort value16,
-            String value17,
-            Boolean value18) {
+        UInteger value1,
+        UInteger value2,
+        UByte value3,
+        Integer value4,
+        Integer value5,
+        Integer value6,
+        UByte value7,
+        UShort value8,
+        UShort value9,
+        UInteger value10,
+        UInteger value11,
+        UShort value12,
+        UInteger value13,
+        String value14,
+        String value15,
+        UShort value16,
+        String value17,
+        Boolean value18
+    ) {
         value1(value1);
         value2(value2);
         value3(value3);
@@ -817,26 +824,26 @@ public class PrismActivitiesRecord extends UpdatableRecordImpl<PrismActivitiesRe
      * Create a detached, initialised PrismActivitiesRecord.
      */
     public PrismActivitiesRecord(
-            UInteger activityId,
-            UInteger timestamp,
-            UByte worldId,
-            Integer x,
-            Integer y,
-            Integer z,
-            UByte actionId,
-            UShort itemId,
-            UShort itemQuantity,
-            UInteger blockId,
-            UInteger replacedBlockId,
-            UShort entityTypeId,
-            UInteger causeId,
-            String descriptor,
-            String metadata,
-            UShort serializerVersion,
-            String serializedData,
-            Boolean reversed) {
+        UInteger activityId,
+        UInteger timestamp,
+        UByte worldId,
+        Integer x,
+        Integer y,
+        Integer z,
+        UByte actionId,
+        UShort itemId,
+        UShort itemQuantity,
+        UInteger blockId,
+        UInteger replacedBlockId,
+        UShort entityTypeId,
+        UInteger causeId,
+        String descriptor,
+        String metadata,
+        UShort serializerVersion,
+        String serializedData,
+        Boolean reversed
+    ) {
         super(PRISM_ACTIVITIES);
-
         setActivityId(activityId);
         setTimestamp(timestamp);
         setWorldId(worldId);

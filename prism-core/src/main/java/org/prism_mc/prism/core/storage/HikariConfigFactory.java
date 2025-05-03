@@ -21,17 +21,15 @@
 package org.prism_mc.prism.core.storage;
 
 import com.zaxxer.hikari.HikariConfig;
-
 import java.io.File;
-
 import lombok.experimental.UtilityClass;
-
 import org.prism_mc.prism.loader.services.configuration.storage.SqlDataSourceConfiguration;
 import org.prism_mc.prism.loader.services.configuration.storage.StorageConfiguration;
 import org.prism_mc.prism.loader.storage.StorageType;
 
 @UtilityClass
 public class HikariConfigFactory {
+
     /**
      * Create a hikari configuration for H2 databases.
      *
@@ -41,9 +39,13 @@ public class HikariConfigFactory {
     public static HikariConfig h2(StorageConfiguration storageConfiguration, File h2File) {
         HikariConfig hikariConfig = createSharedConfig(storageConfiguration);
 
-        String jdbcUrl = "jdbc:" + (storageConfiguration.spy() ? "p6spy:" : "") + "h2:file:"
-            + h2File.getAbsolutePath() + ";MODE=mysql;"
-            + "DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;";
+        String jdbcUrl =
+            "jdbc:" +
+            (storageConfiguration.spy() ? "p6spy:" : "") +
+            "h2:file:" +
+            h2File.getAbsolutePath() +
+            ";MODE=mysql;" +
+            "DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;";
 
         if (storageConfiguration.spy()) {
             hikariConfig.setDriverClassName("com.p6spy.engine.spy.P6SpyDriver");
@@ -164,8 +166,8 @@ public class HikariConfigFactory {
         String database = storageConfiguration.postgres().database();
         boolean useSpy = storageConfiguration.spy();
 
-        String jdbcUrl = "jdbc:" + (useSpy ? "p6spy:" : "")
-            + String.format("postgresql://%s:%s/%s", host, port, database);
+        String jdbcUrl =
+            "jdbc:" + (useSpy ? "p6spy:" : "") + String.format("postgresql://%s:%s/%s", host, port, database);
 
         if (storageConfiguration.spy()) {
             hikariConfig.setDriverClassName("com.p6spy.engine.spy.P6SpyDriver");
@@ -188,8 +190,8 @@ public class HikariConfigFactory {
     public static HikariConfig sqlite(StorageConfiguration storageConfiguration, File sqliteFile) {
         HikariConfig hikariConfig = createSharedConfig(storageConfiguration);
 
-        String jdbcUrl = "jdbc:" + (storageConfiguration.spy() ? "p6spy:" : "") + "sqlite:file:"
-            + sqliteFile.getAbsolutePath();
+        String jdbcUrl =
+            "jdbc:" + (storageConfiguration.spy() ? "p6spy:" : "") + "sqlite:file:" + sqliteFile.getAbsolutePath();
 
         if (storageConfiguration.spy()) {
             hikariConfig.setDriverClassName("com.p6spy.engine.spy.P6SpyDriver");

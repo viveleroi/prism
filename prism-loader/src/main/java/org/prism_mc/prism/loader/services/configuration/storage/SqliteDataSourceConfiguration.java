@@ -24,6 +24,7 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
 public class SqliteDataSourceConfiguration extends DataSourceConfiguration {
+
     /**
      * Sqlite has no schema concept.
      *

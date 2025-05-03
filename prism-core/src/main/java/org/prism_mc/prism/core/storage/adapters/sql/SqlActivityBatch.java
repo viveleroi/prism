@@ -20,11 +20,24 @@
 
 package org.prism_mc.prism.core.storage.adapters.sql;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ITEMS;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
+import org.jetbrains.annotations.Nullable;
+import org.jooq.DSLContext;
+import org.jooq.types.UByte;
+import org.jooq.types.UInteger;
+import org.jooq.types.UShort;
 import org.prism_mc.prism.api.actions.BlockAction;
 import org.prism_mc.prism.api.actions.CustomData;
 import org.prism_mc.prism.api.actions.EntityAction;
@@ -35,22 +48,8 @@ import org.prism_mc.prism.core.services.cache.CacheService;
 import org.prism_mc.prism.core.storage.dbo.records.PrismActivitiesRecord;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.jetbrains.annotations.Nullable;
-import org.jooq.DSLContext;
-import org.jooq.types.UByte;
-import org.jooq.types.UInteger;
-import org.jooq.types.UShort;
-
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ITEMS;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
-
 public class SqlActivityBatch implements ActivityBatch {
+
     /**
      * The logging service.
      */
@@ -85,10 +84,11 @@ public class SqlActivityBatch implements ActivityBatch {
      * @param cacheService The cache service
      */
     public SqlActivityBatch(
-            LoggingService loggingService,
-            DSLContext create,
-            short serializerVersion,
-            CacheService cacheService) {
+        LoggingService loggingService,
+        DSLContext create,
+        short serializerVersion,
+        CacheService cacheService
+    ) {
         this.loggingService = loggingService;
         this.create = create;
         this.serializerVersion = serializerVersion;
@@ -114,31 +114,41 @@ public class SqlActivityBatch implements ActivityBatch {
 
         // Set the entity relationship
         if (activity.action() instanceof EntityAction entityAction) {
-            record.setEntityTypeId(UShort.valueOf(
-                getOrCreateEntityTypeId(entityAction.serializeEntityType())));
+            record.setEntityTypeId(UShort.valueOf(getOrCreateEntityTypeId(entityAction.serializeEntityType())));
         }
 
         // Set the item relationship
         if (activity.action() instanceof ItemAction itemAction) {
-            record.setItemId(UShort.valueOf(
-                getOrCreateItemId(itemAction.serializeMaterial(), itemAction.serializeItemData())));
+            record.setItemId(
+                UShort.valueOf(getOrCreateItemId(itemAction.serializeMaterial(), itemAction.serializeItemData()))
+            );
             record.setItemQuantity(UShort.valueOf(itemAction.quantity()));
         }
 
         // Set the block relationship
         if (activity.action() instanceof BlockAction blockAction) {
-            record.setBlockId(UInteger.valueOf(getOrCreateBlockId(
-                blockAction.blockNamespace(),
-                blockAction.blockName(),
-                blockAction.serializeBlockData(),
-                blockAction.translationKey())));
+            record.setBlockId(
+                UInteger.valueOf(
+                    getOrCreateBlockId(
+                        blockAction.blockNamespace(),
+                        blockAction.blockName(),
+                        blockAction.serializeBlockData(),
+                        blockAction.translationKey()
+                    )
+                )
+            );
 
             if (blockAction.replacedBlockName() != null) {
-                record.setReplacedBlockId(UInteger.valueOf(getOrCreateBlockId(
-                    blockAction.replacedBlockNamespace(),
-                    blockAction.replacedBlockName(),
-                    blockAction.serializeReplacedBlockData(),
-                    blockAction.replacedBlockTranslationKey())));
+                record.setReplacedBlockId(
+                    UInteger.valueOf(
+                        getOrCreateBlockId(
+                            blockAction.replacedBlockNamespace(),
+                            blockAction.replacedBlockName(),
+                            blockAction.serializeReplacedBlockData(),
+                            blockAction.replacedBlockTranslationKey()
+                        )
+                    )
+                );
             }
         }
 
@@ -212,7 +222,8 @@ public class SqlActivityBatch implements ActivityBatch {
                 primaryKey = bytePk.byteValue();
             } else {
                 throw new SQLException(
-                    String.format("Failed to get or create an action record. Action: %s", actionKey));
+                    String.format("Failed to get or create an action record. Action: %s", actionKey)
+                );
             }
         }
 
@@ -228,8 +239,8 @@ public class SqlActivityBatch implements ActivityBatch {
      * @return The primary key
      * @throws SQLException The database exception
      */
-    private int getOrCreateBlockId(
-            String namespace, String name, String blockData, String translationKey) throws SQLException {
+    private int getOrCreateBlockId(String namespace, String name, String blockData, String translationKey)
+        throws SQLException {
         String blockKey = namespace + ":" + name + (blockData == null ? "" : blockData);
         Integer blockPk = cacheService.blockDataPkMap().getIfPresent(blockKey);
         if (blockPk != null) {
@@ -242,9 +253,7 @@ public class SqlActivityBatch implements ActivityBatch {
         UInteger intPk = create
             .select(PRISM_BLOCKS.BLOCK_ID)
             .from(PRISM_BLOCKS)
-            .where(PRISM_BLOCKS.NS.equal(namespace),
-                PRISM_BLOCKS.NAME.equal(name),
-                PRISM_BLOCKS.DATA.equal(blockData))
+            .where(PRISM_BLOCKS.NS.equal(namespace), PRISM_BLOCKS.NAME.equal(name), PRISM_BLOCKS.DATA.equal(blockData))
             .fetchOne(PRISM_BLOCKS.BLOCK_ID);
 
         if (intPk != null) {
@@ -252,8 +261,13 @@ public class SqlActivityBatch implements ActivityBatch {
         } else {
             // Create the record
             intPk = create
-                .insertInto(PRISM_BLOCKS,
-                    PRISM_BLOCKS.NS, PRISM_BLOCKS.NAME, PRISM_BLOCKS.DATA, PRISM_BLOCKS.TRANSLATION_KEY)
+                .insertInto(
+                    PRISM_BLOCKS,
+                    PRISM_BLOCKS.NS,
+                    PRISM_BLOCKS.NAME,
+                    PRISM_BLOCKS.DATA,
+                    PRISM_BLOCKS.TRANSLATION_KEY
+                )
                 .values(namespace, name, blockData, translationKey)
                 .returningResult(PRISM_BLOCKS.BLOCK_ID)
                 .fetchOne(PRISM_BLOCKS.BLOCK_ID);
@@ -262,8 +276,8 @@ public class SqlActivityBatch implements ActivityBatch {
                 primaryKey = intPk.intValue();
             } else {
                 throw new SQLException(
-                    String.format("Failed to get or create a block record. Block: %s:%s %s",
-                        namespace, name, blockData));
+                    String.format("Failed to get or create a block record. Block: %s:%s %s", namespace, name, blockData)
+                );
             }
         }
 
@@ -286,7 +300,7 @@ public class SqlActivityBatch implements ActivityBatch {
             if (playerCausePk != null) {
                 return playerCausePk;
             }
-        }  else if (cause != null) {
+        } else if (cause != null) {
             Long causePk = cacheService.namedCausePkMap().getIfPresent(cause);
             if (causePk != null) {
                 return causePk;
@@ -327,7 +341,8 @@ public class SqlActivityBatch implements ActivityBatch {
                 primaryKey = intPk.longValue();
             } else {
                 throw new SQLException(
-                    String.format("Failed to get or create a cause record. Cause: %s, %d", cause, playerId));
+                    String.format("Failed to get or create a cause record. Cause: %s, %d", cause, playerId)
+                );
             }
         }
 
@@ -378,7 +393,8 @@ public class SqlActivityBatch implements ActivityBatch {
                 primaryKey = shortPk.intValue();
             } else {
                 throw new SQLException(
-                    String.format("Failed to get or create a entity type record. Material: %s", entityType));
+                    String.format("Failed to get or create a entity type record. Material: %s", entityType)
+                );
             }
         }
 
@@ -423,8 +439,7 @@ public class SqlActivityBatch implements ActivityBatch {
             if (shortPk != null) {
                 primaryKey = shortPk.intValue();
             } else {
-                throw new SQLException(
-                    String.format("Failed to get or create an item record. Material: %s", material));
+                throw new SQLException(String.format("Failed to get or create an item record. Material: %s", material));
             }
         }
 
@@ -462,7 +477,8 @@ public class SqlActivityBatch implements ActivityBatch {
 
         // Get the primary key.
         // Every but postgres needs a second query to get the pk, so we just do this for everyone.
-        var result = create.select(PRISM_PLAYERS.PLAYER_ID)
+        var result = create
+            .select(PRISM_PLAYERS.PLAYER_ID)
             .from(PRISM_PLAYERS)
             .where(PRISM_PLAYERS.PLAYER_UUID.eq(playerUuid.toString()))
             .fetchOne();
@@ -470,8 +486,7 @@ public class SqlActivityBatch implements ActivityBatch {
         if (result != null) {
             primaryKey = result.value1().longValue();
         } else {
-            throw new SQLException(
-                String.format("Failed to get or create a player record. Player: %s", playerUuid));
+            throw new SQLException(String.format("Failed to get or create a player record. Player: %s", playerUuid));
         }
 
         cacheService.playerUuidPkMap().put(playerUuid, primaryKey);
@@ -519,8 +534,7 @@ public class SqlActivityBatch implements ActivityBatch {
             if (bytePk != null) {
                 primaryKey = bytePk.byteValue();
             } else {
-                throw new SQLException(
-                    String.format("Failed to get or create a world record. World: %s", worldUuid));
+                throw new SQLException(String.format("Failed to get or create a world record. World: %s", worldUuid));
             }
         }
 

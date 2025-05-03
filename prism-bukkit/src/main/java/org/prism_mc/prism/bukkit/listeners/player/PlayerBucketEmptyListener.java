@@ -21,7 +21,15 @@
 package org.prism_mc.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
-
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.inventory.ItemStack;
 import org.prism_mc.prism.bukkit.actions.BukkitBlockAction;
 import org.prism_mc.prism.bukkit.actions.BukkitItemStackAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
@@ -33,17 +41,8 @@ import org.prism_mc.prism.bukkit.utils.BlockUtils;
 import org.prism_mc.prism.bukkit.utils.TagLib;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Waterlogged;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.inventory.ItemStack;
-
 public class PlayerBucketEmptyListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -53,9 +52,10 @@ public class PlayerBucketEmptyListener extends AbstractListener implements Liste
      */
     @Inject
     public PlayerBucketEmptyListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -73,8 +73,7 @@ public class PlayerBucketEmptyListener extends AbstractListener implements Liste
             return;
         }
 
-        var action = new BukkitItemStackAction(
-            BukkitActionTypeRegistry.BUCKET_EMPTY, new ItemStack(event.getBucket()));
+        var action = new BukkitItemStackAction(BukkitActionTypeRegistry.BUCKET_EMPTY, new ItemStack(event.getBucket()));
 
         var bucketEmptyActivity = BukkitActivity.builder()
             .action(action)
@@ -95,8 +94,10 @@ public class PlayerBucketEmptyListener extends AbstractListener implements Liste
         }
 
         // Stop if the bucket is water and the target is a "water-like" block
-        if (event.getBucket().equals(Material.WATER_BUCKET)
-                && TagLib.WATER_BLOCKS.isTagged(event.getBlockClicked().getType())) {
+        if (
+            event.getBucket().equals(Material.WATER_BUCKET) &&
+            TagLib.WATER_BLOCKS.isTagged(event.getBlockClicked().getType())
+        ) {
             return;
         }
 
@@ -120,7 +121,12 @@ public class PlayerBucketEmptyListener extends AbstractListener implements Liste
         }
 
         var blockPlaceAction = new BukkitBlockAction(
-            BukkitActionTypeRegistry.BLOCK_PLACE, newData, translationKey, oldData, event.getBlock().translationKey());
+            BukkitActionTypeRegistry.BLOCK_PLACE,
+            newData,
+            translationKey,
+            oldData,
+            event.getBlock().translationKey()
+        );
 
         var activity = BukkitActivity.builder()
             .action(blockPlaceAction)

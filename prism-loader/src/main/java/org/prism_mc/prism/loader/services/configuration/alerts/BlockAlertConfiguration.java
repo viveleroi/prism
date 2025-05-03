@@ -21,14 +21,13 @@
 package org.prism_mc.prism.loader.services.configuration.alerts;
 
 import java.util.List;
-
 import lombok.Getter;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
 @Getter
 public class BlockAlertConfiguration extends AlertConfiguration {
+
     /**
      * Block tags.
      */
@@ -56,10 +55,8 @@ public class BlockAlertConfiguration extends AlertConfiguration {
      * @param blockTags The block tags
      * @param hexColor The hex color
      */
-    public BlockAlertConfiguration(
-            List<String> materials, List<String> blockTags, String hexColor) {
+    public BlockAlertConfiguration(List<String> materials, List<String> blockTags, String hexColor) {
         super(materials, hexColor);
-
         this.blockTags = blockTags;
     }
 }

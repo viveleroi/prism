@@ -21,7 +21,11 @@
 package org.prism_mc.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
-
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueService;
 import org.prism_mc.prism.bukkit.actions.GenericBukkitAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
@@ -33,13 +37,8 @@ import org.prism_mc.prism.bukkit.services.wands.WandService;
 import org.prism_mc.prism.core.services.cache.CacheService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
-
 public class PlayerQuitListener extends AbstractListener implements Listener {
+
     /**
      * The wand service.
      */
@@ -66,14 +65,14 @@ public class PlayerQuitListener extends AbstractListener implements Listener {
      */
     @Inject
     public PlayerQuitListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService,
-            WandService wandService,
-            ModificationQueueService modificationQueueService,
-            CacheService cacheService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService,
+        WandService wandService,
+        ModificationQueueService modificationQueueService,
+        CacheService cacheService
+    ) {
         super(configurationService, expectationService, recordingService);
-
         this.wandService = wandService;
         this.modificationQueueService = modificationQueueService;
         this.cacheService = cacheService;

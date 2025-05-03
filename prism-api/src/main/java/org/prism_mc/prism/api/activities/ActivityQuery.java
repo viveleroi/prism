@@ -25,14 +25,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import lombok.experimental.Tolerate;
-
 import org.prism_mc.prism.api.actions.types.ActionType;
 import org.prism_mc.prism.api.util.Coordinate;
 
@@ -40,6 +38,7 @@ import org.prism_mc.prism.api.util.Coordinate;
 @Getter
 @ToString
 public class ActivityQuery {
+
     /**
      * The action type keys.
      */
@@ -166,7 +165,8 @@ public class ActivityQuery {
      * Describe the sort directions.
      */
     public enum Sort {
-        ASCENDING, DESCENDING
+        ASCENDING,
+        DESCENDING,
     }
 
     /**
@@ -196,8 +196,8 @@ public class ActivityQuery {
         return all;
     }
 
-    public abstract static class ActivityQueryBuilder
-            <C extends ActivityQuery, B extends ActivityQueryBuilder<C, B>> {
+    public abstract static class ActivityQueryBuilder<C extends ActivityQuery, B extends ActivityQueryBuilder<C, B>> {
+
         /**
          * Add a single activity id.
          *
@@ -278,12 +278,14 @@ public class ActivityQuery {
             Coordinate minCoordinate = new Coordinate(
                 referenceCoordinate.intX() - radius,
                 referenceCoordinate.intY() - radius,
-                referenceCoordinate.intZ() - radius);
+                referenceCoordinate.intZ() - radius
+            );
 
             Coordinate maxCoordinate = new Coordinate(
                 referenceCoordinate.intX() + radius,
                 referenceCoordinate.intY() + radius,
-                referenceCoordinate.intZ() + radius);
+                referenceCoordinate.intZ() + radius
+            );
 
             this.boundingCoordinates(minCoordinate, maxCoordinate);
 

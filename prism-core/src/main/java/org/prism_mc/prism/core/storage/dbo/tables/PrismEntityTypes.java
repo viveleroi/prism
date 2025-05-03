@@ -20,12 +20,11 @@
 
 package org.prism_mc.prism.core.storage.dbo.tables;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
+
 import java.util.Arrays;
 import java.util.List;
-
-import org.prism_mc.prism.core.storage.dbo.Keys;
-import org.prism_mc.prism.core.storage.dbo.records.PrismEntityTypesRecord;
-
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Identity;
@@ -41,12 +40,12 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
 import org.jooq.types.UShort;
-
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
+import org.prism_mc.prism.core.storage.dbo.Keys;
+import org.prism_mc.prism.core.storage.dbo.records.PrismEntityTypesRecord;
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PrismEntityTypes extends TableImpl<PrismEntityTypesRecord> {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -69,7 +68,8 @@ public class PrismEntityTypes extends TableImpl<PrismEntityTypesRecord> {
         DSL.name("entity_type_id"),
         SQLDataType.SMALLINTUNSIGNED.nullable(false).identity(true),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_entity_types.entity_type</code>.
@@ -78,7 +78,8 @@ public class PrismEntityTypes extends TableImpl<PrismEntityTypesRecord> {
         DSL.name("entity_type"),
         SQLDataType.VARCHAR(45),
         this,
-        "");
+        ""
+    );
 
     private PrismEntityTypes(String prefix, Name alias, Table<PrismEntityTypesRecord> aliased) {
         this(prefix, alias, aliased, null);
@@ -86,7 +87,6 @@ public class PrismEntityTypes extends TableImpl<PrismEntityTypesRecord> {
 
     private PrismEntityTypes(String prefix, Name alias, Table<PrismEntityTypesRecord> aliased, Field<?>[] parameters) {
         super(alias, null, aliased, parameters, DSL.comment(""), TableOptions.table());
-
         this.prefix = prefix;
     }
 
@@ -108,9 +108,11 @@ public class PrismEntityTypes extends TableImpl<PrismEntityTypesRecord> {
      * @param <O> The record type
      */
     public <O extends Record> PrismEntityTypes(
-            String prefix, Table<O> child, ForeignKey<O, PrismEntityTypesRecord> key) {
+        String prefix,
+        Table<O> child,
+        ForeignKey<O, PrismEntityTypesRecord> key
+    ) {
         super(child, key, PRISM_ENTITY_TYPES);
-
         this.prefix = prefix;
     }
 

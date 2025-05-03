@@ -27,7 +27,6 @@
 package org.prism_mc.prism.loader.services.dependencies;
 
 import com.google.common.collect.ImmutableList;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -36,28 +35,12 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-
 import org.prism_mc.prism.loader.services.dependencies.relocation.Relocation;
 
 public enum Dependency {
-    ASM(
-        "org.ow2.asm",
-        "asm",
-        "9.8",
-        "h26raoPa7K1cpn65/KuwY8l7WuuM8fynqYns3hdSIFE="
-    ),
-    ASM_COMMONS(
-        "org.ow2.asm",
-        "asm-commons",
-        "9.8",
-        "MwGhwctMWfzFKSZI2sHXxa7UwPBn376IhzuM3+d0BPQ="
-    ),
-    JAR_RELOCATOR(
-        "me.lucko",
-        "jar-relocator",
-        "1.7",
-        "b30RhOF6kHiHl+O5suNLh/+eAr1iOFEFLXhwkHHDu4I="
-    ),
+    ASM("org.ow2.asm", "asm", "9.8", "h26raoPa7K1cpn65/KuwY8l7WuuM8fynqYns3hdSIFE="),
+    ASM_COMMONS("org.ow2.asm", "asm-commons", "9.8", "MwGhwctMWfzFKSZI2sHXxa7UwPBn376IhzuM3+d0BPQ="),
+    JAR_RELOCATOR("me.lucko", "jar-relocator", "1.7", "b30RhOF6kHiHl+O5suNLh/+eAr1iOFEFLXhwkHHDu4I="),
 
     AOPALLIANCE(
         "aopalliance",
@@ -289,36 +272,47 @@ public enum Dependency {
     }
 
     Dependency(String groupId, String artifactId, String version, String checksum, Relocation... relocations) {
-        this(groupId, artifactId, version, checksum, null,
+        this(
+            groupId,
+            artifactId,
+            version,
+            checksum,
+            null,
             EnumSet.of(
                 DependencyRepository.PRISM_MIRROR,
                 DependencyRepository.LUCK_MIRROR,
-                DependencyRepository.MAVEN_CENTRAL), relocations);
+                DependencyRepository.MAVEN_CENTRAL
+            ),
+            relocations
+        );
     }
 
     Dependency(
-            String groupId,
-            String artifactId,
-            String version,
-            String checksum,
-            Set<DependencyRepository> repositories,
-            Relocation... relocations) {
+        String groupId,
+        String artifactId,
+        String version,
+        String checksum,
+        Set<DependencyRepository> repositories,
+        Relocation... relocations
+    ) {
         this(groupId, artifactId, version, checksum, null, repositories, relocations);
     }
 
     Dependency(
-            String groupId,
-            String artifactId,
-            String version,
-            String checksum,
-            String jarPath,
-            Set<DependencyRepository> repositories,
-            Relocation... relocations) {
+        String groupId,
+        String artifactId,
+        String version,
+        String checksum,
+        String jarPath,
+        Set<DependencyRepository> repositories,
+        Relocation... relocations
+    ) {
         if (jarPath == null) {
             jarPath = String.format(MAVEN_JAR_FORMAT, rewriteEscaping(artifactId), version);
         }
 
-        this.mavenRepoPath = String.format(MAVEN_PATH_FORMAT,
+        this.mavenRepoPath = String.format(
+            MAVEN_PATH_FORMAT,
             rewriteEscaping(groupId).replace(".", "/"),
             rewriteEscaping(artifactId),
             version,

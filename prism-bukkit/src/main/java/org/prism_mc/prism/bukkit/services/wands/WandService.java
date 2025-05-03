@@ -23,19 +23,17 @@ package org.prism_mc.prism.bukkit.services.wands;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
+import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.services.wands.Wand;
 import org.prism_mc.prism.api.services.wands.WandMode;
 import org.prism_mc.prism.bukkit.services.messages.MessageService;
 
-import org.bukkit.entity.Player;
-
 @Singleton
 public class WandService {
+
     /**
      * Cache all players with active wands.
      */

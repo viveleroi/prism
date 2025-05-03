@@ -21,7 +21,13 @@
 package org.prism_mc.prism.bukkit.listeners.player;
 
 import com.google.inject.Inject;
-
+import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.prism_mc.prism.bukkit.actions.BukkitBlockAction;
 import org.prism_mc.prism.bukkit.actions.BukkitItemStackAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
@@ -31,15 +37,8 @@ import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
 import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-import org.bukkit.Material;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Waterlogged;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerBucketFillEvent;
-
 public class PlayerBucketFillListener extends AbstractListener implements Listener {
+
     /**
      * Construct the listener.
      *
@@ -49,9 +48,10 @@ public class PlayerBucketFillListener extends AbstractListener implements Listen
      */
     @Inject
     public PlayerBucketFillListener(
-            ConfigurationService configurationService,
-            ExpectationService expectationService,
-            BukkitRecordingService recordingService) {
+        ConfigurationService configurationService,
+        ExpectationService expectationService,
+        BukkitRecordingService recordingService
+    ) {
         super(configurationService, expectationService, recordingService);
     }
 
@@ -91,7 +91,12 @@ public class PlayerBucketFillListener extends AbstractListener implements Listen
         }
 
         var blockPlaceAction = new BukkitBlockAction(
-            BukkitActionTypeRegistry.BLOCK_BREAK, blockData, event.getBlock().translationKey(), null, null);
+            BukkitActionTypeRegistry.BLOCK_BREAK,
+            blockData,
+            event.getBlock().translationKey(),
+            null,
+            null
+        );
 
         var blockPlaceActivity = BukkitActivity.builder()
             .action(blockPlaceAction)

@@ -21,7 +21,6 @@
 package org.prism_mc.prism.bukkit.services.recording;
 
 import com.google.inject.Inject;
-
 import org.prism_mc.prism.api.services.recording.RecordingService;
 import org.prism_mc.prism.api.storage.ActivityBatch;
 import org.prism_mc.prism.api.storage.StorageAdapter;
@@ -29,6 +28,7 @@ import org.prism_mc.prism.loader.services.configuration.storage.StorageConfigura
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
 public class RecordingTask implements Runnable {
+
     /**
      * The storage config.
      */
@@ -59,10 +59,11 @@ public class RecordingTask implements Runnable {
      */
     @Inject
     public RecordingTask(
-            StorageConfiguration storageConfig,
-            StorageAdapter storageAdapter,
-            RecordingService recordingService,
-            LoggingService loggingService) {
+        StorageConfiguration storageConfig,
+        StorageAdapter storageAdapter,
+        RecordingService recordingService,
+        LoggingService loggingService
+    ) {
         this.storageConfig = storageConfig;
         this.storageAdapter = storageAdapter;
         this.recordingService = recordingService;
@@ -75,7 +76,8 @@ public class RecordingTask implements Runnable {
 
         // Schedule the next recording
         recordingService.queueNextRecording(
-            new RecordingTask(storageConfig, storageAdapter, recordingService, loggingService));
+            new RecordingTask(storageConfig, storageAdapter, recordingService, loggingService)
+        );
     }
 
     /**
@@ -96,8 +98,10 @@ public class RecordingTask implements Runnable {
 
                     // Batch max exceeded, break
                     if (batchCount > batchMax) {
-                        loggingService.debug("Recorder: Batch max exceeded, running insert. Queue remaining: {0}",
-                            recordingService.queue().size());
+                        loggingService.debug(
+                            "Recorder: Batch max exceeded, running insert. Queue remaining: {0}",
+                            recordingService.queue().size()
+                        );
 
                         break;
                     }

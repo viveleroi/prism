@@ -24,25 +24,22 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 import de.tr7zw.nbtapi.iface.ReadableNBT;
-
 import java.util.function.Consumer;
-
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntitySnapshot;
 import org.prism_mc.prism.bukkit.utils.StringUtils;
 import org.prism_mc.prism.core.services.cache.CacheService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.configuration.cache.CacheConfiguration;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntitySnapshot;
-
 @Singleton
 public class NbtService {
+
     /**
      * Cache of default entity nbt data.
      */
@@ -65,7 +62,7 @@ public class NbtService {
         "Motion",
         "OnGround",
         "WorldUUIDLeast",
-        "WorldUUIDMost"
+        "WorldUUIDMost",
     };
 
     /**
@@ -77,17 +74,20 @@ public class NbtService {
      */
     @Inject
     public NbtService(
-            CacheService cacheService,
-            ConfigurationService configurationService,
-            LoggingService loggingService) {
+        CacheService cacheService,
+        ConfigurationService configurationService,
+        LoggingService loggingService
+    ) {
         CacheConfiguration cacheConfiguration = configurationService.prismConfig().cache();
 
         this.loggingService = loggingService;
 
         var cacheBuilder = Caffeine.newBuilder()
             .maximumSize(cacheConfiguration.nbtEntityDefaults().maxSize())
-            .expireAfterAccess(cacheConfiguration.nbtEntityDefaults().expiresAfterAccess().duration(),
-                cacheConfiguration.nbtEntityDefaults().expiresAfterAccess().timeUnit())
+            .expireAfterAccess(
+                cacheConfiguration.nbtEntityDefaults().expiresAfterAccess().duration(),
+                cacheConfiguration.nbtEntityDefaults().expiresAfterAccess().timeUnit()
+            )
             .evictionListener((key, value, cause) -> {
                 String msg = "Evicting entity nbt default from cache: Key: %s, Value: %s, Removal Cause: %s";
                 loggingService.debug(String.format(msg, key, value, cause));
@@ -130,8 +130,11 @@ public class NbtService {
                 // Cache the default nbt for this entity
                 entityNbtDefaults.put(key, cacheNbt);
 
-                loggingService.debug("Caching default entity nbt for {0}. Byte length: {1}",
-                    key, StringUtils.getUtf8Mb4Length(defaultNbt.toString()));
+                loggingService.debug(
+                    "Caching default entity nbt for {0}. Byte length: {1}",
+                    key,
+                    StringUtils.getUtf8Mb4Length(defaultNbt.toString())
+                );
 
                 trimEntityNbt(entity, defaultNbt, consumer);
             });
@@ -162,8 +165,12 @@ public class NbtService {
             consumer.accept(filtered);
 
             var filteredByteLength = StringUtils.getUtf8Mb4Length(filtered.toString());
-            loggingService.debug("Filtered entity nbt. Original Byte length: {1} Filtered: {2}",
-                key, originalByteLength, filteredByteLength);
+            loggingService.debug(
+                "Filtered entity nbt. Original Byte length: {1} Filtered: {2}",
+                key,
+                originalByteLength,
+                filteredByteLength
+            );
         });
     }
 }

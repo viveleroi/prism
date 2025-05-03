@@ -21,30 +21,35 @@
 package org.prism_mc.prism.loader.services.configuration.storage;
 
 import lombok.Getter;
-
 import org.prism_mc.prism.loader.storage.StorageType;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
 public class StorageConfiguration {
-    @Comment("""
-            Enable query spy. This logs queries and helpful debug information.
-            Used primarily for development and debugging. Use carefully.""")
+
+    @Comment(
+        """
+        Enable query spy. This logs queries and helpful debug information.
+        Used primarily for development and debugging. Use carefully."""
+    )
     private boolean spy = false;
 
-    @Comment("""
-            Set which storage system to use.
-            Available options: H2, MARIADB, MYSQL, POSTGRES, SQLITE
-            NOTE: Only one storage system may be used at a time.
-            Transferring data from one to another is not yet supported.""")
+    @Comment(
+        """
+        Set which storage system to use.
+        Available options: H2, MARIADB, MYSQL, POSTGRES, SQLITE
+        NOTE: Only one storage system may be used at a time.
+        Transferring data from one to another is not yet supported."""
+    )
     private StorageType primaryStorageType = StorageType.SQLITE;
 
-    @Comment("""
-            Settings for H2 file-based databases. File-based databases aren't generally
-            recommended but the pros/cons depend entirely on your usage and needs.""")
+    @Comment(
+        """
+        Settings for H2 file-based databases. File-based databases aren't generally
+        recommended but the pros/cons depend entirely on your usage and needs."""
+    )
     private DataSourceConfiguration h2 = new DataSourceConfiguration();
 
     @Comment("Settings for MariaDB")
@@ -56,9 +61,11 @@ public class StorageConfiguration {
     @Comment("Settings for Postgres")
     private PostgresDataSourceConfiguration postgres = new PostgresDataSourceConfiguration();
 
-    @Comment("""
-            Settings for sqlite file-based databases. File-based databases aren't generally
-            recommended but the pros/cons depend entirely on your usage and needs.""")
+    @Comment(
+        """
+        Settings for sqlite file-based databases. File-based databases aren't generally
+        recommended but the pros/cons depend entirely on your usage and needs."""
+    )
     private SqliteDataSourceConfiguration sqlite = new SqliteDataSourceConfiguration();
 
     /**

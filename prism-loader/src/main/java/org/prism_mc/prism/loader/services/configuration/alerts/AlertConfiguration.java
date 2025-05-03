@@ -21,15 +21,14 @@
 package org.prism_mc.prism.loader.services.configuration.alerts;
 
 import java.util.List;
-
 import lombok.Getter;
-
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 @Getter
 public class AlertConfiguration {
+
     @Comment("The CSS hex color to use for the alert message.")
     private String hexColor;
 

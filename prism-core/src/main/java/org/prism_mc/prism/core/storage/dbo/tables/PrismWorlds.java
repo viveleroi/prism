@@ -20,12 +20,11 @@
 
 package org.prism_mc.prism.core.storage.dbo.tables;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
+
 import java.util.Arrays;
 import java.util.List;
-
-import org.prism_mc.prism.core.storage.dbo.Keys;
-import org.prism_mc.prism.core.storage.dbo.records.PrismWorldsRecord;
-
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Identity;
@@ -41,12 +40,12 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
 import org.jooq.types.UByte;
-
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_DATABASE;
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
+import org.prism_mc.prism.core.storage.dbo.Keys;
+import org.prism_mc.prism.core.storage.dbo.records.PrismWorldsRecord;
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PrismWorlds extends TableImpl<PrismWorldsRecord> {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -69,7 +68,8 @@ public class PrismWorlds extends TableImpl<PrismWorldsRecord> {
         DSL.name("world_id"),
         SQLDataType.TINYINTUNSIGNED.nullable(false).identity(true),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_worlds.world</code>.
@@ -78,7 +78,8 @@ public class PrismWorlds extends TableImpl<PrismWorldsRecord> {
         DSL.name("world"),
         SQLDataType.VARCHAR(255).nullable(false),
         this,
-        "");
+        ""
+    );
 
     /**
      * The column <code>prism_worlds.world_uuid</code>.
@@ -87,7 +88,8 @@ public class PrismWorlds extends TableImpl<PrismWorldsRecord> {
         DSL.name("world_uuid"),
         SQLDataType.CHAR(36).nullable(false),
         this,
-        "");
+        ""
+    );
 
     private PrismWorlds(String prefix, Name alias, Table<PrismWorldsRecord> aliased) {
         this(prefix, alias, aliased, null);
@@ -95,7 +97,6 @@ public class PrismWorlds extends TableImpl<PrismWorldsRecord> {
 
     private PrismWorlds(String prefix, Name alias, Table<PrismWorldsRecord> aliased, Field<?>[] parameters) {
         super(alias, null, aliased, parameters, DSL.comment(""), TableOptions.table());
-
         this.prefix = prefix;
     }
 
@@ -118,7 +119,6 @@ public class PrismWorlds extends TableImpl<PrismWorldsRecord> {
      */
     public <O extends Record> PrismWorlds(String prefix, Table<O> child, ForeignKey<O, PrismWorldsRecord> key) {
         super(child, key, PRISM_WORLDS);
-
         this.prefix = prefix;
     }
 

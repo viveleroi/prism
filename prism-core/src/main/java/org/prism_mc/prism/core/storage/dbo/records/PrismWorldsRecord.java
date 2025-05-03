@@ -20,6 +20,8 @@
 
 package org.prism_mc.prism.core.storage.dbo.records;
 
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
+
 import org.jooq.Field;
 import org.jooq.Record1;
 import org.jooq.Record3;
@@ -27,11 +29,11 @@ import org.jooq.Row3;
 import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.types.UByte;
 
-import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
-
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
-public class PrismWorldsRecord extends UpdatableRecordImpl<PrismWorldsRecord> implements
-        Record3<UByte, String, String> {
+public class PrismWorldsRecord
+    extends UpdatableRecordImpl<PrismWorldsRecord>
+    implements Record3<UByte, String, String> {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -189,7 +191,6 @@ public class PrismWorldsRecord extends UpdatableRecordImpl<PrismWorldsRecord> im
      */
     public PrismWorldsRecord(UByte worldId, String world, String worldUuid) {
         super(PRISM_WORLDS);
-
         setWorldId(worldId);
         setWorld(world);
         setWorldUuid(worldUuid);

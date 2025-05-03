@@ -28,51 +28,62 @@ package org.prism_mc.prism.loader.services.dependencies;
 
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
-
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.prism_mc.prism.loader.services.dependencies.relocation.Relocation;
 import org.prism_mc.prism.loader.storage.StorageType;
 
 public class DependencyRegistry {
+
     /**
      * Build a map of storage dependencies.
      */
-    private static final ListMultimap<StorageType, Dependency> STORAGE_DEPENDENCIES = ImmutableListMultimap
-        .<StorageType, Dependency>builder()
-        .putAll(StorageType.H2,
+    private static final ListMultimap<StorageType, Dependency> STORAGE_DEPENDENCIES = ImmutableListMultimap.<
+            StorageType,
+            Dependency
+        >builder()
+        .putAll(
+            StorageType.H2,
             Dependency.HIKARI,
             Dependency.JOOQ,
             Dependency.R2DBC,
             Dependency.REACTIVE_STREAMS,
-            Dependency.H2_DRIVER)
-        .putAll(StorageType.MARIADB,
+            Dependency.H2_DRIVER
+        )
+        .putAll(
+            StorageType.MARIADB,
             Dependency.HIKARI,
             Dependency.JOOQ,
             Dependency.R2DBC,
             Dependency.REACTIVE_STREAMS,
-            Dependency.MARIADB_DRIVER)
-        .putAll(StorageType.MYSQL,
+            Dependency.MARIADB_DRIVER
+        )
+        .putAll(
+            StorageType.MYSQL,
             Dependency.HIKARI,
             Dependency.JOOQ,
             Dependency.R2DBC,
             Dependency.REACTIVE_STREAMS,
-            Dependency.MYSQL_DRIVER)
-        .putAll(StorageType.POSTGRES,
+            Dependency.MYSQL_DRIVER
+        )
+        .putAll(
+            StorageType.POSTGRES,
             Dependency.HIKARI,
             Dependency.JOOQ,
             Dependency.R2DBC,
             Dependency.REACTIVE_STREAMS,
-            Dependency.POSTGRES_DRIVER)
-        .putAll(StorageType.SQLITE,
+            Dependency.POSTGRES_DRIVER
+        )
+        .putAll(
+            StorageType.SQLITE,
             Dependency.HIKARI,
             Dependency.JOOQ,
             Dependency.R2DBC,
             Dependency.REACTIVE_STREAMS,
-            Dependency.SQLITE_DRIVER)
+            Dependency.SQLITE_DRIVER
+        )
         .build();
 
     /**

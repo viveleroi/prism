@@ -21,15 +21,13 @@
 package org.prism_mc.prism.api.actions;
 
 import net.kyori.adventure.text.Component;
-
+import org.jetbrains.annotations.Nullable;
 import org.prism_mc.prism.api.actions.metadata.Metadata;
 import org.prism_mc.prism.api.actions.types.ActionType;
 import org.prism_mc.prism.api.activities.Activity;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueMode;
 import org.prism_mc.prism.api.services.modifications.ModificationResult;
 import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
-
-import org.jetbrains.annotations.Nullable;
 
 public interface Action {
     /**
@@ -44,7 +42,8 @@ public interface Action {
         ModificationRuleset modificationRuleset,
         Object owner,
         Activity activityContext,
-        ModificationQueueMode mode);
+        ModificationQueueMode mode
+    );
 
     /**
      * Apply the restore. If the action type is not reversible, this does nothing.
@@ -58,7 +57,8 @@ public interface Action {
         ModificationRuleset modificationRuleset,
         Object owner,
         Activity activityContext,
-        ModificationQueueMode mode);
+        ModificationQueueMode mode
+    );
 
     /**
      * Get the descriptor.
@@ -89,7 +89,8 @@ public interface Action {
      *
      * @return The metadata
      */
-    @Nullable Metadata metadata();
+    @Nullable
+    Metadata metadata();
 
     /**
      * Serialize the metadata.

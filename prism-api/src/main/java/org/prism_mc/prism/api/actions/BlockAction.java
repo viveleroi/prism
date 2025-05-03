@@ -70,5 +70,6 @@ public interface BlockAction extends CustomData, Translatable {
      *
      * @return The serialized block data
      */
-    @Nullable String serializeReplacedBlockData();
+    @Nullable
+    String serializeReplacedBlockData();
 }
