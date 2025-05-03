@@ -243,7 +243,7 @@ public class QueryService {
             }
 
             r = arguments.getArgument("r", Integer.class).get();
-        } else if (in == null && !arguments.hasFlag("nodefaults")
+        } else if (in == null && at == null && !arguments.hasFlag("nodefaults")
                 && configurationService.prismConfig().defaults().parameters().containsKey("r")) {
             r = Integer.parseInt(configurationService.prismConfig().defaults().parameters().get("r"));
 
@@ -259,10 +259,12 @@ public class QueryService {
             } else if (referenceLocation != null && at == null) {
                 builder.referenceCoordinate(
                     new Coordinate(referenceLocation.getX(), referenceLocation.getY(), referenceLocation.getZ()));
-            }
 
-            builder.worldUuid(world.getUID());
-            builder.radius(r);
+                builder.worldUuid(world.getUID());
+                builder.radius(r);
+            }
+        } else if (at != null) {
+            builder.coordinateFromReferenceCoordinate();
         }
 
         // Read "bounds" parameter from arguments or defaults
