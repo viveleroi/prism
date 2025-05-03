@@ -104,6 +104,12 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
     private final String translationKey;
 
     /**
+     * The replaced block translation key.
+     */
+    @Getter
+    private final String replacedBlockTranslationKey;
+
+    /**
      * Construct a block state action.
      *
      * @param type The action type
@@ -123,9 +129,31 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
     public BukkitBlockAction(ActionType type, BlockState blockState, @Nullable BlockState replacedBlockState) {
         this(
             type,
-            blockState.getBlockData(),
+            blockState,
             blockState.getBlock().translationKey(),
-            replacedBlockState != null ? replacedBlockState.getBlockData() : null);
+            replacedBlockState,
+            replacedBlockState != null ? replacedBlockState.getBlock().translationKey() : null);
+    }
+
+    /**
+     * Construct a block state action.
+     *
+     * @param type The action type
+     * @param blockState The block state
+     * @param replacedBlockState The replaced block state
+     */
+    public BukkitBlockAction(
+            ActionType type,
+            BlockState blockState,
+            String translationKey,
+            @Nullable BlockState replacedBlockState,
+            @Nullable String replacedBlockTranslationKey) {
+        this(
+            type,
+            blockState.getBlockData(),
+            translationKey,
+            replacedBlockState != null ? replacedBlockState.getBlockData() : null,
+            replacedBlockTranslationKey);
 
         if (blockState instanceof TileState) {
             readWriteNbt = NBT.createNBTObject();
@@ -145,12 +173,14 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
             ActionType type,
             BlockData blockData,
             String translationKey,
-            @Nullable BlockData replacedBlockData) {
+            @Nullable BlockData replacedBlockData,
+            @Nullable String replacedBlockTranslationKey) {
         super(type);
 
         // Set new block data
         this.blockData = blockData;
         this.translationKey = translationKey;
+        this.replacedBlockTranslationKey = replacedBlockTranslationKey;
 
         // Removes all block data and splits the namespaced key into namespace/block name
         var segments = this.blockData.getAsString().replaceAll("\\[.*$", "").split(":");
@@ -190,6 +220,7 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
      * @param replacedBlockData The replaced block data
      * @param descriptor The descriptor
      * @param translationKey The translation key
+     * @param replacedBlockTranslationKey The replaced block translation key
      */
     public BukkitBlockAction(
             ActionType type,
@@ -201,7 +232,8 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
             String replacedBlockName,
             BlockData replacedBlockData,
             String descriptor,
-            String translationKey) {
+            String translationKey,
+            String replacedBlockTranslationKey) {
         super(type, descriptor);
 
         this.blockNamespace = blockNamespace;
@@ -212,6 +244,7 @@ public class BukkitBlockAction extends BukkitAction implements BlockAction {
         this.replacedBlockName = replacedBlockName;
         this.replacedBlockData = replacedBlockData;
         this.translationKey = translationKey;
+        this.replacedBlockTranslationKey = replacedBlockTranslationKey;
     }
 
     @Override

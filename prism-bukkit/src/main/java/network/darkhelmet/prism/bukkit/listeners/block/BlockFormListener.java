@@ -65,7 +65,13 @@ public class BlockFormListener extends AbstractListener implements Listener {
         }
 
         final Block block = event.getBlock();
-        var action = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_FORM, event.getNewState(), block.getState());
+
+        var action = new BukkitBlockAction(
+            BukkitActionTypeRegistry.BLOCK_FORM,
+            event.getNewState(),
+            event.getNewState().getType().getBlockTranslationKey(),
+            block.getState(),
+            block.translationKey());
 
         var activity = BukkitActivity.builder()
             .action(action)

@@ -120,7 +120,7 @@ public class PlayerBucketEmptyListener extends AbstractListener implements Liste
         }
 
         var blockPlaceAction = new BukkitBlockAction(
-            BukkitActionTypeRegistry.BLOCK_PLACE, newData, translationKey, oldData);
+            BukkitActionTypeRegistry.BLOCK_PLACE, newData, translationKey, oldData, event.getBlock().translationKey());
 
         var activity = BukkitActivity.builder()
             .action(blockPlaceAction)

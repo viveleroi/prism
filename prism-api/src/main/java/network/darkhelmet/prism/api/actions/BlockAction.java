@@ -59,6 +59,13 @@ public interface BlockAction extends CustomData, Translatable {
     String replacedBlockName();
 
     /**
+     * The translation key for the replaced block.
+     *
+     * @return Translation key
+     */
+    String replacedBlockTranslationKey();
+
+    /**
      * Serialized the replaced block data.
      *
      * @return The serialized block data

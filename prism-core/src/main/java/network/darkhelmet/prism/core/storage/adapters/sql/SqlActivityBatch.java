@@ -138,7 +138,7 @@ public class SqlActivityBatch implements ActivityBatch {
                     blockAction.replacedBlockNamespace(),
                     blockAction.replacedBlockName(),
                     blockAction.serializeReplacedBlockData(),
-                    blockAction.translationKey())));
+                    blockAction.replacedBlockTranslationKey())));
             }
         }
 

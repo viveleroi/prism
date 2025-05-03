@@ -75,7 +75,8 @@ public class BlockActionType extends ActionType {
                 actionData.replacedBlockName(),
                 replacedBlockData,
                 actionData.descriptor(),
-                actionData.translationKey());
+                actionData.translationKey(),
+                null);
     }
 
     /**

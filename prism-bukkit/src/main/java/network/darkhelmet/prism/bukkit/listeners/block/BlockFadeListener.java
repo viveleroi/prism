@@ -71,7 +71,12 @@ public class BlockFadeListener extends AbstractListener implements Listener {
         }
 
         final Block block = event.getBlock();
-        var action = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_FADE, event.getNewState(), block.getState());
+        var action = new BukkitBlockAction(
+            BukkitActionTypeRegistry.BLOCK_FADE,
+            event.getNewState(),
+            event.getNewState().getType().getBlockTranslationKey(),
+            block.getState(),
+            block.translationKey());
 
         var activity = BukkitActivity.builder()
             .action(action)
