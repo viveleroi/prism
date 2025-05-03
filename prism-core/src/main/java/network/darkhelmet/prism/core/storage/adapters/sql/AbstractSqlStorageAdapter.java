@@ -787,7 +787,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
     }
 
     @Override
-    public void markReversed(List<Long> activityIds, boolean reversed) throws Exception {
+    public void markReversed(List<Long> activityIds, boolean reversed) {
         if (activityIds.isEmpty()) {
             return;
         }

@@ -41,6 +41,7 @@ import javax.annotation.Nullable;
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.util.Coordinate;
 import network.darkhelmet.prism.bukkit.actions.types.BukkitActionTypeRegistry;
+import network.darkhelmet.prism.bukkit.api.activities.BukkitActivityQuery;
 import network.darkhelmet.prism.bukkit.integrations.worldedit.WorldEditIntegration;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
 import network.darkhelmet.prism.bukkit.utils.LocationUtils;
@@ -101,7 +102,8 @@ public class QueryService {
      * @param arguments The arguments
      * @return The activity query builder
      */
-    public Optional<ActivityQuery.ActivityQueryBuilder> queryFromArguments(CommandSender sender, Arguments arguments) {
+    public Optional<BukkitActivityQuery.BukkitActivityQueryBuilder<?, ?>> queryFromArguments(
+            CommandSender sender, Arguments arguments) {
         if (sender instanceof Player player) {
             return queryFromArguments(sender, arguments, player.getLocation());
         } else {
@@ -116,9 +118,9 @@ public class QueryService {
      * @param arguments The arguments
      * @return The activity query builder
      */
-    public Optional<ActivityQuery.ActivityQueryBuilder> queryFromArguments(
+    public Optional<BukkitActivityQuery.BukkitActivityQueryBuilder<?, ?>> queryFromArguments(
             CommandSender sender, Arguments arguments, Location referenceLocation) {
-        ActivityQuery.ActivityQueryBuilder builder = ActivityQuery.builder();
+        var builder = BukkitActivityQuery.builder();
         World world = referenceLocation != null ? referenceLocation.getWorld() : null;
 
         // No-group flag

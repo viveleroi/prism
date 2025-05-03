@@ -63,9 +63,8 @@ public interface StorageAdapter {
      *
      * @param activityIds The activity ids
      * @param reversed Whether the activity was reversed
-     * @throws Exception Storage layer exception
      */
-    void markReversed(List<Long> activityIds, boolean reversed) throws Exception;
+    void markReversed(List<Long> activityIds, boolean reversed);
 
     /**
      * Query activities in a non-paginated format (needed for world modification).

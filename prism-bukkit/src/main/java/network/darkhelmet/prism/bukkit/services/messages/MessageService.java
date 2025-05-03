@@ -75,6 +75,9 @@ public interface MessageService {
     @Message("rich.error.no-last-query")
     void errorNoLastQuery(CommandSender receiver);
 
+    @Message("rich.error.non-item-action")
+    void errorNonItemAction(CommandSender receiver);
+
     @Message("rich.error.not-previewable")
     void errorNotPreviewable(CommandSender receiver);
 
@@ -113,9 +116,6 @@ public interface MessageService {
 
     @Message("rich.error.param-r-and-in")
     void errorParamRadiusAndIn(CommandSender receiver);
-
-    @Message("rich.error.peek-no-item")
-    void errorPeekNoItem(CommandSender receiver);
 
     @Message("rich.error.player-only")
     void errorPlayerOnly(CommandSender receiver);
@@ -226,6 +226,9 @@ public interface MessageService {
     @Message("rich.teleporting-to")
     void teleportingTo(CommandSender receiver,
         @Placeholder String worldname, @Placeholder Integer x, @Placeholder Integer y, @Placeholder Integer z);
+
+    @Message("rich.vault-header")
+    void vaultHeader(CommandSender receiver, @Placeholder Integer results);
 
     @Message("rich.wand-activated")
     void wandActivated(Player player, @Placeholder WandMode wandmode);

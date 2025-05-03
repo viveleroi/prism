@@ -28,8 +28,6 @@ import dev.triumphteam.cmd.core.annotations.CommandFlags;
 import dev.triumphteam.cmd.core.annotations.NamedArguments;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 
-import java.util.Optional;
-
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.api.services.purges.PurgeQueue;
 import network.darkhelmet.prism.bukkit.services.messages.MessageService;
@@ -96,7 +94,7 @@ public class PurgeCommand {
             messageService.errorPurgeQueryNotFree(sender);
         }
 
-        Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(sender, arguments);
+        var builder = queryService.queryFromArguments(sender, arguments);
         if (builder.isPresent()) {
             final ActivityQuery query = builder.get()
                 .limit(configurationService.prismConfig().purges().limit())

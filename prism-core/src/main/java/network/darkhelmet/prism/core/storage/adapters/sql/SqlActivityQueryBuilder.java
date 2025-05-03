@@ -317,9 +317,7 @@ public class SqlActivityQueryBuilder {
         if (!query.actionTypes().isEmpty()) {
             List<String> actionTypeKeys = new ArrayList<>();
             for (var actionType : query.actionTypes()) {
-                if (query.lookup() || actionType.reversible()) {
-                    actionTypeKeys.add(actionType.key());
-                }
+                actionTypeKeys.add(actionType.key());
             }
 
             conditions.add(PRISM_ACTIONS.ACTION.in(actionTypeKeys));

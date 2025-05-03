@@ -28,8 +28,6 @@ import dev.triumphteam.cmd.core.annotations.CommandFlags;
 import dev.triumphteam.cmd.core.annotations.NamedArguments;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 
-import java.util.Optional;
-
 import network.darkhelmet.prism.api.activities.ActivityQuery;
 import network.darkhelmet.prism.bukkit.services.lookup.LookupService;
 import network.darkhelmet.prism.bukkit.services.query.QueryService;
@@ -82,7 +80,7 @@ public class LookupCommand {
     @Command(value = "lookup", alias = {"l"})
     @Permission("prism.lookup")
     public void onLookup(final CommandSender sender, final Arguments arguments) {
-        Optional<ActivityQuery.ActivityQueryBuilder> builder = queryService.queryFromArguments(sender, arguments);
+        var builder = queryService.queryFromArguments(sender, arguments);
         if (builder.isPresent()) {
             final ActivityQuery query = builder.get()
                 .limit(configurationService.prismConfig().defaults().perPage()).build();

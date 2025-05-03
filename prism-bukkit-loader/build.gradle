@@ -9,10 +9,7 @@ dependencies {
     compileOnly project.property('deps.log4j-api')
     compileOnly project.property('deps.paper-api')
 
-    implementation(project.property('deps.triumph-gui')) {
-        exclude(group: "net.kyori")
-    }
-
+    implementation(project.property('deps.triumph-gui'))
     implementation project(':prism-loader')
 }
 
