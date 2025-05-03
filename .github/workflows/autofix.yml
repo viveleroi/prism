@@ -1,9 +1,8 @@
 name: autofix.ci # needed to securely identify the workflow
 
 on:
-  pull_request:
-  push:
-    branches: [main]
+  - push
+  - pull_request
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
@@ -27,3 +26,19 @@ jobs:
         uses: autofix-ci/action@551dded8c6cc8a1054039c8bc0b8b48c51dfc6ef
         with:
           commit-message: 'ci: apply automated fixes'
+  check:
+    name: check
+    needs: autofix
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4.2.2
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Run Gradle Check
+        run: ./gradlew check
