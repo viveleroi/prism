@@ -170,6 +170,7 @@ public class TagLib {
      * Materials that attach to any side of a block.
      */
     public static final CustomTag<Material> DETACHABLES = new CustomTag<>(Material.class,
+        Material.BELL,
         Material.AMETHYST_CLUSTER,
         Material.CHORUS_PLANT);
 
