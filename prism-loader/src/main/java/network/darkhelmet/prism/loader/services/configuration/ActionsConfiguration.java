@@ -29,7 +29,7 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 @Getter
 public class ActionsConfiguration {
     @Comment("bed-enter is when a player or entity gets into bed.")
-    private boolean bedEnter = true;
+    private boolean bedEnter = false;
 
     @Comment("block-break is when a player or entity destroys a block (except from burn/explode).")
     private boolean blockBreak = true;
@@ -46,7 +46,7 @@ public class ActionsConfiguration {
     @Comment("""
             block-ignite is when a block is lit on fire.
             Note: Fire spreads to other blocks (block-spread). This records an initial ignition.""")
-    private boolean blockIgnite = true;
+    private boolean blockIgnite = false;
 
     @Comment("block-place is when a player or entity places a block.")
     private boolean blockPlace = true;
@@ -70,7 +70,7 @@ public class ActionsConfiguration {
     private boolean blockUse = true;
 
     @Comment("bonemeal-use is when a player uses bonemeal on a block (grown trees/grass/flowers are block-place).")
-    private boolean bonemealUse = true;
+    private boolean bonemealUse = false;
 
     @Comment("bucket-empty is when a player places a block by emptying a bucket.")
     private boolean bucketEmpty = true;
@@ -79,16 +79,16 @@ public class ActionsConfiguration {
     private boolean bucketFill = true;
 
     @Comment("entity-dye is when a player dyes an entity.")
-    private boolean entityDye = true;
+    private boolean entityDye = false;
 
     @Comment("entity-eat is when an entity eats a block and changes it.")
-    private boolean entityEat = true;
+    private boolean entityEat = false;
 
     @Comment("entity-kill is when an entity (or player) kills another.")
     private boolean entityKill = true;
 
     @Comment("entity-leash is when a player leashes an entity.")
-    private boolean entityLeash = true;
+    private boolean entityLeash = false;
 
     @Comment("entity-place is when a player places an armor stand or end crystal.")
     private boolean entityPlace = true;
@@ -97,19 +97,19 @@ public class ActionsConfiguration {
     private boolean entityRemove = true;
 
     @Comment("entity-ride is when a player rides an entity.")
-    private boolean entityRide = true;
+    private boolean entityRide = false;
 
     @Comment("entity-shear is when a player shears an entity.")
-    private boolean entityShear = true;
+    private boolean entityShear = false;
 
     @Comment("entity-transform is for villager healing, tadpoles to frogs, etc.")
-    private boolean entityTransform = true;
+    private boolean entityTransform = false;
 
     @Comment("entity-unleash is when a player or natural cause unleashes an entity.")
     private boolean entityUnleash = true;
 
     @Comment("firework-launch is when a player launches a firework rocket.")
-    private boolean fireworkLaunch = true;
+    private boolean fireworkLaunch = false;
 
     @Comment("""
             fluid-flow tracks the flow of water and lava. Even when this is false,
@@ -126,8 +126,11 @@ public class ActionsConfiguration {
     @Comment("hanging-place is when an item frame or painting is hung up.")
     private boolean hangingPlace = true;
 
-    @Comment("inventory-open is when a player opens an inventory (chest, furnace, anything except theirs).")
-    private boolean inventoryOpen = true;
+    @Comment("""
+            inventory-open is when a player opens an inventory (chest, furnace, etc).
+            Item inserts or removes are tracked separately.
+            """)
+    private boolean inventoryOpen = false;
 
     @Comment("item-dispense is when a block dispenses an item.")
     private boolean itemDispense = true;
@@ -145,7 +148,7 @@ public class ActionsConfiguration {
     private boolean itemRemove = true;
 
     @Comment("item-rotate is when a player rotates an item inside an item frame.")
-    private boolean itemRotate = true;
+    private boolean itemRotate = false;
 
     @Comment("item-throw is when a player throws an item.")
     private boolean itemThrow = true;
@@ -160,7 +163,7 @@ public class ActionsConfiguration {
     private boolean playerQuit = false;
 
     @Comment("player-teleport is when a player teleports.")
-    private boolean playerTeleport = true;
+    private boolean playerTeleport = false;
 
     @Comment("raid-trigger is when a player triggers a raid.")
     private boolean raidTrigger = true;
