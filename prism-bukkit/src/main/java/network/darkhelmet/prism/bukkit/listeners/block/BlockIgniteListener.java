@@ -31,7 +31,6 @@ import network.darkhelmet.prism.bukkit.services.recording.BukkitRecordingService
 import network.darkhelmet.prism.loader.services.configuration.ConfigurationService;
 
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -54,7 +53,7 @@ public class BlockIgniteListener extends AbstractListener implements Listener {
     }
 
     /**
-     * Listens for block place events.
+     * Event listener.
      *
      * @param event The event
      */
@@ -65,24 +64,7 @@ public class BlockIgniteListener extends AbstractListener implements Listener {
             return;
         }
 
-        if (!event.getBlock().getType().isBurnable()) {
-            return;
-        }
-
-        // This event can't accurately capture the "clicked" block for flint and steel
-        // use, and that's infinitely more helpful than "ignited air". Instead,
-        // we'll handle flint and steel use in the player interact listener.
-        if (event.getCause().equals(BlockIgniteEvent.IgniteCause.FLINT_AND_STEEL)) {
-            return;
-        }
-
         Block affectedBlock = event.getBlock();
-
-        // Fireballs always ignite the block below them. Since this is informational,
-        // it's ok to use that as the target.
-        if (event.getCause().equals(BlockIgniteEvent.IgniteCause.FIREBALL)) {
-            affectedBlock = affectedBlock.getRelative(BlockFace.DOWN);
-        }
 
         var action = new BukkitBlockAction(BukkitActionTypeRegistry.BLOCK_IGNITE, affectedBlock.getState());
 
