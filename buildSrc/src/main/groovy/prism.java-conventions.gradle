@@ -37,4 +37,8 @@ lombok {
 
 def details = versionDetails()
 
-project.ext.fullVersion = version = details.lastTag + (details.commitDistance > 0 ? '-dev' + details.commitDistance : '')
+// Remove the "v" from a tag version
+version = details.lastTag.substring(1) + (details.commitDistance > 0 ? '-dev' + details.commitDistance : '')
+
+// Use the full tag
+project.ext.fullVersion = details.lastTag + (details.commitDistance > 0 ? '-dev' + details.commitDistance : '')
