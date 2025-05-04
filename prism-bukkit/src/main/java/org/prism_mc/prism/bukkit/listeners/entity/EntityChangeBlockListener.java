@@ -25,6 +25,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -67,6 +68,11 @@ public class EntityChangeBlockListener extends AbstractListener implements Liste
         // useless when we're only given the material it's changing to.
         // Ex: DEEPSLATE_REDSTONE_ORE changes to DEEPSLATE_REDSTONE_ORE because of SKELETON
         if (event.getBlock().getType().equals(event.getTo())) {
+            return;
+        }
+
+        // Ignore players, because those should be recorded as a block place event
+        if (event.getEntity() instanceof Player) {
             return;
         }
 
