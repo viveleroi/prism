@@ -13,8 +13,28 @@ dependencies {
         exclude(group: "net.kyori")
     }
 
-    // The gui lib needs adventure-platform but it's not available in paper
-    implementation(project.property('deps.adventure-platform')) {
+    // The gui lib needs adventure-platform-bukkit but it's not available in paper
+    implementation(project.property('deps.adventure-platform-bukkit')) {
+        transitive = false
+    }
+
+    // For adventure-platform-bukkit
+    implementation(project.property('deps.adventure-nbt')) {
+        transitive = false
+    }
+
+    // For adventure-platform-bukkit
+    implementation(project.property('deps.adventure-platform-facet')) {
+        transitive = false
+    }
+
+    // For adventure-platform-bukkit
+    implementation(project.property('deps.adventure-text-serializer-gson-legacy-impl')) {
+        transitive = false
+    }
+
+    // For adventure-platform-bukkit
+    implementation(project.property('deps.adventure-text-serializer-json-legacy-impl')) {
         transitive = false
     }
 
