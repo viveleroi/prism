@@ -33,7 +33,7 @@ public final class Relocation {
     /**
      * The relocation destination.
      */
-    private static final String RELOCATION_PREFIX = "og.prism_mc.prism.libs.";
+    private static final String RELOCATION_PREFIX = "org.prism_mc.prism.libs.";
 
     /**
      * The pattern.
