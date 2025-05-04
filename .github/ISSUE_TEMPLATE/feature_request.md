@@ -1,13 +1,10 @@
 ---
 name: Feature request
-about: Suggest a feature/change
-title: "[FEATURE]"
-labels: ''
+about: Suggest a feature
+title: ''
+labels: feature
 assignees: ''
 
 ---
 
-**Feature/change description**
-
 Describe the feature you'd like here. (Replace this text)
-
