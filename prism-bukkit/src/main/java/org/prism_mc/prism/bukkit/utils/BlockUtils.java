@@ -32,6 +32,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
+import org.bukkit.block.data.MultipleFacing;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.block.data.type.TrapDoor;
@@ -289,17 +290,26 @@ public class BlockUtils {
             for (BlockFace face : attachmentFacesSides) {
                 Block neighbor = startBlock.getRelative(face);
                 if (TagLib.SIDE_DETACHABLES.isTagged(neighbor.getType())) {
-                    // Only record if the detachable is attached to us
-                    if (
-                        neighbor.getBlockData() instanceof Directional directional &&
-                        directional.getFacing().equals(face)
-                    ) {
-                        accumulator.add(neighbor);
-
-                        // Vines can extend down from a side attachment
-                        if (neighbor.getType().equals(Material.VINE)) {
-                            bottomDetachables(accumulator, neighbor);
+                    if (neighbor.getBlockData() instanceof Directional directional) {
+                        // Only record if the detachable, directional block is attached to us
+                        if (directional.getFacing().equals(face)) {
+                            accumulator.add(neighbor);
                         }
+                    } else if (neighbor.getBlockData() instanceof MultipleFacing multipleFacing) {
+                        for (var facing : multipleFacing.getFaces()) {
+                            if (facing.getOppositeFace().equals(face)) {
+                                accumulator.add(neighbor);
+
+                                // Vines can extend down from a side attachment
+                                if (neighbor.getType().equals(Material.VINE)) {
+                                    bottomDetachables(accumulator, neighbor);
+                                }
+
+                                break;
+                            }
+                        }
+                    } else {
+                        accumulator.add(neighbor);
                     }
                 }
             }
