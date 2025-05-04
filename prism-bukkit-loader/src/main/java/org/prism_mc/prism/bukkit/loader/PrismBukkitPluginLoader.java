@@ -38,7 +38,7 @@ public class PrismBukkitPluginLoader extends JavaPlugin implements PluginLoader 
     /**
      * The qualified name of the bootstrapper.
      */
-    private static final String BOOTSTRAP_CLASS = "og.prism_mc.prism.bukkit.PrismBukkitBootstrap";
+    private static final String BOOTSTRAP_CLASS = "org.prism_mc.prism.bukkit.PrismBukkitBootstrap";
 
     /**
      * The configuration service.
