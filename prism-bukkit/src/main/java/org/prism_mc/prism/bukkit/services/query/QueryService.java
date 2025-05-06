@@ -475,23 +475,23 @@ public class QueryService {
             builder.blocks(blocks);
         }
 
-        // Read "m" parameter from arguments or defaults
+        // Read "i" parameter from arguments or defaults
         final Set<String> materials = new HashSet<>();
-        if (arguments.getListArgument("m", Material.class).isPresent()) {
+        if (arguments.getListArgument("i", Material.class).isPresent()) {
             arguments
-                .getListArgument("m", Material.class)
+                .getListArgument("i", Material.class)
                 .get()
                 .forEach(material -> {
                     materials.add(material.toString().toLowerCase(Locale.ENGLISH));
                 });
         } else if (
             !arguments.hasFlag("nodefaults") &&
-            configurationService.prismConfig().defaults().parameters().containsKey("m")
+            configurationService.prismConfig().defaults().parameters().containsKey("i")
         ) {
-            String materialString = configurationService.prismConfig().defaults().parameters().get("m");
+            String materialString = configurationService.prismConfig().defaults().parameters().get("i");
             Collections.addAll(materials, materialString.split(","));
 
-            builder.defaultUsed("m:" + materialString);
+            builder.defaultUsed("i:" + materialString);
         }
 
         // Read "itag" parameter from arguments or defaults

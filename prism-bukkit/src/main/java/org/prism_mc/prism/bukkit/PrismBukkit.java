@@ -490,7 +490,7 @@ public class PrismBukkit implements Prism {
                 Argument.listOf(String.class).name("etag").suggestion(SuggestionKey.of("entitytypetags")).build(),
                 Argument.listOf(String.class).name("itag").suggestion(SuggestionKey.of("itemtags")).build(),
                 Argument.listOf(String.class).name("b").suggestion(SuggestionKey.of("blocks")).build(),
-                Argument.listOf(Material.class).name("m").build(),
+                Argument.listOf(Material.class).name("i").build(),
                 Argument.listOf(EntityType.class).name("e").build(),
                 Argument.listOf(Player.class).name("p").build()
             );
