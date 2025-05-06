@@ -882,19 +882,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
     }
 
     @Override
-    public Pair<Integer, Integer> getActivitiesPkBounds() {
-        Record2<UInteger, UInteger> result = create
-            .select(
-                coalesce(min(PRISM_ACTIVITIES.ACTIVITY_ID), DSL.val(0)),
-                coalesce(max(PRISM_ACTIVITIES.ACTIVITY_ID), DSL.val(0))
-            )
-            .from(PRISM_ACTIVITIES)
-            .fetchOne();
-
-        int minPk = result != null ? result.value1().intValue() : 0;
-        int maxPk = result != null ? result.value2().intValue() : 0;
-
-        return new Pair<>(minPk, maxPk);
+    public Pair<Integer, Integer> getActivitiesPkBounds(ActivityQuery query) {
+        return queryBuilder.queryActivitiesPkBounds(query);
     }
 
     @Override
