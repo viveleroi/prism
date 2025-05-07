@@ -25,6 +25,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.jooq.SQLDialect;
 import org.prism_mc.prism.api.actions.types.ActionTypeRegistry;
 import org.prism_mc.prism.core.injection.factories.FileSqlActivityQueryBuilderFactory;
@@ -69,14 +70,18 @@ public class SqliteStorageAdapter extends AbstractSqlStorageAdapter {
             serializerVersion
         );
         try {
-            File prismSqliteFile = new File(
-                dataPath.toFile(),
-                configurationService.storageConfig().sqlite().database() + ".db"
-            );
+            var configuredPath = configurationService.storageConfig().sqlite().path();
+            var databaseFilename = String.format("%s.db", configurationService.storageConfig().sqlite().database());
+            var dbFilePath = dataPath.resolve(Paths.get(configuredPath)).normalize();
+
+            dbFilePath.toFile().mkdirs();
 
             if (
                 connect(
-                    HikariConfigFactory.sqlite(configurationService.storageConfig(), prismSqliteFile),
+                    HikariConfigFactory.sqlite(
+                        configurationService.storageConfig(),
+                        dbFilePath.resolve(databaseFilename).toFile()
+                    ),
                     SQLDialect.SQLITE
                 )
             ) {
