@@ -472,7 +472,8 @@ public class PrismBukkit implements Prism {
                 Flag.flag("dl").longFlag("drainlava").argument(Boolean.class).build(),
                 Flag.flag("ow").longFlag("overwrite").build(),
                 Flag.flag("nd").longFlag("nodefaults").build(),
-                Flag.flag("ng").longFlag("nogroup").build()
+                Flag.flag("ng").longFlag("nogroup").build(),
+                Flag.flag("rd").longFlag("removedrops").argument(Boolean.class).build()
             );
 
             commandManager.registerNamedArguments(
