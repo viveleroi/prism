@@ -25,7 +25,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.prism_mc.prism.bukkit.actions.GenericBukkitAction;
 import org.prism_mc.prism.bukkit.actions.types.BukkitActionTypeRegistry;
 import org.prism_mc.prism.bukkit.api.activities.BukkitActivity;
@@ -34,17 +34,17 @@ import org.prism_mc.prism.bukkit.services.expectations.ExpectationService;
 import org.prism_mc.prism.bukkit.services.recording.BukkitRecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 
-public class PlayerJoinListener extends AbstractListener implements Listener {
+public class PlayerCommandPreprocessListener extends AbstractListener implements Listener {
 
     /**
-     * Construct the listener.
+     * Constructor.
      *
      * @param configurationService The configuration service
      * @param expectationService The expectation service
      * @param recordingService The recording service
      */
     @Inject
-    public PlayerJoinListener(
+    public PlayerCommandPreprocessListener(
         ConfigurationService configurationService,
         ExpectationService expectationService,
         BukkitRecordingService recordingService
@@ -58,15 +58,15 @@ public class PlayerJoinListener extends AbstractListener implements Listener {
      * @param event The event
      */
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onPlayerJoin(final PlayerJoinEvent event) {
+    public void onPlayerCommand(final PlayerCommandPreprocessEvent event) {
         final Player player = event.getPlayer();
 
         // Ignore if this event is disabled
-        if (!configurationService.prismConfig().actions().playerJoin()) {
+        if (!configurationService.prismConfig().actions().playerCommand()) {
             return;
         }
 
-        var action = new GenericBukkitAction(BukkitActionTypeRegistry.PLAYER_JOIN);
+        var action = new GenericBukkitAction(BukkitActionTypeRegistry.PLAYER_COMMAND, event.getMessage());
 
         var activity = BukkitActivity.builder().action(action).location(player.getLocation()).player(player).build();
 
