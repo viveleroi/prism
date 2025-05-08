@@ -74,7 +74,7 @@ public class VehicleExitListener extends AbstractListener implements Listener {
         if (entity instanceof Player player) {
             builder.player(player);
         } else {
-            builder.cause(entity.toString());
+            builder.cause(nameFromCause(entity));
         }
 
         recordingService.addToQueue(builder.build());
