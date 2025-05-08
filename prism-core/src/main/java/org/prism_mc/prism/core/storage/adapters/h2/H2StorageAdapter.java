@@ -25,6 +25,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.jooq.SQLDialect;
 import org.prism_mc.prism.api.actions.types.ActionTypeRegistry;
 import org.prism_mc.prism.core.injection.factories.FileSqlActivityQueryBuilderFactory;
@@ -69,9 +70,21 @@ public class H2StorageAdapter extends AbstractSqlStorageAdapter {
             serializerVersion
         );
         try {
-            File prismH2File = new File(dataPath.toFile(), configurationService.storageConfig().h2().database());
+            var configuredPath = configurationService.storageConfig().h2().path();
+            var databaseFilename = String.format("%s.db", configurationService.storageConfig().h2().database());
+            var dbFilePath = dataPath.resolve(Paths.get(configuredPath)).normalize();
 
-            if (connect(HikariConfigFactory.h2(configurationService.storageConfig(), prismH2File), SQLDialect.H2)) {
+            dbFilePath.toFile().mkdirs();
+
+            if (
+                connect(
+                    HikariConfigFactory.h2(
+                        configurationService.storageConfig(),
+                        dbFilePath.resolve(databaseFilename).toFile()
+                    ),
+                    SQLDialect.H2
+                )
+            ) {
                 this.queryBuilder = queryBuilderFactory.create(create);
 
                 prepareSchema();

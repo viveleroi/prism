@@ -20,18 +20,19 @@
 
 package org.prism_mc.prism.loader.services.configuration.storage;
 
+import lombok.Getter;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
-public class SqliteDataSourceConfiguration extends FileDataSourceConfiguration {
+@Getter
+public class FileDataSourceConfiguration extends DataSourceConfiguration {
 
-    /**
-     * Sqlite has no schema concept.
-     *
-     * @return The schema
-     */
-    @Override
-    public String schema() {
-        return "";
-    }
+    @Comment(
+        """
+        The path for the database file, excluding the filename.
+        By default the file will be inside the prism plugin folder.
+        You must use forward-slashes (c:/example) or double backslashes (c:\\temp)."""
+    )
+    private String path = ".";
 }

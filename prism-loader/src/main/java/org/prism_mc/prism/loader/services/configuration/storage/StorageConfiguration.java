@@ -50,7 +50,7 @@ public class StorageConfiguration {
         Settings for H2 file-based databases. File-based databases aren't generally
         recommended but the pros/cons depend entirely on your usage and needs."""
     )
-    private DataSourceConfiguration h2 = new DataSourceConfiguration();
+    private FileDataSourceConfiguration h2 = new FileDataSourceConfiguration();
 
     @Comment("Settings for MariaDB")
     private MariaDbDataSourceConfiguration mariadb = new MariaDbDataSourceConfiguration();
