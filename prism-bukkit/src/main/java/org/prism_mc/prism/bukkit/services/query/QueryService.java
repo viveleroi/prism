@@ -41,6 +41,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.activities.ActivityQuery;
@@ -205,6 +206,7 @@ public class QueryService {
             in = arguments.getArgument("in", String.class).get();
         } else if (
             !arguments.hasFlag("nodefaults") &&
+            !(sender instanceof ConsoleCommandSender) &&
             configurationService.prismConfig().defaults().parameters().containsKey("in")
         ) {
             in = configurationService.prismConfig().defaults().parameters().get("in");
@@ -254,6 +256,7 @@ public class QueryService {
         } else if (
             in == null &&
             at == null &&
+            !(sender instanceof ConsoleCommandSender) &&
             !arguments.hasFlag("nodefaults") &&
             configurationService.prismConfig().defaults().parameters().containsKey("r")
         ) {
