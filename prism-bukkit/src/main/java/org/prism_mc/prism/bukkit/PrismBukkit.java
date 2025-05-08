@@ -100,6 +100,7 @@ import org.prism_mc.prism.bukkit.listeners.player.PlayerBedEnterListener;
 import org.prism_mc.prism.bukkit.listeners.player.PlayerBucketEmptyListener;
 import org.prism_mc.prism.bukkit.listeners.player.PlayerBucketEntityListener;
 import org.prism_mc.prism.bukkit.listeners.player.PlayerBucketFillListener;
+import org.prism_mc.prism.bukkit.listeners.player.PlayerCommandPreprocessListener;
 import org.prism_mc.prism.bukkit.listeners.player.PlayerDeathListener;
 import org.prism_mc.prism.bukkit.listeners.player.PlayerDropItemListener;
 import org.prism_mc.prism.bukkit.listeners.player.PlayerExpChangeListener;
@@ -279,6 +280,7 @@ public class PrismBukkit implements Prism {
             registerEvent(PlayerBucketEmptyListener.class);
             registerEvent(PlayerBucketEntityListener.class);
             registerEvent(PlayerBucketFillListener.class);
+            registerEvent(PlayerCommandPreprocessListener.class);
             registerEvent(PlayerDeathListener.class);
             registerEvent(PlayerDropItemListener.class);
             registerEvent(PlayerExpChangeListener.class);
