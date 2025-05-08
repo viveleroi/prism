@@ -39,6 +39,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -605,9 +606,9 @@ public class QueryService {
 
         // Read "p" parameter from arguments or defaults
         final List<String> p = new ArrayList<>();
-        if (arguments.getListArgument("p", Player.class).isPresent()) {
+        if (arguments.getListArgument("p", OfflinePlayer.class).isPresent()) {
             arguments
-                .getListArgument("p", Player.class)
+                .getListArgument("p", OfflinePlayer.class)
                 .get()
                 .forEach(player -> {
                     p.add(player.getName());
