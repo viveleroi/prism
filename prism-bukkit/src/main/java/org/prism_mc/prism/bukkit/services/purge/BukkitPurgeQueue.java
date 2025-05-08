@@ -125,7 +125,7 @@ public class BukkitPurgeQueue implements PurgeQueue {
         taskChainProvider
             .newChain()
             .asyncFirst(() -> {
-                Pair<Integer, Integer> keys = storageAdapter.getActivitiesPkBounds();
+                Pair<Integer, Integer> keys = storageAdapter.getActivitiesPkBounds(purgeQueue.getFirst());
 
                 loggingService.debug("Absolute purge lower/bound primary keys: {0}, {1}", keys.key(), keys.value());
 

@@ -23,6 +23,8 @@ package org.prism_mc.prism.core.storage.adapters.sql;
 import static org.jooq.impl.DSL.avg;
 import static org.jooq.impl.DSL.coalesce;
 import static org.jooq.impl.DSL.count;
+import static org.jooq.impl.DSL.max;
+import static org.jooq.impl.DSL.min;
 import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
 import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
 import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
@@ -41,11 +43,13 @@ import org.jooq.DSLContext;
 import org.jooq.DeleteQuery;
 import org.jooq.JoinType;
 import org.jooq.Record;
+import org.jooq.Record2;
 import org.jooq.Result;
 import org.jooq.SelectQuery;
 import org.jooq.impl.DSL;
 import org.jooq.types.UInteger;
 import org.prism_mc.prism.api.activities.ActivityQuery;
+import org.prism_mc.prism.api.util.Pair;
 import org.prism_mc.prism.core.storage.dbo.records.PrismActivitiesRecord;
 import org.prism_mc.prism.core.storage.dbo.tables.PrismBlocks;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
@@ -210,29 +214,8 @@ public class SqlActivityQueryBuilder {
         }
 
         queryBuilder.addFrom(PRISM_ACTIVITIES);
-        queryBuilder.addJoin(PRISM_ACTIONS, PRISM_ACTIONS.ACTION_ID.equal(PRISM_ACTIVITIES.ACTION_ID));
-        queryBuilder.addJoin(
-            PRISM_BLOCKS,
-            JoinType.LEFT_OUTER_JOIN,
-            PRISM_BLOCKS.BLOCK_ID.equal(PRISM_ACTIVITIES.BLOCK_ID)
-        );
-        queryBuilder.addJoin(PRISM_WORLDS, PRISM_WORLDS.WORLD_ID.equal(PRISM_ACTIVITIES.WORLD_ID));
-        queryBuilder.addJoin(
-            PRISM_ENTITY_TYPES,
-            JoinType.LEFT_OUTER_JOIN,
-            PRISM_ENTITY_TYPES.ENTITY_TYPE_ID.equal(PRISM_ACTIVITIES.ENTITY_TYPE_ID)
-        );
-        queryBuilder.addJoin(
-            PRISM_ITEMS,
-            JoinType.LEFT_OUTER_JOIN,
-            PRISM_ITEMS.ITEM_ID.equal(PRISM_ACTIVITIES.ITEM_ID)
-        );
-        queryBuilder.addJoin(PRISM_CAUSES, PRISM_CAUSES.CAUSE_ID.equal(PRISM_ACTIVITIES.CAUSE_ID));
-        queryBuilder.addJoin(
-            PRISM_PLAYERS,
-            JoinType.LEFT_OUTER_JOIN,
-            PRISM_PLAYERS.PLAYER_ID.equal(PRISM_CAUSES.PLAYER_ID)
-        );
+
+        joins(queryBuilder);
 
         if (query.modification()) {
             queryBuilder.addJoin(
@@ -242,7 +225,6 @@ public class SqlActivityQueryBuilder {
             );
         }
 
-        // Add all conditions
         queryBuilder.addConditions(conditions(query));
 
         if (query.grouped()) {
@@ -323,6 +305,64 @@ public class SqlActivityQueryBuilder {
         }
 
         return queryBuilder.fetch();
+    }
+
+    /**
+     * Query the primary key bounds for the given conditions.
+     *
+     * @param query The query
+     * @return The min/max primary key
+     */
+    public Pair<Integer, Integer> queryActivitiesPkBounds(ActivityQuery query) {
+        var queryBuilder = create.selectQuery();
+
+        queryBuilder.addSelect(
+            coalesce(min(PRISM_ACTIVITIES.ACTIVITY_ID), DSL.val(0)),
+            coalesce(max(PRISM_ACTIVITIES.ACTIVITY_ID), DSL.val(0))
+        );
+
+        queryBuilder.addFrom(PRISM_ACTIVITIES);
+
+        joins(queryBuilder);
+
+        queryBuilder.addConditions(conditions(query));
+
+        var result = queryBuilder.fetchOne();
+        int minPk = result != null ? result.get(0, UInteger.class).intValue() : 0;
+        int maxPk = result != null ? result.get(1, UInteger.class).intValue() : 0;
+
+        return new Pair<>(minPk, maxPk);
+    }
+
+    /**
+     * A convenience method to add all joins needed for a lookup.
+     *
+     * @param queryBuilder Query builder
+     */
+    protected void joins(SelectQuery<Record> queryBuilder) {
+        queryBuilder.addJoin(PRISM_ACTIONS, PRISM_ACTIONS.ACTION_ID.equal(PRISM_ACTIVITIES.ACTION_ID));
+        queryBuilder.addJoin(
+            PRISM_BLOCKS,
+            JoinType.LEFT_OUTER_JOIN,
+            PRISM_BLOCKS.BLOCK_ID.equal(PRISM_ACTIVITIES.BLOCK_ID)
+        );
+        queryBuilder.addJoin(PRISM_WORLDS, PRISM_WORLDS.WORLD_ID.equal(PRISM_ACTIVITIES.WORLD_ID));
+        queryBuilder.addJoin(
+            PRISM_ENTITY_TYPES,
+            JoinType.LEFT_OUTER_JOIN,
+            PRISM_ENTITY_TYPES.ENTITY_TYPE_ID.equal(PRISM_ACTIVITIES.ENTITY_TYPE_ID)
+        );
+        queryBuilder.addJoin(
+            PRISM_ITEMS,
+            JoinType.LEFT_OUTER_JOIN,
+            PRISM_ITEMS.ITEM_ID.equal(PRISM_ACTIVITIES.ITEM_ID)
+        );
+        queryBuilder.addJoin(PRISM_CAUSES, PRISM_CAUSES.CAUSE_ID.equal(PRISM_ACTIVITIES.CAUSE_ID));
+        queryBuilder.addJoin(
+            PRISM_PLAYERS,
+            JoinType.LEFT_OUTER_JOIN,
+            PRISM_PLAYERS.PLAYER_ID.equal(PRISM_CAUSES.PLAYER_ID)
+        );
     }
 
     /**

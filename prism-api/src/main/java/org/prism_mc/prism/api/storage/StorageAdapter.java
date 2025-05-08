@@ -53,9 +53,10 @@ public interface StorageAdapter {
     /**
      * Get the min/max primary keys for the activities table.
      *
+     * @param query The query
      * @return A min/max pair.
      */
-    Pair<Integer, Integer> getActivitiesPkBounds();
+    Pair<Integer, Integer> getActivitiesPkBounds(ActivityQuery query);
 
     /**
      * Set the reversed bit for activities.
