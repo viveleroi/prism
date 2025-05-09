@@ -138,6 +138,7 @@ public class BukkitModificationQueueService implements ModificationQueueService 
         builder.overwrite(arguments.hasFlag("overwrite"));
 
         arguments.getFlagValue("drainlava", Boolean.class).ifPresent(builder::drainLava);
+        arguments.getFlagValue("removedrops", Boolean.class).ifPresent(builder::removeDrops);
 
         return builder;
     }
