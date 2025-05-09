@@ -84,7 +84,7 @@ public class ModificationQueueResultPlaceholderResolver
             builder
                 .hoverEvent(
                     HoverEvent.showText(
-                        Component.text(translationService.messageOf(receiver, "text.click-to-view-skips"))
+                        Component.text(translationService.messageOf(receiver, "prism.click-to-view-skips"))
                     )
                 )
                 .clickEvent(ClickEvent.runCommand("/prism report skips"));

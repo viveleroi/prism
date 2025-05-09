@@ -38,6 +38,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -45,6 +46,11 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.translation.MiniMessageTranslationStore;
+import net.kyori.adventure.translation.GlobalTranslator;
+import net.kyori.adventure.translation.TranslationStore;
 import net.kyori.adventure.translation.Translator;
 import net.kyori.moonshine.message.IMessageSource;
 import org.bukkit.command.CommandSender;
@@ -200,6 +206,17 @@ public class BukkitTranslationService implements IMessageSource<CommandSender, S
                     );
             }
         }
+
+        // Load translations into the kyori translation store
+        final var store = MiniMessageTranslationStore.create(Key.key("prism_mc:prism"));
+
+        for (var localeEntry : locales.entrySet()) {
+            for (var entry : localeEntry.getValue().entrySet()) {
+                store.register(entry.getKey().toString(), localeEntry.getKey(), entry.getValue().toString());
+            }
+        }
+
+        GlobalTranslator.translator().addSource(store);
     }
 
     /**

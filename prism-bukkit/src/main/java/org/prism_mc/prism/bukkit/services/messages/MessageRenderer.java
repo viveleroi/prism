@@ -61,7 +61,7 @@ public class MessageRenderer implements IMessageRenderer<CommandSender, String, 
     ) {
         TagResolver.Single headingTemplate = Placeholder.parsed(
             "prefix",
-            translationService.messageOf(receiver, "rich.prefix")
+            translationService.messageOf(receiver, "prism.prefix")
         );
 
         TagResolver.Builder builder = TagResolver.builder();

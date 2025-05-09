@@ -33,6 +33,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.translation.Argument;
 import net.kyori.moonshine.placeholder.ConclusionValue;
 import net.kyori.moonshine.placeholder.ContinuanceValue;
 import net.kyori.moonshine.placeholder.IPlaceholderResolver;
@@ -80,7 +81,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         final @Nullable Object[] parameters
     ) {
         Component action = Component.text(value.action().type().key());
-        Component actionPastTense = actionPastTense(receiver, value.action().type());
+        Component actionPastTense = actionPastTense(value.action().type());
         Component cause = cause(receiver, value.cause(), value.player());
         Component since = since(receiver, value.timestamp());
         Component descriptor = descriptor(receiver, value);
@@ -98,9 +99,9 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
 
         Component sign;
         if (value.action().type().resultType().equals(ActionResultType.REMOVES)) {
-            sign = MiniMessage.miniMessage().deserialize(translationService.messageOf(receiver, "text.sign-minus"));
+            sign = Component.translatable("prism.sign-minus");
         } else {
-            sign = MiniMessage.miniMessage().deserialize(translationService.messageOf(receiver, "text.sign-plus"));
+            sign = Component.translatable("prism.sign-plus");
         }
 
         return Map.of(
@@ -128,14 +129,10 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
     /**
      * Build the action past tense component.
      *
-     * @param receiver The receiver
      * @param actionType The action type
      * @return The component
      */
-    protected Component actionPastTense(CommandSender receiver, ActionType actionType) {
-        String pastTenseTranslationKey = actionType.pastTenseTranslationKey();
-        String pastTense = translationService.messageOf(receiver, pastTenseTranslationKey);
-
+    protected Component actionPastTense(ActionType actionType) {
         Component actionHover = Component.text()
             .append(Component.text("a:", NamedTextColor.GRAY))
             .append(Component.text(actionType.key(), TextColor.fromCSSHexString("#ffd782")))
@@ -144,7 +141,10 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
             .append(Component.text(actionType.familyKey(), TextColor.fromCSSHexString("#ffd782")))
             .build();
 
-        return Component.text().append(Component.text(pastTense)).hoverEvent(HoverEvent.showText(actionHover)).build();
+        return Component.text()
+            .append(Component.translatable(actionType.pastTenseTranslationKey()))
+            .hoverEvent(HoverEvent.showText(actionHover))
+            .build();
     }
 
     /**
@@ -158,19 +158,19 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.key());
 
             Component playerHeading = MiniMessage.miniMessage()
-                .deserialize(translationService.messageOf(receiver, "rich.player-hover-header"));
+                .deserialize(translationService.messageOf(receiver, "prism.player-hover-header"));
 
             Component uuid = MiniMessage.miniMessage()
-                .deserialize(translationService.messageOf(receiver, "rich.player-hover-uuid"));
+                .deserialize(translationService.messageOf(receiver, "prism.player-hover-uuid"));
 
             Component online = MiniMessage.miniMessage()
-                .deserialize(translationService.messageOf(receiver, "rich.player-hover-online"));
+                .deserialize(translationService.messageOf(receiver, "prism.player-hover-online"));
 
             Component banned = MiniMessage.miniMessage()
-                .deserialize(translationService.messageOf(receiver, "rich.player-hover-banned"));
+                .deserialize(translationService.messageOf(receiver, "prism.player-hover-banned"));
 
-            String yes = translationService.messageOf(receiver, "text.player-hover-yes");
-            String no = translationService.messageOf(receiver, "text.player-hover-no");
+            String yes = translationService.messageOf(receiver, "prism.player-hover-yes");
+            String no = translationService.messageOf(receiver, "prism.player-hover-no");
 
             Component hover = Component.text()
                 .append(playerHeading)
@@ -199,7 +199,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
 
             return Component.text().append(Component.text(cause)).hoverEvent(HoverEvent.showText(hover)).build();
         } else {
-            return Component.text(translationService.messageOf(receiver, "text.unknown-cause"));
+            return Component.translatable("prism.unknown-cause");
         }
     }
 
@@ -227,7 +227,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
                 for (var entry : value.action().metadata().data().entrySet()) {
                     var key = translationService.messageOf(
                         receiver,
-                        String.format("text.metadata-hover-%s", entry.getKey().toLowerCase(Locale.ROOT))
+                        String.format("prism.metadata-hover-%s", entry.getKey().toLowerCase(Locale.ROOT))
                     );
 
                     metadataBuilder
@@ -259,7 +259,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
      * @return The location
      */
     protected Component location(CommandSender receiver, Pair<UUID, String> world, Coordinate coordinate) {
-        Component hover = Component.text(translationService.messageOf(receiver, "text.click-to-teleport"));
+        Component hover = Component.text(translationService.messageOf(receiver, "prism.click-to-teleport"));
 
         var builder = Component.text()
             .append(Component.text(coordinate.intX()))
@@ -295,7 +295,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         long diffInSeconds = System.currentTimeMillis() / 1000 - timestamp;
 
         if (diffInSeconds < 60) {
-            return Component.text(translationService.messageOf(receiver, "text.just-now"));
+            return Component.translatable("prism.just-now");
         }
 
         long period = 24 * 60 * 60;
@@ -320,8 +320,9 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
             timeAgo.append(diff[2]).append('m');
         }
 
-        // 'time_ago' will have something at this point
-        String ago = translationService.messageOf(receiver, "text.ago");
-        return Component.text(timeAgo.append(" ").append(ago).toString());
+        return Component.translatable(
+            "prism.time-ago",
+            Argument.component("time_ago", Component.text(timeAgo.toString()))
+        );
     }
 }

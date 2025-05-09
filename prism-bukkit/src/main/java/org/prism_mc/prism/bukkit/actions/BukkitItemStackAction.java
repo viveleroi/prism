@@ -24,6 +24,7 @@ import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.translation.Argument;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
@@ -97,7 +98,14 @@ public class BukkitItemStackAction extends BukkitMaterialAction implements ItemA
         var complete = Component.text();
 
         if (itemStack.getAmount() > 1) {
-            complete.append(Component.text(itemStack.getAmount())).append(Component.space());
+            complete
+                .append(
+                    Component.translatable(
+                        "prism.quantity",
+                        Argument.component("quantity", Component.text(itemStack.getAmount()))
+                    )
+                )
+                .append(Component.space());
         }
 
         Component itemName = Component.translatable(itemStack.translationKey());
