@@ -29,15 +29,18 @@ import dev.triumphteam.cmd.core.argument.keyed.Flag;
 import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
+import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -45,6 +48,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import org.prism_mc.prism.api.Prism;
 import org.prism_mc.prism.api.actions.types.ActionTypeRegistry;
 import org.prism_mc.prism.api.services.recording.RecordingService;
@@ -452,6 +456,15 @@ public class PrismBukkit implements Prism {
                 return tags;
             });
 
+            // prettier-ignore
+            commandManager.registerArgument(OfflinePlayer.class, (sender, argument) ->
+                Bukkit.getOfflinePlayer(argument)
+            );
+
+            commandManager.registerSuggestion(OfflinePlayer.class, (sender, arguments) ->
+                Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList())
+            );
+
             // Register world auto-suggest
             commandManager.registerSuggestion(SuggestionKey.of("worlds"), (sender, context) -> {
                 List<String> worlds = new ArrayList<>();
@@ -495,7 +508,7 @@ public class PrismBukkit implements Prism {
                 Argument.listOf(String.class).name("b").suggestion(SuggestionKey.of("blocks")).build(),
                 Argument.listOf(Material.class).name("i").build(),
                 Argument.listOf(EntityType.class).name("e").build(),
-                Argument.listOf(Player.class).name("p").build()
+                Argument.listOf(OfflinePlayer.class).name("p").build()
             );
 
             commandManager.registerCommand(injectorProvider.injector().getInstance(AboutCommand.class));
