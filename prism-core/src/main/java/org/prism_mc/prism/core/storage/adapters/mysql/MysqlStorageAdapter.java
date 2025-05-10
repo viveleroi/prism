@@ -162,7 +162,7 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
                 .intoMap(r -> r.get(0, String.class), r -> r.get(1, String.class));
 
             long innodbSizeMb = Long.parseLong(dbVars.get("innodb_buffer_pool_size")) / 1024 / 1024;
-            loggingService.info("innodb_buffer_pool_size: {0}", innodbSizeMb);
+            loggingService.info("innodb_buffer_pool_size: {0}MB", innodbSizeMb);
             if (innodbSizeMb < 1024) {
                 loggingService.info("We recommend setting a higher innodb_buffer_pool_size.");
                 loggingService.info("See: https://docs.prism-mc.org/features/purges/#purges-and-databases");
