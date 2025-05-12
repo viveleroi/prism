@@ -656,6 +656,23 @@ public class QueryService {
             builder.reversed(reversed);
         }
 
+        // Read "q" parameter from arguments or defaults
+        String query = null;
+        if (arguments.getArgument("q", String.class).isPresent()) {
+            query = arguments.getArgument("q", String.class).get();
+        } else if (
+            !arguments.hasFlag("nodefaults") &&
+            configurationService.prismConfig().defaults().parameters().containsKey("q")
+        ) {
+            query = configurationService.prismConfig().defaults().parameters().get("q");
+
+            builder.defaultUsed("q:" + query);
+        }
+
+        if (query != null) {
+            builder.query(query);
+        }
+
         return Optional.of(builder);
     }
 

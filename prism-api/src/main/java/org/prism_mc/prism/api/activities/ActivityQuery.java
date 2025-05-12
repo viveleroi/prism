@@ -140,6 +140,11 @@ public class ActivityQuery {
     private Collection<String> playerNames;
 
     /**
+     * A generic query string for searching text.
+     */
+    private String query;
+
+    /**
      * The reference coordinate.
      * If defined, this location will be used as the center for the Radius, In, and World parameters.
      */
