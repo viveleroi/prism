@@ -20,7 +20,6 @@
 
 package org.prism_mc.prism.bukkit.services.messages.resolvers;
 
-import com.google.inject.Inject;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Locale;
@@ -33,24 +32,8 @@ import net.kyori.moonshine.util.Either;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 import org.prism_mc.prism.api.services.wands.WandMode;
-import org.prism_mc.prism.bukkit.services.translation.BukkitTranslationService;
 
 public class WandModePlaceholderResolver implements IPlaceholderResolver<CommandSender, WandMode, Component> {
-
-    /**
-     * The translation service.
-     */
-    private final BukkitTranslationService translationService;
-
-    /**
-     * Construct a new translation string placeholder resolver.
-     *
-     * @param translationService The translation service
-     */
-    @Inject
-    public WandModePlaceholderResolver(BukkitTranslationService translationService) {
-        this.translationService = translationService;
-    }
 
     @Override
     public @Nullable Map<String, Either<ConclusionValue<? extends Component>, ContinuanceValue<?>>> resolve(
@@ -61,10 +44,7 @@ public class WandModePlaceholderResolver implements IPlaceholderResolver<Command
         final Method method,
         final @Nullable Object[] parameters
     ) {
-        String translated = translationService.messageOf(
-            receiver,
-            "text.wand-mode-" + value.toString().toLowerCase(Locale.ENGLISH)
-        );
-        return Map.of(placeholderName, Either.left(ConclusionValue.conclusionValue(Component.text(translated))));
+        String key = String.format("prism.wand-mode-%s", value.toString().toLowerCase(Locale.ENGLISH));
+        return Map.of(placeholderName, Either.left(ConclusionValue.conclusionValue(Component.translatable(key))));
     }
 }

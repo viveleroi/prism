@@ -242,32 +242,43 @@ public class LookupService {
             }
 
             if (results.hasPrevPage() || results.hasNextPage()) {
-                Component prev = Component.empty();
+                var builder = Component.text();
+
                 if (results.hasPrevPage()) {
                     String cmd = "/pr page " + (results.currentPage() - 1);
 
-                    Component hover = Component.text(translationService.messageOf(sender, "text.page-prev-hover"));
-                    prev = MiniMessage.miniMessage()
-                        .deserialize(translationService.messageOf(sender, "rich.page-prev"))
-                        .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, hover))
-                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
+                    builder.append(
+                        Component.translatable("prism.page-prev")
+                            .hoverEvent(
+                                HoverEvent.hoverEvent(
+                                    HoverEvent.Action.SHOW_TEXT,
+                                    Component.text(translationService.messageOf(sender, "prism.page-prev-hover"))
+                                )
+                            )
+                            .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, cmd))
+                    );
                 }
 
-                Component splitter = MiniMessage.miniMessage()
-                    .deserialize(translationService.messageOf(sender, "rich.page-separator"));
+                if (results.hasPrevPage() && results.hasNextPage()) {
+                    builder.append(Component.translatable("prism.page-separator"));
+                }
 
-                Component next = Component.empty();
                 if (results.hasNextPage()) {
                     String cmd = "/pr page " + (results.currentPage() + 1);
 
-                    Component hover = Component.text(translationService.messageOf(sender, "text.page-next-hover"));
-                    next = MiniMessage.miniMessage()
-                        .deserialize(translationService.messageOf(sender, "rich.page-next"))
-                        .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, hover))
-                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
+                    builder.append(
+                        Component.translatable("prism.page-next")
+                            .hoverEvent(
+                                HoverEvent.hoverEvent(
+                                    HoverEvent.Action.SHOW_TEXT,
+                                    Component.text(translationService.messageOf(sender, "prism.page-next-hover"))
+                                )
+                            )
+                            .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, cmd))
+                    );
                 }
 
-                sender.sendMessage(prev.append(splitter).append(next));
+                sender.sendMessage(builder.build());
             }
         }
     }
