@@ -23,8 +23,6 @@ package org.prism_mc.prism.core.storage.adapters.sql;
 import static org.jooq.impl.DSL.avg;
 import static org.jooq.impl.DSL.coalesce;
 import static org.jooq.impl.DSL.constraint;
-import static org.jooq.impl.DSL.max;
-import static org.jooq.impl.DSL.min;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -47,11 +45,9 @@ import java.util.Scanner;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.jooq.DSLContext;
-import org.jooq.Record2;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
-import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 import org.prism_mc.prism.api.PaginatedResults;
 import org.prism_mc.prism.api.actions.ActionData;
@@ -66,7 +62,7 @@ import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.api.util.Pair;
 import org.prism_mc.prism.core.injection.factories.SqlActivityQueryBuilderFactory;
 import org.prism_mc.prism.core.services.cache.CacheService;
-import org.prism_mc.prism.core.storage.HikariConfigFactory;
+import org.prism_mc.prism.core.storage.HikariConfigFactories;
 import org.prism_mc.prism.core.storage.dbo.DefaultCatalog;
 import org.prism_mc.prism.core.storage.dbo.Indexes;
 import org.prism_mc.prism.core.storage.dbo.PrismDatabase;
@@ -274,7 +270,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
         System.setProperty("org.jooq.no-tips", "true");
 
         // Load any drivers
-        HikariConfigFactory.loadDriver(configurationService.storageConfig().primaryStorageType());
+        HikariConfigFactories.loadDriver(configurationService.storageConfig().primaryStorageType());
         listDrivers();
     }
 

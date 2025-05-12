@@ -28,7 +28,7 @@ import org.prism_mc.prism.loader.services.configuration.storage.StorageConfigura
 import org.prism_mc.prism.loader.storage.StorageType;
 
 @UtilityClass
-public class HikariConfigFactory {
+public class HikariConfigFactories {
 
     /**
      * Create a hikari configuration for H2 databases.

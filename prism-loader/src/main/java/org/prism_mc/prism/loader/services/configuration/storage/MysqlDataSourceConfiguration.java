@@ -30,7 +30,7 @@ public class MysqlDataSourceConfiguration extends SqlDataSourceConfiguration {
 
     @Comment(
         """
-        Toggle recommended Hikari MySQL datasource optimizations.
+        Toggle recommended Hikari datasource optimizations.
         You can read about these here: https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration"""
     )
     private boolean useHikariOptimizations = true;
@@ -39,8 +39,8 @@ public class MysqlDataSourceConfiguration extends SqlDataSourceConfiguration {
         """
         Enable stored procedures. Stored procedures allow Prism to modify database records
         more efficiently and with reduced network traffic.
-        However, your MySQL account must have privileges to `CREATE ROUTINE`.
-        If you use a shared MySQL database, you likely do NOT have such permission.
+        However, your account must have privileges to `CREATE ROUTINE`.
+        If you use a shared database, you likely do NOT have such permission.
         If you're unsure, Prism tells you in the server console during server startup.
         Prism will force disable this setting if you do not have necessary permission."""
     )

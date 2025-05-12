@@ -23,14 +23,13 @@ package org.prism_mc.prism.core.storage.adapters.h2;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.jooq.SQLDialect;
 import org.prism_mc.prism.api.actions.types.ActionTypeRegistry;
 import org.prism_mc.prism.core.injection.factories.FileSqlActivityQueryBuilderFactory;
 import org.prism_mc.prism.core.services.cache.CacheService;
-import org.prism_mc.prism.core.storage.HikariConfigFactory;
+import org.prism_mc.prism.core.storage.HikariConfigFactories;
 import org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter;
 import org.prism_mc.prism.core.storage.adapters.sql.SqlSchemaUpdater;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
@@ -78,7 +77,7 @@ public class H2StorageAdapter extends AbstractSqlStorageAdapter {
 
             if (
                 connect(
-                    HikariConfigFactory.h2(
+                    HikariConfigFactories.h2(
                         configurationService.storageConfig(),
                         dbFilePath.resolve(databaseFilename).toFile()
                     ),
