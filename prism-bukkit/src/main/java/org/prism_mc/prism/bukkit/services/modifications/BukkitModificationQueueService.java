@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
@@ -204,6 +205,7 @@ public class BukkitModificationQueueService implements ModificationQueueService 
         }
     }
 
+    @Nullable
     @Override
     public ModificationQueue currentQueue() {
         return currentQueue;

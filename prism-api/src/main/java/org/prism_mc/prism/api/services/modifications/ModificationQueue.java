@@ -37,4 +37,11 @@ public interface ModificationQueue {
      * @return The owner
      */
     Object owner();
+
+    /**
+     * The size of the current queue.
+     *
+     * @return Queue size
+     */
+    int queueSize();
 }

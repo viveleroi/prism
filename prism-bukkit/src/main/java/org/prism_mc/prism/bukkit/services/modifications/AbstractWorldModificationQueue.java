@@ -137,6 +137,11 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
         this.onEndCallback = onEndCallback;
     }
 
+    @Override
+    public int queueSize() {
+        return modificationsQueue.size();
+    }
+
     /**
      * Apply a modification.
      *
