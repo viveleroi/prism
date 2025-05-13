@@ -430,6 +430,11 @@ public class SqlActivityQueryBuilder {
             conditions.add(PRISM_PLAYERS.PLAYER.in(query.playerNames()));
         }
 
+        // Query
+        if (query.query() != null) {
+            conditions.add(PRISM_ACTIVITIES.DESCRIPTOR.likeIgnoreCase(String.format("%%%s%%", query.query())));
+        }
+
         // Reversed
         if (query.reversed() != null) {
             conditions.add(PRISM_ACTIVITIES.REVERSED.eq(query.reversed()));

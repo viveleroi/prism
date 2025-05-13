@@ -508,7 +508,8 @@ public class PrismBukkit implements Prism {
                 Argument.listOf(String.class).name("b").suggestion(SuggestionKey.of("blocks")).build(),
                 Argument.listOf(Material.class).name("i").build(),
                 Argument.listOf(EntityType.class).name("e").build(),
-                Argument.listOf(OfflinePlayer.class).name("p").build()
+                Argument.listOf(OfflinePlayer.class).name("p").build(),
+                Argument.forString().name("q").build()
             );
 
             commandManager.registerCommand(injectorProvider.injector().getInstance(AboutCommand.class));
