@@ -35,7 +35,7 @@ import org.prism_mc.prism.api.actions.types.ActionTypeRegistry;
 import org.prism_mc.prism.api.storage.ActivityBatch;
 import org.prism_mc.prism.core.injection.factories.SqlActivityQueryBuilderFactory;
 import org.prism_mc.prism.core.services.cache.CacheService;
-import org.prism_mc.prism.core.storage.HikariConfigFactory;
+import org.prism_mc.prism.core.storage.HikariConfigFactories;
 import org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter;
 import org.prism_mc.prism.core.storage.adapters.sql.SqlActivityProcedureBatch;
 import org.prism_mc.prism.core.storage.adapters.sql.SqlSchemaUpdater;
@@ -100,7 +100,9 @@ public class PostgresStorageAdapter extends AbstractSqlStorageAdapter {
             } else {
                 loggingService.info("Reading storage.conf. There is no hikari.properties file.");
 
-                if (connect(HikariConfigFactory.postgres(configurationService.storageConfig()), SQLDialect.POSTGRES)) {
+                if (
+                    connect(HikariConfigFactories.postgres(configurationService.storageConfig()), SQLDialect.POSTGRES)
+                ) {
                     describeDatabase(false);
                     prepareSchema();
                     prepareCache();

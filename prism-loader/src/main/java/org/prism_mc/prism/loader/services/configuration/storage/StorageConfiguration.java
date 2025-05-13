@@ -53,7 +53,7 @@ public class StorageConfiguration {
     private FileDataSourceConfiguration h2 = new FileDataSourceConfiguration();
 
     @Comment("Settings for MariaDB")
-    private MariaDbDataSourceConfiguration mariadb = new MariaDbDataSourceConfiguration();
+    private MysqlDataSourceConfiguration mariadb = new MysqlDataSourceConfiguration();
 
     @Comment("Settings for MySQL")
     private MysqlDataSourceConfiguration mysql = new MysqlDataSourceConfiguration();

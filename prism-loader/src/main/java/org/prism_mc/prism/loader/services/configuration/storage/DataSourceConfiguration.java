@@ -29,7 +29,7 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 public class DataSourceConfiguration {
 
     @Comment("Set the max number of records saved to storage per batch.")
-    private int batchMax = 500;
+    private int batchMax = 2000;
 
     @Comment("Configure the database name.")
     private String database = "prism";

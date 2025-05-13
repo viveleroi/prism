@@ -37,15 +37,23 @@ import org.prism_mc.prism.api.actions.types.ActionTypeRegistry;
 import org.prism_mc.prism.api.storage.ActivityBatch;
 import org.prism_mc.prism.core.injection.factories.SqlActivityQueryBuilderFactory;
 import org.prism_mc.prism.core.services.cache.CacheService;
-import org.prism_mc.prism.core.storage.HikariConfigFactory;
+import org.prism_mc.prism.core.storage.HikariConfigFactories;
 import org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter;
 import org.prism_mc.prism.core.storage.adapters.sql.SqlActivityProcedureBatch;
 import org.prism_mc.prism.core.storage.adapters.sql.SqlSchemaUpdater;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+import org.prism_mc.prism.loader.services.configuration.storage.MysqlDataSourceConfiguration;
+import org.prism_mc.prism.loader.services.configuration.storage.StorageConfiguration;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
 @Singleton
 public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
+
+    public interface HikariConfigFactory {
+        HikariConfig create(StorageConfiguration storageConfiguration);
+    }
+
+    private final MysqlDataSourceConfiguration dataSourceConfiguration;
 
     /**
      * Constructor.
@@ -70,6 +78,49 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
         @Named("serializerVersion") short serializerVersion,
         Path dataPath
     ) {
+        this(
+            loggingService,
+            configurationService,
+            actionRegistry,
+            schemaUpdater,
+            queryBuilderFactory,
+            cacheService,
+            serializerVersion,
+            dataPath,
+            configurationService.storageConfig().mysql(),
+            SQLDialect.MYSQL,
+            HikariConfigFactories::mysql
+        );
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param loggingService The logging service
+     * @param configurationService The configuration service
+     * @param actionRegistry The action type registry
+     * @param schemaUpdater The schema updater
+     * @param cacheService The cache service
+     * @param queryBuilderFactory The query builder factory
+     * @param serializerVersion The serializer version
+     * @param dataPath The plugin file path
+     * @param dataSourceConfiguration The data source configuration
+     * @param dialect The sql dialect
+     * @param factory The hikari config factory
+     */
+    public MysqlStorageAdapter(
+        LoggingService loggingService,
+        ConfigurationService configurationService,
+        ActionTypeRegistry actionRegistry,
+        SqlSchemaUpdater schemaUpdater,
+        SqlActivityQueryBuilderFactory queryBuilderFactory,
+        CacheService cacheService,
+        short serializerVersion,
+        Path dataPath,
+        MysqlDataSourceConfiguration dataSourceConfiguration,
+        SQLDialect dialect,
+        HikariConfigFactory factory
+    ) {
         super(
             loggingService,
             configurationService,
@@ -79,17 +130,19 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
             cacheService,
             serializerVersion
         );
+        this.dataSourceConfiguration = dataSourceConfiguration;
+
         try {
             // First, try to use any hikari.properties
             File hikariPropertiesFile = new File(dataPath.toFile(), "hikari.properties");
             if (hikariPropertiesFile.exists()) {
                 loggingService.info("Using hikari.properties over storage.conf");
 
-                if (connect(new HikariConfig(hikariPropertiesFile.getPath()), SQLDialect.MYSQL)) {
+                if (connect(new HikariConfig(hikariPropertiesFile.getPath()), dialect)) {
                     describeDatabase(true);
                     prepareSchema();
 
-                    if (!configurationService.storageConfig().mysql().useStoredProcedures()) {
+                    if (!dataSourceConfiguration.useStoredProcedures()) {
                         prepareCache();
                     }
 
@@ -98,11 +151,11 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
             } else {
                 loggingService.info("Reading storage.conf. There is no hikari.properties file.");
 
-                if (connect(HikariConfigFactory.mysql(configurationService.storageConfig()), SQLDialect.MYSQL)) {
+                if (connect(factory.create(configurationService.storageConfig()), dialect)) {
                     describeDatabase(false);
                     prepareSchema();
 
-                    if (!configurationService.storageConfig().mysql().useStoredProcedures()) {
+                    if (!dataSourceConfiguration.useStoredProcedures()) {
                         prepareCache();
                     }
 
@@ -124,34 +177,34 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
 
             loggingService.info("Database: {0} {1}", databaseProduct, databaseVersion);
 
-            int majorVersion = databaseMetaData.getDatabaseMajorVersion();
-            int minorVersion = databaseMetaData.getDatabaseMinorVersion();
-
-            if (majorVersion < 8 || (majorVersion == 8 && minorVersion < 20)) {
-                loggingService.warn("Your database version appears to be older than prism supports.");
-            }
+            versionCheck(databaseMetaData);
 
             var usingStoredProcedures = false;
-            if (configurationService.storageConfig().mysql().useStoredProcedures()) {
+            if (dataSourceConfiguration.useStoredProcedures()) {
                 boolean supportsProcedures = databaseMetaData.supportsStoredProcedures();
                 loggingService.info("supports procedures: {0}", supportsProcedures);
 
                 List<String> grants = create.fetch("SHOW GRANTS FOR CURRENT_USER();").into(String.class);
-                boolean canCreateRoutines =
-                    grants.get(0).contains("CREATE ROUTINE") ||
-                    grants.get(0).contains("GRANT ALL PRIVILEGES ON *.*") ||
-                    grants
-                        .get(0)
-                        .contains("GRANT ALL PRIVILEGES ON " + configurationService.storageConfig().mysql().database());
+                boolean canCreateRoutines = false;
+
+                for (var grant : grants) {
+                    if (
+                        grant.contains("CREATE ROUTINE") ||
+                        grant.contains("GRANT ALL PRIVILEGES ON *.*") ||
+                        grant.contains("GRANT ALL PRIVILEGES ON " + dataSourceConfiguration.database())
+                    ) {
+                        canCreateRoutines = true;
+                        break;
+                    }
+                }
+
                 loggingService.info("can create routines: {0}", canCreateRoutines);
 
                 usingStoredProcedures =
-                    supportsProcedures &&
-                    canCreateRoutines &&
-                    configurationService.storageConfig().mysql().useStoredProcedures();
+                    supportsProcedures && canCreateRoutines && dataSourceConfiguration.useStoredProcedures();
 
                 if (!usingStoredProcedures) {
-                    configurationService.storageConfig().mysql().disallowStoredProcedures();
+                    dataSourceConfiguration.disallowStoredProcedures();
                 }
             }
 
@@ -171,7 +224,7 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
             loggingService.info("sql_mode: {0}", dbVars.get("sql_mode"));
 
             if (!usingHikariProperties) {
-                boolean usrHikariOptimizations = configurationService.storageConfig().mysql().useHikariOptimizations();
+                boolean usrHikariOptimizations = dataSourceConfiguration.useHikariOptimizations();
                 loggingService.info("use hikari optimizations: {0}", usrHikariOptimizations);
             }
         }
@@ -181,7 +234,7 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
     protected void prepareSchema() throws Exception {
         super.prepareSchema();
 
-        if (configurationService.storageConfig().mysql().useStoredProcedures()) {
+        if (dataSourceConfiguration.useStoredProcedures()) {
             try (Connection connection = dataSource.getConnection(); Statement stmt = connection.createStatement()) {
                 // Drop procedures first because MySQL doesn't support OR REPLACE in CREATE PROCEDURE
                 stmt.execute(String.format("DROP PROCEDURE IF EXISTS %screate_activity", prefix));
@@ -206,9 +259,28 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
         }
     }
 
+    /**
+     * Logs an error if the database version is unsupported.
+     *
+     * @param databaseMetaData Database metadata
+     */
+    protected void versionCheck(DatabaseMetaData databaseMetaData) throws SQLException {
+        int majorVersion = databaseMetaData.getDatabaseMajorVersion();
+
+        int patchVersion = 0;
+        var segments = databaseMetaData.getDatabaseProductVersion().split("\\.");
+        if (segments.length == 3) {
+            patchVersion = Integer.parseInt(segments[2]);
+        }
+
+        if (majorVersion < 8 || (majorVersion == 8 && patchVersion < 20)) {
+            loggingService.warn("Your database version appears to be older than prism supports.");
+        }
+    }
+
     @Override
     public ActivityBatch createActivityBatch() {
-        if (configurationService.storageConfig().mysql().useStoredProcedures()) {
+        if (dataSourceConfiguration.useStoredProcedures()) {
             return new SqlActivityProcedureBatch(loggingService, dataSource, serializerVersion, prefix);
         }
 
