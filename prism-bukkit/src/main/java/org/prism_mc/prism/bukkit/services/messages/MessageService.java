@@ -125,6 +125,9 @@ public interface MessageService {
     @Message("prism.error.purge-queue-not-free")
     void errorPurgeQueryNotFree(CommandSender receiver);
 
+    @Message("prism.error.queue-report-empty")
+    void errorQueueReportEmpty(CommandSender receiver);
+
     @Message("prism.error.queue-missing")
     void errorQueueMissing(CommandSender receiver);
 
@@ -178,6 +181,12 @@ public interface MessageService {
 
     @Message("prism.modifications-removed-drops")
     void modificationsRemovedDrops(CommandSender receiver, @Placeholder Integer count);
+
+    @Message("prism.modifications-report-queue-header")
+    void modificationsReportQueueHeader(CommandSender receiver);
+
+    @Message("prism.modifications-report-queue-entry")
+    void modificationsReportQueueEntry(CommandSender receiver, @Placeholder Integer size, @Placeholder String owner);
 
     @Message("prism.modifications-report-skipped-header")
     void modificationsReportSkippedHeader(CommandSender receiver);

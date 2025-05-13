@@ -26,6 +26,7 @@ import dev.triumphteam.cmd.core.annotations.Command;
 import java.util.Locale;
 import java.util.Optional;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueResult;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueService;
 import org.prism_mc.prism.api.services.modifications.ModificationResult;
@@ -62,12 +63,38 @@ public class ReportCommand {
     public class ReportSubCommand {
 
         /**
+         * Run the modification queue report command.
+         *
+         * @param sender The command sender
+         */
+        @Command("modification-queue")
+        public void onModificationQueueReport(final CommandSender sender) {
+            if (modificationQueueService.currentQueue() == null) {
+                messageService.errorQueueReportEmpty(sender);
+
+                return;
+            }
+
+            var owner = "console";
+            if (modificationQueueService.currentQueue().owner() instanceof Player player) {
+                owner = player.getName();
+            }
+
+            messageService.modificationsReportQueueHeader(sender);
+            messageService.modificationsReportQueueEntry(
+                sender,
+                modificationQueueService.currentQueue().queueSize(),
+                owner
+            );
+        }
+
+        /**
          * Run the modification skips report command.
          *
          * @param sender The command sender
          */
         @Command("skips")
-        public void onReport(final CommandSender sender) {
+        public void onSkipsReport(final CommandSender sender) {
             Optional<ModificationQueueResult> resultOptional = modificationQueueService.queueResultForOwner(sender);
             if (resultOptional.isEmpty()) {
                 messageService.errorQueueResultMissing(sender);
