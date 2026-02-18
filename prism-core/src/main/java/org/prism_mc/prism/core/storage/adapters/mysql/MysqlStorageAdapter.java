@@ -29,7 +29,6 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.List;
 import java.util.Map;
 import org.jooq.SQLDialect;
 import org.prism_mc.prism.api.actions.types.ActionTypeRegistry;
@@ -180,24 +179,27 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
                 boolean supportsProcedures = databaseMetaData.supportsStoredProcedures();
                 loggingService.info("supports procedures: {0}", supportsProcedures);
 
-                List<String> grants = dslContext.fetch("SHOW GRANTS FOR CURRENT_USER();").into(String.class);
-                boolean canCreateRoutines = false;
+                boolean canUseRoutines = true;
+                try (Statement stmt = connection.createStatement()) {
+                    var name = String.format("%sroutine_test", prefix);
+                    var drop = String.format("DROP PROCEDURE IF EXISTS %s", name);
+                    var create = String.format("CREATE PROCEDURE %s() BEGIN END", name);
 
-                for (var grant : grants) {
-                    if (
-                        grant.contains("CREATE ROUTINE") ||
-                        grant.contains("GRANT ALL PRIVILEGES ON *.*") ||
-                        grant.contains("GRANT ALL PRIVILEGES ON " + dataSourceConfiguration.database())
-                    ) {
-                        canCreateRoutines = true;
-                        break;
-                    }
+                    stmt.execute(drop);
+                    stmt.execute(create);
+                    stmt.execute(drop);
+                } catch (SQLException e) {
+                    loggingService.warn(
+                        "Stored procedures are enabled but could not be activated (test failed), force disabling and falling back to standard SQL. Error: {0}",
+                        e.getMessage()
+                    );
+                    canUseRoutines = false;
                 }
 
-                loggingService.info("can create routines: {0}", canCreateRoutines);
+                loggingService.info("can use routines: {0}", canUseRoutines);
 
                 usingStoredProcedures =
-                    supportsProcedures && canCreateRoutines && dataSourceConfiguration.useStoredProcedures();
+                    supportsProcedures && canUseRoutines && dataSourceConfiguration.useStoredProcedures();
 
                 if (!usingStoredProcedures) {
                     dataSourceConfiguration.disallowStoredProcedures();
@@ -277,8 +279,9 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
      */
     protected void versionCheck(DatabaseMetaData databaseMetaData) throws SQLException {
         int majorVersion = databaseMetaData.getDatabaseMajorVersion();
-
+        int minorVersion = databaseMetaData.getDatabaseMinorVersion();
         int patchVersion = 0;
+
         var segments = databaseMetaData.getDatabaseProductVersion().split("\\.");
         if (segments.length >= 3) {
             var patchStr = segments[2].replaceAll("-.*", "");
@@ -286,12 +289,13 @@ public class MysqlStorageAdapter extends AbstractSqlStorageAdapter {
             patchVersion = Integer.parseInt(patchStr);
         }
 
-        if (majorVersion < 8 || (majorVersion == 8 && patchVersion < 20)) {
+        if (majorVersion < 8 || (majorVersion == 8 && minorVersion == 0 && patchVersion < 20)) {
             loggingService.warn("Your database version appears to be older than prism supports.");
             loggingService.info("Reported database product version: {0}", databaseMetaData.getDatabaseProductVersion());
             loggingService.info(
-                "We think your database major version is {0} and patch version is {1}",
+                "We think your database version is {0}.{1}.{2}",
                 majorVersion,
+                minorVersion,
                 patchVersion
             );
         }
