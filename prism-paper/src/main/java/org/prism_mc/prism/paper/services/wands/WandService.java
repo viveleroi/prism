@@ -26,6 +26,7 @@ import com.google.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.services.wands.Wand;
 import org.prism_mc.prism.api.services.wands.WandMode;
@@ -37,7 +38,7 @@ public class WandService {
     /**
      * Cache all players with active wands.
      */
-    private final Map<Player, Wand> activeWands = new HashMap<>();
+    private final Map<UUID, Wand> activeWands = new HashMap<>();
 
     /**
      * The message service.
@@ -77,7 +78,7 @@ public class WandService {
         Wand wand = wandProviders.get(wandMode).get();
         wand.setOwner(player);
 
-        activeWands.put(player, wand);
+        activeWands.put(player.getUniqueId(), wand);
     }
 
     /**
@@ -90,7 +91,7 @@ public class WandService {
         if (optionalWand.isPresent()) {
             messageService.wandDeactivated(player, optionalWand.get().mode());
 
-            activeWands.remove(player);
+            activeWands.remove(player.getUniqueId());
         }
     }
 
@@ -101,7 +102,7 @@ public class WandService {
      * @return The wand, if any.
      */
     public Optional<Wand> getWand(Player player) {
-        return Optional.ofNullable(activeWands.get(player));
+        return Optional.ofNullable(activeWands.get(player.getUniqueId()));
     }
 
     /**
@@ -111,7 +112,7 @@ public class WandService {
      * @return True if any wand active
      */
     public boolean hasActiveWand(Player player) {
-        return activeWands.containsKey(player);
+        return activeWands.containsKey(player.getUniqueId());
     }
 
     /**
