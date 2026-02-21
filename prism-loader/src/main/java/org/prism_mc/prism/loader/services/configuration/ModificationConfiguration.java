@@ -42,6 +42,14 @@ public class ModificationConfiguration {
 
     @Comment(
         """
+        Hard limit on the number of modifications a single rollback/restore
+        operation can query. Prevents server hangs and memory issues from
+        overly broad queries. Set to 0 for unlimited (not recommended)."""
+    )
+    private int maxPerOperation = 250000;
+
+    @Comment(
+        """
         Set a maximum number of modifications per task. Splitting up world changes
         can help avoid overloading individual ticks and causing lag.
         This can also reduce client lag as fewer changes are sent to clients at once."""
