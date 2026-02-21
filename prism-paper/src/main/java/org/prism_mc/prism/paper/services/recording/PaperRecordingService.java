@@ -23,12 +23,14 @@ package org.prism_mc.prism.paper.services.recording;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.scheduler.BukkitTask;
 import org.prism_mc.prism.api.activities.Activity;
 import org.prism_mc.prism.api.services.recording.RecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+import org.prism_mc.prism.loader.services.logging.LoggingService;
 import org.prism_mc.prism.paper.PrismPaper;
 import org.prism_mc.prism.paper.api.activities.PaperActivity;
 import org.prism_mc.prism.paper.api.containers.PaperPlayerContainer;
@@ -48,6 +50,11 @@ public class PaperRecordingService implements RecordingService {
     private final PaperFilterService filterService;
 
     /**
+     * The logging service.
+     */
+    private final LoggingService loggingService;
+
+    /**
      * The recording task.
      */
     private final RecordingTask recordingTask;
@@ -60,7 +67,12 @@ public class PaperRecordingService implements RecordingService {
     /**
      * Queue of activities.
      */
-    private final LinkedBlockingQueue<Activity> queue = new LinkedBlockingQueue<>();
+    private final LinkedBlockingQueue<Activity> queue;
+
+    /**
+     * Count of activities dropped due to a full queue since the last drain.
+     */
+    private final AtomicInteger droppedActivities = new AtomicInteger();
 
     /**
      * Cache the scheduled task.
@@ -81,17 +93,23 @@ public class PaperRecordingService implements RecordingService {
      *
      * @param configurationService The configuration service
      * @param filterService The filter service
+     * @param loggingService The logging service
      * @param recordingTask The recording task
      */
     @Inject
     public PaperRecordingService(
         ConfigurationService configurationService,
         PaperFilterService filterService,
+        LoggingService loggingService,
         RecordingTask recordingTask
     ) {
         this.configurationService = configurationService;
         this.filterService = filterService;
+        this.loggingService = loggingService;
         this.recordingTask = recordingTask;
+
+        int capacity = configurationService.prismConfig().recording().queueMaxCapacity();
+        this.queue = capacity > 0 ? new LinkedBlockingQueue<>(capacity) : new LinkedBlockingQueue<>();
 
         queueNextRecording(recordingTask);
     }
@@ -116,7 +134,16 @@ public class PaperRecordingService implements RecordingService {
             return false;
         }
 
-        queue.add(activity);
+        if (!queue.offer(activity)) {
+            if (droppedActivities.getAndIncrement() == 0) {
+                loggingService.warn(
+                    "Recording queue is full ({0}), dropping activities. The database may not be keeping up.",
+                    queue.size()
+                );
+            }
+
+            return false;
+        }
 
         return true;
     }
@@ -126,6 +153,11 @@ public class PaperRecordingService implements RecordingService {
         if (task != null) {
             task.cancel();
             task = null;
+        }
+
+        int dropped = droppedActivities.getAndSet(0);
+        if (dropped > 0) {
+            loggingService.warn("Dropped {0} activities due to a full recording queue.", dropped);
         }
     }
 
