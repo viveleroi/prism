@@ -29,6 +29,7 @@ import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.storage.StorageAdapter;
+import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 import org.prism_mc.prism.paper.providers.TaskChainProvider;
 import org.prism_mc.prism.paper.services.messages.MessageService;
@@ -37,6 +38,11 @@ import org.prism_mc.prism.paper.services.query.QueryService;
 
 @Command(value = "prism", alias = { "pr" })
 public class RollbackCommand {
+
+    /**
+     * The configuration service.
+     */
+    private final ConfigurationService configurationService;
 
     /**
      * The storage adapter.
@@ -71,6 +77,7 @@ public class RollbackCommand {
     /**
      * Construct the rollback command.
      *
+     * @param configurationService The configuration service
      * @param storageAdapter The storage adapter
      * @param messageService The message service
      * @param modificationQueueService The modification queue service
@@ -80,6 +87,7 @@ public class RollbackCommand {
      */
     @Inject
     public RollbackCommand(
+        ConfigurationService configurationService,
         StorageAdapter storageAdapter,
         MessageService messageService,
         PaperModificationQueueService modificationQueueService,
@@ -87,6 +95,7 @@ public class RollbackCommand {
         TaskChainProvider taskChainProvider,
         LoggingService loggingService
     ) {
+        this.configurationService = configurationService;
         this.storageAdapter = storageAdapter;
         this.messageService = messageService;
         this.modificationQueueService = modificationQueueService;
@@ -115,7 +124,14 @@ public class RollbackCommand {
 
         var builder = queryService.queryFromArguments(sender, arguments);
         if (builder.isPresent()) {
-            final ActivityQuery query = builder.get().rollback().build();
+            var queryBuilder = builder.get().rollback();
+
+            int maxPerOperation = configurationService.prismConfig().modifications().maxPerOperation();
+            if (maxPerOperation > 0) {
+                queryBuilder.limit(maxPerOperation);
+            }
+
+            final ActivityQuery query = queryBuilder.build();
             taskChainProvider
                 .newChain()
                 .asyncFirst(() -> {

@@ -34,6 +34,7 @@ import org.prism_mc.prism.api.services.modifications.ModificationQueue;
 import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
 import org.prism_mc.prism.api.services.modifications.Previewable;
 import org.prism_mc.prism.api.storage.StorageAdapter;
+import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 import org.prism_mc.prism.paper.providers.TaskChainProvider;
 import org.prism_mc.prism.paper.services.messages.MessageService;
@@ -44,6 +45,11 @@ import org.prism_mc.prism.paper.services.query.QueryService;
 
 @Command(value = "prism", alias = { "pr" })
 public class PreviewCommand {
+
+    /**
+     * The configuration service.
+     */
+    private final ConfigurationService configurationService;
 
     /**
      * The storage adapter.
@@ -78,6 +84,7 @@ public class PreviewCommand {
     /**
      * Construct the rollback command.
      *
+     * @param configurationService The configuration service
      * @param storageAdapter The storage adapter
      * @param messageService The message service
      * @param modificationQueueService The modification queue service
@@ -87,6 +94,7 @@ public class PreviewCommand {
      */
     @Inject
     public PreviewCommand(
+        ConfigurationService configurationService,
         StorageAdapter storageAdapter,
         MessageService messageService,
         PaperModificationQueueService modificationQueueService,
@@ -94,6 +102,7 @@ public class PreviewCommand {
         TaskChainProvider taskChainProvider,
         LoggingService loggingService
     ) {
+        this.configurationService = configurationService;
         this.storageAdapter = storageAdapter;
         this.messageService = messageService;
         this.modificationQueueService = modificationQueueService;
@@ -154,7 +163,14 @@ public class PreviewCommand {
     public void onPreviewRestore(final Player player, final Arguments arguments) {
         var builder = queryService.queryFromArguments(player, arguments);
         if (builder.isPresent()) {
-            final ActivityQuery query = builder.get().modification().reversed(true).build();
+            var queryBuilder = builder.get().modification().reversed(true);
+
+            int maxPerOperation = configurationService.prismConfig().modifications().maxPerOperation();
+            if (maxPerOperation > 0) {
+                queryBuilder.limit(maxPerOperation);
+            }
+
+            final ActivityQuery query = queryBuilder.build();
 
             // Load the modification ruleset from the configs, and apply flags
             var modificationRuleset = modificationQueueService.applyFlagsToModificationRuleset(arguments).build();
@@ -175,7 +191,14 @@ public class PreviewCommand {
     public void onPreviewRollback(final Player player, final Arguments arguments) {
         var builder = queryService.queryFromArguments(player, arguments);
         if (builder.isPresent()) {
-            final ActivityQuery query = builder.get().modification().reversed(false).build();
+            var queryBuilder = builder.get().modification().reversed(false);
+
+            int maxPerOperation = configurationService.prismConfig().modifications().maxPerOperation();
+            if (maxPerOperation > 0) {
+                queryBuilder.limit(maxPerOperation);
+            }
+
+            final ActivityQuery query = queryBuilder.build();
 
             // Load the modification ruleset from the configs, and apply flags
             var modificationRuleset = modificationQueueService.applyFlagsToModificationRuleset(arguments).build();
