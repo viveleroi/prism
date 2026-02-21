@@ -30,4 +30,12 @@ public class RecordingConfiguration {
 
     @Comment("The delay (in ticks) between queued data being commit to the DB.")
     private long delay = 10;
+
+    @Comment(
+        """
+        Maximum number of activities that can be queued in memory. Acts as a safety cap
+        to prevent out-of-memory errors when the database can't keep up. Activities that
+        exceed this limit are dropped. Set to 0 for unlimited (not recommended)."""
+    )
+    private int queueMaxCapacity = 100000;
 }
