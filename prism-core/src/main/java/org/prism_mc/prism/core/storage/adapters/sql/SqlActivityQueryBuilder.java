@@ -265,7 +265,7 @@ public class SqlActivityQueryBuilder {
                 PRISM_WORLDS.WORLD,
                 PRISM_ACTIVITIES.ACTION_ID,
                 PRISM_ITEMS.MATERIAL,
-                PRISM_ACTIVITIES.AFFECTED_ITEM_QUANTITY,
+                coalesce(PRISM_ACTIVITIES.AFFECTED_ITEM_QUANTITY, DSL.val(0)),
                 PRISM_ITEMS.DATA,
                 PRISM_BLOCKS.NS,
                 PRISM_BLOCKS.NAME,
