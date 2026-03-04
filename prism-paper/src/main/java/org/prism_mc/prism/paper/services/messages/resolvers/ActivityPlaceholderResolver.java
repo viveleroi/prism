@@ -89,11 +89,13 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         Component cause = cause(receiver, value.cause());
         Component since = since(receiver, value.timestamp());
         Component descriptor = descriptor(receiver, value);
-        Component location = location(receiver, value.world(), value.coordinate());
+        Component location = Component.empty();
 
         Component count = Component.text("1");
         if (value instanceof GroupedActivity grouped) {
             count = Component.text(grouped.count());
+        } else {
+            location = location(receiver, value.world(), value.coordinate());
         }
 
         Component activityId = Component.empty();
