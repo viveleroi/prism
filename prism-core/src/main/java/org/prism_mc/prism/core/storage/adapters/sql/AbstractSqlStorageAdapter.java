@@ -786,20 +786,14 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             var world = new Pair<>(worldUuid, r.getValue(PRISM_WORLDS.WORLD));
 
             // Location
-            int x = 0;
-            int y = 0;
-            int z = 0;
-            if (query.grouped()) {
-                x = r.getValue(avg(PRISM_ACTIVITIES.X)).intValue();
-                y = r.getValue(avg(PRISM_ACTIVITIES.Y)).intValue();
-                z = r.getValue(avg(PRISM_ACTIVITIES.Z)).intValue();
-            } else {
-                x = r.getValue(PRISM_ACTIVITIES.X);
-                y = r.getValue(PRISM_ACTIVITIES.Y);
-                z = r.getValue(PRISM_ACTIVITIES.Z);
+            Coordinate coordinate = null;
+            if (!query.grouped()) {
+                coordinate = new Coordinate(
+                    r.getValue(PRISM_ACTIVITIES.X),
+                    r.getValue(PRISM_ACTIVITIES.Y),
+                    r.getValue(PRISM_ACTIVITIES.Z)
+                );
             }
-
-            var coordinate = new Coordinate(x, y, z);
 
             // Entity type
             String entityType = null;
@@ -978,7 +972,6 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                     var activity = new GroupedActivity(
                         actionType.createAction(actionData),
                         world,
-                        coordinate,
                         cause,
                         timestamp,
                         count

@@ -213,13 +213,7 @@ public class SqlActivityQueryBuilder {
 
         if (query.grouped()) {
             // Add fields for grouped queries
-            queryBuilder.addSelect(
-                avg(PRISM_ACTIVITIES.X),
-                avg(PRISM_ACTIVITIES.Y),
-                avg(PRISM_ACTIVITIES.Z),
-                avg(PRISM_ACTIVITIES.TIMESTAMP),
-                count().as("groupcount")
-            );
+            queryBuilder.addSelect(avg(PRISM_ACTIVITIES.TIMESTAMP), count().as("groupcount"));
         } else {
             // Add fields for non-grouped queries
             queryBuilder.addSelect(

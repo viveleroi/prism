@@ -23,7 +23,6 @@ package org.prism_mc.prism.api.activities;
 import java.util.UUID;
 import lombok.Getter;
 import org.prism_mc.prism.api.actions.Action;
-import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.api.util.Pair;
 
 /**
@@ -43,20 +42,12 @@ public final class GroupedActivity extends AbstractActivity {
      *
      * @param action The action
      * @param world The world
-     * @param coordinate The average coordinate
      * @param cause The cause
      * @param timestamp The timestamp
      * @param count The count
      */
-    public GroupedActivity(
-        Action action,
-        Pair<UUID, String> world,
-        Coordinate coordinate,
-        Cause cause,
-        long timestamp,
-        int count
-    ) {
-        super(action, world, coordinate, cause, timestamp);
+    public GroupedActivity(Action action, Pair<UUID, String> world, Cause cause, long timestamp, int count) {
+        super(action, world, null, cause, timestamp);
         this.count = count;
     }
 }
