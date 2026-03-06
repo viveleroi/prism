@@ -529,6 +529,12 @@ public class PrismPaper implements Prism {
                 Argument.forString().name("descriptor").build()
             );
 
+            commandManager.registerFlags(
+                FlagKey.of("purge-flags"),
+                Flag.flag("nd").longFlag("nodefaults").build(),
+                Flag.flag("v").longFlag("verbose").build()
+            );
+
             commandManager.registerCommand(injectorProvider.injector().getInstance(AboutCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(CacheCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(ConfigsCommand.class));

@@ -88,7 +88,7 @@ public class PurgeCommand {
          * @param sender The command sender
          * @param arguments The arguments
          */
-        @CommandFlags(key = "query-flags")
+        @CommandFlags(key = "purge-flags")
         @NamedArguments("query-parameters")
         @Command("start")
         public void onPurgeStart(final CommandSender sender, final Arguments arguments) {
@@ -107,9 +107,12 @@ public class PurgeCommand {
                     messageService.defaultsUsed(sender, String.join(" ", query.defaultsUsed()));
                 }
 
+                boolean verbose = arguments.hasFlag("verbose");
                 PurgeQueue purgeQueue = purgeService.newQueue(
                     result -> {
-                        messageService.purgeCycle(sender, result);
+                        if (verbose) {
+                            messageService.purgeCycle(sender, result);
+                        }
                     },
                     result -> messageService.purgeComplete(sender, result.deleted())
                 );

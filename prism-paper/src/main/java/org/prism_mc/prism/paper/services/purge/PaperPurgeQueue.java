@@ -162,7 +162,7 @@ public class PaperPurgeQueue implements PurgeQueue {
         if (purgeQueue.isEmpty()) {
             running = false;
 
-            loggingService.info("Purge queue now empty, finishing.");
+            loggingService.debug("Purge queue now empty, finishing.");
 
             onEnd.accept(PurgeResult.builder().deleted(deleted).build());
 
@@ -192,7 +192,7 @@ public class PaperPurgeQueue implements PurgeQueue {
         taskChainProvider
             .newChain()
             .asyncFirst(() -> {
-                loggingService.info("Executing next purge for query {0}...", query);
+                loggingService.debug("Executing next purge for query {0}...", query);
 
                 /*
                  * Calculate the cycle upper bound.
@@ -203,6 +203,7 @@ public class PaperPurgeQueue implements PurgeQueue {
                     cycleMinPrimaryKey + configurationService.prismConfig().purges().limit() - 1,
                     maxPrimaryKey
                 );
+
                 loggingService.debug(
                     "Limiting cycle to primary keys {0} - {1}",
                     cycleMinPrimaryKey,
@@ -221,7 +222,7 @@ public class PaperPurgeQueue implements PurgeQueue {
                         .maxPrimaryKey(cycleMaxPrimaryKey)
                         .build()
                 );
-                loggingService.info("Purged {0} activity records", count);
+                loggingService.debug("Purged {0} activity records", count);
 
                 // Advance our starting pk for the next cycle
                 int nextCycleMinPrimaryKey = cycleMinPrimaryKey + configurationService.prismConfig().purges().limit();
@@ -232,7 +233,7 @@ public class PaperPurgeQueue implements PurgeQueue {
                     purgeQueue.remove(0);
                 }
 
-                loggingService.info("Scheduling next cycle (and any configured delay)");
+                loggingService.debug("Scheduling next cycle (and any configured delay)");
 
                 return nextCycleMinPrimaryKey;
             })
