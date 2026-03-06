@@ -208,6 +208,7 @@ public class SqlActivityQueryBuilder {
             queryBuilder.addSelect(CAUSE_ENTITY_TYPES_TRANSLATION_KEY);
             queryBuilder.addSelect(CAUSE_BLOCKS_TRANSLATION_KEY);
             queryBuilder.addSelect(PRISM_CAUSES.CAUSE);
+            queryBuilder.addSelect(PRISM_ACTIVITIES.REVERSED);
             queryBuilder.addSelect(count().over().as("totalrows"));
         }
 
@@ -272,6 +273,7 @@ public class SqlActivityQueryBuilder {
                 PRISM_PLAYERS.PLAYER_UUID,
                 PRISM_ACTIVITIES.DESCRIPTOR,
                 PRISM_ACTIVITIES.METADATA,
+                PRISM_ACTIVITIES.REVERSED,
                 CAUSE_ENTITY_TYPES_TRANSLATION_KEY,
                 CAUSE_BLOCKS_TRANSLATION_KEY
             );

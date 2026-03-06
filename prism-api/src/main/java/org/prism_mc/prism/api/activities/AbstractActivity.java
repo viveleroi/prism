@@ -53,6 +53,12 @@ public abstract class AbstractActivity {
     protected Coordinate coordinate;
 
     /**
+     * Whether this activity has been reversed.
+     */
+    @Builder.Default
+    protected boolean reversed = false;
+
+    /**
      * The timestamp.
      */
     @Builder.Default
@@ -67,22 +73,26 @@ public abstract class AbstractActivity {
      * Construct an activity.
      *
      * @param action The action
+     * @param world The world
      * @param coordinate The coordinate
      * @param cause The cause
      * @param timestamp The timestamp (or average)
+     * @param reversed Whether this activity has been reversed
      */
     public AbstractActivity(
         Action action,
         Pair<UUID, String> world,
         Coordinate coordinate,
         Cause cause,
-        Long timestamp
+        Long timestamp,
+        boolean reversed
     ) {
         this.action = action;
         this.cause = cause;
         this.coordinate = coordinate;
         this.timestamp = timestamp;
         this.world = world;
+        this.reversed = reversed;
     }
 
     /**

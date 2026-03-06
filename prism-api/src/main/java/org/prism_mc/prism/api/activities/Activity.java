@@ -50,6 +50,7 @@ public class Activity extends AbstractActivity {
      * @param coordinate The coordinate
      * @param cause The cause
      * @param timestamp The timestamp
+     * @param reversed Whether this activity has been reversed
      */
     public Activity(
         Object primaryKey,
@@ -57,9 +58,10 @@ public class Activity extends AbstractActivity {
         Pair<UUID, String> world,
         Coordinate coordinate,
         Cause cause,
-        long timestamp
+        long timestamp,
+        boolean reversed
     ) {
-        super(action, world, coordinate, cause, timestamp);
+        super(action, world, coordinate, cause, timestamp, reversed);
         this.primaryKey = primaryKey;
     }
 

@@ -857,6 +857,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
 
             String descriptor = query.lookup() ? r.getValue(PRISM_ACTIVITIES.DESCRIPTOR) : null;
             String metadata = query.lookup() ? r.getValue(PRISM_ACTIVITIES.METADATA) : null;
+            boolean reversed = query.lookup() && Boolean.TRUE.equals(r.getValue(PRISM_ACTIVITIES.REVERSED));
 
             String blockNamespace = r.getValue(PRISM_BLOCKS.NS);
             String blockName = r.getValue(PRISM_BLOCKS.NAME);
@@ -911,7 +912,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                         world,
                         coordinate,
                         cause,
-                        timestamp
+                        timestamp,
+                        reversed
                     );
 
                     // Add to result list
@@ -952,7 +954,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                         world,
                         coordinate,
                         cause,
-                        timestamp
+                        timestamp,
+                        reversed
                     );
 
                     // Add to result list
@@ -993,7 +996,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
                         world,
                         cause,
                         timestamp,
-                        count
+                        count,
+                        reversed
                     );
 
                     // Add to result list

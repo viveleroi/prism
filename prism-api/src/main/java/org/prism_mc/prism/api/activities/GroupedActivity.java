@@ -45,9 +45,17 @@ public final class GroupedActivity extends AbstractActivity {
      * @param cause The cause
      * @param timestamp The timestamp
      * @param count The count
+     * @param reversed Whether this activity has been reversed
      */
-    public GroupedActivity(Action action, Pair<UUID, String> world, Cause cause, long timestamp, int count) {
-        super(action, world, null, cause, timestamp);
+    public GroupedActivity(
+        Action action,
+        Pair<UUID, String> world,
+        Cause cause,
+        long timestamp,
+        int count,
+        boolean reversed
+    ) {
+        super(action, world, null, cause, timestamp, reversed);
         this.count = count;
     }
 }
