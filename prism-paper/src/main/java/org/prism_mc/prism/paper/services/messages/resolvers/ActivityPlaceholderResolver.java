@@ -32,6 +32,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.translation.Argument;
 import net.kyori.moonshine.placeholder.ConclusionValue;
@@ -85,7 +86,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         final @Nullable Object[] parameters
     ) {
         Component action = Component.text(value.action().type().key());
-        Component actionPastTense = actionPastTense(value.action().type());
+        Component actionPastTense = actionPastTense(value.action().type(), value.reversed());
         Component cause = cause(receiver, value.cause());
         Component since = since(receiver, value.timestamp());
         Component descriptor = descriptor(receiver, value);
@@ -138,7 +139,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
      * @param actionType The action type
      * @return The component
      */
-    protected Component actionPastTense(ActionType actionType) {
+    protected Component actionPastTense(ActionType actionType, boolean reversed) {
         Component actionHover = Component.text()
             .append(Component.text("a:", NamedTextColor.GRAY))
             .append(Component.text(actionType.key(), TextColor.fromCSSHexString("#ffd782")))
@@ -147,10 +148,15 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
             .append(Component.text(actionType.familyKey(), TextColor.fromCSSHexString("#ffd782")))
             .build();
 
-        return Component.text()
+        var builder = Component.text()
             .append(Component.translatable(actionType.pastTenseTranslationKey()))
-            .hoverEvent(HoverEvent.showText(actionHover))
-            .build();
+            .hoverEvent(HoverEvent.showText(actionHover));
+
+        if (reversed) {
+            builder.decorate(TextDecoration.STRIKETHROUGH);
+        }
+
+        return builder.build();
     }
 
     /**
@@ -250,6 +256,10 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
             }
 
             builder.hoverEvent(HoverEvent.showText(metadataBuilder.build()));
+        }
+
+        if (value.reversed()) {
+            builder.decorate(TextDecoration.STRIKETHROUGH);
         }
 
         return builder.build();
