@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Gradle / build output
+**/build/
+.gradle/
+
+# Generated web assets (produced by the vite build)
+prism-paper/src/main/resources/web/
+
+# Dev server & bundled third-party plugin files
+**/run/
+
+# Lockfiles & generated build info
+pnpm-lock.yaml
+**/*.tsbuildinfo

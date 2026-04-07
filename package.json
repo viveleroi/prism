@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "format": "prettier --write \"**/*.java\""
+    "format": "prettier --write \"**/*.java\" \"prism-web/**/*.{ts,tsx,js,jsx,mjs,cjs,css,scss,md,json,html}\""
   },
   "keywords": [],
   "author": "",

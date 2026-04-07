@@ -188,6 +188,18 @@ public interface MessageService {
     @Message("prism.error.unknown-command")
     void errorUnknownCommand(CommandSender receiver);
 
+    @Message("prism.error.web-disabled")
+    void errorWebDisabled(CommandSender receiver);
+
+    @Message("prism.error.web-no-api-key")
+    void errorWebNoApiKey(CommandSender receiver);
+
+    @Message("prism.error.web-not-running")
+    void errorWebNotRunning(CommandSender receiver);
+
+    @Message("prism.error.web-start-failed")
+    void errorWebStartFailed(CommandSender receiver);
+
     @Message("prism.error.world-edit-missing")
     void errorWorldEditMissing(CommandSender receiver);
 
@@ -382,4 +394,13 @@ public interface MessageService {
 
     @Message("prism.wand-switched")
     void wandSwitched(Player player, @Placeholder WandMode wandmode);
+
+    @Message("prism.web-already-running")
+    void webAlreadyRunning(CommandSender receiver);
+
+    @Message("prism.web-started")
+    void webStarted(CommandSender receiver);
+
+    @Message("prism.web-stopped")
+    void webStopped(CommandSender receiver);
 }

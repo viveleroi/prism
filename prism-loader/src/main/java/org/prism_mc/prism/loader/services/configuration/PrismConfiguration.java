@@ -95,4 +95,7 @@ public class PrismConfiguration {
     private PurgeConfiguration purges = new PurgeConfiguration();
 
     private RecordingConfiguration recording = new RecordingConfiguration();
+
+    @Comment("Configure the embedded web server for browser-based activity queries.")
+    private WebConfiguration web = new WebConfiguration();
 }

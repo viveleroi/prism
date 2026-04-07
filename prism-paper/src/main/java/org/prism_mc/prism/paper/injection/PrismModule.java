@@ -117,6 +117,7 @@ import org.prism_mc.prism.paper.services.wands.InspectionWand;
 import org.prism_mc.prism.paper.services.wands.RestoreWand;
 import org.prism_mc.prism.paper.services.wands.RollbackWand;
 import org.prism_mc.prism.paper.services.wands.WandService;
+import org.prism_mc.prism.paper.services.web.WebService;
 
 public class PrismModule extends AbstractModule {
 
@@ -323,6 +324,9 @@ public class PrismModule extends AbstractModule {
         // Service - Scheduling
         bind(PrismScheduler.class).to(PaperScheduler.class).in(Singleton.class);
         bind(SchedulingService.class).in(Singleton.class);
+
+        // Service - Web
+        bind(WebService.class).in(Singleton.class);
 
         // Service - Translation
         bind(PaperTranslationService.class).in(Singleton.class);
