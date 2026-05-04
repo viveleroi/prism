@@ -21,13 +21,16 @@
 package org.prism_mc.prism.paper.services.query.parsers.parameters;
 
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
+import java.util.Set;
 import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.query.ParameterContext;
+import org.prism_mc.prism.paper.services.query.annotations.ConflictsWith;
 import org.prism_mc.prism.paper.services.query.parsers.multiple.MaterialSetQueryArgumentParser;
 
+@ConflictsWith(value = { ExcludeItemParameterParser.class, ExcludeItemTagParameterParser.class })
 public class ItemParameterParser extends MaterialSetQueryArgumentParser {
 
     /**
@@ -37,7 +40,22 @@ public class ItemParameterParser extends MaterialSetQueryArgumentParser {
      * @param defaultsConfiguration The defaults configuration
      */
     public ItemParameterParser(MessageService messageService, DefaultsConfiguration defaultsConfiguration) {
-        super(messageService, defaultsConfiguration, "i");
+        this(messageService, defaultsConfiguration, "i");
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param messageService The message service
+     * @param defaultsConfiguration The defaults configuration
+     * @param alias The parameter alias
+     */
+    protected ItemParameterParser(
+        MessageService messageService,
+        DefaultsConfiguration defaultsConfiguration,
+        String alias
+    ) {
+        super(messageService, defaultsConfiguration, alias);
     }
 
     @Override
@@ -50,9 +68,17 @@ public class ItemParameterParser extends MaterialSetQueryArgumentParser {
         var values = parseMultipleParameters(arguments, builder);
 
         if (!values.isEmpty()) {
-            builder.affectedMaterials(values);
+            if (alertConflicts(sender, arguments)) {
+                return false;
+            }
+
+            apply(builder, values);
         }
 
         return true;
+    }
+
+    protected void apply(PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder, Set<String> values) {
+        builder.affectedMaterials(values);
     }
 }

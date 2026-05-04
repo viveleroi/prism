@@ -21,21 +21,25 @@
 package org.prism_mc.prism.paper.services.query.parsers.parameters;
 
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
+import java.util.Collection;
 import java.util.Locale;
 import org.bukkit.command.CommandSender;
+import org.prism_mc.prism.api.actions.types.ActionType;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.actions.types.PaperActionTypeRegistry;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.query.ParameterContext;
+import org.prism_mc.prism.paper.services.query.annotations.ConflictsWith;
 import org.prism_mc.prism.paper.services.query.parsers.multiple.StringSetQueryArgumentParser;
 
+@ConflictsWith(value = { ExcludeActionParameterParser.class })
 public class ActionParameterParser extends StringSetQueryArgumentParser {
 
     /**
      * The action registry.
      */
-    private final PaperActionTypeRegistry actionRegistry;
+    protected final PaperActionTypeRegistry actionRegistry;
 
     /**
      * Constructor.
@@ -49,7 +53,24 @@ public class ActionParameterParser extends StringSetQueryArgumentParser {
         DefaultsConfiguration defaultsConfiguration,
         PaperActionTypeRegistry actionRegistry
     ) {
-        super(messageService, defaultsConfiguration, "a");
+        this(messageService, defaultsConfiguration, "a", actionRegistry);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param messageService The message service
+     * @param defaultsConfiguration The defaults configuration
+     * @param alias The parameter alias
+     * @param actionRegistry The action registry
+     */
+    protected ActionParameterParser(
+        MessageService messageService,
+        DefaultsConfiguration defaultsConfiguration,
+        String alias,
+        PaperActionTypeRegistry actionRegistry
+    ) {
+        super(messageService, defaultsConfiguration, alias);
         this.actionRegistry = actionRegistry;
     }
 
@@ -63,11 +84,15 @@ public class ActionParameterParser extends StringSetQueryArgumentParser {
         var values = parseMultipleParameters(arguments, builder);
 
         if (!values.isEmpty()) {
+            if (alertConflicts(sender, arguments)) {
+                return false;
+            }
+
             for (String actionKey : values) {
                 if (actionKey.contains("-")) {
                     var optionalIActionType = actionRegistry.actionType(actionKey.toLowerCase(Locale.ENGLISH));
                     if (optionalIActionType.isPresent()) {
-                        builder.actionTypeKey(actionKey);
+                        applyKey(builder, actionKey);
                     } else {
                         messageService.errorParamInvalidAction(sender, actionKey);
 
@@ -81,11 +106,22 @@ public class ActionParameterParser extends StringSetQueryArgumentParser {
                         return false;
                     }
 
-                    builder.actionTypes(familyTypes);
+                    applyFamily(builder, familyTypes);
                 }
             }
         }
 
         return true;
+    }
+
+    protected void applyKey(PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder, String actionKey) {
+        builder.actionTypeKey(actionKey);
+    }
+
+    protected void applyFamily(
+        PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder,
+        Collection<? extends ActionType> familyTypes
+    ) {
+        builder.actionTypes(familyTypes);
     }
 }

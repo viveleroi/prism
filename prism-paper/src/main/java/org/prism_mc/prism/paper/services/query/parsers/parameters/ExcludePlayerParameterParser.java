@@ -20,18 +20,14 @@
 
 package org.prism_mc.prism.paper.services.query.parsers.parameters;
 
-import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import java.util.Set;
-import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 import org.prism_mc.prism.paper.services.messages.MessageService;
-import org.prism_mc.prism.paper.services.query.ParameterContext;
 import org.prism_mc.prism.paper.services.query.annotations.ConflictsWith;
-import org.prism_mc.prism.paper.services.query.parsers.multiple.OfflinePlayerSetQueryArgumentParser;
 
-@ConflictsWith(value = { ExcludePlayerParameterParser.class, ExcludePlayerCauseParameterParser.class })
-public class PlayerParameterParser extends OfflinePlayerSetQueryArgumentParser {
+@ConflictsWith(value = { PlayerParameterParser.class, PlayerCauseParameterParser.class })
+public class ExcludePlayerParameterParser extends PlayerParameterParser {
 
     /**
      * Constructor.
@@ -40,7 +36,7 @@ public class PlayerParameterParser extends OfflinePlayerSetQueryArgumentParser {
      * @param defaultsConfiguration The defaults configuration
      * @param alias The parameter alias
      */
-    public PlayerParameterParser(
+    public ExcludePlayerParameterParser(
         MessageService messageService,
         DefaultsConfiguration defaultsConfiguration,
         String alias
@@ -54,31 +50,12 @@ public class PlayerParameterParser extends OfflinePlayerSetQueryArgumentParser {
      * @param messageService The message service
      * @param defaultsConfiguration The defaults configuration
      */
-    public PlayerParameterParser(MessageService messageService, DefaultsConfiguration defaultsConfiguration) {
-        super(messageService, defaultsConfiguration, "p");
+    public ExcludePlayerParameterParser(MessageService messageService, DefaultsConfiguration defaultsConfiguration) {
+        super(messageService, defaultsConfiguration, "p!");
     }
 
     @Override
-    public boolean parse(
-        CommandSender sender,
-        ParameterContext parameterContext,
-        Arguments arguments,
-        PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder
-    ) {
-        var values = parseMultipleParameters(arguments, builder);
-
-        if (!values.isEmpty()) {
-            if (alertConflicts(sender, arguments)) {
-                return false;
-            }
-
-            apply(builder, values);
-        }
-
-        return true;
-    }
-
     protected void apply(PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder, Set<String> values) {
-        builder.causePlayerNames(values);
+        builder.causePlayerNamesExcluded(values);
     }
 }

@@ -20,20 +20,44 @@
 
 package org.prism_mc.prism.paper.services.query.parsers.parameters;
 
+import java.util.Collection;
+import org.prism_mc.prism.api.actions.types.ActionType;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
+import org.prism_mc.prism.paper.actions.types.PaperActionTypeRegistry;
+import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.query.annotations.ConflictsWith;
 
-@ConflictsWith(value = { ExcludePlayerParameterParser.class, ExcludePlayerCauseParameterParser.class })
-public class PlayerCauseParameterParser extends PlayerParameterParser {
+@ConflictsWith(value = { ActionParameterParser.class })
+public class ExcludeActionParameterParser extends ActionParameterParser {
 
     /**
      * Constructor.
      *
      * @param messageService The message service
      * @param defaultsConfiguration The defaults configuration
+     * @param actionRegistry The action registry
      */
-    public PlayerCauseParameterParser(MessageService messageService, DefaultsConfiguration defaultsConfiguration) {
-        super(messageService, defaultsConfiguration, "pc");
+    public ExcludeActionParameterParser(
+        MessageService messageService,
+        DefaultsConfiguration defaultsConfiguration,
+        PaperActionTypeRegistry actionRegistry
+    ) {
+        super(messageService, defaultsConfiguration, "a!", actionRegistry);
+    }
+
+    @Override
+    protected void applyKey(PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder, String actionKey) {
+        builder.actionTypeKeyExcluded(actionKey);
+    }
+
+    @Override
+    protected void applyFamily(
+        PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder,
+        Collection<? extends ActionType> familyTypes
+    ) {
+        for (var actionType : familyTypes) {
+            builder.actionTypeKeyExcluded(actionType.key());
+        }
     }
 }

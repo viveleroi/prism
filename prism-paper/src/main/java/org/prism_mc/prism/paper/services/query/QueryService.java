@@ -51,6 +51,20 @@ import org.prism_mc.prism.paper.services.query.parsers.parameters.DescriptorPara
 import org.prism_mc.prism.paper.services.query.parsers.parameters.EntityTypeCauseParameterParser;
 import org.prism_mc.prism.paper.services.query.parsers.parameters.EntityTypeParameterParser;
 import org.prism_mc.prism.paper.services.query.parsers.parameters.EntityTypeTagParameterParser;
+import org.prism_mc.prism.paper.services.query.parsers.parameters.ExcludeActionParameterParser;
+import org.prism_mc.prism.paper.services.query.parsers.parameters.ExcludeBlockCauseParameterParser;
+import org.prism_mc.prism.paper.services.query.parsers.parameters.ExcludeBlockParameterParser;
+import org.prism_mc.prism.paper.services.query.parsers.parameters.ExcludeBlockTagParameterParser;
+import org.prism_mc.prism.paper.services.query.parsers.parameters.ExcludeCauseParameterParser;
+import org.prism_mc.prism.paper.services.query.parsers.parameters.ExcludeEntityTypeCauseParameterParser;
+import org.prism_mc.prism.paper.services.query.parsers.parameters.ExcludeEntityTypeParameterParser;
+import org.prism_mc.prism.paper.services.query.parsers.parameters.ExcludeEntityTypeTagParameterParser;
+import org.prism_mc.prism.paper.services.query.parsers.parameters.ExcludeItemParameterParser;
+import org.prism_mc.prism.paper.services.query.parsers.parameters.ExcludeItemTagParameterParser;
+import org.prism_mc.prism.paper.services.query.parsers.parameters.ExcludePlayerAffectedParameterParser;
+import org.prism_mc.prism.paper.services.query.parsers.parameters.ExcludePlayerCauseParameterParser;
+import org.prism_mc.prism.paper.services.query.parsers.parameters.ExcludePlayerParameterParser;
+import org.prism_mc.prism.paper.services.query.parsers.parameters.ExcludeWorldParameterParser;
 import org.prism_mc.prism.paper.services.query.parsers.parameters.IdParameterParser;
 import org.prism_mc.prism.paper.services.query.parsers.parameters.InParameterParser;
 import org.prism_mc.prism.paper.services.query.parsers.parameters.ItemParameterParser;
@@ -97,6 +111,7 @@ public class QueryService {
 
         // World parser must be first
         parsers.add(new WorldParameterParser(messageService, configurationService.prismConfig().defaults()));
+        parsers.add(new ExcludeWorldParameterParser(messageService, configurationService.prismConfig().defaults()));
 
         parsers.add(new AboveParameterParser(messageService, configurationService.prismConfig().defaults()));
         parsers.add(
@@ -122,6 +137,37 @@ public class QueryService {
         parsers.add(new PlayerAffectedParameterParser(messageService, configurationService.prismConfig().defaults()));
         parsers.add(new PlayerCauseParameterParser(messageService, configurationService.prismConfig().defaults()));
         parsers.add(new PlayerParameterParser(messageService, configurationService.prismConfig().defaults()));
+        parsers.add(
+            new ExcludePlayerAffectedParameterParser(messageService, configurationService.prismConfig().defaults())
+        );
+        parsers.add(
+            new ExcludePlayerCauseParameterParser(messageService, configurationService.prismConfig().defaults())
+        );
+        parsers.add(new ExcludePlayerParameterParser(messageService, configurationService.prismConfig().defaults()));
+        parsers.add(
+            new ExcludeActionParameterParser(
+                messageService,
+                configurationService.prismConfig().defaults(),
+                actionRegistry
+            )
+        );
+        parsers.add(
+            new ExcludeBlockCauseParameterParser(messageService, configurationService.prismConfig().defaults())
+        );
+        parsers.add(new ExcludeBlockParameterParser(messageService, configurationService.prismConfig().defaults()));
+        parsers.add(new ExcludeBlockTagParameterParser(messageService, configurationService.prismConfig().defaults()));
+        parsers.add(new ExcludeCauseParameterParser(messageService, configurationService.prismConfig().defaults()));
+        parsers.add(
+            new ExcludeEntityTypeCauseParameterParser(messageService, configurationService.prismConfig().defaults())
+        );
+        parsers.add(
+            new ExcludeEntityTypeParameterParser(messageService, configurationService.prismConfig().defaults())
+        );
+        parsers.add(
+            new ExcludeEntityTypeTagParameterParser(messageService, configurationService.prismConfig().defaults())
+        );
+        parsers.add(new ExcludeItemParameterParser(messageService, configurationService.prismConfig().defaults()));
+        parsers.add(new ExcludeItemTagParameterParser(messageService, configurationService.prismConfig().defaults()));
         parsers.add(new RadiusQueryArgumentParser(messageService, configurationService.prismConfig().defaults()));
         parsers.add(new ReversedParameterParser(messageService, configurationService.prismConfig().defaults()));
         parsers.add(new SinceParameterParser(messageService, configurationService.prismConfig().defaults()));

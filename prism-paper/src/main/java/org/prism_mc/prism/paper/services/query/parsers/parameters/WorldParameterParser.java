@@ -28,8 +28,10 @@ import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.query.ParameterContext;
+import org.prism_mc.prism.paper.services.query.annotations.ConflictsWith;
 import org.prism_mc.prism.paper.services.query.parsers.single.StringQueryArgumentParser;
 
+@ConflictsWith(value = { ExcludeWorldParameterParser.class })
 public class WorldParameterParser extends StringQueryArgumentParser {
 
     /**
@@ -39,7 +41,22 @@ public class WorldParameterParser extends StringQueryArgumentParser {
      * @param defaultsConfiguration The defaults configuration
      */
     public WorldParameterParser(MessageService messageService, DefaultsConfiguration defaultsConfiguration) {
-        super(messageService, defaultsConfiguration, Phase.PRE, "world");
+        this(messageService, defaultsConfiguration, "world");
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param messageService The message service
+     * @param defaultsConfiguration The defaults configuration
+     * @param alias The parameter alias
+     */
+    protected WorldParameterParser(
+        MessageService messageService,
+        DefaultsConfiguration defaultsConfiguration,
+        String alias
+    ) {
+        super(messageService, defaultsConfiguration, Phase.PRE, alias);
     }
 
     @Override
@@ -52,11 +69,14 @@ public class WorldParameterParser extends StringQueryArgumentParser {
         var optionalParameter = parseSingleParameter(arguments, builder);
 
         if (optionalParameter.isPresent()) {
+            if (alertConflicts(sender, arguments)) {
+                return false;
+            }
+
             World world = Bukkit.getServer().getWorld(optionalParameter.get());
 
             if (world != null) {
-                builder.worldUuid(world.getUID());
-                parameterContext.setWorld(world);
+                apply(builder, parameterContext, world);
             } else {
                 messageService.errorParamInvalidWorld(sender);
 
@@ -65,5 +85,14 @@ public class WorldParameterParser extends StringQueryArgumentParser {
         }
 
         return true;
+    }
+
+    protected void apply(
+        PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder,
+        ParameterContext parameterContext,
+        World world
+    ) {
+        builder.worldUuid(world.getUID());
+        parameterContext.setWorld(world);
     }
 }

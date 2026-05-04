@@ -32,8 +32,10 @@ import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.query.ParameterContext;
+import org.prism_mc.prism.paper.services.query.annotations.ConflictsWith;
 import org.prism_mc.prism.paper.services.query.parsers.multiple.StringSetQueryArgumentParser;
 
+@ConflictsWith(value = { ExcludeBlockParameterParser.class, ExcludeBlockTagParameterParser.class })
 public class BlockTagParameterParser extends StringSetQueryArgumentParser {
 
     /**
@@ -43,7 +45,22 @@ public class BlockTagParameterParser extends StringSetQueryArgumentParser {
      * @param defaultsConfiguration The defaults configuration
      */
     public BlockTagParameterParser(MessageService messageService, DefaultsConfiguration defaultsConfiguration) {
-        super(messageService, defaultsConfiguration, "btag");
+        this(messageService, defaultsConfiguration, "btag");
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param messageService The message service
+     * @param defaultsConfiguration The defaults configuration
+     * @param alias The parameter alias
+     */
+    protected BlockTagParameterParser(
+        MessageService messageService,
+        DefaultsConfiguration defaultsConfiguration,
+        String alias
+    ) {
+        super(messageService, defaultsConfiguration, alias);
     }
 
     @Override
@@ -56,6 +73,10 @@ public class BlockTagParameterParser extends StringSetQueryArgumentParser {
         var values = parseMultipleParameters(arguments, builder);
 
         if (!values.isEmpty()) {
+            if (alertConflicts(sender, arguments)) {
+                return false;
+            }
+
             List<String> blockNames = new ArrayList<>();
 
             for (String blockTag : values) {
@@ -80,9 +101,13 @@ public class BlockTagParameterParser extends StringSetQueryArgumentParser {
                     });
             }
 
-            builder.affectedBlocks(blockNames);
+            apply(builder, blockNames);
         }
 
         return true;
+    }
+
+    protected void apply(PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder, List<String> values) {
+        builder.affectedBlocks(values);
     }
 }
