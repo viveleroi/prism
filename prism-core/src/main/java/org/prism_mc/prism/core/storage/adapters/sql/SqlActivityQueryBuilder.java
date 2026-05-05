@@ -44,14 +44,17 @@ import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAda
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.DeleteQuery;
+import org.jooq.Field;
 import org.jooq.JoinType;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.SelectQuery;
+import org.jooq.Table;
 import org.jooq.impl.DSL;
 import org.jooq.types.UInteger;
 import org.prism_mc.prism.api.activities.ActivityQuery;
@@ -431,148 +434,199 @@ public class SqlActivityQueryBuilder {
                 actionTypeKeys.add(actionType.key());
             }
 
-            conditions.add(
-                PRISM_ACTIVITIES.ACTION_ID.in(
-                    dslContext
-                        .select(PRISM_ACTIONS.ACTION_ID)
-                        .from(PRISM_ACTIONS)
-                        .where(PRISM_ACTIONS.ACTION.in(actionTypeKeys))
-                        .fetch(PRISM_ACTIONS.ACTION_ID)
-                )
+            addLookupConditions(
+                conditions,
+                PRISM_ACTIVITIES.ACTION_ID,
+                PRISM_ACTIONS.ACTION_ID,
+                PRISM_ACTIONS.ACTION,
+                PRISM_ACTIONS,
+                actionTypeKeys,
+                List.of()
             );
         }
 
         // Action Type Keys
-        if (!query.actionTypeKeys().isEmpty()) {
-            conditions.add(
-                PRISM_ACTIVITIES.ACTION_ID.in(
-                    dslContext
-                        .select(PRISM_ACTIONS.ACTION_ID)
-                        .from(PRISM_ACTIONS)
-                        .where(PRISM_ACTIONS.ACTION.in(query.actionTypeKeys()))
-                        .fetch(PRISM_ACTIONS.ACTION_ID)
-                )
-            );
-        }
+        addLookupConditions(
+            conditions,
+            PRISM_ACTIVITIES.ACTION_ID,
+            PRISM_ACTIONS.ACTION_ID,
+            PRISM_ACTIONS.ACTION,
+            PRISM_ACTIONS,
+            query.actionTypeKeys(),
+            query.actionTypeKeysExcluded()
+        );
 
         // Affected Blocks
-        if (!query.affectedBlocks().isEmpty()) {
-            conditions.add(
-                PRISM_ACTIVITIES.AFFECTED_BLOCK_ID.in(
-                    dslContext
-                        .select(PRISM_BLOCKS.BLOCK_ID)
-                        .from(PRISM_BLOCKS)
-                        .where(PRISM_BLOCKS.NAME.in(query.affectedBlocks()))
-                        .fetch(PRISM_BLOCKS.BLOCK_ID)
-                )
-            );
-        }
+        addLookupConditions(
+            conditions,
+            PRISM_ACTIVITIES.AFFECTED_BLOCK_ID,
+            PRISM_BLOCKS.BLOCK_ID,
+            PRISM_BLOCKS.NAME,
+            PRISM_BLOCKS,
+            query.affectedBlocks(),
+            query.affectedBlocksExcluded()
+        );
 
         // Cause Blocks
-        if (!query.causeBlocks().isEmpty()) {
-            conditions.add(
-                PRISM_ACTIVITIES.CAUSE_BLOCK_ID.in(
-                    dslContext
-                        .select(PRISM_BLOCKS.BLOCK_ID)
-                        .from(PRISM_BLOCKS)
-                        .where(PRISM_BLOCKS.NAME.in(query.causeBlocks()))
-                        .fetch(PRISM_BLOCKS.BLOCK_ID)
-                )
-            );
-        }
+        addLookupConditions(
+            conditions,
+            PRISM_ACTIVITIES.CAUSE_BLOCK_ID,
+            PRISM_BLOCKS.BLOCK_ID,
+            PRISM_BLOCKS.NAME,
+            PRISM_BLOCKS,
+            query.causeBlocks(),
+            query.causeBlocksExcluded()
+        );
 
         // Affected Entity Types
-        if (!query.affectedEntityTypes().isEmpty()) {
-            conditions.add(
-                PRISM_ACTIVITIES.AFFECTED_ENTITY_TYPE_ID.in(
-                    dslContext
-                        .select(PRISM_ENTITY_TYPES.ENTITY_TYPE_ID)
-                        .from(PRISM_ENTITY_TYPES)
-                        .where(PRISM_ENTITY_TYPES.ENTITY_TYPE.in(query.affectedEntityTypes()))
-                        .fetch(PRISM_ENTITY_TYPES.ENTITY_TYPE_ID)
-                )
-            );
-        }
+        addLookupConditions(
+            conditions,
+            PRISM_ACTIVITIES.AFFECTED_ENTITY_TYPE_ID,
+            PRISM_ENTITY_TYPES.ENTITY_TYPE_ID,
+            PRISM_ENTITY_TYPES.ENTITY_TYPE,
+            PRISM_ENTITY_TYPES,
+            query.affectedEntityTypes(),
+            query.affectedEntityTypesExcluded()
+        );
 
         // Cause Entity Types
-        if (!query.causeEntityTypes().isEmpty()) {
-            conditions.add(
-                PRISM_ACTIVITIES.CAUSE_ENTITY_TYPE_ID.in(
-                    dslContext
-                        .select(PRISM_ENTITY_TYPES.ENTITY_TYPE_ID)
-                        .from(PRISM_ENTITY_TYPES)
-                        .where(PRISM_ENTITY_TYPES.ENTITY_TYPE.in(query.causeEntityTypes()))
-                        .fetch(PRISM_ENTITY_TYPES.ENTITY_TYPE_ID)
-                )
-            );
-        }
+        addLookupConditions(
+            conditions,
+            PRISM_ACTIVITIES.CAUSE_ENTITY_TYPE_ID,
+            PRISM_ENTITY_TYPES.ENTITY_TYPE_ID,
+            PRISM_ENTITY_TYPES.ENTITY_TYPE,
+            PRISM_ENTITY_TYPES,
+            query.causeEntityTypes(),
+            query.causeEntityTypesExcluded()
+        );
 
         // Named Causes
-        if (query.namedCause() != null) {
-            conditions.add(
-                PRISM_ACTIVITIES.CAUSE_ID.in(
-                    dslContext
-                        .select(PRISM_CAUSES.CAUSE_ID)
-                        .from(PRISM_CAUSES)
-                        .where(PRISM_CAUSES.CAUSE.equal(query.namedCause()))
-                        .fetch(PRISM_CAUSES.CAUSE_ID)
-                )
-            );
-        }
+        addLookupConditions(
+            conditions,
+            PRISM_ACTIVITIES.CAUSE_ID,
+            PRISM_CAUSES.CAUSE_ID,
+            PRISM_CAUSES.CAUSE,
+            PRISM_CAUSES,
+            query.namedCause() != null ? List.of(query.namedCause()) : List.of(),
+            query.namedCauseExcluded() != null ? List.of(query.namedCauseExcluded()) : List.of()
+        );
 
         // Materials
-        if (!query.affectedMaterials().isEmpty()) {
-            conditions.add(
-                PRISM_ACTIVITIES.AFFECTED_ITEM_ID.in(
-                    dslContext
-                        .select(PRISM_ITEMS.ITEM_ID)
-                        .from(PRISM_ITEMS)
-                        .where(PRISM_ITEMS.MATERIAL.in(query.affectedMaterials()))
-                        .fetch(PRISM_ITEMS.ITEM_ID)
-                )
-            );
-        }
+        addLookupConditions(
+            conditions,
+            PRISM_ACTIVITIES.AFFECTED_ITEM_ID,
+            PRISM_ITEMS.ITEM_ID,
+            PRISM_ITEMS.MATERIAL,
+            PRISM_ITEMS,
+            query.affectedMaterials(),
+            query.affectedMaterialsExcluded()
+        );
 
-        // Affected Player
-        if (!query.affectedPlayerNames().isEmpty()) {
-            conditions.add(
-                PRISM_ACTIVITIES.AFFECTED_PLAYER_ID.in(
-                    dslContext
-                        .select(PRISM_PLAYERS.PLAYER_ID)
-                        .from(PRISM_PLAYERS)
-                        .where(PRISM_PLAYERS.PLAYER.in(query.affectedPlayerNames()))
-                        .fetch(PRISM_PLAYERS.PLAYER_ID)
-                )
-            );
-        }
+        // Affected Players
+        addLookupConditions(
+            conditions,
+            PRISM_ACTIVITIES.AFFECTED_PLAYER_ID,
+            PRISM_PLAYERS.PLAYER_ID,
+            PRISM_PLAYERS.PLAYER,
+            PRISM_PLAYERS,
+            query.affectedPlayerNames(),
+            query.affectedPlayerNamesExcluded()
+        );
 
-        // Cause Player
-        if (!query.causePlayerNames().isEmpty()) {
-            conditions.add(
-                PRISM_ACTIVITIES.CAUSE_PLAYER_ID.in(
-                    dslContext
-                        .select(PRISM_PLAYERS.PLAYER_ID)
-                        .from(PRISM_PLAYERS)
-                        .where(PRISM_PLAYERS.PLAYER.in(query.causePlayerNames()))
-                        .fetch(PRISM_PLAYERS.PLAYER_ID)
-                )
-            );
-        }
+        // Cause Players
+        addLookupConditions(
+            conditions,
+            PRISM_ACTIVITIES.CAUSE_PLAYER_ID,
+            PRISM_PLAYERS.PLAYER_ID,
+            PRISM_PLAYERS.PLAYER,
+            PRISM_PLAYERS,
+            query.causePlayerNames(),
+            query.causePlayerNamesExcluded()
+        );
 
         // World
-        if (query.worldUuid() != null) {
+        addLookupConditions(
+            conditions,
+            PRISM_ACTIVITIES.WORLD_ID,
+            PRISM_WORLDS.WORLD_ID,
+            PRISM_WORLDS.WORLD_UUID,
+            PRISM_WORLDS,
+            query.worldUuid() != null ? List.of(query.worldUuid().toString()) : List.of(),
+            query.worldUuidExcluded() != null ? List.of(query.worldUuidExcluded().toString()) : List.of()
+        );
+
+        return conditions;
+    }
+
+    /**
+     * Add inclusive and exclusive lookup conditions for a foreign-keyed field.
+     *
+     * <p>Pre-resolves IDs from the lookup table so the main query uses literal
+     * {@code IN (1, 2, 3)} conditions instead of subqueries. Either collection
+     * may be empty, in which case no condition is added for that side.</p>
+     *
+     * @param conditions The list to append conditions to
+     * @param outerField The activity-table FK field
+     * @param idField The lookup-table primary key
+     * @param nameField The lookup-table name field to match against
+     * @param table The lookup table
+     * @param included Values to require (IN)
+     * @param excluded Values to reject (NOT IN)
+     */
+    protected <T> void addLookupConditions(
+        List<Condition> conditions,
+        Field<T> outerField,
+        Field<T> idField,
+        Field<String> nameField,
+        Table<?> table,
+        Collection<String> included,
+        Collection<String> excluded
+    ) {
+        if (!included.isEmpty()) {
             conditions.add(
-                PRISM_ACTIVITIES.WORLD_ID.in(
-                    dslContext
-                        .select(PRISM_WORLDS.WORLD_ID)
-                        .from(PRISM_WORLDS)
-                        .where(PRISM_WORLDS.WORLD_UUID.equal(query.worldUuid().toString()))
-                        .fetch(PRISM_WORLDS.WORLD_ID)
-                )
+                outerField.in(dslContext.select(idField).from(table).where(nameField.in(included)).fetch(idField))
             );
         }
 
-        return conditions;
+        if (!excluded.isEmpty()) {
+            conditions.add(
+                outerField.notIn(dslContext.select(idField).from(table).where(nameField.in(excluded)).fetch(idField))
+            );
+        }
+    }
+
+    /**
+     * Add inclusive and exclusive lookup conditions to a delete query using
+     * jOOQ subqueries (for engines that lack DELETE USING, like SQLite/H2).
+     *
+     * @param queryBuilder The delete query
+     * @param outerField The activity-table FK field
+     * @param idField The lookup-table primary key
+     * @param nameField The lookup-table name field to match against
+     * @param table The lookup table
+     * @param included Values to require (IN)
+     * @param excluded Values to reject (NOT IN)
+     */
+    protected <T> void addSubqueryLookupConditions(
+        DeleteQuery<?> queryBuilder,
+        Field<T> outerField,
+        Field<T> idField,
+        Field<String> nameField,
+        Table<?> table,
+        Collection<String> included,
+        Collection<String> excluded
+    ) {
+        if (!included.isEmpty()) {
+            queryBuilder.addConditions(
+                outerField.in(dslContext.select(idField).from(table).where(nameField.in(included)))
+            );
+        }
+
+        if (!excluded.isEmpty()) {
+            queryBuilder.addConditions(
+                outerField.notIn(dslContext.select(idField).from(table).where(nameField.in(excluded)))
+            );
+        }
     }
 
     /**

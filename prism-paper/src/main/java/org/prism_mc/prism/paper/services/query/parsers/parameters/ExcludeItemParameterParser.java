@@ -20,12 +20,14 @@
 
 package org.prism_mc.prism.paper.services.query.parsers.parameters;
 
+import java.util.Set;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
+import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.query.annotations.ConflictsWith;
 
-@ConflictsWith(value = { ExcludePlayerParameterParser.class, ExcludePlayerCauseParameterParser.class })
-public class PlayerCauseParameterParser extends PlayerParameterParser {
+@ConflictsWith(value = { ItemParameterParser.class, ItemTagParameterParser.class })
+public class ExcludeItemParameterParser extends ItemParameterParser {
 
     /**
      * Constructor.
@@ -33,7 +35,12 @@ public class PlayerCauseParameterParser extends PlayerParameterParser {
      * @param messageService The message service
      * @param defaultsConfiguration The defaults configuration
      */
-    public PlayerCauseParameterParser(MessageService messageService, DefaultsConfiguration defaultsConfiguration) {
-        super(messageService, defaultsConfiguration, "pc");
+    public ExcludeItemParameterParser(MessageService messageService, DefaultsConfiguration defaultsConfiguration) {
+        super(messageService, defaultsConfiguration, "i!");
+    }
+
+    @Override
+    protected void apply(PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder, Set<String> values) {
+        builder.affectedMaterialsExcluded(values);
     }
 }

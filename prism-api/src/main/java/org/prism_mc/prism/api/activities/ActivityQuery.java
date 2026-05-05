@@ -46,6 +46,12 @@ public class ActivityQuery {
     private Collection<String> actionTypeKeys;
 
     /**
+     * The action type keys to exclude.
+     */
+    @Singular("actionTypeKeyExcluded")
+    private Collection<String> actionTypeKeysExcluded;
+
+    /**
      * The action types.
      */
     @Singular
@@ -73,15 +79,32 @@ public class ActivityQuery {
     private Collection<String> affectedBlocks;
 
     /**
+     * The affected blocks to exclude.
+     */
+    @Singular("affectedBlockExcluded")
+    private Collection<String> affectedBlocksExcluded;
+
+    /**
      * The cause blocks.
      */
     @Singular
     private Collection<String> causeBlocks;
 
     /**
+     * The cause blocks to exclude.
+     */
+    @Singular("causeBlockExcluded")
+    private Collection<String> causeBlocksExcluded;
+
+    /**
      * The named cause.
      */
     private String namedCause;
+
+    /**
+     * The named cause to exclude.
+     */
+    private String namedCauseExcluded;
 
     /**
      * The default parameters used.
@@ -96,10 +119,22 @@ public class ActivityQuery {
     private Collection<String> affectedEntityTypes;
 
     /**
+     * The affected entity types to exclude.
+     */
+    @Singular("affectedEntityTypeExcluded")
+    private Collection<String> affectedEntityTypesExcluded;
+
+    /**
      * The cause entity types.
      */
     @Singular
     private Collection<String> causeEntityTypes;
+
+    /**
+     * The cause entity types to exclude.
+     */
+    @Singular("causeEntityTypeExcluded")
+    private Collection<String> causeEntityTypesExcluded;
 
     /**
      * Count only.
@@ -136,6 +171,12 @@ public class ActivityQuery {
     private Collection<String> affectedMaterials;
 
     /**
+     * The affected materials to exclude.
+     */
+    @Singular("affectedMaterialExcluded")
+    private Collection<String> affectedMaterialsExcluded;
+
+    /**
      * The max x coordinate.
      */
     private Coordinate maxCoordinate;
@@ -158,10 +199,22 @@ public class ActivityQuery {
     private Collection<String> affectedPlayerNames;
 
     /**
+     * The affected player names to exclude.
+     */
+    @Singular("affectedPlayerNameExcluded")
+    private Collection<String> affectedPlayerNamesExcluded;
+
+    /**
      * The cause player names.
      */
     @Singular
     private Collection<String> causePlayerNames;
+
+    /**
+     * The cause player names to exclude.
+     */
+    @Singular("causePlayerNameExcluded")
+    private Collection<String> causePlayerNamesExcluded;
 
     /**
      * A generic query string for searching the descriptor.
@@ -199,6 +252,11 @@ public class ActivityQuery {
      * The world uuid.
      */
     private UUID worldUuid;
+
+    /**
+     * The world uuid to exclude.
+     */
+    private UUID worldUuidExcluded;
 
     /**
      * Describe the sort directions.

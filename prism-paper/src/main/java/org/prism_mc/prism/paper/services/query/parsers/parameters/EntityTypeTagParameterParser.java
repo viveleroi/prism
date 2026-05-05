@@ -32,8 +32,10 @@ import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.query.ParameterContext;
+import org.prism_mc.prism.paper.services.query.annotations.ConflictsWith;
 import org.prism_mc.prism.paper.services.query.parsers.multiple.StringSetQueryArgumentParser;
 
+@ConflictsWith(value = { ExcludeEntityTypeParameterParser.class, ExcludeEntityTypeTagParameterParser.class })
 public class EntityTypeTagParameterParser extends StringSetQueryArgumentParser {
 
     /**
@@ -43,7 +45,22 @@ public class EntityTypeTagParameterParser extends StringSetQueryArgumentParser {
      * @param defaultsConfiguration The defaults configuration
      */
     public EntityTypeTagParameterParser(MessageService messageService, DefaultsConfiguration defaultsConfiguration) {
-        super(messageService, defaultsConfiguration, "etag");
+        this(messageService, defaultsConfiguration, "etag");
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param messageService The message service
+     * @param defaultsConfiguration The defaults configuration
+     * @param alias The parameter alias
+     */
+    protected EntityTypeTagParameterParser(
+        MessageService messageService,
+        DefaultsConfiguration defaultsConfiguration,
+        String alias
+    ) {
+        super(messageService, defaultsConfiguration, alias);
     }
 
     @Override
@@ -56,6 +73,10 @@ public class EntityTypeTagParameterParser extends StringSetQueryArgumentParser {
         var values = parseMultipleParameters(arguments, builder);
 
         if (!values.isEmpty()) {
+            if (alertConflicts(sender, arguments)) {
+                return false;
+            }
+
             List<String> entityTypeNames = new ArrayList<>();
 
             for (String entityTypeTag : values) {
@@ -79,10 +100,14 @@ public class EntityTypeTagParameterParser extends StringSetQueryArgumentParser {
                         entityTypeNames.add(entityType.toString().toLowerCase(Locale.ENGLISH));
                     });
 
-                builder.affectedEntityTypes(entityTypeNames);
+                apply(builder, entityTypeNames);
             }
         }
 
         return true;
+    }
+
+    protected void apply(PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder, List<String> values) {
+        builder.affectedEntityTypes(values);
     }
 }

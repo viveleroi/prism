@@ -21,13 +21,16 @@
 package org.prism_mc.prism.paper.services.query.parsers.parameters;
 
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
+import java.util.Set;
 import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.query.ParameterContext;
+import org.prism_mc.prism.paper.services.query.annotations.ConflictsWith;
 import org.prism_mc.prism.paper.services.query.parsers.multiple.EntityTypeSetQueryArgumentParser;
 
+@ConflictsWith(value = { ExcludeEntityTypeParameterParser.class, ExcludeEntityTypeTagParameterParser.class })
 public class EntityTypeParameterParser extends EntityTypeSetQueryArgumentParser {
 
     /**
@@ -37,7 +40,22 @@ public class EntityTypeParameterParser extends EntityTypeSetQueryArgumentParser 
      * @param defaultsConfiguration The defaults configuration
      */
     public EntityTypeParameterParser(MessageService messageService, DefaultsConfiguration defaultsConfiguration) {
-        super(messageService, defaultsConfiguration, "e");
+        this(messageService, defaultsConfiguration, "e");
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param messageService The message service
+     * @param defaultsConfiguration The defaults configuration
+     * @param alias The parameter alias
+     */
+    protected EntityTypeParameterParser(
+        MessageService messageService,
+        DefaultsConfiguration defaultsConfiguration,
+        String alias
+    ) {
+        super(messageService, defaultsConfiguration, alias);
     }
 
     @Override
@@ -50,9 +68,17 @@ public class EntityTypeParameterParser extends EntityTypeSetQueryArgumentParser 
         var values = parseMultipleParameters(arguments, builder);
 
         if (!values.isEmpty()) {
-            builder.affectedEntityTypes(values);
+            if (alertConflicts(sender, arguments)) {
+                return false;
+            }
+
+            apply(builder, values);
         }
 
         return true;
+    }
+
+    protected void apply(PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder, Set<String> values) {
+        builder.affectedEntityTypes(values);
     }
 }

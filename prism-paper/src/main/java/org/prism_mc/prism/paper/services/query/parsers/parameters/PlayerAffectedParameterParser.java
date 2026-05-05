@@ -21,13 +21,16 @@
 package org.prism_mc.prism.paper.services.query.parsers.parameters;
 
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
+import java.util.Set;
 import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.query.ParameterContext;
+import org.prism_mc.prism.paper.services.query.annotations.ConflictsWith;
 import org.prism_mc.prism.paper.services.query.parsers.multiple.OfflinePlayerSetQueryArgumentParser;
 
+@ConflictsWith(value = { ExcludePlayerAffectedParameterParser.class })
 public class PlayerAffectedParameterParser extends OfflinePlayerSetQueryArgumentParser {
 
     /**
@@ -37,7 +40,22 @@ public class PlayerAffectedParameterParser extends OfflinePlayerSetQueryArgument
      * @param defaultsConfiguration The defaults configuration
      */
     public PlayerAffectedParameterParser(MessageService messageService, DefaultsConfiguration defaultsConfiguration) {
-        super(messageService, defaultsConfiguration, "pa");
+        this(messageService, defaultsConfiguration, "pa");
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param messageService The message service
+     * @param defaultsConfiguration The defaults configuration
+     * @param alias The parameter alias
+     */
+    protected PlayerAffectedParameterParser(
+        MessageService messageService,
+        DefaultsConfiguration defaultsConfiguration,
+        String alias
+    ) {
+        super(messageService, defaultsConfiguration, alias);
     }
 
     @Override
@@ -50,9 +68,17 @@ public class PlayerAffectedParameterParser extends OfflinePlayerSetQueryArgument
         var values = parseMultipleParameters(arguments, builder);
 
         if (!values.isEmpty()) {
-            builder.affectedPlayerNames(values);
+            if (alertConflicts(sender, arguments)) {
+                return false;
+            }
+
+            apply(builder, values);
         }
 
         return true;
+    }
+
+    protected void apply(PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder, Set<String> values) {
+        builder.affectedPlayerNames(values);
     }
 }

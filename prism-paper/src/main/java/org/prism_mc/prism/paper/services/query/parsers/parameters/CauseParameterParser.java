@@ -26,8 +26,10 @@ import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.query.ParameterContext;
+import org.prism_mc.prism.paper.services.query.annotations.ConflictsWith;
 import org.prism_mc.prism.paper.services.query.parsers.single.StringQueryArgumentParser;
 
+@ConflictsWith(value = { ExcludeCauseParameterParser.class })
 public class CauseParameterParser extends StringQueryArgumentParser {
 
     /**
@@ -37,7 +39,22 @@ public class CauseParameterParser extends StringQueryArgumentParser {
      * @param defaultsConfiguration The defaults configuration
      */
     public CauseParameterParser(MessageService messageService, DefaultsConfiguration defaultsConfiguration) {
-        super(messageService, defaultsConfiguration, "c");
+        this(messageService, defaultsConfiguration, "c");
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param messageService The message service
+     * @param defaultsConfiguration The defaults configuration
+     * @param alias The parameter alias
+     */
+    protected CauseParameterParser(
+        MessageService messageService,
+        DefaultsConfiguration defaultsConfiguration,
+        String alias
+    ) {
+        super(messageService, defaultsConfiguration, alias);
     }
 
     @Override
@@ -47,8 +64,20 @@ public class CauseParameterParser extends StringQueryArgumentParser {
         Arguments arguments,
         PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder
     ) {
-        parseSingleParameter(arguments, builder).ifPresent(builder::namedCause);
+        var optionalParameter = parseSingleParameter(arguments, builder);
+
+        if (optionalParameter.isPresent()) {
+            if (alertConflicts(sender, arguments)) {
+                return false;
+            }
+
+            apply(builder, optionalParameter.get());
+        }
 
         return true;
+    }
+
+    protected void apply(PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder, String value) {
+        builder.namedCause(value);
     }
 }

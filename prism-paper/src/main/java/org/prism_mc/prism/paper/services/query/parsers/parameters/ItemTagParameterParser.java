@@ -32,8 +32,10 @@ import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.query.ParameterContext;
+import org.prism_mc.prism.paper.services.query.annotations.ConflictsWith;
 import org.prism_mc.prism.paper.services.query.parsers.multiple.StringSetQueryArgumentParser;
 
+@ConflictsWith(value = { ExcludeItemParameterParser.class, ExcludeItemTagParameterParser.class })
 public class ItemTagParameterParser extends StringSetQueryArgumentParser {
 
     /**
@@ -43,7 +45,22 @@ public class ItemTagParameterParser extends StringSetQueryArgumentParser {
      * @param defaultsConfiguration The defaults configuration
      */
     public ItemTagParameterParser(MessageService messageService, DefaultsConfiguration defaultsConfiguration) {
-        super(messageService, defaultsConfiguration, "itag");
+        this(messageService, defaultsConfiguration, "itag");
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param messageService The message service
+     * @param defaultsConfiguration The defaults configuration
+     * @param alias The parameter alias
+     */
+    protected ItemTagParameterParser(
+        MessageService messageService,
+        DefaultsConfiguration defaultsConfiguration,
+        String alias
+    ) {
+        super(messageService, defaultsConfiguration, alias);
     }
 
     @Override
@@ -56,6 +73,10 @@ public class ItemTagParameterParser extends StringSetQueryArgumentParser {
         var values = parseMultipleParameters(arguments, builder);
 
         if (!values.isEmpty()) {
+            if (alertConflicts(sender, arguments)) {
+                return false;
+            }
+
             List<String> materialNames = new ArrayList<>();
 
             for (String itemTag : values) {
@@ -80,9 +101,13 @@ public class ItemTagParameterParser extends StringSetQueryArgumentParser {
                     });
             }
 
-            builder.affectedMaterials(materialNames);
+            apply(builder, materialNames);
         }
 
         return true;
+    }
+
+    protected void apply(PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder, List<String> values) {
+        builder.affectedMaterials(values);
     }
 }
