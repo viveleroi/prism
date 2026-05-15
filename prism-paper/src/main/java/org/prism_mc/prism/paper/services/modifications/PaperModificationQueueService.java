@@ -27,8 +27,12 @@ import com.google.inject.Singleton;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -42,6 +46,7 @@ import org.prism_mc.prism.api.services.modifications.ModificationQueueService;
 import org.prism_mc.prism.api.services.modifications.ModificationResult;
 import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
 import org.prism_mc.prism.api.services.modifications.Previewable;
+import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.core.injection.factories.RestoreFactory;
 import org.prism_mc.prism.core.injection.factories.RollbackFactory;
 import org.prism_mc.prism.core.services.cache.CacheService;
@@ -49,6 +54,7 @@ import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.modifications.state.BlockStateChange;
+import org.prism_mc.prism.paper.services.scheduling.PrismScheduler;
 
 @Singleton
 public class PaperModificationQueueService implements ModificationQueueService {
@@ -64,9 +70,11 @@ public class PaperModificationQueueService implements ModificationQueueService {
     private final MessageService messageService;
 
     /**
-     * Cache the current queue, if any.
+     * Cache the current queue, if any. Volatile because it is read from caller threads
+     * (via {@link #queueAvailable()}, {@link #currentQueue()}, {@link #currentQueueForOwner(Object)})
+     * and written from the global region thread when queues are created/cleared.
      */
-    private ModificationQueue currentQueue = null;
+    private volatile ModificationQueue currentQueue = null;
 
     /**
      * The restore factory.
@@ -79,9 +87,24 @@ public class PaperModificationQueueService implements ModificationQueueService {
     private final RollbackFactory rollbackFactory;
 
     /**
+     * The scheduler — used to hop between async storage queries and the global region thread.
+     */
+    private final PrismScheduler prismScheduler;
+
+    /**
+     * The storage adapter — used to fetch activities for {@link #apply}.
+     */
+    private final StorageAdapter storageAdapter;
+
+    /**
      * A cache of recently used queues.
      */
     private final Cache<Object, ModificationQueueResult> queueResults;
+
+    /**
+     * One-shot completion callbacks, keyed by queue owner. Removed after firing.
+     */
+    private final Map<Object, Consumer<ModificationQueueResult>> completionCallbacks = new ConcurrentHashMap<>();
 
     /**
      * Constructor.
@@ -91,7 +114,9 @@ public class PaperModificationQueueService implements ModificationQueueService {
      * @param loggingService The logging service
      * @param messageService The message service
      * @param restoreFactory The restore factory
-     * @param rollbackFactory The rollback factory.
+     * @param rollbackFactory The rollback factory
+     * @param prismScheduler The scheduler
+     * @param storageAdapter The storage adapter
      */
     @Inject
     public PaperModificationQueueService(
@@ -100,12 +125,16 @@ public class PaperModificationQueueService implements ModificationQueueService {
         LoggingService loggingService,
         MessageService messageService,
         RestoreFactory restoreFactory,
-        RollbackFactory rollbackFactory
+        RollbackFactory rollbackFactory,
+        PrismScheduler prismScheduler,
+        StorageAdapter storageAdapter
     ) {
         this.configurationService = configurationService;
         this.messageService = messageService;
         this.restoreFactory = restoreFactory;
         this.rollbackFactory = rollbackFactory;
+        this.prismScheduler = prismScheduler;
+        this.storageAdapter = storageAdapter;
 
         var cacheBuilder = Caffeine.newBuilder()
             .expireAfterAccess(10, TimeUnit.MINUTES)
@@ -141,6 +170,11 @@ public class PaperModificationQueueService implements ModificationQueueService {
         arguments.getFlagValue("removedrops", Boolean.class).ifPresent(builder::removeDrops);
 
         return builder;
+    }
+
+    @Override
+    public ModificationRuleset defaultModificationRuleset() {
+        return configurationService.prismConfig().modifications().toRulesetBuilder().build();
     }
 
     @Override
@@ -274,16 +308,145 @@ public class PaperModificationQueueService implements ModificationQueueService {
     }
 
     /**
+     * Run a rollback, restore, or preview for activities matching the given query.
+     *
+     * <p>Queries activities asynchronously, then creates and applies the queue on the
+     * global region thread. The returned future completes when the queue ends — on the
+     * thread that ran the queue's executor, which is not the main thread.</p>
+     *
+     * <p>If no activities match the query the future completes immediately with an empty
+     * result whose {@code queue()} is null.</p>
+     *
+     * @param type The modification type
+     * @param owner The owner — typically a Player or CommandSender
+     * @param query The activity query
+     * @param ruleset The modification ruleset
+     * @return A future completing with the queue result
+     */
+    public CompletableFuture<ModificationQueueResult> apply(
+        ModificationType type,
+        Object owner,
+        ActivityQuery query,
+        ModificationRuleset ruleset
+    ) {
+        if (!queueAvailable()) {
+            return CompletableFuture.failedFuture(new IllegalStateException("A modification queue is already running"));
+        }
+
+        CompletableFuture<ModificationQueueResult> future = new CompletableFuture<>();
+
+        prismScheduler.runAsync(() -> {
+            List<Activity> modifications;
+            try {
+                modifications = storageAdapter.queryActivities(query);
+            } catch (Exception e) {
+                future.completeExceptionally(e);
+                return;
+            }
+
+            if (modifications.isEmpty()) {
+                future.complete(
+                    ModificationQueueResult.builder()
+                        .mode(
+                            type == ModificationType.PREVIEW
+                                ? ModificationQueueMode.PLANNING
+                                : ModificationQueueMode.COMPLETING
+                        )
+                        .results(List.of())
+                        .build()
+                );
+                return;
+            }
+
+            prismScheduler.runGlobal(() -> runQueue(type, owner, query, ruleset, modifications, future));
+        });
+
+        return future;
+    }
+
+    /**
+     * Create the queue and kick off the work. Runs on the global region thread.
+     *
+     * <p>Registers the completion callback only after the queue is successfully created,
+     * so a queue-busy throw never clobbers a sibling caller's callback. If the apply or
+     * preview throws after the callback is registered, the registered callback is
+     * removed and the orphan queue is cancelled.</p>
+     */
+    private void runQueue(
+        ModificationType type,
+        Object owner,
+        ActivityQuery query,
+        ModificationRuleset ruleset,
+        List<Activity> modifications,
+        CompletableFuture<ModificationQueueResult> future
+    ) {
+        ModificationQueue queue;
+        try {
+            queue = type == ModificationType.RESTORE
+                ? newRestoreQueue(ruleset, owner, query, modifications)
+                : newRollbackQueue(ruleset, owner, query, modifications);
+        } catch (Exception e) {
+            future.completeExceptionally(e);
+            return;
+        }
+
+        completionCallbacks.put(owner, future::complete);
+
+        try {
+            if (type == ModificationType.PREVIEW) {
+                if (queue instanceof Previewable previewable) {
+                    previewable.preview();
+                } else {
+                    throw new IllegalStateException("Queue type does not support preview");
+                }
+            } else {
+                queue.apply();
+            }
+        } catch (Exception e) {
+            completionCallbacks.remove(owner);
+            cancelQueueForOwner(owner);
+            future.completeExceptionally(e);
+        }
+    }
+
+    /**
+     * Register a one-shot callback to fire when the queue owned by {@code owner} ends.
+     *
+     * <p>For {@link ModificationQueueMode#COMPLETING} queues this fires after the queue
+     * is destroyed, so {@link #queueAvailable()} returns true inside the callback. For
+     * {@link ModificationQueueMode#PLANNING} (preview) queues the queue stays active.</p>
+     *
+     * @param owner The owner the convenience caller used when creating the queue
+     * @param callback The callback to invoke with the result
+     */
+    public void onCompletion(Object owner, Consumer<ModificationQueueResult> callback) {
+        completionCallbacks.put(owner, callback);
+    }
+
+    /**
+     * Remove a previously registered completion callback without firing it.
+     *
+     * @param owner The owner
+     */
+    public void removeCompletionCallback(Object owner) {
+        completionCallbacks.remove(owner);
+    }
+
+    /**
      * On queue end, handle some cleanup.
      *
      * @param result Modification queue result
      */
     protected void onEnd(ModificationQueueResult result) {
-        queueResults.put(currentQueue.owner(), result);
+        // Prefer the queue carried on the result — it's the queue that just ended,
+        // even if currentQueue has since been cleared by a concurrent cancel.
+        ModificationQueue endedQueue = result.queue() != null ? result.queue() : currentQueue;
+        Object owner = endedQueue.owner();
+        queueResults.put(owner, result);
 
         if (result.mode().equals(ModificationQueueMode.COMPLETING)) {
             // Message the user with results
-            if (currentQueue.owner() instanceof CommandSender sender) {
+            if (owner instanceof CommandSender sender) {
                 messageService.modificationsAppliedSuccess(sender);
                 messageService.modificationsApplied(sender, result.applied());
                 messageService.modificationsPartial(sender, result);
@@ -307,12 +470,18 @@ public class PaperModificationQueueService implements ModificationQueueService {
             }
 
             // Clear and destroy the queue if completing
-            cancelQueueForOwner(currentQueue.owner());
+            cancelQueueForOwner(owner);
         } else if (result.mode().equals(ModificationQueueMode.PLANNING)) {
             // Message the user with results
-            if (currentQueue.owner() instanceof CommandSender sender) {
+            if (owner instanceof CommandSender sender) {
                 messageService.modificationsAppliedSuccess(sender, result.planned());
             }
+        }
+
+        // Fire the completion callback last so observers see a freed queue.
+        Consumer<ModificationQueueResult> callback = completionCallbacks.remove(owner);
+        if (callback != null) {
+            callback.accept(result);
         }
     }
 

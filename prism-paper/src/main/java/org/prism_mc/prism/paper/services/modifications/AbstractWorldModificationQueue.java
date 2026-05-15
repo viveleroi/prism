@@ -137,6 +137,15 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
     protected int countSkipped = 0;
 
     /**
+     * Counters accumulated by pre/post-process across region threads. Guarded by
+     * {@code this} — pre/post-process may run on different region threads on Folia.
+     */
+    protected int countDrainedLava = 0;
+    protected int countRemovedBlocks = 0;
+    protected int countRemovedDrops = 0;
+    protected int countMovedEntities = 0;
+
+    /**
      * A list of all modification results.
      */
     protected final List<ModificationResult> results = new ArrayList<>();
@@ -214,29 +223,26 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
      * the region bounds. On Paper, regionBounds covers the full world. On Folia,
      * regionBounds is clipped to the current region.
      *
-     * @param builder The result builder (thread-safe updates via synchronized)
      * @param world The world
      * @param regionBounds The region-safe bounding box to clip operations to
      */
-    protected void preProcess(
-        ModificationQueueResult.ModificationQueueResultBuilder builder,
-        World world,
-        BoundingBox regionBounds
-    ) {
+    protected void preProcess(World world, BoundingBox regionBounds) {
         BoundingBox effectiveBox = modificationBoundingBox().intersection(regionBounds);
         if (effectiveBox.getVolume() <= 0) {
             return;
         }
 
-        synchronized (builder) {
+        synchronized (this) {
             if (modificationRuleset.drainLava()) {
-                int count = BlockUtils.removeBlocksByMaterial(world, effectiveBox, List.of(Material.LAVA)).size();
-                builder.drainedLava(builder.build().drainedLava() + count);
+                countDrainedLava += BlockUtils.removeBlocksByMaterial(
+                    world,
+                    effectiveBox,
+                    List.of(Material.LAVA)
+                ).size();
             }
 
             if (modificationRuleset.removeDrops()) {
-                int count = EntityUtils.removeDropsInRange(world, effectiveBox);
-                builder.removedDrops(builder.build().removedDrops() + count);
+                countRemovedDrops += EntityUtils.removeDropsInRange(world, effectiveBox);
             }
 
             if (!modificationRuleset.removeBlocks().isEmpty()) {
@@ -246,8 +252,7 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
                     .map(m -> Material.valueOf(m.toUpperCase()))
                     .toList();
 
-                int count = BlockUtils.removeBlocksByMaterial(world, effectiveBox, materials).size();
-                builder.removedBlocks(builder.build().removedBlocks() + count);
+                countRemovedBlocks += BlockUtils.removeBlocksByMaterial(world, effectiveBox, materials).size();
             }
         }
     }
@@ -257,15 +262,10 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
      * area affected is the intersection of the modification bounding box and
      * the region bounds.
      *
-     * @param builder The result builder (thread-safe updates via synchronized)
      * @param world The world
      * @param regionBounds The region-safe bounding box to clip operations to
      */
-    protected void postProcess(
-        ModificationQueueResult.ModificationQueueResultBuilder builder,
-        World world,
-        BoundingBox regionBounds
-    ) {
+    protected void postProcess(World world, BoundingBox regionBounds) {
         if (!modificationRuleset.moveEntities() || results.isEmpty()) {
             return;
         }
@@ -276,8 +276,8 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
         }
 
         int count = EntityUtils.moveEntitiesToGround(world, effectiveBox, prismScheduler);
-        synchronized (builder) {
-            builder.movedEntities(builder.build().movedEntities() + count);
+        synchronized (this) {
+            countMovedEntities += count;
         }
     }
 
@@ -374,6 +374,10 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
         countPartial = 0;
         countPlanned = 0;
         countSkipped = 0;
+        countDrainedLava = 0;
+        countRemovedBlocks = 0;
+        countRemovedDrops = 0;
+        countMovedEntities = 0;
         results.clear();
         this.mode = ModificationQueueMode.COMPLETING;
         execute();
@@ -385,9 +389,6 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
 
         if (!modificationsQueue.isEmpty()) {
             Location schedulerLocation = schedulerLocation();
-
-            ModificationQueueResult.ModificationQueueResultBuilder builder = ModificationQueueResult.builder()
-                .queue(this);
 
             // Build pre/post processors that the executor will call on region-safe threads
             boolean shouldPreProcess =
@@ -416,18 +417,21 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
                         countSkipped++;
                     }
                 },
-                shouldPreProcess ? (world, boundingBox) -> preProcess(builder, world, boundingBox) : null,
-                mode.equals(ModificationQueueMode.COMPLETING)
-                    ? (world, boundingBox) -> postProcess(builder, world, boundingBox)
-                    : null,
+                shouldPreProcess ? this::preProcess : null,
+                mode.equals(ModificationQueueMode.COMPLETING) ? this::postProcess : null,
                 () -> {
-                    ModificationQueueResult result = builder
+                    ModificationQueueResult result = ModificationQueueResult.builder()
+                        .queue(this)
                         .mode(mode)
                         .results(results)
                         .applied(countApplied)
                         .partial(countPartial)
                         .planned(countPlanned)
                         .skipped(countSkipped)
+                        .drainedLava(countDrainedLava)
+                        .removedBlocks(countRemovedBlocks)
+                        .removedDrops(countRemovedDrops)
+                        .movedEntities(countMovedEntities)
                         .build();
 
                     onEnd(result);
