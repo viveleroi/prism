@@ -25,6 +25,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -34,6 +35,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.prism_mc.prism.api.actions.types.ActionResultType;
 import org.prism_mc.prism.api.actions.types.ActionType;
 import org.prism_mc.prism.api.activities.Activity;
+import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.services.modifications.ModificationHandler;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueMode;
 import org.prism_mc.prism.api.services.modifications.ModificationResult;
@@ -126,35 +128,81 @@ public class PrismExamplePlugin extends JavaPlugin implements Listener {
             return false;
         }
 
-        // Query the last 5 sprint-toggle activities
-        Bukkit.getAsyncScheduler()
-            .runNow(this, task -> {
-                try {
-                    var query = PaperActivityQuery.builder()
-                        .actionTypeKeys(List.of("sprint-toggle"))
-                        .lookup(true)
-                        .grouped(false)
-                        .limit(5)
-                        .build();
-
-                    List<Activity> results = prism.storageAdapter().queryActivities(query);
-
-                    if (results.isEmpty()) {
-                        sender.sendMessage("No sprint-toggle activities found.");
-                        return;
-                    }
-
-                    sender.sendMessage("Last " + results.size() + " sprint-toggle activities:");
-                    for (Activity activity : results) {
-                        sender.sendMessage(" - " + activity.action().descriptor() + " at " + activity.coordinate());
-                    }
-                } catch (Exception e) {
-                    sender.sendMessage("Query failed: " + e.getMessage());
-                    getLogger().warning("Failed to query activities: " + e.getMessage());
-                }
-            });
+        String sub = args.length == 0 ? "query" : args[0].toLowerCase();
+        switch (sub) {
+            case "query" -> queryRecentSprintToggles(sender);
+            case "rollback" -> rollbackRecentCustomBreaks(sender);
+            default -> sender.sendMessage("Usage: /prismexample <query|rollback>");
+        }
 
         return true;
+    }
+
+    /**
+     * Look up the last 5 sprint-toggle activities using the high-level
+     * {@link PrismPaperApi#lookup(ActivityQuery)} helper.
+     */
+    private void queryRecentSprintToggles(CommandSender sender) {
+        var query = PaperActivityQuery.builder()
+            .actionTypeKeys(List.of("sprint-toggle"))
+            .grouped(false)
+            .limit(5)
+            .build();
+
+        prism
+            .lookup(query)
+            .whenComplete((results, error) -> {
+                if (error != null) {
+                    sender.sendMessage("Query failed: " + error.getMessage());
+                    return;
+                }
+
+                if (results.isEmpty()) {
+                    sender.sendMessage("No sprint-toggle activities found.");
+                    return;
+                }
+
+                sender.sendMessage("Last " + results.size() + " sprint-toggle activities:");
+                for (Activity activity : results) {
+                    sender.sendMessage(" - " + activity.action().descriptor() + " at " + activity.coordinate());
+                }
+            });
+    }
+
+    /**
+     * Rollback the sender's last 100 custom-break activities.
+     *
+     * <p>Uses the high-level {@link PrismPaperApi#rollback(Object, ActivityQuery)} helper,
+     * which handles the async query, the main/entity-thread hop, and queue completion.</p>
+     */
+    private void rollbackRecentCustomBreaks(CommandSender sender) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("This subcommand must be run by a player.");
+            return;
+        }
+
+        ActivityQuery query = PaperActivityQuery.builder()
+            .actionTypeKeys(List.of("custom-break"))
+            .causePlayerName(player.getName())
+            .limit(100)
+            .rollback()
+            .build();
+
+        prism
+            .rollback(sender, query)
+            .whenComplete((result, error) -> {
+                if (error != null) {
+                    sender.sendMessage("Rollback failed: " + error.getMessage());
+                    return;
+                }
+
+                if (result.applied() == 0) {
+                    sender.sendMessage("No custom-break activities were rolled back.");
+                    return;
+                }
+
+                sender.sendMessage("Rolled back " + result.applied() + " custom-break activities.");
+            });
     }
 
     /**

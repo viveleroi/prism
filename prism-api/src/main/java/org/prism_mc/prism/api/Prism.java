@@ -22,6 +22,7 @@ package org.prism_mc.prism.api;
 
 import org.prism_mc.prism.api.actions.ActionFactory;
 import org.prism_mc.prism.api.actions.types.ActionTypeRegistry;
+import org.prism_mc.prism.api.services.modifications.ModificationQueueService;
 import org.prism_mc.prism.api.services.recording.RecordingService;
 import org.prism_mc.prism.api.storage.StorageAdapter;
 
@@ -39,6 +40,17 @@ public interface Prism {
      * @return The action type registry
      */
     ActionTypeRegistry actionTypeRegistry();
+
+    /**
+     * Get the modification queue service.
+     *
+     * <p>Used to create and run rollback, restore, and preview queues programmatically.
+     * Only one queue may be active per server at a time — call
+     * {@link ModificationQueueService#queueAvailable()} before creating a new one.</p>
+     *
+     * @return The modification queue service
+     */
+    ModificationQueueService modificationQueueService();
 
     /**
      * Get the recording service.

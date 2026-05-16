@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -49,6 +50,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.prism_mc.prism.api.actions.types.ActionTypeRegistry;
+import org.prism_mc.prism.api.activities.Activity;
+import org.prism_mc.prism.api.activities.ActivityQuery;
+import org.prism_mc.prism.api.services.modifications.ModificationQueueResult;
+import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
 import org.prism_mc.prism.api.services.recording.RecordingService;
 import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
@@ -140,9 +145,12 @@ import org.prism_mc.prism.paper.listeners.vehicle.VehicleEnterListener;
 import org.prism_mc.prism.paper.listeners.vehicle.VehicleExitListener;
 import org.prism_mc.prism.paper.providers.InjectorProvider;
 import org.prism_mc.prism.paper.services.messages.MessageService;
+import org.prism_mc.prism.paper.services.modifications.ModificationType;
+import org.prism_mc.prism.paper.services.modifications.PaperModificationQueueService;
 import org.prism_mc.prism.paper.services.purge.PurgeService;
 import org.prism_mc.prism.paper.services.recording.PaperRecordingService;
 import org.prism_mc.prism.paper.services.recording.wal.WalService;
+import org.prism_mc.prism.paper.services.scheduling.PrismScheduler;
 import org.prism_mc.prism.paper.services.scheduling.SchedulingService;
 import org.prism_mc.prism.paper.utils.VersionUtils;
 
@@ -204,6 +212,17 @@ public class PrismPaper implements PrismPaperApi {
      */
     @Getter
     private ActionTypeRegistry actionTypeRegistry;
+
+    /**
+     * The modification queue service.
+     */
+    @Getter
+    private PaperModificationQueueService modificationQueueService;
+
+    /**
+     * The scheduler — used by the convenience modification methods.
+     */
+    private PrismScheduler prismScheduler;
 
     /**
      * The thread pool scheduler.
@@ -288,6 +307,8 @@ public class PrismPaper implements PrismPaperApi {
             // Initialize some classes
             recordingService = injectorProvider.injector().getInstance(PaperRecordingService.class);
             purgeService = injectorProvider.injector().getInstance(PurgeService.class);
+            modificationQueueService = injectorProvider.injector().getInstance(PaperModificationQueueService.class);
+            prismScheduler = injectorProvider.injector().getInstance(PrismScheduler.class);
             injectorProvider.injector().getInstance(SchedulingService.class);
 
             // Register the API as a Bukkit service for third-party plugins
@@ -639,6 +660,76 @@ public class PrismPaper implements PrismPaperApi {
      */
     public JavaPlugin loaderPlugin() {
         return (JavaPlugin) bootstrap.loader();
+    }
+
+    @Override
+    public CompletableFuture<List<Activity>> lookup(ActivityQuery query) {
+        CompletableFuture<List<Activity>> future = new CompletableFuture<>();
+        prismScheduler.runAsync(() -> {
+            try {
+                future.complete(storageAdapter.queryActivities(query));
+            } catch (Exception e) {
+                future.completeExceptionally(e);
+            }
+        });
+
+        return future;
+    }
+
+    @Override
+    public CompletableFuture<Integer> queryCount(ActivityQuery query) {
+        CompletableFuture<Integer> future = new CompletableFuture<>();
+        prismScheduler.runAsync(() -> {
+            try {
+                future.complete(storageAdapter.countActivities(query));
+            } catch (Exception e) {
+                future.completeExceptionally(e);
+            }
+        });
+
+        return future;
+    }
+
+    @Override
+    public CompletableFuture<ModificationQueueResult> rollback(Object owner, ActivityQuery query) {
+        return rollback(owner, query, modificationQueueService.defaultModificationRuleset());
+    }
+
+    @Override
+    public CompletableFuture<ModificationQueueResult> rollback(
+        Object owner,
+        ActivityQuery query,
+        ModificationRuleset ruleset
+    ) {
+        return modificationQueueService.apply(ModificationType.ROLLBACK, owner, query, ruleset);
+    }
+
+    @Override
+    public CompletableFuture<ModificationQueueResult> restore(Object owner, ActivityQuery query) {
+        return restore(owner, query, modificationQueueService.defaultModificationRuleset());
+    }
+
+    @Override
+    public CompletableFuture<ModificationQueueResult> restore(
+        Object owner,
+        ActivityQuery query,
+        ModificationRuleset ruleset
+    ) {
+        return modificationQueueService.apply(ModificationType.RESTORE, owner, query, ruleset);
+    }
+
+    @Override
+    public CompletableFuture<ModificationQueueResult> preview(Object owner, ActivityQuery query) {
+        return preview(owner, query, modificationQueueService.defaultModificationRuleset());
+    }
+
+    @Override
+    public CompletableFuture<ModificationQueueResult> preview(
+        Object owner,
+        ActivityQuery query,
+        ModificationRuleset ruleset
+    ) {
+        return modificationQueueService.apply(ModificationType.PREVIEW, owner, query, ruleset);
     }
 
     /**
