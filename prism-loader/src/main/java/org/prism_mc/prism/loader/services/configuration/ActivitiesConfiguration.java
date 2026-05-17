@@ -35,7 +35,7 @@ public class ActivitiesConfiguration {
         Whether to ignore recording activities for players in creative.
         For finer control, you may also create a filter."""
     )
-    private boolean ignoreCreative = true;
+    private boolean ignoreCreative = false;
 
     @Comment(
         """
