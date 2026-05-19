@@ -464,8 +464,11 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
         ModificationQueueMode mode,
         boolean applyPhysics
     ) {
-        // Capture existing state for reporting/reversing needs
-        final BlockState oldState = block.getState();
+        // Only capture state in PLANNING mode: cancelPreview reads oldState to send
+        // a revert packet. In COMPLETING nothing consumes stateChange, and BlockState
+        // clones (tile entity NBT, inventories) would dominate memory for large queues.
+        final boolean captureStateChange = mode.equals(ModificationQueueMode.PLANNING);
+        final BlockState oldState = captureStateChange ? block.getState() : null;
 
         if (mode.equals(ModificationQueueMode.COMPLETING)) {
             // Set the bed head part before applying the root block change
@@ -497,7 +500,7 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             });
         }
 
-        return new BlockStateChange(oldState, block.getState());
+        return captureStateChange ? new BlockStateChange(oldState, block.getState()) : null;
     }
 
     /**
