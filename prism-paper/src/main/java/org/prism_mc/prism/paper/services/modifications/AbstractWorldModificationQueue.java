@@ -43,6 +43,7 @@ import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
 import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+import org.prism_mc.prism.loader.services.configuration.ModificationConfiguration;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.scheduling.PrismScheduler;
@@ -149,6 +150,19 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
      * A list of all modification results.
      */
     protected final List<ModificationResult> results = new ArrayList<>();
+
+    /**
+     * Snapshot of the queue size at execute() time. Used as the denominator
+     * for progress reporting; the live queue size shrinks in COMPLETING mode
+     * as items are processed and is not a useful total.
+     */
+    private int progressTotal;
+
+    /**
+     * Last progress percent reported to the owner. Updated only when a new
+     * progress-report step threshold is crossed.
+     */
+    private int progressLastReportedPercent;
 
     /**
      * Incrementally tracked bounding box min/max from result coordinates.
@@ -387,6 +401,13 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
         String queueSizeMsg = "Modification queue beginning application. Queue size: {0}";
         loggingService.debug(queueSizeMsg, modificationsQueue.size());
 
+        progressTotal = modificationsQueue.size();
+        progressLastReportedPercent = 0;
+
+        if (progressTotal >= configurationService.prismConfig().modifications().progressReportThreshold()) {
+            sendToOwner(receiver -> messageService.modificationsStarting(receiver, progressTotal));
+        }
+
         if (!modificationsQueue.isEmpty()) {
             Location schedulerLocation = schedulerLocation();
 
@@ -416,6 +437,8 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
                     } else {
                         countSkipped++;
                     }
+
+                    maybeReportProgress();
                 },
                 shouldPreProcess ? this::preProcess : null,
                 mode.equals(ModificationQueueMode.COMPLETING) ? this::postProcess : null,
@@ -463,6 +486,42 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
     @Override
     public void destroy() {
         modificationExecutor.cancel();
+    }
+
+    /**
+     * Notify the owner of progress when a new progress-report milestone is reached.
+     * Called from the executor's result callback (once per processed item) so the
+     * percent check is the hot path — kept to integer math and a single field read.
+     * Thresholds are read from {@link ModificationConfiguration}.
+     */
+    private void maybeReportProgress() {
+        var modConfig = configurationService.prismConfig().modifications();
+        if (progressTotal < modConfig.progressReportThreshold()) {
+            return;
+        }
+
+        int processed = results.size();
+        int percent = (int) (((long) processed * 100L) / progressTotal);
+
+        if (percent >= progressLastReportedPercent + modConfig.progressReportStepPercent() && percent < 100) {
+            progressLastReportedPercent = percent;
+            sendToOwner(receiver -> messageService.modificationsProgress(receiver, percent, processed, progressTotal));
+        }
+    }
+
+    /**
+     * Dispatch a message to the queue's owner on the appropriate scheduler thread.
+     * Folia routes per-entity messages to the player's region thread; for non-player
+     * senders we fall through to the global scheduler. No-op if the owner is neither.
+     *
+     * @param send The send action, given the resolved receiver
+     */
+    private void sendToOwner(Consumer<CommandSender> send) {
+        if (owner() instanceof Player player) {
+            prismScheduler.runForEntity(player, () -> send.accept(player));
+        } else if (owner() instanceof CommandSender sender) {
+            prismScheduler.runGlobal(() -> send.accept(sender));
+        }
     }
 
     /**

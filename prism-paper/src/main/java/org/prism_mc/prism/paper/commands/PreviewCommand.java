@@ -227,6 +227,8 @@ public class PreviewCommand {
             return;
         }
 
+        messageService.modificationsQuerying(player);
+
         prismScheduler.runAsync(() -> {
             var results = queryActivities(player, query);
             if (results == null) {

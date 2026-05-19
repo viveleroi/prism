@@ -134,6 +134,8 @@ public class RollbackCommand {
                 queryBuilder.limit(maxPerOperation);
             }
 
+            messageService.modificationsQuerying(sender);
+
             final ActivityQuery query = queryBuilder.build();
             prismScheduler.runAsync(() -> {
                 var modifications = queryActivities(sender, query);
