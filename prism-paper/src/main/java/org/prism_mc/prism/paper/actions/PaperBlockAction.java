@@ -270,6 +270,7 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
 
         var location = location(activityContext.worldUuid(), activityContext.coordinate());
         var block = location.getWorld().getBlockAt(location);
+        var applyPhysics = modificationRuleset.applyPhysics();
 
         StateChange<BlockState> stateChange = null;
         if (type().resultType().equals(ActionResultType.REMOVES)) {
@@ -282,12 +283,21 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
                 // If rolling back a removal, we need to place the top half of a bisected block
                 // This happens first otherwise the block will break again
                 if (finalBlockData instanceof Bisected bisected) {
-                    setBisectedTop(block, bisected, bisected.getMaterial());
+                    setBisectedTop(block, bisected, bisected.getMaterial(), applyPhysics);
                 }
             }
 
             // If the action type removes a block, rollback means we re-set it
-            stateChange = setBlock(block, location, finalBlockData, finalReplacedBlockData, readWriteNbt, owner, mode);
+            stateChange = setBlock(
+                block,
+                location,
+                finalBlockData,
+                finalReplacedBlockData,
+                readWriteNbt,
+                owner,
+                mode,
+                applyPhysics
+            );
         } else if (type().resultType().equals(ActionResultType.CREATES)) {
             var canSet = canSet(block, finalReplacedBlockData, modificationRuleset, activityContext);
             if (canSet != null) {
@@ -295,7 +305,16 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             }
 
             // If the action type creates a block, rollback means we remove it
-            stateChange = setBlock(block, location, finalReplacedBlockData, finalBlockData, null, owner, mode);
+            stateChange = setBlock(
+                block,
+                location,
+                finalReplacedBlockData,
+                finalBlockData,
+                null,
+                owner,
+                mode,
+                applyPhysics
+            );
         }
 
         return resultBuilder.stateChange(stateChange).build();
@@ -329,6 +348,7 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
 
         var location = location(activityContext.worldUuid(), activityContext.coordinate());
         var block = location.getWorld().getBlockAt(location);
+        var applyPhysics = modificationRuleset.applyPhysics();
 
         StateChange<BlockState> stateChange = null;
         if (type().resultType().equals(ActionResultType.CREATES)) {
@@ -341,12 +361,21 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
                 // If rolling back a removal, we need to place the top half of a bisected block
                 // This happens first otherwise the block will break again
                 if (finalBlockData instanceof Bisected bisected) {
-                    setBisectedTop(block, bisected, bisected.getMaterial());
+                    setBisectedTop(block, bisected, bisected.getMaterial(), applyPhysics);
                 }
             }
 
             // If the action type creates a block, restore means we re-set it
-            stateChange = setBlock(block, location, finalBlockData, finalReplacedBlockData, readWriteNbt, owner, mode);
+            stateChange = setBlock(
+                block,
+                location,
+                finalBlockData,
+                finalReplacedBlockData,
+                readWriteNbt,
+                owner,
+                mode,
+                applyPhysics
+            );
         } else if (type().resultType().equals(ActionResultType.REMOVES)) {
             var canSet = canSet(block, finalReplacedBlockData, modificationRuleset, activityContext);
             if (canSet != null) {
@@ -354,7 +383,16 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             }
 
             // If the action type removes a block, restore means we remove it again
-            stateChange = setBlock(block, location, finalReplacedBlockData, finalBlockData, null, owner, mode);
+            stateChange = setBlock(
+                block,
+                location,
+                finalReplacedBlockData,
+                finalBlockData,
+                null,
+                owner,
+                mode,
+                applyPhysics
+            );
         }
 
         return resultBuilder.stateChange(stateChange).build();
@@ -405,6 +443,16 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
 
     /**
      * Sets an in-world block to this block data.
+     *
+     * @param block The block being changed
+     * @param location The location
+     * @param newBlockData The new block data (null becomes air)
+     * @param oldBlockData The previous block data, used to detect bed parts during removal
+     * @param readWriteNbt Optional NBT to merge into the new block state
+     * @param owner The modification owner
+     * @param mode The queue mode
+     * @param applyPhysics Whether to apply neighbor physics
+     * @return The captured state change
      */
     protected StateChange<BlockState> setBlock(
         Block block,
@@ -413,7 +461,8 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
         @Nullable BlockData oldBlockData,
         ReadWriteNBT readWriteNbt,
         Object owner,
-        ModificationQueueMode mode
+        ModificationQueueMode mode,
+        boolean applyPhysics
     ) {
         // Capture existing state for reporting/reversing needs
         final BlockState oldState = block.getState();
@@ -422,9 +471,9 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             // Set the bed head part before applying the root block change
             // otherwise the bed will just re-break.
             if (newBlockData instanceof Bed bed) {
-                setBedHead(block, bed);
+                setBedHead(block, bed, applyPhysics);
             } else if (oldBlockData instanceof Bed bed) {
-                setBedHead(block, bed);
+                setBedHead(block, bed, applyPhysics);
             }
         }
 
@@ -432,11 +481,13 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             newBlockData = Bukkit.createBlockData(Material.AIR);
         }
 
-        // Send block change or change world
+        // When applyPhysics is false, cascading updates (sand falling, water flow,
+        // redstone) are suppressed so they cannot alter the restored snapshot, and
+        // large operations avoid the associated TPS cost.
         if (mode.equals(ModificationQueueMode.PLANNING) && owner instanceof Player player) {
             player.sendBlockChange(location, newBlockData);
         } else if (mode.equals(ModificationQueueMode.COMPLETING)) {
-            block.setBlockData(newBlockData);
+            block.setBlockData(newBlockData, applyPhysics);
         }
 
         // Set NBT
@@ -454,19 +505,20 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
      *
      * @param block The block being changed
      * @param bed The bed block data
+     * @param applyPhysics Whether to apply neighbor physics
      */
-    protected void setBedHead(Block block, Bed bed) {
+    protected void setBedHead(Block block, Bed bed, boolean applyPhysics) {
         // Bed activities will always be the FOOT part
         Block relative = block.getRelative(bed.getFacing());
 
         if (type().resultType().equals(ActionResultType.CREATES)) {
-            relative.setType(Material.AIR);
+            relative.setType(Material.AIR, applyPhysics);
         } else {
-            relative.setType(bed.getMaterial());
+            relative.setType(bed.getMaterial(), applyPhysics);
 
             if (bed.clone() instanceof Bed siblingBed) {
                 siblingBed.setPart(Bed.Part.HEAD);
-                relative.setBlockData(siblingBed);
+                relative.setBlockData(siblingBed, applyPhysics);
             }
         }
     }
@@ -477,8 +529,9 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
      * @param block The block being changed
      * @param bisected The bisected block data
      * @param material The material
+     * @param applyPhysics Whether to apply neighbor physics
      */
-    protected void setBisectedTop(Block block, Bisected bisected, Material material) {
+    protected void setBisectedTop(Block block, Bisected bisected, Material material, boolean applyPhysics) {
         // Some bisected blocks don't need help
         if (bisected instanceof Stairs || bisected instanceof TrapDoor) {
             return;
@@ -487,10 +540,10 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
         // Bisected activities will always be the BOTTOM part
         Block relative = block.getRelative(BlockFace.UP);
 
-        relative.setType(material);
+        relative.setType(material, applyPhysics);
         if (relative.getBlockData().clone() instanceof Bisected siblingBisected) {
             siblingBisected.setHalf(Bisected.Half.TOP);
-            relative.setBlockData(siblingBisected);
+            relative.setBlockData(siblingBisected, applyPhysics);
         }
     }
 

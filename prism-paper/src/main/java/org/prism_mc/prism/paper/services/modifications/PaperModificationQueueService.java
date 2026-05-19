@@ -167,6 +167,7 @@ public class PaperModificationQueueService implements ModificationQueueService {
         builder.overwrite(arguments.hasFlag("overwrite"));
 
         arguments.getFlagValue("drainlava", Boolean.class).ifPresent(builder::drainLava);
+        arguments.getFlagValue("physics", Boolean.class).ifPresent(builder::applyPhysics);
         arguments.getFlagValue("removedrops", Boolean.class).ifPresent(builder::removeDrops);
 
         return builder;
