@@ -44,6 +44,15 @@ public class ModificationConfiguration {
     )
     private boolean applyPhysics = true;
 
+    @Comment(
+        """
+        When enabled, various processes dispatch /spark heapdump commands.
+
+        REQUIRES the Spark plugin to be installed. Otherwise, command is
+        silently rejected. Every call writes a multi-MB .hprof file."""
+    )
+    private boolean debugMemory = false;
+
     @Comment("Enables draining lava from the modification area.")
     private boolean drainLava = true;
 
