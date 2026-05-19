@@ -457,6 +457,24 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
                         .movedEntities(countMovedEntities)
                         .build();
 
+                    // Heap dump at peak prism memory — queue drained, results list fully
+                    // populated, and any retained BlockState snapshots still alive. REQUIRES
+                    // the Spark plugin to be installed; without Spark the command is silently
+                    // rejected by Bukkit and no dump is produced. Dispatched via the global
+                    // scheduler because Bukkit.dispatchCommand must run on the main thread
+                    // (on Folia, this region thread is not the main thread).
+                    if (configurationService.prismConfig().modifications().debugMemory()) {
+                        loggingService.info(
+                            "Dispatching /spark heapdump at queue completion (mode={0}, results={1})",
+                            mode,
+                            results.size()
+                        );
+
+                        prismScheduler.runGlobal(() ->
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "spark heapdump")
+                        );
+                    }
+
                     onEnd(result);
                 }
             );
