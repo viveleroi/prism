@@ -30,6 +30,13 @@ import lombok.Getter;
 public class ModificationRuleset {
 
     /**
+     * Whether to allow neighbor physics, light updates, and tile-tick scheduling
+     * when applying block changes. When false, cascading effects (sand falling,
+     * water flowing, redstone propagating) are suppressed during rollback/restore.
+     */
+    private boolean applyPhysics;
+
+    /**
      * The block black list.
      */
     private List<String> blockBlacklist;

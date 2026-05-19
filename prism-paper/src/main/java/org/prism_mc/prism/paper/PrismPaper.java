@@ -557,6 +557,7 @@ public class PrismPaper implements PrismPaperApi {
                 Flag.flag("ow").longFlag("overwrite").build(),
                 Flag.flag("nd").longFlag("nodefaults").build(),
                 Flag.flag("ng").longFlag("nogroup").build(),
+                Flag.flag("ph").longFlag("physics").argument(Boolean.class).build(),
                 Flag.flag("rd").longFlag("removedrops").argument(Boolean.class).build(),
                 Flag.flag("c").longFlag("count").build(),
                 Flag.flag("s").longFlag("sort").argument(String.class).build()

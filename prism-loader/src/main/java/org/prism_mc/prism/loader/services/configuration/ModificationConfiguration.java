@@ -34,6 +34,16 @@ public class ModificationConfiguration {
     @Comment("List materials that should be excluded from modifications.")
     private List<String> blockBlacklist = new ArrayList<>();
 
+    @Comment(
+        """
+        Whether to allow neighbor physics, light updates, and tile-tick scheduling
+        when applying rollback/restore block changes. Setting to false suppresses
+        cascading effects (sand falling, water flowing, redstone propagating) so a
+        restored snapshot is not altered after the fact, and can drastically reduce
+        TPS impact on large operations. Override per-command with --physics true/false."""
+    )
+    private boolean applyPhysics = true;
+
     @Comment("Enables draining lava from the modification area.")
     private boolean drainLava = true;
 
@@ -101,6 +111,7 @@ public class ModificationConfiguration {
      */
     public ModificationRuleset.ModificationRulesetBuilder toRulesetBuilder() {
         return ModificationRuleset.builder()
+            .applyPhysics(applyPhysics)
             .blockBlacklist(blockBlacklist)
             .drainLava(drainLava)
             .entityBlacklist(entityBlacklist)
