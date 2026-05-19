@@ -208,6 +208,20 @@ public interface MessageService {
     @Message("prism.modifications-applied")
     void modificationsApplied(CommandSender receiver, @Placeholder Integer count);
 
+    @Message("prism.modifications-querying")
+    void modificationsQuerying(CommandSender receiver);
+
+    @Message("prism.modifications-starting")
+    void modificationsStarting(CommandSender receiver, @Placeholder Integer count);
+
+    @Message("prism.modifications-progress")
+    void modificationsProgress(
+        CommandSender receiver,
+        @Placeholder Integer percent,
+        @Placeholder Integer processed,
+        @Placeholder Integer total
+    );
+
     @Message("prism.modifications-drained-lava")
     void modificationsDrainedLava(CommandSender receiver, @Placeholder Integer count);
 

@@ -78,6 +78,22 @@ public class ModificationConfiguration {
     @Comment("Teleport entities out of the way.")
     private boolean moveEntities = true;
 
+    @Comment(
+        """
+        Percentage step between progress messages sent to the owner during a
+        rollback/restore/preview. With 5, the owner sees at most 19 updates
+        (5%, 10%, ..., 95%) before the completion message."""
+    )
+    private int progressReportStepPercent = 5;
+
+    @Comment(
+        """
+        Minimum queue size before progress messages are sent to the owner during a
+        rollback/restore/preview. Smaller queues finish quickly enough that progress
+        reporting is just noise."""
+    )
+    private int progressReportThreshold = 5000;
+
     @Comment("A list of (typically unsafe) blocks to remove before a modification occurs.")
     private List<String> removeBlocks = new ArrayList<>();
 
