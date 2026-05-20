@@ -50,10 +50,8 @@ import org.prism_mc.prism.api.services.modifications.ModificationQueueMode;
 import org.prism_mc.prism.api.services.modifications.ModificationResult;
 import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
 import org.prism_mc.prism.api.services.modifications.ModificationSkipReason;
-import org.prism_mc.prism.api.services.modifications.StateChange;
 import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.paper.api.containers.PaperBlockContainer;
-import org.prism_mc.prism.paper.services.modifications.state.BlockStateChange;
 import org.prism_mc.prism.paper.utils.BlockUtils;
 
 public class PaperBlockAction extends PaperAction implements BlockAction {
@@ -274,7 +272,6 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
         var block = location.getWorld().getBlockAt(location);
         var applyPhysics = modificationRuleset.applyPhysics();
 
-        StateChange<BlockState> stateChange = null;
         if (type().resultType().equals(ActionResultType.REMOVES)) {
             var canSet = canSet(block, finalBlockData, modificationRuleset, activityContext);
             if (canSet != null) {
@@ -290,16 +287,7 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             }
 
             // If the action type removes a block, rollback means we re-set it
-            stateChange = setBlock(
-                block,
-                location,
-                finalBlockData,
-                finalReplacedBlockData,
-                readWriteNbt,
-                owner,
-                mode,
-                applyPhysics
-            );
+            setBlock(block, location, finalBlockData, finalReplacedBlockData, readWriteNbt, owner, mode, applyPhysics);
 
             if (mode.equals(ModificationQueueMode.COMPLETING) && finalBlockData instanceof Chest chest) {
                 BlockUtils.reconcileChestConnection(block, chest, applyPhysics);
@@ -311,23 +299,14 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             }
 
             // If the action type creates a block, rollback means we remove it
-            stateChange = setBlock(
-                block,
-                location,
-                finalReplacedBlockData,
-                finalBlockData,
-                null,
-                owner,
-                mode,
-                applyPhysics
-            );
+            setBlock(block, location, finalReplacedBlockData, finalBlockData, null, owner, mode, applyPhysics);
 
             if (mode.equals(ModificationQueueMode.COMPLETING) && finalBlockData instanceof Chest chest) {
                 BlockUtils.downgradeChestPartner(block, chest, applyPhysics);
             }
         }
 
-        return resultBuilder.stateChange(stateChange).build();
+        return resultBuilder.build();
     }
 
     @Override
@@ -360,7 +339,6 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
         var block = location.getWorld().getBlockAt(location);
         var applyPhysics = modificationRuleset.applyPhysics();
 
-        StateChange<BlockState> stateChange = null;
         if (type().resultType().equals(ActionResultType.CREATES)) {
             var canSet = canSet(block, finalBlockData, modificationRuleset, activityContext);
             if (canSet != null) {
@@ -376,16 +354,7 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             }
 
             // If the action type creates a block, restore means we re-set it
-            stateChange = setBlock(
-                block,
-                location,
-                finalBlockData,
-                finalReplacedBlockData,
-                readWriteNbt,
-                owner,
-                mode,
-                applyPhysics
-            );
+            setBlock(block, location, finalBlockData, finalReplacedBlockData, readWriteNbt, owner, mode, applyPhysics);
 
             if (mode.equals(ModificationQueueMode.COMPLETING) && finalBlockData instanceof Chest chest) {
                 BlockUtils.reconcileChestConnection(block, chest, applyPhysics);
@@ -397,23 +366,14 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             }
 
             // If the action type removes a block, restore means we remove it again
-            stateChange = setBlock(
-                block,
-                location,
-                finalReplacedBlockData,
-                finalBlockData,
-                null,
-                owner,
-                mode,
-                applyPhysics
-            );
+            setBlock(block, location, finalReplacedBlockData, finalBlockData, null, owner, mode, applyPhysics);
 
             if (mode.equals(ModificationQueueMode.COMPLETING) && finalBlockData instanceof Chest chest) {
                 BlockUtils.downgradeChestPartner(block, chest, applyPhysics);
             }
         }
 
-        return resultBuilder.stateChange(stateChange).build();
+        return resultBuilder.build();
     }
 
     /**
@@ -470,9 +430,8 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
      * @param owner The modification owner
      * @param mode The queue mode
      * @param applyPhysics Whether to apply neighbor physics
-     * @return The captured state change
      */
-    protected StateChange<BlockState> setBlock(
+    protected void setBlock(
         Block block,
         Location location,
         @Nullable BlockData newBlockData,
@@ -482,12 +441,6 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
         ModificationQueueMode mode,
         boolean applyPhysics
     ) {
-        // Only capture state in PLANNING mode: cancelPreview reads oldState to send
-        // a revert packet. In COMPLETING nothing consumes stateChange, and BlockState
-        // clones (tile entity NBT, inventories) would dominate memory for large queues.
-        final boolean captureStateChange = mode.equals(ModificationQueueMode.PLANNING);
-        final BlockState oldState = captureStateChange ? block.getState() : null;
-
         if (mode.equals(ModificationQueueMode.COMPLETING)) {
             // Set the bed head part before applying the root block change
             // otherwise the bed will just re-break.
@@ -502,9 +455,8 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             newBlockData = Bukkit.createBlockData(Material.AIR);
         }
 
-        // When applyPhysics is false, cascading updates (sand falling, water flow,
-        // redstone) are suppressed so they cannot alter the restored snapshot, and
-        // large operations avoid the associated TPS cost.
+        // Preview is packet-only. Canceling later re-streams the query
+        // and sends live block data back to the player.
         if (mode.equals(ModificationQueueMode.PLANNING) && owner instanceof Player player) {
             player.sendBlockChange(location, newBlockData);
         } else if (mode.equals(ModificationQueueMode.COMPLETING)) {
@@ -517,8 +469,6 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
                 nbt.mergeCompound(readWriteNbt);
             });
         }
-
-        return captureStateChange ? new BlockStateChange(oldState, block.getState()) : null;
     }
 
     /**
