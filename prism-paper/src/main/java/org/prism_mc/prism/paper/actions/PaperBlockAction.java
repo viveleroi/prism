@@ -52,6 +52,7 @@ import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
 import org.prism_mc.prism.api.services.modifications.ModificationSkipReason;
 import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.paper.api.containers.PaperBlockContainer;
+import org.prism_mc.prism.paper.services.modifications.BlockUndoEntry;
 import org.prism_mc.prism.paper.utils.BlockUtils;
 
 public class PaperBlockAction extends PaperAction implements BlockAction {
@@ -272,6 +273,7 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
         var block = location.getWorld().getBlockAt(location);
         var applyPhysics = modificationRuleset.applyPhysics();
 
+        BlockUndoEntry undoEntry = null;
         if (type().resultType().equals(ActionResultType.REMOVES)) {
             var canSet = canSet(block, finalBlockData, modificationRuleset, activityContext);
             if (canSet != null) {
@@ -287,7 +289,17 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             }
 
             // If the action type removes a block, rollback means we re-set it
-            setBlock(block, location, finalBlockData, finalReplacedBlockData, readWriteNbt, owner, mode, applyPhysics);
+            undoEntry = setBlock(
+                activityContext,
+                block,
+                location,
+                finalBlockData,
+                finalReplacedBlockData,
+                readWriteNbt,
+                owner,
+                mode,
+                applyPhysics
+            );
 
             if (mode.equals(ModificationQueueMode.COMPLETING) && finalBlockData instanceof Chest chest) {
                 BlockUtils.reconcileChestConnection(block, chest, applyPhysics);
@@ -299,14 +311,24 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             }
 
             // If the action type creates a block, rollback means we remove it
-            setBlock(block, location, finalReplacedBlockData, finalBlockData, null, owner, mode, applyPhysics);
+            undoEntry = setBlock(
+                activityContext,
+                block,
+                location,
+                finalReplacedBlockData,
+                finalBlockData,
+                null,
+                owner,
+                mode,
+                applyPhysics
+            );
 
             if (mode.equals(ModificationQueueMode.COMPLETING) && finalBlockData instanceof Chest chest) {
                 BlockUtils.downgradeChestPartner(block, chest, applyPhysics);
             }
         }
 
-        return resultBuilder.build();
+        return resultBuilder.undoEntry(undoEntry).build();
     }
 
     @Override
@@ -339,6 +361,7 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
         var block = location.getWorld().getBlockAt(location);
         var applyPhysics = modificationRuleset.applyPhysics();
 
+        BlockUndoEntry undoEntry = null;
         if (type().resultType().equals(ActionResultType.CREATES)) {
             var canSet = canSet(block, finalBlockData, modificationRuleset, activityContext);
             if (canSet != null) {
@@ -354,7 +377,17 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             }
 
             // If the action type creates a block, restore means we re-set it
-            setBlock(block, location, finalBlockData, finalReplacedBlockData, readWriteNbt, owner, mode, applyPhysics);
+            undoEntry = setBlock(
+                activityContext,
+                block,
+                location,
+                finalBlockData,
+                finalReplacedBlockData,
+                readWriteNbt,
+                owner,
+                mode,
+                applyPhysics
+            );
 
             if (mode.equals(ModificationQueueMode.COMPLETING) && finalBlockData instanceof Chest chest) {
                 BlockUtils.reconcileChestConnection(block, chest, applyPhysics);
@@ -366,14 +399,24 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             }
 
             // If the action type removes a block, restore means we remove it again
-            setBlock(block, location, finalReplacedBlockData, finalBlockData, null, owner, mode, applyPhysics);
+            undoEntry = setBlock(
+                activityContext,
+                block,
+                location,
+                finalReplacedBlockData,
+                finalBlockData,
+                null,
+                owner,
+                mode,
+                applyPhysics
+            );
 
             if (mode.equals(ModificationQueueMode.COMPLETING) && finalBlockData instanceof Chest chest) {
                 BlockUtils.downgradeChestPartner(block, chest, applyPhysics);
             }
         }
 
-        return resultBuilder.build();
+        return resultBuilder.undoEntry(undoEntry).build();
     }
 
     /**
@@ -420,18 +463,16 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
     }
 
     /**
-     * Sets an in-world block to this block data.
+     * Sets an in-world block to this block data. In COMPLETING mode, captures
+     * a lightweight {@link BlockUndoEntry} from the live block *before* the
+     * write so {@code /pr undo} can replay world state without re-deriving it
+     * from the activity log. Preview is packet-only; cancelling a preview
+     * re-streams the query and sends live block data back to the player.
      *
-     * @param block The block being changed
-     * @param location The location
-     * @param newBlockData The new block data (null becomes air)
-     * @param oldBlockData The previous block data, used to detect bed parts during removal
-     * @param readWriteNbt Optional NBT to merge into the new block state
-     * @param owner The modification owner
-     * @param mode The queue mode
-     * @param applyPhysics Whether to apply neighbor physics
+     * @return The captured undo entry for a COMPLETING write, or null otherwise
      */
-    protected void setBlock(
+    protected BlockUndoEntry setBlock(
+        Activity activityContext,
         Block block,
         Location location,
         @Nullable BlockData newBlockData,
@@ -455,20 +496,39 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             newBlockData = Bukkit.createBlockData(Material.AIR);
         }
 
-        // Preview is packet-only. Canceling later re-streams the query
-        // and sends live block data back to the player.
         if (mode.equals(ModificationQueueMode.PLANNING) && owner instanceof Player player) {
             player.sendBlockChange(location, newBlockData);
-        } else if (mode.equals(ModificationQueueMode.COMPLETING)) {
-            block.setBlockData(newBlockData, applyPhysics);
+            return null;
+        } else if (!mode.equals(ModificationQueueMode.COMPLETING)) {
+            return null;
         }
 
-        // Set NBT
-        if (block.getType() != Material.AIR && mode.equals(ModificationQueueMode.COMPLETING) && readWriteNbt != null) {
+        // Capture the live block data + tile NBT immediately before the write
+        // so /pr undo can replay world state without re-deriving from the log.
+        BlockData oldLiveData = block.getBlockData();
+        ReadWriteNBT oldLiveNbt = null;
+        if (block.getState() instanceof TileState) {
+            oldLiveNbt = NBT.createNBTObject();
+            NBT.get(block.getState(), oldLiveNbt::mergeCompound);
+        }
+
+        block.setBlockData(newBlockData, applyPhysics);
+
+        // Set NBT for the new state (e.g., restoring chest contents)
+        if (block.getType() != Material.AIR && readWriteNbt != null) {
             NBT.modify(block.getState(), nbt -> {
                 nbt.mergeCompound(readWriteNbt);
             });
         }
+
+        return new BlockUndoEntry(
+            ((Number) activityContext.primaryKey()).longValue(),
+            activityContext.worldUuid(),
+            activityContext.coordinate(),
+            oldLiveData,
+            newBlockData,
+            oldLiveNbt
+        );
     }
 
     /**
