@@ -187,6 +187,9 @@ public class ActionsConfiguration {
     @Comment("item-throw is when a player throws an item.")
     private boolean itemThrow = true;
 
+    @Comment("item-trade is when a player trades with a villager or wandering trader.")
+    private boolean itemTrade = true;
+
     @Comment("item-use is when a player uses an item.")
     private boolean itemUse = true;
 

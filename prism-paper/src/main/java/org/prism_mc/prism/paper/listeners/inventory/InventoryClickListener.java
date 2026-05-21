@@ -29,6 +29,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.paper.listeners.AbstractListener;
@@ -87,6 +88,11 @@ public class InventoryClickListener extends AbstractListener implements Listener
         // Ignore inventories without a holder - smithing tables, etc.
         // Things that have a UI but do not actually store items.
         if (event.getInventory().getHolder() == null) {
+            return;
+        }
+
+        // Ignore villager/wandering trader UIs - trades are logged by PlayerPurchaseListener
+        if (event.getInventory().getType() == InventoryType.MERCHANT) {
             return;
         }
 
