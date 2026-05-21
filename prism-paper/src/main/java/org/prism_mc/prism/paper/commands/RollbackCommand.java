@@ -114,7 +114,7 @@ public class RollbackCommand {
      * @param arguments The arguments
      */
     @CommandFlags(key = "query-flags")
-    @NamedArguments("query-parameters")
+    @NamedArguments("modification-parameters")
     @Command(value = "rollback", alias = { "rb" })
     @Permission("prism.modify")
     public void onRollback(final CommandSender sender, final Arguments arguments) {

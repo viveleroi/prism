@@ -419,7 +419,7 @@ public class PrismPaper implements PrismPaperApi {
                 messagingService.errorUnknownCommand(sender);
             });
 
-            // Register action types auto-suggest
+            // Register action types auto-suggest (all actions, for lookup/purge/vault)
             commandManager.registerSuggestion(SuggestionKey.of("actions"), (sender, context) -> {
                 List<String> actionFamilies = new ArrayList<>();
                 for (var actionType : injectorProvider
@@ -427,6 +427,21 @@ public class PrismPaper implements PrismPaperApi {
                     .getInstance(PaperActionTypeRegistry.class)
                     .actionTypes()) {
                     actionFamilies.add(actionType.familyKey());
+                }
+
+                return actionFamilies;
+            });
+
+            // Register reversible action types auto-suggest (for preview/rollback/restore)
+            commandManager.registerSuggestion(SuggestionKey.of("reversible-actions"), (sender, context) -> {
+                List<String> actionFamilies = new ArrayList<>();
+                for (var actionType : injectorProvider
+                    .injector()
+                    .getInstance(PaperActionTypeRegistry.class)
+                    .actionTypes()) {
+                    if (actionType.reversible()) {
+                        actionFamilies.add(actionType.familyKey());
+                    }
                 }
 
                 return actionFamilies;
@@ -565,44 +580,15 @@ public class PrismPaper implements PrismPaperApi {
 
             commandManager.registerNamedArguments(
                 ArgumentKey.of("query-parameters"),
-                Argument.forInt().name("above").build(),
-                Argument.forInt().name("below").build(),
-                Argument.forBoolean().name("reversed").build(),
-                Argument.forInt().name("r").build(),
-                Argument.forString().name("in").suggestion(SuggestionKey.of("ins")).build(),
-                Argument.forString().name("since").build(),
-                Argument.forString().name("before").build(),
-                Argument.forString().name("c").build(),
-                Argument.forString().name("c!").build(),
-                Argument.forString().name("world").suggestion(SuggestionKey.of("worlds")).build(),
-                Argument.forString().name("at").build(),
-                Argument.forString().name("bounds").build(),
-                Argument.listOf(Integer.class).name("id").build(),
-                Argument.listOf(String.class).name("a").suggestion(SuggestionKey.of("actions")).build(),
-                Argument.listOf(String.class).name("a!").suggestion(SuggestionKey.of("actions")).build(),
-                Argument.listOf(String.class).name("btag").suggestion(SuggestionKey.of("blocktags")).build(),
-                Argument.listOf(String.class).name("btag!").suggestion(SuggestionKey.of("blocktags")).build(),
-                Argument.listOf(String.class).name("etag").suggestion(SuggestionKey.of("entitytypetags")).build(),
-                Argument.listOf(String.class).name("etag!").suggestion(SuggestionKey.of("entitytypetags")).build(),
-                Argument.listOf(String.class).name("itag").suggestion(SuggestionKey.of("itemtags")).build(),
-                Argument.listOf(String.class).name("itag!").suggestion(SuggestionKey.of("itemtags")).build(),
-                Argument.listOf(String.class).name("b").suggestion(SuggestionKey.of("blocks")).build(),
-                Argument.listOf(String.class).name("b!").suggestion(SuggestionKey.of("blocks")).build(),
-                Argument.listOf(String.class).name("bc").suggestion(SuggestionKey.of("blocks")).build(),
-                Argument.listOf(String.class).name("bc!").suggestion(SuggestionKey.of("blocks")).build(),
-                Argument.listOf(Material.class).name("i").build(),
-                Argument.listOf(Material.class).name("i!").build(),
-                Argument.listOf(EntityType.class).name("e").build(),
-                Argument.listOf(EntityType.class).name("e!").build(),
-                Argument.listOf(EntityType.class).name("ec").build(),
-                Argument.listOf(EntityType.class).name("ec!").build(),
-                Argument.listOf(OfflinePlayer.class).name("p").build(),
-                Argument.listOf(OfflinePlayer.class).name("p!").build(),
-                Argument.listOf(OfflinePlayer.class).name("pc").build(),
-                Argument.listOf(OfflinePlayer.class).name("pc!").build(),
-                Argument.listOf(OfflinePlayer.class).name("pa").build(),
-                Argument.listOf(OfflinePlayer.class).name("pa!").build(),
-                Argument.forString().name("descriptor").build()
+                queryParameterArguments(SuggestionKey.of("actions"))
+            );
+
+            // Same parameter set as query-parameters, but with only reversible
+            // actions auto-suggested for `a:` / `a!:` so preview/rollback/restore
+            // commands surface only the action types they can actually modify.
+            commandManager.registerNamedArguments(
+                ArgumentKey.of("modification-parameters"),
+                queryParameterArguments(SuggestionKey.of("reversible-actions"))
             );
 
             commandManager.registerFlags(
@@ -630,6 +616,55 @@ public class PrismPaper implements PrismPaperApi {
             commandManager.registerCommand(injectorProvider.injector().getInstance(UndoCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(WandCommand.class));
         }
+    }
+
+    /**
+     * Build the list of named arguments shared by query and modification commands.
+     *
+     * @param actionsSuggestionKey The suggestion key to use for the action (`a` / `a!`) arguments
+     * @return The list of arguments
+     */
+    private List<Argument> queryParameterArguments(SuggestionKey actionsSuggestionKey) {
+        return Arrays.asList(
+            Argument.forInt().name("above").build(),
+            Argument.forInt().name("below").build(),
+            Argument.forBoolean().name("reversed").build(),
+            Argument.forInt().name("r").build(),
+            Argument.forString().name("in").suggestion(SuggestionKey.of("ins")).build(),
+            Argument.forString().name("since").build(),
+            Argument.forString().name("before").build(),
+            Argument.forString().name("c").build(),
+            Argument.forString().name("c!").build(),
+            Argument.forString().name("world").suggestion(SuggestionKey.of("worlds")).build(),
+            Argument.forString().name("at").build(),
+            Argument.forString().name("bounds").build(),
+            Argument.listOf(Integer.class).name("id").build(),
+            Argument.listOf(String.class).name("a").suggestion(actionsSuggestionKey).build(),
+            Argument.listOf(String.class).name("a!").suggestion(actionsSuggestionKey).build(),
+            Argument.listOf(String.class).name("btag").suggestion(SuggestionKey.of("blocktags")).build(),
+            Argument.listOf(String.class).name("btag!").suggestion(SuggestionKey.of("blocktags")).build(),
+            Argument.listOf(String.class).name("etag").suggestion(SuggestionKey.of("entitytypetags")).build(),
+            Argument.listOf(String.class).name("etag!").suggestion(SuggestionKey.of("entitytypetags")).build(),
+            Argument.listOf(String.class).name("itag").suggestion(SuggestionKey.of("itemtags")).build(),
+            Argument.listOf(String.class).name("itag!").suggestion(SuggestionKey.of("itemtags")).build(),
+            Argument.listOf(String.class).name("b").suggestion(SuggestionKey.of("blocks")).build(),
+            Argument.listOf(String.class).name("b!").suggestion(SuggestionKey.of("blocks")).build(),
+            Argument.listOf(String.class).name("bc").suggestion(SuggestionKey.of("blocks")).build(),
+            Argument.listOf(String.class).name("bc!").suggestion(SuggestionKey.of("blocks")).build(),
+            Argument.listOf(Material.class).name("i").build(),
+            Argument.listOf(Material.class).name("i!").build(),
+            Argument.listOf(EntityType.class).name("e").build(),
+            Argument.listOf(EntityType.class).name("e!").build(),
+            Argument.listOf(EntityType.class).name("ec").build(),
+            Argument.listOf(EntityType.class).name("ec!").build(),
+            Argument.listOf(OfflinePlayer.class).name("p").build(),
+            Argument.listOf(OfflinePlayer.class).name("p!").build(),
+            Argument.listOf(OfflinePlayer.class).name("pc").build(),
+            Argument.listOf(OfflinePlayer.class).name("pc!").build(),
+            Argument.listOf(OfflinePlayer.class).name("pa").build(),
+            Argument.listOf(OfflinePlayer.class).name("pa!").build(),
+            Argument.forString().name("descriptor").build()
+        );
     }
 
     /**

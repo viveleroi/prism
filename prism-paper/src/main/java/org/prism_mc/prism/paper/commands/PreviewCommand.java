@@ -157,7 +157,7 @@ public class PreviewCommand {
      * @param player The player
      * @param arguments The arguments
      */
-    @NamedArguments("query-parameters")
+    @NamedArguments("modification-parameters")
     @Command(value = "preview-restore", alias = { "prs" })
     @Permission("prism.modify")
     public void onPreviewRestore(final Player player, final Arguments arguments) {
@@ -185,7 +185,7 @@ public class PreviewCommand {
      * @param player The player
      * @param arguments The arguments
      */
-    @NamedArguments("query-parameters")
+    @NamedArguments("modification-parameters")
     @Command(value = "preview-rollback", alias = { "prb" })
     @Permission("prism.modify")
     public void onPreviewRollback(final Player player, final Arguments arguments) {
