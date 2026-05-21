@@ -113,7 +113,7 @@ public class RestoreCommand {
      * @param sender The command sender
      */
     @CommandFlags(key = "query-flags")
-    @NamedArguments("query-parameters")
+    @NamedArguments("modification-parameters")
     @Command(value = "restore", alias = { "rs" })
     @Permission("prism.modify")
     public void onRestore(final CommandSender sender, final Arguments arguments) {
