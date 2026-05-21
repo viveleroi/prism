@@ -124,6 +124,7 @@ public class PaperActionTypeRegistry extends AbstractActionTypeRegistry {
     public static final ActionType ITEM_PICKUP = new ItemActionType("item-pickup", ActionResultType.NONE, false);
     public static final ActionType ITEM_REMOVE = new ItemActionType("item-remove", ActionResultType.REMOVES, true);
     public static final ActionType ITEM_ROTATE = new ItemActionType("item-rotate", ActionResultType.NONE, false);
+    public static final ActionType ITEM_TRADE = new ItemActionType("item-trade", ActionResultType.NONE, false);
     // This is a generic action type because a. it can be an item or entity and b. it can't be modified
     public static final ActionType ITEM_THROW = new GenericActionType("item-throw", ActionResultType.NONE, false);
     public static final ActionType ITEM_USE = new GenericActionType("item-use", ActionResultType.NONE, false);
@@ -224,6 +225,7 @@ public class PaperActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(ITEM_REMOVE);
         registerAction(ITEM_ROTATE);
         registerAction(ITEM_THROW);
+        registerAction(ITEM_TRADE);
         registerAction(ITEM_USE);
         registerAction(PLAYER_CHAT);
         registerAction(PLAYER_COMMAND);

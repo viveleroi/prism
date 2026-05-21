@@ -128,6 +128,7 @@ import org.prism_mc.prism.paper.listeners.player.PlayerInteractListener;
 import org.prism_mc.prism.paper.listeners.player.PlayerJoinListener;
 import org.prism_mc.prism.paper.listeners.player.PlayerKickListener;
 import org.prism_mc.prism.paper.listeners.player.PlayerLeashEntityListener;
+import org.prism_mc.prism.paper.listeners.player.PlayerPurchaseListener;
 import org.prism_mc.prism.paper.listeners.player.PlayerQuitListener;
 import org.prism_mc.prism.paper.listeners.player.PlayerShearEntityListener;
 import org.prism_mc.prism.paper.listeners.player.PlayerTakeLecternBookListener;
@@ -364,6 +365,7 @@ public class PrismPaper implements PrismPaperApi {
             registerEvent(PlayerJoinListener.class);
             registerEvent(PlayerKickListener.class);
             registerEvent(PlayerLeashEntityListener.class);
+            registerEvent(PlayerPurchaseListener.class);
             registerEvent(PlayerQuitListener.class);
             registerEvent(PlayerShearEntityListener.class);
             registerEvent(PlayerTakeLecternBookListener.class);

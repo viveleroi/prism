@@ -28,6 +28,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.paper.listeners.AbstractListener;
@@ -75,6 +76,11 @@ public class InventoryDragListener extends AbstractListener implements Listener 
 
         // Ignore player's working only with their own inventory
         if (event.getInventory().getHolder() instanceof Player other && other.equals(player)) {
+            return;
+        }
+
+        // Ignore villager/wandering trader UIs - trades are logged by PlayerPurchaseListener
+        if (event.getInventory().getType() == InventoryType.MERCHANT) {
             return;
         }
 
