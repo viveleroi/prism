@@ -133,7 +133,7 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             replacedBlockState != null ? replacedBlockState.getBlockData() : null,
             replacedBlockTranslationKey
         );
-        if (blockState instanceof TileState) {
+        if (blockState instanceof TileState && type.reversible()) {
             readWriteNbt = NBT.createNBTObject();
             NBT.get(blockState, readWriteNbt::mergeCompound);
         }
