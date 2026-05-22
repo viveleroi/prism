@@ -77,12 +77,8 @@ public class RollbackWand extends AbstractModificationWand implements Wand {
 
     @Override
     public void use(UUID worldUuid, Coordinate coordinate) {
-        final ActivityQuery query = ActivityQuery.builder()
-            .worldUuid(worldUuid)
-            .coordinate(coordinate)
-            .limit(1)
-            .rollback()
-            .build();
+        var builder = activityQuery != null ? activityQuery.toBuilder() : ActivityQuery.builder();
+        final ActivityQuery query = builder.worldUuid(worldUuid).coordinate(coordinate).limit(1).rollback().build();
 
         super.use(query, PaperRollback.class);
     }

@@ -21,6 +21,7 @@
 package org.prism_mc.prism.api.services.wands;
 
 import java.util.UUID;
+import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.util.Coordinate;
 
 public interface Wand {
@@ -37,6 +38,15 @@ public interface Wand {
      * @param owner The player
      */
     void setOwner(Object owner);
+
+    /**
+     * Provide an activity query template that all subsequent uses of this wand layer their
+     * world/coordinate restrictions on top of. Implementations may ignore parts of the query
+     * they cannot honor.
+     *
+     * @param activityQuery The activity query template, or null to clear
+     */
+    default void setActivityQuery(ActivityQuery activityQuery) {}
 
     /**
      * Use this wand on the given world/coordinate.

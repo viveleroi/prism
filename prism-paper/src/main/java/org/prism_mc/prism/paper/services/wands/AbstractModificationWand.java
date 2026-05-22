@@ -73,6 +73,21 @@ public abstract class AbstractModificationWand {
     protected Object owner;
 
     /**
+     * The optional activity query template applied to every use of this wand.
+     */
+    protected ActivityQuery activityQuery;
+
+    /**
+     * Provide an activity query template that all subsequent uses of this wand layer their
+     * world/coordinate restrictions on top of.
+     *
+     * @param activityQuery The activity query template
+     */
+    public void setActivityQuery(ActivityQuery activityQuery) {
+        this.activityQuery = activityQuery;
+    }
+
+    /**
      * Construct a new inspection wand.
      *
      * @param configurationService The configuration service

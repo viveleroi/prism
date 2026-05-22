@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -88,6 +89,20 @@ public class QueryService {
      * All registered argument/query parsers.
      */
     public static final List<QueryArgumentParser<?>> parsers = new ArrayList<>();
+
+    /**
+     * Parsers whose parameters constrain query location/region. Excluded from commands
+     * (like wand and near) that already derive their location from a different source.
+     */
+    public static final Set<Class<? extends QueryArgumentParser<?>>> LOCATION_PARSERS = Set.of(
+        AboveParameterParser.class,
+        AtParameterParser.class,
+        BelowParameterParser.class,
+        BoundsParameterParser.class,
+        InParameterParser.class,
+        RadiusQueryArgumentParser.class,
+        WorldParameterParser.class
+    );
 
     /**
      * The ID parameter parser, which has the highest priority.
@@ -174,6 +189,26 @@ public class QueryService {
     }
 
     /**
+     * Check if any registered parameter is present in the arguments.
+     *
+     * @param arguments The arguments
+     * @return True if any parameter is present
+     */
+    public boolean hasAnyParameter(Arguments arguments) {
+        if (idParameterParser.isPresent(arguments)) {
+            return true;
+        }
+
+        for (var parser : parsers) {
+            if (parser.isPresent(arguments)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Start a query builder from command-derived parameters.
      *
      * @param sender The command sender
@@ -185,9 +220,9 @@ public class QueryService {
         Arguments arguments
     ) {
         if (sender instanceof Player player) {
-            return queryFromArguments(sender, arguments, player.getLocation());
+            return queryFromArguments(sender, arguments, player.getLocation(), Set.of());
         } else {
-            return queryFromArguments(sender, arguments, null);
+            return queryFromArguments(sender, arguments, null, Set.of());
         }
     }
 
@@ -203,6 +238,35 @@ public class QueryService {
         Arguments arguments,
         Location referenceLocation
     ) {
+        return queryFromArguments(sender, arguments, referenceLocation, Set.of());
+    }
+
+    /**
+     * Start a query builder from command-derived parameters, refusing any parsers in the
+     * excluded set. If the user supplied an excluded parameter, an error is sent and an empty
+     * optional is returned.
+     *
+     * @param sender The command sender
+     * @param arguments The arguments
+     * @param referenceLocation The reference location
+     * @param excludedParsers Parser classes that are not allowed for this command
+     * @return The activity query builder
+     */
+    public Optional<PaperActivityQuery.PaperActivityQueryBuilder<?, ?>> queryFromArguments(
+        CommandSender sender,
+        Arguments arguments,
+        Location referenceLocation,
+        Set<Class<? extends QueryArgumentParser<?>>> excludedParsers
+    ) {
+        // Reject any excluded parameters the user supplied up front
+        for (var parser : parsers) {
+            if (excludedParsers.contains(parser.getClass()) && parser.isPresent(arguments)) {
+                messageService.errorParamUnsupported(sender, parser.parameter());
+
+                return Optional.empty();
+            }
+        }
+
         if (!arguments.getText().isEmpty()) {
             messageService.errorParamInvalid(sender, arguments.getText());
 
@@ -245,6 +309,10 @@ public class QueryService {
         // Some parameters set/modify the context
         var queryContext = new ParameterContext(referenceLocation);
         for (var parser : parsers) {
+            if (excludedParsers.contains(parser.getClass())) {
+                continue;
+            }
+
             if (parser.phase.equals(QueryArgumentParser.Phase.PRE)) {
                 parser.parse(sender, queryContext, arguments, builder);
             }
@@ -252,6 +320,10 @@ public class QueryService {
 
         // Let all parsers do their thing
         for (var parser : parsers) {
+            if (excludedParsers.contains(parser.getClass())) {
+                continue;
+            }
+
             if (
                 parser.phase.equals(QueryArgumentParser.Phase.NORMAL) &&
                 !parser.parse(sender, queryContext, arguments, builder)

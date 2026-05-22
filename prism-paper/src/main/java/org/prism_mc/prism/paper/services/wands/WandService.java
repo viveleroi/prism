@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.bukkit.entity.Player;
+import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.services.wands.Wand;
 import org.prism_mc.prism.api.services.wands.WandMode;
 import org.prism_mc.prism.paper.services.messages.MessageService;
@@ -69,6 +70,17 @@ public class WandService {
      * @param wandMode The wand mode
      */
     public void activateWand(Player player, WandMode wandMode) {
+        activateWand(player, wandMode, null);
+    }
+
+    /**
+     * Activate a wand for a player with an optional activity query template.
+     *
+     * @param player The player
+     * @param wandMode The wand mode
+     * @param activityQuery Activity query template applied to every wand use, or null for none
+     */
+    public void activateWand(Player player, WandMode wandMode, ActivityQuery activityQuery) {
         if (hasActiveWand(player)) {
             messageService.wandSwitched(player, wandMode);
         } else {
@@ -77,6 +89,7 @@ public class WandService {
 
         Wand wand = wandProviders.get(wandMode).get();
         wand.setOwner(player);
+        wand.setActivityQuery(activityQuery);
 
         activeWands.put(player.getUniqueId(), wand);
     }

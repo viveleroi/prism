@@ -48,6 +48,11 @@ public class InspectionWand implements Wand {
     private Object owner;
 
     /**
+     * The optional activity query template.
+     */
+    private ActivityQuery activityQuery;
+
+    /**
      * Construct a new inspection wand.
      *
      * @param configurationService The configuration service
@@ -70,8 +75,14 @@ public class InspectionWand implements Wand {
     }
 
     @Override
+    public void setActivityQuery(ActivityQuery activityQuery) {
+        this.activityQuery = activityQuery;
+    }
+
+    @Override
     public void use(UUID worldUuid, Coordinate coordinate) {
-        final ActivityQuery query = ActivityQuery.builder()
+        var builder = activityQuery != null ? activityQuery.toBuilder() : ActivityQuery.builder();
+        final ActivityQuery query = builder
             .worldUuid(worldUuid)
             .coordinate(coordinate)
             .limit(configurationService.prismConfig().defaults().perPage())
