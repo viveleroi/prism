@@ -97,7 +97,7 @@ public class BlockUtils {
     }
 
     /**
-     * Remove blocks matching a list of materials.
+     * Remove blocks matching a list of materials within the bounding box.
      *
      * @param world The world
      * @param boundingBox The bounding box
@@ -110,21 +110,45 @@ public class BlockUtils {
         List<Material> materials
     ) {
         List<BlockStateChange> stateChanges = new ArrayList<>();
-        for (int x = (int) boundingBox.getMinX(); x < boundingBox.getMaxX(); x++) {
-            for (int y = (int) boundingBox.getMinY(); y < boundingBox.getMaxY(); y++) {
-                for (int z = (int) boundingBox.getMinZ(); z < boundingBox.getMaxZ(); z++) {
-                    Block block = world.getBlockAt(x, y, z);
-                    if (materials.contains(block.getType())) {
-                        // Capture the old state
-                        BlockState oldState = block.getState();
 
-                        // Set to air
-                        block.setType(Material.AIR);
+        int minX = (int) boundingBox.getMinX();
+        int minY = (int) boundingBox.getMinY();
+        int minZ = (int) boundingBox.getMinZ();
+        int maxX = (int) boundingBox.getMaxX();
+        int maxY = (int) boundingBox.getMaxY();
+        int maxZ = (int) boundingBox.getMaxZ();
 
-                        // Capture the new state
-                        BlockState newState = block.getState();
+        if (minX >= maxX || minY >= maxY || minZ >= maxZ) {
+            return stateChanges;
+        }
 
-                        stateChanges.add(new BlockStateChange(oldState, newState));
+        int minChunkX = minX >> 4;
+        int minChunkZ = minZ >> 4;
+        int maxChunkX = (maxX - 1) >> 4;
+        int maxChunkZ = (maxZ - 1) >> 4;
+
+        for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+            for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
+                if (!world.isChunkLoaded(chunkX, chunkZ)) {
+                    continue;
+                }
+
+                int chunkXMin = Math.max(minX, chunkX << 4);
+                int chunkXMax = Math.min(maxX, (chunkX + 1) << 4);
+                int chunkZMin = Math.max(minZ, chunkZ << 4);
+                int chunkZMax = Math.min(maxZ, (chunkZ + 1) << 4);
+
+                for (int x = chunkXMin; x < chunkXMax; x++) {
+                    for (int y = minY; y < maxY; y++) {
+                        for (int z = chunkZMin; z < chunkZMax; z++) {
+                            Block block = world.getBlockAt(x, y, z);
+                            if (materials.contains(block.getType())) {
+                                BlockState oldState = block.getState();
+                                block.setType(Material.AIR);
+                                BlockState newState = block.getState();
+                                stateChanges.add(new BlockStateChange(oldState, newState));
+                            }
+                        }
                     }
                 }
             }

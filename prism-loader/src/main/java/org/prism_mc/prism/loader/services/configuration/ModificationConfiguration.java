@@ -77,9 +77,11 @@ public class ModificationConfiguration {
 
     @Comment(
         """
-        The max length of any dimension of the query bounding box used in pre or post modifications.
-        This prevents entity teleports from taking place server-wide if
-        you do a rollback without a coordinate bounding box.
+        The max length of any dimension of the query bounding box used for
+        pre/post-modification operations. Larger values affect performance
+        because a r:1000 query would produce a 2000 block circle and prism
+        would scan all blocks in that range for the drain lava and other
+        pre/post-modification operations.
         """
     )
     private int maxQueryBoundingBoxLength = 200;
