@@ -25,6 +25,7 @@ import net.kyori.moonshine.annotation.Placeholder;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.activities.AbstractActivity;
+import org.prism_mc.prism.api.activities.Activity;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueResult;
 import org.prism_mc.prism.api.services.modifications.ModificationResult;
 import org.prism_mc.prism.api.services.pagination.PaginationResult;
@@ -144,6 +145,15 @@ public interface MessageService {
 
     @Message("prism.error.player-only")
     void errorPlayerOnly(CommandSender receiver);
+
+    @Message("prism.error.proximity-no-window")
+    void errorProximityNoWindow(CommandSender receiver);
+
+    @Message("prism.error.proximity-not-found")
+    void errorProximityNotFound(CommandSender receiver, @Placeholder String id);
+
+    @Message("prism.error.proximity-world-missing")
+    void errorProximityWorldMissing(CommandSender receiver);
 
     @Message("prism.error.purge-not-running")
     void errorPurgeNotRunning(CommandSender receiver);
@@ -292,6 +302,9 @@ public interface MessageService {
 
     @Message("prism.preview-cancelled")
     void previewCancelled(CommandSender receiver);
+
+    @Message("prism.proximity-basis")
+    void proximityBasis(CommandSender receiver, @Placeholder Activity activity);
 
     @Message("prism.purge-complete")
     void purgeComplete(CommandSender receiver, @Placeholder Integer count);
