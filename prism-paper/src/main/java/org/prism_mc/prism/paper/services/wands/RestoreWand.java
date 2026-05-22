@@ -77,12 +77,8 @@ public class RestoreWand extends AbstractModificationWand implements Wand {
 
     @Override
     public void use(UUID worldUuid, Coordinate coordinate) {
-        final ActivityQuery query = ActivityQuery.builder()
-            .worldUuid(worldUuid)
-            .coordinate(coordinate)
-            .limit(1)
-            .restore()
-            .build();
+        var builder = activityQuery != null ? activityQuery.toBuilder() : ActivityQuery.builder();
+        final ActivityQuery query = builder.worldUuid(worldUuid).coordinate(coordinate).limit(1).restore().build();
 
         super.use(query, PaperRestore.class);
     }

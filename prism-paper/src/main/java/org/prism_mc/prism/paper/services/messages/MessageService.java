@@ -139,6 +139,9 @@ public interface MessageService {
     @Message("prism.error.param-invalid-world")
     void errorParamInvalidWorld(CommandSender receiver);
 
+    @Message("prism.error.param-unsupported")
+    void errorParamUnsupported(CommandSender receiver, @Placeholder String param);
+
     @Message("prism.error.player-only")
     void errorPlayerOnly(CommandSender receiver);
 

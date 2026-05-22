@@ -23,12 +23,16 @@ package org.prism_mc.prism.paper.commands;
 import com.google.inject.Inject;
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
+import dev.triumphteam.cmd.core.annotations.CommandFlags;
+import dev.triumphteam.cmd.core.annotations.NamedArguments;
+import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.paper.services.lookup.LookupService;
+import org.prism_mc.prism.paper.services.query.QueryService;
 import org.prism_mc.prism.paper.utils.LocationUtils;
 
 @Command(value = "prism", alias = { "pr" })
@@ -45,26 +49,46 @@ public class NearCommand {
     private final LookupService lookupService;
 
     /**
+     * The query service.
+     */
+    private final QueryService queryService;
+
+    /**
      * Construct the near command.
      *
      * @param configurationService The configuration service
      * @param lookupService The lookup service
+     * @param queryService The query service
      */
     @Inject
-    public NearCommand(ConfigurationService configurationService, LookupService lookupService) {
+    public NearCommand(
+        ConfigurationService configurationService,
+        LookupService lookupService,
+        QueryService queryService
+    ) {
         this.configurationService = configurationService;
         this.lookupService = lookupService;
+        this.queryService = queryService;
     }
 
     /**
      * Run the near command. Searches for records nearby the player.
      *
      * @param player The player
+     * @param arguments The query parameters
      */
+    @CommandFlags(key = "query-flags")
+    @NamedArguments("query-parameters")
     @Command("near")
     @Permission("prism.lookup")
-    public void onNear(final Player player) {
+    public void onNear(final Player player, final Arguments arguments) {
         Location loc = player.getLocation();
+
+        var builderOpt = queryService.queryFromArguments(player, arguments, loc, QueryService.LOCATION_PARSERS);
+        if (builderOpt.isEmpty()) {
+            return;
+        }
+
         Coordinate minCoordinate = LocationUtils.getMinCoordinate(
             loc,
             configurationService.prismConfig().defaults().nearRadius()
@@ -74,11 +98,17 @@ public class NearCommand {
             configurationService.prismConfig().defaults().nearRadius()
         );
 
-        final ActivityQuery query = ActivityQuery.builder()
+        final ActivityQuery query = builderOpt
+            .get()
             .worldUuid(loc.getWorld().getUID())
             .boundingCoordinates(minCoordinate, maxCoordinate)
             .limit(configurationService.prismConfig().defaults().perPage())
             .build();
-        lookupService.lookup(player, query);
+
+        if (query.countOnly()) {
+            lookupService.count(player, query);
+        } else {
+            lookupService.lookup(player, query);
+        }
     }
 }

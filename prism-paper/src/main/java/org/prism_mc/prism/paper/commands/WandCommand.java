@@ -22,11 +22,15 @@ package org.prism_mc.prism.paper.commands;
 
 import com.google.inject.Inject;
 import dev.triumphteam.cmd.core.annotations.Command;
-import dev.triumphteam.cmd.core.annotations.Optional;
+import dev.triumphteam.cmd.core.annotations.CommandFlags;
+import dev.triumphteam.cmd.core.annotations.NamedArguments;
+import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import org.bukkit.entity.Player;
+import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.services.wands.Wand;
 import org.prism_mc.prism.api.services.wands.WandMode;
 import org.prism_mc.prism.paper.services.messages.MessageService;
+import org.prism_mc.prism.paper.services.query.QueryService;
 import org.prism_mc.prism.paper.services.wands.WandService;
 
 @Command(value = "prism", alias = { "pr" })
@@ -38,6 +42,11 @@ public class WandCommand {
     private final MessageService messageService;
 
     /**
+     * The query service.
+     */
+    private final QueryService queryService;
+
+    /**
      * The wand service.
      */
     private final WandService wandService;
@@ -46,32 +55,98 @@ public class WandCommand {
      * Construct the wand command.
      *
      * @param messageService The message service
+     * @param queryService The query service
      * @param wandService The wand service
      */
     @Inject
-    public WandCommand(MessageService messageService, WandService wandService) {
+    public WandCommand(MessageService messageService, QueryService queryService, WandService wandService) {
         this.messageService = messageService;
+        this.queryService = queryService;
         this.wandService = wandService;
     }
 
-    /**
-     * Toggle a wand.
-     *
-     * @param player The player
-     * @param wandMode The wand mode
-     */
     @Command("wand")
-    public void onWand(final Player player, @Optional WandMode wandMode) {
-        // If no wand mode selected, yet player has an active wand, toggle it off
-        if (wandMode == null && wandService.hasActiveWand(player)) {
-            wandService.deactivateWand(player);
+    public class WandSubCommand {
 
-            return;
+        /**
+         * Bare /pr wand — toggles any active wand off, or activates an inspect wand with the
+         * supplied filters. Location parameters are not allowed.
+         *
+         * @param player The player
+         * @param arguments The query parameters
+         */
+        @CommandFlags(key = "query-flags")
+        @NamedArguments("query-parameters")
+        @Command(Command.DEFAULT_CMD_NAME)
+        public void onWand(final Player player, final Arguments arguments) {
+            boolean hasParameters = queryService.hasAnyParameter(arguments);
+
+            if (!hasParameters && wandService.hasActiveWand(player)) {
+                wandService.deactivateWand(player);
+
+                return;
+            }
+
+            activate(player, WandMode.INSPECT, arguments, hasParameters);
         }
 
-        // Set mode if none selected
-        wandMode = wandMode == null ? WandMode.INSPECT : wandMode;
+        /**
+         * /pr wand inspect [params] — activate the inspect wand with optional filters.
+         *
+         * @param player The player
+         * @param arguments The query parameters
+         */
+        @CommandFlags(key = "query-flags")
+        @NamedArguments("query-parameters")
+        @Command("inspect")
+        public void onInspect(final Player player, final Arguments arguments) {
+            onModeCommand(player, WandMode.INSPECT, arguments);
+        }
 
+        /**
+         * /pr wand rollback [params] — activate the rollback wand with optional filters.
+         *
+         * @param player The player
+         * @param arguments The query parameters
+         */
+        @CommandFlags(key = "query-flags")
+        @NamedArguments("query-parameters")
+        @Command("rollback")
+        public void onRollback(final Player player, final Arguments arguments) {
+            onModeCommand(player, WandMode.ROLLBACK, arguments);
+        }
+
+        /**
+         * /pr wand restore [params] — activate the restore wand with optional filters.
+         *
+         * @param player The player
+         * @param arguments The query parameters
+         */
+        @CommandFlags(key = "query-flags")
+        @NamedArguments("query-parameters")
+        @Command("restore")
+        public void onRestore(final Player player, final Arguments arguments) {
+            onModeCommand(player, WandMode.RESTORE, arguments);
+        }
+
+        private void onModeCommand(Player player, WandMode wandMode, Arguments arguments) {
+            boolean hasParameters = queryService.hasAnyParameter(arguments);
+
+            java.util.Optional<Wand> activeWand = wandService.getWand(player);
+            if (activeWand.isPresent() && activeWand.get().mode().equals(wandMode) && !hasParameters) {
+                wandService.deactivateWand(player);
+
+                return;
+            }
+
+            activate(player, wandMode, arguments, hasParameters);
+        }
+    }
+
+    /**
+     * Validate permissions, parse filter parameters, and activate the wand.
+     */
+    private void activate(Player player, WandMode wandMode, Arguments arguments, boolean hasParameters) {
         boolean canInspect = player.hasPermission("prism.inspect") || player.hasPermission("prism.lookup");
         boolean canModify = player.hasPermission("prism.modify");
 
@@ -85,20 +160,20 @@ public class WandCommand {
             return;
         }
 
-        java.util.Optional<Wand> activeWand = wandService.getWand(player);
-        if (activeWand.isPresent()) {
-            if (activeWand.get().mode().equals(wandMode)) {
-                // If the wand modes match, deactivate
-                wandService.deactivateWand(player);
-            } else {
-                // If modes differ, just switch modes
-                wandService.switchMode(player, wandMode);
+        ActivityQuery activityQuery = null;
+        if (hasParameters) {
+            var builderOpt = queryService.queryFromArguments(
+                player,
+                arguments,
+                player.getLocation(),
+                QueryService.LOCATION_PARSERS
+            );
+            if (builderOpt.isEmpty()) {
+                return;
             }
-
-            return;
+            activityQuery = builderOpt.get().build();
         }
 
-        // Activate wand
-        wandService.activateWand(player, wandMode);
+        wandService.activateWand(player, wandMode, activityQuery);
     }
 }
