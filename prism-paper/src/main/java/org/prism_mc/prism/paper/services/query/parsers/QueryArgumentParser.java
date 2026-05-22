@@ -45,6 +45,31 @@ public abstract class QueryArgumentParser<T> {
     }
 
     /**
+     * Per-thread flag that suppresses config-driven parameter defaults for the
+     * duration of a single {@code queryFromArguments} call. Toggled by
+     * {@code QueryService} via {@link #setSkipDefaults(boolean)} /
+     * {@link #clearSkipDefaults()} in a try/finally so it never leaks past
+     * the call site.
+     */
+    private static final ThreadLocal<Boolean> SKIP_DEFAULTS = ThreadLocal.withInitial(() -> Boolean.FALSE);
+
+    /**
+     * Toggle the per-thread skip-defaults flag.
+     *
+     * @param skip True to suppress defaults
+     */
+    public static void setSkipDefaults(boolean skip) {
+        SKIP_DEFAULTS.set(skip);
+    }
+
+    /**
+     * Reset the per-thread skip-defaults flag.
+     */
+    public static void clearSkipDefaults() {
+        SKIP_DEFAULTS.remove();
+    }
+
+    /**
      * The phase.
      */
     public final Phase phase;
@@ -171,6 +196,9 @@ public abstract class QueryArgumentParser<T> {
      * @return True if default can be used
      */
     protected boolean canUseDefaultValue(String parameter, Arguments arguments) {
+        if (Boolean.TRUE.equals(SKIP_DEFAULTS.get())) {
+            return false;
+        }
         return (
             hasArgumentConflicts(arguments).length == 0 &&
             !arguments.hasFlag("nodefaults") &&

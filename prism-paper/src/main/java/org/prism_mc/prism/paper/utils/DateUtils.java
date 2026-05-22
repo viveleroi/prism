@@ -90,4 +90,62 @@ public class DateUtils {
 
         return cal.getTime().getTime() / 1000;
     }
+
+    /**
+     * Parses a string duration (e.g. "3d", "12h", "1w") into a length in seconds.
+     *
+     * <p>Unlike {@link #parseTimestamp(String)} this does not anchor to "now"; it
+     * returns the raw duration in seconds.</p>
+     *
+     * @param value The duration string
+     * @return The duration in seconds, or null if invalid or non-positive
+     */
+    public static Long parseDurationSeconds(String value) {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+
+        final Matcher matcher = TIME_PATTERN.matcher(value);
+
+        int matchedChars = 0;
+        boolean matched = false;
+        long totalSeconds = 0;
+
+        while (matcher.find()) {
+            if (matcher.start() != matchedChars) {
+                return null;
+            }
+            matchedChars = matcher.end();
+            matched = true;
+
+            final long time = Long.parseLong(matcher.group(1));
+            final String unit = matcher.group(2);
+
+            switch (unit) {
+                case "w":
+                    totalSeconds += time * 7L * 24L * 60L * 60L;
+                    break;
+                case "d":
+                    totalSeconds += time * 24L * 60L * 60L;
+                    break;
+                case "h":
+                    totalSeconds += time * 60L * 60L;
+                    break;
+                case "m":
+                    totalSeconds += time * 60L;
+                    break;
+                case "s":
+                    totalSeconds += time;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (!matched || matchedChars != value.length() || totalSeconds <= 0) {
+            return null;
+        }
+
+        return totalSeconds;
+    }
 }

@@ -73,6 +73,7 @@ import org.prism_mc.prism.paper.commands.LookupCommand;
 import org.prism_mc.prism.paper.commands.NearCommand;
 import org.prism_mc.prism.paper.commands.PageCommand;
 import org.prism_mc.prism.paper.commands.PreviewCommand;
+import org.prism_mc.prism.paper.commands.ProximityCommand;
 import org.prism_mc.prism.paper.commands.PurgeCommand;
 import org.prism_mc.prism.paper.commands.ReportCommand;
 import org.prism_mc.prism.paper.commands.RestoreCommand;
@@ -609,6 +610,7 @@ public class PrismPaper implements PrismPaperApi {
             commandManager.registerCommand(injectorProvider.injector().getInstance(PageCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(VaultCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(PreviewCommand.class));
+            commandManager.registerCommand(injectorProvider.injector().getInstance(ProximityCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(PurgeCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(ReportCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(RestoreCommand.class));
@@ -640,6 +642,7 @@ public class PrismPaper implements PrismPaperApi {
             Argument.forString().name("world").suggestion(SuggestionKey.of("worlds")).build(),
             Argument.forString().name("at").build(),
             Argument.forString().name("bounds").build(),
+            Argument.forString().name("d").build(),
             Argument.listOf(Integer.class).name("id").build(),
             Argument.listOf(String.class).name("a").suggestion(actionsSuggestionKey).build(),
             Argument.listOf(String.class).name("a!").suggestion(actionsSuggestionKey).build(),

@@ -192,6 +192,36 @@ public class QueryService {
     }
 
     /**
+     * Start a query builder from command-derived parameters with the option to
+     * bypass config-driven parameter defaults entirely. The skip applies only
+     * to this call; the per-thread flag is cleared in a finally block so it
+     * cannot leak into other queries.
+     *
+     * @param sender The command sender
+     * @param arguments The arguments
+     * @param referenceLocation The reference location
+     * @param skipDefaults If true, parsers will not substitute any configured defaults
+     * @return The activity query builder
+     */
+    public Optional<PaperActivityQuery.PaperActivityQueryBuilder<?, ?>> queryFromArguments(
+        CommandSender sender,
+        Arguments arguments,
+        Location referenceLocation,
+        boolean skipDefaults
+    ) {
+        if (!skipDefaults) {
+            return queryFromArguments(sender, arguments, referenceLocation);
+        }
+
+        QueryArgumentParser.setSkipDefaults(true);
+        try {
+            return queryFromArguments(sender, arguments, referenceLocation);
+        } finally {
+            QueryArgumentParser.clearSkipDefaults();
+        }
+    }
+
+    /**
      * Start a query builder from command-derived parameters.
      *
      * @param referenceLocation The reference location
