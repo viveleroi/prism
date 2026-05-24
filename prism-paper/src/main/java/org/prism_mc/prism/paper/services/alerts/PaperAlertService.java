@@ -51,6 +51,7 @@ import org.prism_mc.prism.paper.actions.types.PaperActionTypeRegistry;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 import org.prism_mc.prism.paper.services.lookup.LookupService;
 import org.prism_mc.prism.paper.services.messages.MessageService;
+import org.prism_mc.prism.paper.services.scheduling.PrismScheduler;
 import org.prism_mc.prism.paper.utils.BlockUtils;
 import org.prism_mc.prism.paper.utils.CustomTag;
 import org.prism_mc.prism.paper.utils.ListUtils;
@@ -95,6 +96,11 @@ public class PaperAlertService {
     private final MessageService messageService;
 
     /**
+     * The scheduler.
+     */
+    private final PrismScheduler prismScheduler;
+
+    /**
      * Cache alerts and their counts.
      */
     private final Cache<String, Integer> alerts;
@@ -112,6 +118,7 @@ public class PaperAlertService {
      * @param loggingService The logging service
      * @param lookupService The lookup service
      * @param messageService The message service
+     * @param prismScheduler The scheduler
      */
     @Inject
     public PaperAlertService(
@@ -119,12 +126,14 @@ public class PaperAlertService {
         ConfigurationService configurationService,
         LoggingService loggingService,
         LookupService lookupService,
-        MessageService messageService
+        MessageService messageService,
+        PrismScheduler prismScheduler
     ) {
         this.configurationService = configurationService;
         this.loggingService = loggingService;
         this.lookupService = lookupService;
         this.messageService = messageService;
+        this.prismScheduler = prismScheduler;
 
         CacheConfiguration cacheConfiguration = configurationService.prismConfig().cache();
 
@@ -225,41 +234,49 @@ public class PaperAlertService {
                 return;
             }
 
-            VeinScanner veinScanner = new VeinScanner(blockState, alert.materialTag(), alert.config().maxScanCount());
-            List<Location> vein = veinScanner.scan();
+            // Vein scanning and player state must run on the region thread (Folia) /
+            // main thread (Paper) because the lookup callback is invoked async.
+            prismScheduler.runAtLocation(blockState.getLocation(), () -> {
+                VeinScanner veinScanner = new VeinScanner(
+                    blockState,
+                    alert.materialTag(),
+                    alert.config().maxScanCount()
+                );
+                List<Location> vein = veinScanner.scan();
 
-            // Cache the vein locations
-            for (var blockLocation : vein) {
-                locations.put(blockLocation, player);
-            }
-
-            TextColor color = TextColor.fromCSSHexString(alert.config().hexColor());
-            String count = vein.size() + (vein.size() >= alert.config().maxScanCount() ? "+" : "");
-
-            boolean usingNightVision = false;
-            for (PotionEffect effect : player.getActivePotionEffects()) {
-                if (effect.getType().equals(PotionEffectType.NIGHT_VISION)) {
-                    usingNightVision = true;
-                    break;
+                // Cache the vein locations
+                for (var blockLocation : vein) {
+                    locations.put(blockLocation, player);
                 }
-            }
 
-            var data = new BlockBreakAlertData(
-                player.getName(),
-                blockTranslationKey,
-                color,
-                count,
-                lightLevel,
-                Key.key(blockState.getType().getKey().toString())
-            );
+                TextColor color = TextColor.fromCSSHexString(alert.config().hexColor());
+                String count = vein.size() + (vein.size() >= alert.config().maxScanCount() ? "+" : "");
 
-            for (CommandSender receiver : getReceivers(player)) {
-                if (usingNightVision) {
-                    messageService.alertBlockBreakNightVision(receiver, data);
-                } else {
-                    messageService.alertBlockBreak(receiver, data);
+                boolean usingNightVision = false;
+                for (PotionEffect effect : player.getActivePotionEffects()) {
+                    if (effect.getType().equals(PotionEffectType.NIGHT_VISION)) {
+                        usingNightVision = true;
+                        break;
+                    }
                 }
-            }
+
+                var data = new BlockBreakAlertData(
+                    player.getName(),
+                    blockTranslationKey,
+                    color,
+                    count,
+                    lightLevel,
+                    Key.key(blockState.getType().getKey().toString())
+                );
+
+                for (CommandSender receiver : getReceivers(player)) {
+                    if (usingNightVision) {
+                        messageService.alertBlockBreakNightVision(receiver, data);
+                    } else {
+                        messageService.alertBlockBreak(receiver, data);
+                    }
+                }
+            });
         });
     }
 
