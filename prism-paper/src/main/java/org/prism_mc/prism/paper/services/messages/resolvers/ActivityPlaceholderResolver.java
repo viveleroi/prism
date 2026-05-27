@@ -24,6 +24,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -56,10 +59,16 @@ import org.prism_mc.prism.api.containers.StringContainer;
 import org.prism_mc.prism.api.containers.TranslatableContainer;
 import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.api.util.Pair;
+import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.paper.services.translation.PaperTranslationService;
 
 @Singleton
 public class ActivityPlaceholderResolver implements IPlaceholderResolver<CommandSender, AbstractActivity, Component> {
+
+    /**
+     * The configuration service.
+     */
+    private final ConfigurationService configurationService;
 
     /**
      * The translation service.
@@ -69,10 +78,15 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
     /**
      * Construct an activity placeholder resolver.
      *
+     * @param configurationService The configuration service
      * @param translationService The translation service
      */
     @Inject
-    public ActivityPlaceholderResolver(PaperTranslationService translationService) {
+    public ActivityPlaceholderResolver(
+        ConfigurationService configurationService,
+        PaperTranslationService translationService
+    ) {
+        this.configurationService = configurationService;
         this.translationService = translationService;
     }
 
@@ -89,6 +103,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
         Component actionPastTense = actionPastTense(value.action().type(), value.reversed());
         Component cause = cause(receiver, value.cause());
         Component since = since(receiver, value.timestamp());
+        Component timestamp = timestamp(value.timestamp());
         Component descriptor = descriptor(receiver, value);
         Component location = Component.empty();
 
@@ -128,6 +143,8 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
             Either.left(ConclusionValue.conclusionValue(location)),
             placeholderName + "_since",
             Either.left(ConclusionValue.conclusionValue(since)),
+            placeholderName + "_timestamp",
+            Either.left(ConclusionValue.conclusionValue(timestamp)),
             placeholderName + "_descriptor",
             Either.left(ConclusionValue.conclusionValue(descriptor))
         );
@@ -348,5 +365,20 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
 
         String template = translationService.messageOf(receiver, "prism.time-ago");
         return MiniMessage.miniMessage().deserialize(template.replace("<time_ago>", timeAgo.toString()));
+    }
+
+    /**
+     * Get the absolute timestamp formatted in the server's local zone.
+     *
+     * @param timestamp The unix timestamp in seconds
+     * @return The formatted timestamp
+     */
+    protected Component timestamp(long timestamp) {
+        String pattern = configurationService.prismConfig().activities().timestampFormat();
+        String formatted = DateTimeFormatter.ofPattern(pattern)
+            .withZone(ZoneId.systemDefault())
+            .format(Instant.ofEpochSecond(timestamp));
+
+        return Component.text(formatted);
     }
 }
