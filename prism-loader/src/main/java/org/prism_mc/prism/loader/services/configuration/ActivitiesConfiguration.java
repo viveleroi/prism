@@ -44,6 +44,14 @@ public class ActivitiesConfiguration {
     )
     private List<String> sensitiveCommands = new ArrayList<>();
 
+    @Comment(
+        """
+        Pattern used to format absolute timestamps shown in lookup results.
+        Follows the java.time.format.DateTimeFormatter pattern syntax.
+        Rendered in the server's local time zone."""
+    )
+    private String timestampFormat = "yyyy-MM-dd HH:mm:ss";
+
     /**
      * Constructor.
      */
