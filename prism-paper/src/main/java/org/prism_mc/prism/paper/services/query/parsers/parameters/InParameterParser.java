@@ -85,6 +85,8 @@ public class InParameterParser extends StringQueryArgumentParser {
                 } else {
                     messageService.errorWorldEditMissing(sender);
                 }
+            } else if (optionalParameter.get().equalsIgnoreCase("world")) {
+                builder.worldUuid(parameterContext.world.getUID());
             } else if (optionalParameter.get().equalsIgnoreCase("chunk")) {
                 builder.worldUuid(parameterContext.world.getUID());
 
