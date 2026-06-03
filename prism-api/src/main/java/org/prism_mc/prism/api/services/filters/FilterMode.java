@@ -18,28 +18,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.prism_mc.prism.loader.services.configuration.filters;
+package org.prism_mc.prism.api.services.filters;
 
-import java.util.List;
-import lombok.Getter;
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
-
-@ConfigSerializable
-@Getter
-public class FilterPlayerConditionsConfiguration {
+public enum FilterMode {
+    /**
+     * All IGNORE filters are evaluated first, then ALLOW filters. If any ALLOW filter exists,
+     * the default decision is to deny. IGNORE always takes precedence over ALLOW.
+     */
+    GROUPED,
 
     /**
-     * Player names.
+     * Filters are evaluated in the order they are defined. The first filter whose conditions
+     * match decides the outcome (ALLOW records, IGNORE drops). If none match, the activity is
+     * recorded.
      */
-    private List<String> names;
-
-    /**
-     * Player names to exclude.
-     */
-    private List<String> excludedNames;
-
-    /**
-     * Game modes. Only applies to cause players.
-     */
-    private List<String> gameModes;
+    ORDERED,
 }

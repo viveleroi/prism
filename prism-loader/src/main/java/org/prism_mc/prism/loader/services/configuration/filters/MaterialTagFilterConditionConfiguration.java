@@ -31,4 +31,8 @@ public class MaterialTagFilterConditionConfiguration {
     public List<String> materials;
 
     public List<String> tags;
+
+    public List<String> excludedMaterials;
+
+    public List<String> excludedTags;
 }

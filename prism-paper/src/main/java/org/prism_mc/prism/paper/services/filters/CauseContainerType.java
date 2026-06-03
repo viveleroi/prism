@@ -18,28 +18,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.prism_mc.prism.loader.services.configuration.filters;
+package org.prism_mc.prism.paper.services.filters;
 
-import java.util.List;
-import lombok.Getter;
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
-
-@ConfigSerializable
-@Getter
-public class FilterPlayerConditionsConfiguration {
+/**
+ * The kind of cause behind an activity, used to filter by cause category
+ * rather than by a specific block, entity type, or named cause.
+ */
+public enum CauseContainerType {
+    /**
+     * A block cause.
+     */
+    BLOCK,
 
     /**
-     * Player names.
+     * A non-player entity cause. Players are matched by {@link #PLAYER}.
      */
-    private List<String> names;
+    ENTITY,
 
     /**
-     * Player names to exclude.
+     * A named cause, such as gravity or a natural cause.
      */
-    private List<String> excludedNames;
+    NAMED,
 
     /**
-     * Game modes. Only applies to cause players.
+     * A player cause.
      */
-    private List<String> gameModes;
+    PLAYER,
 }

@@ -34,6 +34,11 @@ public class FilterConditionsConfiguration {
     private List<String> actions;
 
     /**
+     * Actions to exclude.
+     */
+    private List<String> excludedActions;
+
+    /**
      * Affected Blocks.
      */
     private MaterialTagFilterConditionConfiguration affectedBlock;
@@ -47,6 +52,21 @@ public class FilterConditionsConfiguration {
      * Named causes.
      */
     private List<String> namedCauses;
+
+    /**
+     * Named causes to exclude.
+     */
+    private List<String> excludedNamedCauses;
+
+    /**
+     * Cause container types (block, entity, named, player).
+     */
+    private List<String> causeTypes;
+
+    /**
+     * Cause container types to exclude (block, entity, named, player).
+     */
+    private List<String> excludedCauseTypes;
 
     /**
      * Affected Entity Types.
@@ -69,12 +89,42 @@ public class FilterConditionsConfiguration {
     private List<String> permissions;
 
     /**
+     * Affected Player conditions.
+     */
+    private FilterPlayerConditionsConfiguration affectedPlayer;
+
+    /**
      * Cause Player conditions.
      */
     private FilterPlayerConditionsConfiguration causePlayer;
 
     /**
+     * The minimum Y coordinate an activity must be at or above.
+     */
+    private Integer above;
+
+    /**
+     * The maximum Y coordinate an activity must be at or below.
+     */
+    private Integer below;
+
+    /**
+     * A bounding box an activity must fall within.
+     */
+    private BoundsFilterConditionConfiguration bounds;
+
+    /**
+     * A radius around a center coordinate an activity must fall within.
+     */
+    private RadiusFilterConditionConfiguration radius;
+
+    /**
      * Worlds.
      */
     private List<String> worlds;
+
+    /**
+     * Worlds to exclude.
+     */
+    private List<String> excludedWorlds;
 }

@@ -31,4 +31,8 @@ public class EntityTypeFilterConditionConfiguration {
     public List<String> entityTypes;
 
     public List<String> tags;
+
+    public List<String> excludedEntityTypes;
+
+    public List<String> excludedTags;
 }
