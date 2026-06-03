@@ -310,15 +310,15 @@ public class ActivityFilter {
             );
         }
 
-        // No filters applied, allow
+        // No conditions configured, allow
         if (nonApplicable == total) {
             return true;
         }
 
-        // If ignoring and all applicable conditions matched, reject it
+        // If ignoring and every configured condition matched, reject it
         if (ignoring() && matched > 0 && notMatched == 0) {
             if (debug) {
-                loggingService.debug("Rejecting because we're ignoring and all applicable rules matched");
+                loggingService.debug("Rejecting because we're ignoring and all configured conditions matched");
             }
 
             return false;
@@ -400,7 +400,8 @@ public class ActivityFilter {
     /**
      * Check if any affected blocks match the activity action.
      *
-     * <p>If none listed, the filter will match all. Ignores non-material actions.</p>
+     * <p>If none listed, this condition is skipped. Otherwise an activity that does not match it,
+     * including one whose cause or action is of an unrelated type, counts as not matched.</p>
      *
      * @param activity The activity
      * @return ConditionResult
@@ -417,14 +418,15 @@ public class ActivityFilter {
 
             return ConditionResult.NOT_MATCHED;
         } else {
-            return ConditionResult.NOT_APPLICABLE;
+            return ConditionResult.NOT_MATCHED;
         }
     }
 
     /**
      * Check if any cause blocks match the activity action.
      *
-     * <p>If none listed, the filter will match all. Ignores non-material actions.</p>
+     * <p>If none listed, this condition is skipped. Otherwise an activity that does not match it,
+     * including one whose cause or action is of an unrelated type, counts as not matched.</p>
      *
      * @param activity The activity
      * @return ConditionResult
@@ -441,14 +443,15 @@ public class ActivityFilter {
 
             return ConditionResult.NOT_MATCHED;
         } else {
-            return ConditionResult.NOT_APPLICABLE;
+            return ConditionResult.NOT_MATCHED;
         }
     }
 
     /**
      * Check if any entity types match the activity action.
      *
-     * <p>If none listed, the filter will match all. Ignores non-entity actions.</p>
+     * <p>If none listed, this condition is skipped. Otherwise an activity that does not match it,
+     * including one whose cause or action is of an unrelated type, counts as not matched.</p>
      *
      * @param activity The activity
      * @return ConditionResult
@@ -465,14 +468,15 @@ public class ActivityFilter {
 
             return ConditionResult.NOT_MATCHED;
         } else {
-            return ConditionResult.NOT_APPLICABLE;
+            return ConditionResult.NOT_MATCHED;
         }
     }
 
     /**
      * Check if any entity types match the activity action.
      *
-     * <p>If none listed, the filter will match all. Ignores non-entity actions.</p>
+     * <p>If none listed, this condition is skipped. Otherwise an activity that does not match it,
+     * including one whose cause or action is of an unrelated type, counts as not matched.</p>
      *
      * @param activity The activity
      * @return ConditionResult
@@ -489,14 +493,15 @@ public class ActivityFilter {
 
             return ConditionResult.NOT_MATCHED;
         } else {
-            return ConditionResult.NOT_APPLICABLE;
+            return ConditionResult.NOT_MATCHED;
         }
     }
 
     /**
      * Check if any game modes match the activity action.
      *
-     * <p>If none listed, the filter will match all. Ignores non-player actions.</p>
+     * <p>If none listed, this condition is skipped. Otherwise an activity that does not match it,
+     * including one whose cause is not a player, counts as not matched.</p>
      *
      * @param activity The activity
      * @return ConditionResult
@@ -513,14 +518,15 @@ public class ActivityFilter {
 
             return ConditionResult.NOT_MATCHED;
         } else {
-            return ConditionResult.NOT_APPLICABLE;
+            return ConditionResult.NOT_MATCHED;
         }
     }
 
     /**
      * Check if any materials match the activity action.
      *
-     * <p>If none listed, the filter will match all. Ignores non-material actions.</p>
+     * <p>If none listed, this condition is skipped. Otherwise an activity that does not match it,
+     * including one whose cause or action is of an unrelated type, counts as not matched.</p>
      *
      * @param activity The activity
      * @return ConditionResult
@@ -537,7 +543,7 @@ public class ActivityFilter {
 
             return ConditionResult.NOT_MATCHED;
         } else {
-            return ConditionResult.NOT_APPLICABLE;
+            return ConditionResult.NOT_MATCHED;
         }
     }
 
