@@ -34,9 +34,11 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.MultipleFacing;
 import org.bukkit.block.data.type.Bed;
+import org.bukkit.block.data.type.Chest;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.util.BoundingBox;
+import org.jetbrains.annotations.Nullable;
 import org.prism_mc.prism.paper.services.modifications.state.BlockStateChange;
 
 @UtilityClass
@@ -68,6 +70,38 @@ public class BlockUtils {
         }
 
         return null;
+    }
+
+    /**
+     * Rotate a horizontal block face 90 degrees clockwise.
+     *
+     * @param face The face
+     * @return The clockwise face, or the original face if not horizontal
+     */
+    public static BlockFace clockwise(BlockFace face) {
+        return switch (face) {
+            case NORTH -> BlockFace.EAST;
+            case EAST -> BlockFace.SOUTH;
+            case SOUTH -> BlockFace.WEST;
+            case WEST -> BlockFace.NORTH;
+            default -> face;
+        };
+    }
+
+    /**
+     * Rotate a horizontal block face 90 degrees counter-clockwise.
+     *
+     * @param face The face
+     * @return The counter-clockwise face, or the original face if not horizontal
+     */
+    public static BlockFace counterClockwise(BlockFace face) {
+        return switch (face) {
+            case NORTH -> BlockFace.WEST;
+            case WEST -> BlockFace.SOUTH;
+            case SOUTH -> BlockFace.EAST;
+            case EAST -> BlockFace.NORTH;
+            default -> face;
+        };
     }
 
     /**
@@ -176,6 +210,128 @@ public class BlockUtils {
         }
 
         return block;
+    }
+
+    /**
+     * Repair double-chest connection state after (re)placing a chest.
+     *
+     * <p>A chest's LEFT/RIGHT connection type is contextual rather than intrinsic. When a player
+     * builds a double chest, only the second half placed is recorded with its LEFT/RIGHT type; the
+     * first half silently flips from SINGLE to its complementary type via a neighbor update, which
+     * fires no place event and is therefore stored as SINGLE. Applying that data verbatim yields a
+     * half-connected chest (one double-chest half sitting beside a plain single chest).</p>
+     *
+     * <p>This reconciles both directions, so the result is correct regardless of the order the two
+     * halves are restored in:</p>
+     *
+     * <ul>
+     *   <li>A half carrying an explicit LEFT/RIGHT type stamps its partner block (if already a
+     *   matching chest) to the complementary type.</li>
+     *   <li>A SINGLE half adopts the complementary type when an adjacent half already points back
+     *   at it, which is what fixes the never-recorded first half.</li>
+     * </ul>
+     *
+     * @param block The chest block just placed
+     * @param chest The chest block data applied to that block
+     * @param applyPhysics Whether to apply neighbor physics
+     */
+    public static void reconcileChestConnection(Block block, Chest chest, boolean applyPhysics) {
+        BlockFace partnerFace = chestPartnerFace(chest);
+
+        // This half already knows which side its partner sits on; stamp that partner to match.
+        if (partnerFace != null) {
+            Block partner = block.getRelative(partnerFace);
+            if (
+                partner.getType() == block.getType() &&
+                partner.getBlockData() instanceof Chest partnerChest &&
+                partnerChest.getFacing() == chest.getFacing()
+            ) {
+                Chest.Type expected = complementaryChestType(chest.getType());
+                if (partnerChest.getType() != expected) {
+                    partnerChest.setType(expected);
+                    partner.setBlockData(partnerChest, applyPhysics);
+                }
+            }
+
+            return;
+        }
+
+        // This half is SINGLE; adopt a connection only if an adjacent half claims this block.
+        for (BlockFace face : attachmentFacesSides) {
+            Block neighbor = block.getRelative(face);
+            if (
+                neighbor.getType() == block.getType() &&
+                neighbor.getBlockData() instanceof Chest neighborChest &&
+                neighborChest.getFacing() == chest.getFacing() &&
+                face.getOppositeFace().equals(chestPartnerFace(neighborChest))
+            ) {
+                chest.setType(complementaryChestType(neighborChest.getType()));
+                block.setBlockData(chest, applyPhysics);
+
+                return;
+            }
+        }
+    }
+
+    /**
+     * Downgrade a double-chest's surviving half to SINGLE after removing the other half.
+     *
+     * <p>When one half of a double chest is removed, Minecraft normally flips the surviving half
+     * back to SINGLE via a neighbor update. That update is suppressed when physics is disabled, so
+     * the surviving half would otherwise be left rendering as a connected double-chest half beside
+     * an empty space. We perform that downgrade explicitly so removals are correct regardless of
+     * whether neighbor physics is applied.</p>
+     *
+     * @param block The block the chest was just removed from
+     * @param removedChest The chest block data that was removed
+     * @param applyPhysics Whether to apply neighbor physics
+     */
+    public static void downgradeChestPartner(Block block, Chest removedChest, boolean applyPhysics) {
+        BlockFace partnerFace = chestPartnerFace(removedChest);
+        if (partnerFace == null) {
+            return;
+        }
+
+        Block partner = block.getRelative(partnerFace);
+        if (
+            partner.getType() == removedChest.getMaterial() &&
+            partner.getBlockData() instanceof Chest partnerChest &&
+            partnerChest.getFacing() == removedChest.getFacing() &&
+            partnerChest.getType() != Chest.Type.SINGLE
+        ) {
+            partnerChest.setType(Chest.Type.SINGLE);
+            partner.setBlockData(partnerChest, applyPhysics);
+        }
+    }
+
+    /**
+     * Resolve the block face pointing toward a chest's partner half.
+     *
+     * <p>Mirrors Minecraft's own connection rule: a LEFT chest pairs with the block clockwise of
+     * its facing direction, a RIGHT chest with the block counter-clockwise of it. SINGLE chests
+     * have no partner. If in-game testing shows halves pairing toward the wrong neighbor, the
+     * LEFT/RIGHT cases here are the single place to swap.</p>
+     *
+     * @param chest The chest block data
+     * @return The face of the partner half, or null if the chest is single
+     */
+    @Nullable
+    private static BlockFace chestPartnerFace(Chest chest) {
+        return switch (chest.getType()) {
+            case LEFT -> clockwise(chest.getFacing());
+            case RIGHT -> counterClockwise(chest.getFacing());
+            default -> null;
+        };
+    }
+
+    /**
+     * Get the complementary half of a double-chest connection type.
+     *
+     * @param type The chest type
+     * @return RIGHT for LEFT, otherwise LEFT
+     */
+    private static Chest.Type complementaryChestType(Chest.Type type) {
+        return type == Chest.Type.LEFT ? Chest.Type.RIGHT : Chest.Type.LEFT;
     }
 
     /**

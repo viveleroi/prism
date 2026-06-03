@@ -36,6 +36,7 @@ import org.bukkit.block.TileState;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Bed;
+import org.bukkit.block.data.type.Chest;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.entity.Player;
@@ -53,6 +54,7 @@ import org.prism_mc.prism.api.services.modifications.StateChange;
 import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.paper.api.containers.PaperBlockContainer;
 import org.prism_mc.prism.paper.services.modifications.state.BlockStateChange;
+import org.prism_mc.prism.paper.utils.BlockUtils;
 
 public class PaperBlockAction extends PaperAction implements BlockAction {
 
@@ -298,6 +300,10 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
                 mode,
                 applyPhysics
             );
+
+            if (mode.equals(ModificationQueueMode.COMPLETING) && finalBlockData instanceof Chest chest) {
+                BlockUtils.reconcileChestConnection(block, chest, applyPhysics);
+            }
         } else if (type().resultType().equals(ActionResultType.CREATES)) {
             var canSet = canSet(block, finalReplacedBlockData, modificationRuleset, activityContext);
             if (canSet != null) {
@@ -315,6 +321,10 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
                 mode,
                 applyPhysics
             );
+
+            if (mode.equals(ModificationQueueMode.COMPLETING) && finalBlockData instanceof Chest chest) {
+                BlockUtils.downgradeChestPartner(block, chest, applyPhysics);
+            }
         }
 
         return resultBuilder.stateChange(stateChange).build();
@@ -376,6 +386,10 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
                 mode,
                 applyPhysics
             );
+
+            if (mode.equals(ModificationQueueMode.COMPLETING) && finalBlockData instanceof Chest chest) {
+                BlockUtils.reconcileChestConnection(block, chest, applyPhysics);
+            }
         } else if (type().resultType().equals(ActionResultType.REMOVES)) {
             var canSet = canSet(block, finalReplacedBlockData, modificationRuleset, activityContext);
             if (canSet != null) {
@@ -393,6 +407,10 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
                 mode,
                 applyPhysics
             );
+
+            if (mode.equals(ModificationQueueMode.COMPLETING) && finalBlockData instanceof Chest chest) {
+                BlockUtils.downgradeChestPartner(block, chest, applyPhysics);
+            }
         }
 
         return resultBuilder.stateChange(stateChange).build();
