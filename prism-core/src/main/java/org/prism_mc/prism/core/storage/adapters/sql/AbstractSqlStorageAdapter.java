@@ -41,8 +41,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.UUID;
@@ -784,7 +786,12 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
      * @throws SQLException The database exception
      */
     protected void updateSchemas(String schemaVersion) throws Exception {
-        schemaUpdater.update(dslContext, schemaVersion);
+        Map<String, List<String>> existingIndexes = new HashMap<>();
+        existingIndexes.put(PRISM_ACTIVITIES.getName(), queryIndexNames(PRISM_ACTIVITIES.getName()));
+        existingIndexes.put(PRISM_PLAYERS.getName(), queryIndexNames(PRISM_PLAYERS.getName()));
+        existingIndexes.put(PRISM_ITEMS.getName(), queryIndexNames(PRISM_ITEMS.getName()));
+
+        schemaUpdater.update(dslContext, schemaVersion, existingIndexes);
     }
 
     @Override
