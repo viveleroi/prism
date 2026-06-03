@@ -24,6 +24,13 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
@@ -107,14 +114,58 @@ public class SqlSchemaUpdateCli implements SchemaUpdateCli {
                 return;
             }
 
+            // Query existing index names so migrations remain idempotent
+            Map<String, List<String>> existingIndexes = new HashMap<>();
+            existingIndexes.put(
+                AbstractSqlStorageAdapter.PRISM_ACTIVITIES.getName(),
+                queryIndexNames(dataSource, AbstractSqlStorageAdapter.PRISM_ACTIVITIES.getName())
+            );
+
+            existingIndexes.put(
+                AbstractSqlStorageAdapter.PRISM_PLAYERS.getName(),
+                queryIndexNames(dataSource, AbstractSqlStorageAdapter.PRISM_PLAYERS.getName())
+            );
+
+            existingIndexes.put(
+                AbstractSqlStorageAdapter.PRISM_ITEMS.getName(),
+                queryIndexNames(dataSource, AbstractSqlStorageAdapter.PRISM_ITEMS.getName())
+            );
+
             // Run updates (use DB-specific updater when available)
             SqlSchemaUpdater updater = (storageType == StorageType.MYSQL || storageType == StorageType.MARIADB)
                 ? new MysqlSchemaUpdater(loggingService)
                 : new SqlSchemaUpdater(loggingService);
-            updater.update(dslContext, schemaVersion);
+            updater.update(dslContext, schemaVersion, existingIndexes);
 
             loggingService.info("Schema updated to {0}.", SqlSchemaUpdater.CURRENT_SCHEMA_VERSION);
         }
+    }
+
+    /**
+     * Query the database for index names on a specific table, scoped to the current catalog.
+     *
+     * @param dataSource The data source
+     * @param tableName The table name
+     * @return A list of index names
+     * @throws SQLException The database exception
+     */
+    private List<String> queryIndexNames(HikariDataSource dataSource, String tableName) throws SQLException {
+        List<String> indexNames = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection()) {
+            DatabaseMetaData metaData = connection.getMetaData();
+            try (
+                var rs = metaData.getIndexInfo(connection.getCatalog(), connection.getSchema(), tableName, false, false)
+            ) {
+                while (rs.next()) {
+                    String indexName = rs.getString("INDEX_NAME");
+                    if (indexName != null) {
+                        indexNames.add(indexName);
+                    }
+                }
+            }
+        }
+
+        return indexNames;
     }
 
     /**

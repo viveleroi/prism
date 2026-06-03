@@ -24,6 +24,9 @@ import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAda
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.jooq.DSLContext;
 import org.prism_mc.prism.core.storage.adapters.sql.SqlSchemaUpdater;
 import org.prism_mc.prism.core.storage.dbo.Indexes;
@@ -43,49 +46,74 @@ public class MysqlSchemaUpdater extends SqlSchemaUpdater {
     }
 
     @Override
-    protected void update400To401(DSLContext dslContext) {
+    protected void update400To401(DSLContext dslContext, Map<String, List<String>> existingIndexes) {
         loggingService.info("Updating schema from 400 to 401...");
+
+        List<String> activitiesIndexes = existingIndexes.getOrDefault(PRISM_ACTIVITIES.getName(), new ArrayList<>());
 
         // Combine drop and create index operations into a single ALTER TABLE
         // statement with ALGORITHM=INPLACE for better performance on large tables
+        List<String> clauses = new ArrayList<>();
+
+        if (activitiesIndexes.contains(Indexes.PRISM_ACTIVITIES_REPLACED_BLOCK_ID.getName())) {
+            clauses.add(String.format("DROP INDEX `%s`", Indexes.PRISM_ACTIVITIES_REPLACED_BLOCK_ID.getName()));
+        }
+
+        if (activitiesIndexes.contains(Indexes.PRISM_ACTIVITIES_COORDINATE_400.getName())) {
+            clauses.add(String.format("DROP INDEX `%s`", Indexes.PRISM_ACTIVITIES_COORDINATE_400.getName()));
+        }
+
+        clauses.add(
+            String.format(
+                "ADD INDEX `%s` (`%s`)",
+                Indexes.PRISM_ACTIVITIES_REPLACED_BLOCK_ID.getName(),
+                PRISM_ACTIVITIES.REPLACED_BLOCK_ID.getName()
+            )
+        );
+
+        if (!activitiesIndexes.contains(Indexes.PRISM_ACTIVITIES_WORLD_ACTION_TIME_COORDS.getName())) {
+            clauses.add(
+                String.format(
+                    "ADD INDEX `%s` (`%s`, `%s`, `%s`, `%s`, `%s`, `%s`)",
+                    Indexes.PRISM_ACTIVITIES_WORLD_ACTION_TIME_COORDS.getName(),
+                    PRISM_ACTIVITIES.WORLD_ID.getName(),
+                    PRISM_ACTIVITIES.ACTION_ID.getName(),
+                    PRISM_ACTIVITIES.X.getName(),
+                    PRISM_ACTIVITIES.Y.getName(),
+                    PRISM_ACTIVITIES.Z.getName(),
+                    PRISM_ACTIVITIES.TIMESTAMP.getName()
+                )
+            );
+        }
+
+        if (!activitiesIndexes.contains(Indexes.PRISM_ACTIVITIES_WORLD_TIME_COORDS.getName())) {
+            clauses.add(
+                String.format(
+                    "ADD INDEX `%s` (`%s`, `%s`, `%s`, `%s`, `%s`)",
+                    Indexes.PRISM_ACTIVITIES_WORLD_TIME_COORDS.getName(),
+                    PRISM_ACTIVITIES.WORLD_ID.getName(),
+                    PRISM_ACTIVITIES.X.getName(),
+                    PRISM_ACTIVITIES.Y.getName(),
+                    PRISM_ACTIVITIES.Z.getName(),
+                    PRISM_ACTIVITIES.TIMESTAMP.getName()
+                )
+            );
+        }
+
         String sql = String.format(
-            "ALTER TABLE `%s` " +
-            "DROP INDEX `%s`, " +
-            "DROP INDEX `%s`, " +
-            "ADD INDEX `%s` (`%s`), " +
-            "ADD INDEX `%s` (`%s`, `%s`, `%s`, `%s`, `%s`, `%s`), " +
-            "ADD INDEX `%s` (`%s`, `%s`, `%s`, `%s`, `%s`), " +
-            "ALGORITHM=INPLACE",
+            "ALTER TABLE `%s` %s, ALGORITHM=INPLACE",
             PRISM_ACTIVITIES.getName(),
-            // Drop indexes
-            Indexes.PRISM_ACTIVITIES_REPLACED_BLOCK_ID.getName(),
-            Indexes.PRISM_ACTIVITIES_COORDINATE_400.getName(),
-            // Replaced block index
-            Indexes.PRISM_ACTIVITIES_REPLACED_BLOCK_ID.getName(),
-            PRISM_ACTIVITIES.REPLACED_BLOCK_ID.getName(),
-            // New composite index with action
-            Indexes.PRISM_ACTIVITIES_WORLD_ACTION_TIME_COORDS.getName(),
-            PRISM_ACTIVITIES.WORLD_ID.getName(),
-            PRISM_ACTIVITIES.ACTION_ID.getName(),
-            PRISM_ACTIVITIES.X.getName(),
-            PRISM_ACTIVITIES.Y.getName(),
-            PRISM_ACTIVITIES.Z.getName(),
-            PRISM_ACTIVITIES.TIMESTAMP.getName(),
-            // New composite index without action
-            Indexes.PRISM_ACTIVITIES_WORLD_TIME_COORDS.getName(),
-            PRISM_ACTIVITIES.WORLD_ID.getName(),
-            PRISM_ACTIVITIES.X.getName(),
-            PRISM_ACTIVITIES.Y.getName(),
-            PRISM_ACTIVITIES.Z.getName(),
-            PRISM_ACTIVITIES.TIMESTAMP.getName()
+            String.join(", ", clauses)
         );
 
         dslContext.execute(sql);
 
         // Drop the world id index. This can only be done when modifications to the composite are done
         // as world_id must be first in another index to satisfy mysql fk rules
-        dslContext.dropIndex(Indexes.PRISM_ACTIVITIES_WORLDID).on(PRISM_ACTIVITIES).execute();
+        if (activitiesIndexes.contains(Indexes.PRISM_ACTIVITIES_WORLDID.getName())) {
+            dslContext.dropIndex(Indexes.PRISM_ACTIVITIES_WORLDID).on(PRISM_ACTIVITIES).execute();
+        }
 
-        update400To401Shared(dslContext);
+        update400To401Shared(dslContext, existingIndexes);
     }
 }
