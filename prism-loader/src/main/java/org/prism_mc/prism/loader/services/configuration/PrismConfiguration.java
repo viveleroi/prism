@@ -23,6 +23,7 @@ package org.prism_mc.prism.loader.services.configuration;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
+import org.prism_mc.prism.api.services.filters.FilterMode;
 import org.prism_mc.prism.loader.services.configuration.alerts.AlertsConfiguration;
 import org.prism_mc.prism.loader.services.configuration.cache.CacheConfiguration;
 import org.prism_mc.prism.loader.services.configuration.filters.FilterConfiguration;
@@ -76,6 +77,17 @@ public class PrismConfiguration {
         Please see https://docs.prism-mc.org/configs/filters/"""
     )
     private List<FilterConfiguration> filters = new ArrayList<>();
+
+    @Comment(
+        """
+        How filters are evaluated.
+        ORDERED (default): filters are evaluated top to bottom and the first one whose
+        conditions match decides the outcome. This lets an ALLOW filter create an exception
+        to a later IGNORE filter. Anything matching no filter is recorded.
+        GROUPED: all IGNORE filters are checked first, then ALLOW filters. If any ALLOW filter
+        exists, anything not explicitly allowed is denied. Use this for whitelist-style setups."""
+    )
+    private FilterMode filterMode = FilterMode.ORDERED;
 
     @Comment("Configure rules for modifications (rollbacks/restores).")
     private ModificationConfiguration modifications = new ModificationConfiguration();

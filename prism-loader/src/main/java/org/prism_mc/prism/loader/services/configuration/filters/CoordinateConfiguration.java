@@ -20,26 +20,16 @@
 
 package org.prism_mc.prism.loader.services.configuration.filters;
 
-import java.util.List;
 import lombok.Getter;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
 @Getter
-public class FilterPlayerConditionsConfiguration {
+public class CoordinateConfiguration {
 
-    /**
-     * Player names.
-     */
-    private List<String> names;
+    public double x;
 
-    /**
-     * Player names to exclude.
-     */
-    private List<String> excludedNames;
+    public double y;
 
-    /**
-     * Game modes. Only applies to cause players.
-     */
-    private List<String> gameModes;
+    public double z;
 }

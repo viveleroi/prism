@@ -34,6 +34,11 @@ public class FilterConfiguration {
     private String name;
 
     /**
+     * Whether this filter is enabled.
+     */
+    private boolean enabled = true;
+
+    /**
      * The filter behavior.
      */
     private FilterBehavior behavior;
