@@ -23,6 +23,8 @@ package org.prism_mc.prism.paper.commands;
 import com.google.inject.Inject;
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -31,6 +33,7 @@ import org.prism_mc.prism.api.services.modifications.ModificationQueueService;
 import org.prism_mc.prism.api.services.modifications.ModificationResultStatus;
 import org.prism_mc.prism.api.services.pagination.ListPaginationResult;
 import org.prism_mc.prism.api.services.pagination.PaginationHandler;
+import org.prism_mc.prism.api.services.recording.RecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.pagination.PaginationService;
@@ -56,24 +59,32 @@ public class ReportCommand {
     private final PaginationService paginationService;
 
     /**
+     * The recording service.
+     */
+    private final RecordingService recordingService;
+
+    /**
      * Construct the command.
      *
      * @param configurationService The configuration service
      * @param messageService The message service
      * @param modificationQueueService The modification queue service
      * @param paginationService The pagination service
+     * @param recordingService The recording service
      */
     @Inject
     public ReportCommand(
         ConfigurationService configurationService,
         MessageService messageService,
         ModificationQueueService modificationQueueService,
-        PaginationService paginationService
+        PaginationService paginationService,
+        RecordingService recordingService
     ) {
         this.configurationService = configurationService;
         this.messageService = messageService;
         this.modificationQueueService = modificationQueueService;
         this.paginationService = paginationService;
+        this.recordingService = recordingService;
     }
 
     @Command("report")
@@ -104,6 +115,29 @@ public class ReportCommand {
                 modificationQueueService.currentQueue().queueSize(),
                 owner
             );
+        }
+
+        /**
+         * Run the recording queue report command.
+         *
+         * @param sender The command sender
+         */
+        @Command("recording-queue")
+        public void onRecordingQueueReport(final CommandSender sender) {
+            var queue = recordingService.queue();
+
+            messageService.recordingReportQueueHeader(sender, queue.size());
+
+            var counts = new HashMap<String, Integer>();
+            for (var activity : queue) {
+                counts.merge(activity.action().type().key(), 1, Integer::sum);
+            }
+
+            counts
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .forEach(entry -> messageService.recordingReportQueueEntry(sender, entry.getKey(), entry.getValue()));
         }
 
         /**

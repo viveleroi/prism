@@ -269,6 +269,12 @@ public interface MessageService {
     @Message("prism.modifications-report-skipped-header")
     void modificationsReportSkippedHeader(CommandSender receiver);
 
+    @Message("prism.recording-report-queue-header")
+    void recordingReportQueueHeader(CommandSender receiver, @Placeholder Integer size);
+
+    @Message("prism.recording-report-queue-entry")
+    void recordingReportQueueEntry(CommandSender receiver, @Placeholder String action, @Placeholder Integer count);
+
     @Message("prism.modifications-report-skipped-activity")
     void modificationsReportSkippedActivity(
         CommandSender receiver,
