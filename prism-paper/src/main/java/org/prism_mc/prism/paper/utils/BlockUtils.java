@@ -305,6 +305,93 @@ public class BlockUtils {
     }
 
     /**
+     * Reconcile the upper half of a double-height bisected block (doors, tall plants and flowers)
+     * with the lower half being written at {@code lowerBlock}.
+     *
+     * @param lowerBlock The lower-half block being written
+     * @param writtenData The block data written to the lower half (null/air on removal)
+     * @param replacedData The block data previously at the lower half
+     * @param applyPhysics Whether to apply neighbor physics
+     */
+    public static void reconcileBisectedPartner(
+        Block lowerBlock,
+        @Nullable BlockData writtenData,
+        @Nullable BlockData replacedData,
+        boolean applyPhysics
+    ) {
+        Block above = lowerBlock.getRelative(BlockFace.UP);
+
+        if (isDoubleHeightBottom(writtenData)) {
+            // Placing the lower half: build the matching upper half.
+            above.setType(writtenData.getMaterial(), applyPhysics);
+            if (above.getBlockData() instanceof Bisected upper) {
+                upper.setHalf(Bisected.Half.TOP);
+                above.setBlockData(upper, applyPhysics);
+            }
+        } else if (isDoubleHeightBottom(replacedData)) {
+            // Removing the lower half: clear the orphaned upper half, but only if it is actually
+            // the matching top so an unrelated neighbor above is never deleted.
+            if (
+                above.getType() == replacedData.getMaterial() &&
+                above.getBlockData() instanceof Bisected upper &&
+                upper.getHalf() == Bisected.Half.TOP
+            ) {
+                above.setType(Material.AIR, applyPhysics);
+            }
+        }
+    }
+
+    /**
+     * Reconcile the head half of a bed with the foot half being written at {@code footBlock}.
+     *
+     * @param footBlock The foot block being written
+     * @param writtenData The block data written to the foot (null/air on removal)
+     * @param replacedData The block data previously at the foot
+     * @param applyPhysics Whether to apply neighbor physics
+     */
+    public static void reconcileBedPartner(
+        Block footBlock,
+        @Nullable BlockData writtenData,
+        @Nullable BlockData replacedData,
+        boolean applyPhysics
+    ) {
+        if (writtenData instanceof Bed foot) {
+            // The foot's facing points toward the head.
+            Block head = footBlock.getRelative(foot.getFacing());
+            head.setType(foot.getMaterial(), applyPhysics);
+            if (head.getBlockData() instanceof Bed headData) {
+                headData.setPart(Bed.Part.HEAD);
+                head.setBlockData(headData, applyPhysics);
+            }
+        } else if (replacedData instanceof Bed foot) {
+            Block head = footBlock.getRelative(foot.getFacing());
+            if (
+                head.getType() == foot.getMaterial() &&
+                head.getBlockData() instanceof Bed headData &&
+                headData.getPart() == Bed.Part.HEAD
+            ) {
+                head.setType(Material.AIR, applyPhysics);
+            }
+        }
+    }
+
+    /**
+     * Whether the given block data is the bottom half of a double-height bisected block (door, tall
+     * plant/flower). Stairs and trapdoors implement {@link Bisected} but are only one block tall.
+     *
+     * @param data The block data
+     * @return True if the data is the bottom half of a double-height bisected block
+     */
+    private static boolean isDoubleHeightBottom(@Nullable BlockData data) {
+        return (
+            data instanceof Bisected bisected &&
+            !(data instanceof Stairs) &&
+            !(data instanceof TrapDoor) &&
+            bisected.getHalf() == Bisected.Half.BOTTOM
+        );
+    }
+
+    /**
      * Resolve the block face pointing toward a chest's partner half.
      *
      * <p>Mirrors Minecraft's own connection rule: a LEFT chest pairs with the block clockwise of
