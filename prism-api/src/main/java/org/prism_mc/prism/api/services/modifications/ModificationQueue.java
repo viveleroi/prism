@@ -48,9 +48,37 @@ public interface ModificationQueue {
     ActivityQuery query();
 
     /**
+     * Get the current mode of the queue.
+     *
+     * @return The mode
+     */
+    ModificationQueueMode mode();
+
+    /**
      * The size of the current queue.
      *
      * @return Queue size
      */
     int queueSize();
+
+    /**
+     * Total number of activities the queue expects to process for the current
+     * run, captured at apply/preview time. Returns 0 if no run is in flight or
+     * the queue does not track progress.
+     *
+     * @return Total expected
+     */
+    default int total() {
+        return 0;
+    }
+
+    /**
+     * Number of activities the queue has processed so far for the current run.
+     * Always {@code <= total()}.
+     *
+     * @return Processed count
+     */
+    default int processed() {
+        return 0;
+    }
 }

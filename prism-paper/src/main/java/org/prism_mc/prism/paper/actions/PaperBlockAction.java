@@ -30,14 +30,10 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.TileState;
-import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.Bed;
-import org.bukkit.block.data.type.Stairs;
-import org.bukkit.block.data.type.TrapDoor;
+import org.bukkit.block.data.type.Chest;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import org.prism_mc.prism.api.actions.BlockAction;
@@ -49,10 +45,10 @@ import org.prism_mc.prism.api.services.modifications.ModificationQueueMode;
 import org.prism_mc.prism.api.services.modifications.ModificationResult;
 import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
 import org.prism_mc.prism.api.services.modifications.ModificationSkipReason;
-import org.prism_mc.prism.api.services.modifications.StateChange;
 import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.paper.api.containers.PaperBlockContainer;
-import org.prism_mc.prism.paper.services.modifications.state.BlockStateChange;
+import org.prism_mc.prism.paper.services.modifications.BlockUndoEntry;
+import org.prism_mc.prism.paper.utils.BlockUtils;
 
 public class PaperBlockAction extends PaperAction implements BlockAction {
 
@@ -272,23 +268,16 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
         var block = location.getWorld().getBlockAt(location);
         var applyPhysics = modificationRuleset.applyPhysics();
 
-        StateChange<BlockState> stateChange = null;
+        BlockUndoEntry undoEntry = null;
         if (type().resultType().equals(ActionResultType.REMOVES)) {
             var canSet = canSet(block, finalBlockData, modificationRuleset, activityContext);
             if (canSet != null) {
                 return canSet;
             }
 
-            if (mode.equals(ModificationQueueMode.COMPLETING)) {
-                // If rolling back a removal, we need to place the top half of a bisected block
-                // This happens first otherwise the block will break again
-                if (finalBlockData instanceof Bisected bisected) {
-                    setBisectedTop(block, bisected, bisected.getMaterial(), applyPhysics);
-                }
-            }
-
             // If the action type removes a block, rollback means we re-set it
-            stateChange = setBlock(
+            undoEntry = setBlock(
+                activityContext,
                 block,
                 location,
                 finalBlockData,
@@ -298,6 +287,10 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
                 mode,
                 applyPhysics
             );
+
+            if (mode.equals(ModificationQueueMode.COMPLETING) && finalBlockData instanceof Chest chest) {
+                BlockUtils.reconcileChestConnection(block, chest, applyPhysics);
+            }
         } else if (type().resultType().equals(ActionResultType.CREATES)) {
             var canSet = canSet(block, finalReplacedBlockData, modificationRuleset, activityContext);
             if (canSet != null) {
@@ -305,7 +298,8 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             }
 
             // If the action type creates a block, rollback means we remove it
-            stateChange = setBlock(
+            undoEntry = setBlock(
+                activityContext,
                 block,
                 location,
                 finalReplacedBlockData,
@@ -315,9 +309,13 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
                 mode,
                 applyPhysics
             );
+
+            if (mode.equals(ModificationQueueMode.COMPLETING) && finalBlockData instanceof Chest chest) {
+                BlockUtils.downgradeChestPartner(block, chest, applyPhysics);
+            }
         }
 
-        return resultBuilder.stateChange(stateChange).build();
+        return resultBuilder.undoEntry(undoEntry).build();
     }
 
     @Override
@@ -350,23 +348,16 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
         var block = location.getWorld().getBlockAt(location);
         var applyPhysics = modificationRuleset.applyPhysics();
 
-        StateChange<BlockState> stateChange = null;
+        BlockUndoEntry undoEntry = null;
         if (type().resultType().equals(ActionResultType.CREATES)) {
             var canSet = canSet(block, finalBlockData, modificationRuleset, activityContext);
             if (canSet != null) {
                 return canSet;
             }
 
-            if (mode.equals(ModificationQueueMode.COMPLETING)) {
-                // If rolling back a removal, we need to place the top half of a bisected block
-                // This happens first otherwise the block will break again
-                if (finalBlockData instanceof Bisected bisected) {
-                    setBisectedTop(block, bisected, bisected.getMaterial(), applyPhysics);
-                }
-            }
-
             // If the action type creates a block, restore means we re-set it
-            stateChange = setBlock(
+            undoEntry = setBlock(
+                activityContext,
                 block,
                 location,
                 finalBlockData,
@@ -376,6 +367,10 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
                 mode,
                 applyPhysics
             );
+
+            if (mode.equals(ModificationQueueMode.COMPLETING) && finalBlockData instanceof Chest chest) {
+                BlockUtils.reconcileChestConnection(block, chest, applyPhysics);
+            }
         } else if (type().resultType().equals(ActionResultType.REMOVES)) {
             var canSet = canSet(block, finalReplacedBlockData, modificationRuleset, activityContext);
             if (canSet != null) {
@@ -383,7 +378,8 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             }
 
             // If the action type removes a block, restore means we remove it again
-            stateChange = setBlock(
+            undoEntry = setBlock(
+                activityContext,
                 block,
                 location,
                 finalReplacedBlockData,
@@ -393,9 +389,13 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
                 mode,
                 applyPhysics
             );
+
+            if (mode.equals(ModificationQueueMode.COMPLETING) && finalBlockData instanceof Chest chest) {
+                BlockUtils.downgradeChestPartner(block, chest, applyPhysics);
+            }
         }
 
-        return resultBuilder.stateChange(stateChange).build();
+        return resultBuilder.undoEntry(undoEntry).build();
     }
 
     /**
@@ -442,19 +442,16 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
     }
 
     /**
-     * Sets an in-world block to this block data.
+     * Sets an in-world block to this block data. In COMPLETING mode, captures
+     * a lightweight {@link BlockUndoEntry} from the live block *before* the
+     * write so {@code /pr undo} can replay world state without re-deriving it
+     * from the activity log. Preview is packet-only; cancelling a preview
+     * re-streams the query and sends live block data back to the player.
      *
-     * @param block The block being changed
-     * @param location The location
-     * @param newBlockData The new block data (null becomes air)
-     * @param oldBlockData The previous block data, used to detect bed parts during removal
-     * @param readWriteNbt Optional NBT to merge into the new block state
-     * @param owner The modification owner
-     * @param mode The queue mode
-     * @param applyPhysics Whether to apply neighbor physics
-     * @return The captured state change
+     * @return The captured undo entry for a COMPLETING write, or null otherwise
      */
-    protected StateChange<BlockState> setBlock(
+    protected BlockUndoEntry setBlock(
+        Activity activityContext,
         Block block,
         Location location,
         @Nullable BlockData newBlockData,
@@ -464,90 +461,61 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
         ModificationQueueMode mode,
         boolean applyPhysics
     ) {
-        // Only capture state in PLANNING mode: cancelPreview reads oldState to send
-        // a revert packet. In COMPLETING nothing consumes stateChange, and BlockState
-        // clones (tile entity NBT, inventories) would dominate memory for large queues.
-        final boolean captureStateChange = mode.equals(ModificationQueueMode.PLANNING);
-        final BlockState oldState = captureStateChange ? block.getState() : null;
+        // A removal (clearing to air) must never trigger neighbor physics, even when
+        // applyPhysics is enabled. With physics on, removing a block detaches anything
+        // resting on it (flowers, buttons, crops) into an item drop *before* the queue
+        // reaches that neighbor's own activity — so the rollback leaves the build short,
+        // and the popped block's undo snapshot captures air, making it unrecoverable.
+        // Placements still honor applyPhysics so light/redstone updates can propagate.
+        boolean removing = newBlockData == null || newBlockData.getMaterial() == Material.AIR;
+        boolean physics = applyPhysics && !removing;
 
         if (mode.equals(ModificationQueueMode.COMPLETING)) {
-            // Set the bed head part before applying the root block change
-            // otherwise the bed will just re-break.
-            if (newBlockData instanceof Bed bed) {
-                setBedHead(block, bed, applyPhysics);
-            } else if (oldBlockData instanceof Bed bed) {
-                setBedHead(block, bed, applyPhysics);
-            }
+            // Double blocks (beds, doors, tall plants) are stored as a single activity for the
+            // lower/foot half; the partner is synthesized here. Reconcile it *before* writing the
+            // root block: placing the root with physics would otherwise re-break it, and removals
+            // (physics disabled) would orphan the upper half / head.
+            BlockUtils.reconcileBedPartner(block, newBlockData, oldBlockData, physics);
+            BlockUtils.reconcileBisectedPartner(block, newBlockData, oldBlockData, physics);
         }
 
         if (newBlockData == null) {
             newBlockData = Bukkit.createBlockData(Material.AIR);
         }
 
-        // When applyPhysics is false, cascading updates (sand falling, water flow,
-        // redstone) are suppressed so they cannot alter the restored snapshot, and
-        // large operations avoid the associated TPS cost.
         if (mode.equals(ModificationQueueMode.PLANNING) && owner instanceof Player player) {
             player.sendBlockChange(location, newBlockData);
-        } else if (mode.equals(ModificationQueueMode.COMPLETING)) {
-            block.setBlockData(newBlockData, applyPhysics);
+            return null;
+        } else if (!mode.equals(ModificationQueueMode.COMPLETING)) {
+            return null;
         }
 
-        // Set NBT
-        if (block.getType() != Material.AIR && mode.equals(ModificationQueueMode.COMPLETING) && readWriteNbt != null) {
+        // Capture the live block data + tile NBT immediately before the write
+        // so /pr undo can replay world state without re-deriving from the log.
+        BlockData oldLiveData = block.getBlockData();
+        ReadWriteNBT oldLiveNbt = null;
+        if (block.getState() instanceof TileState) {
+            oldLiveNbt = NBT.createNBTObject();
+            NBT.get(block.getState(), oldLiveNbt::mergeCompound);
+        }
+
+        block.setBlockData(newBlockData, physics);
+
+        // Set NBT for the new state (e.g., restoring chest contents)
+        if (block.getType() != Material.AIR && readWriteNbt != null) {
             NBT.modify(block.getState(), nbt -> {
                 nbt.mergeCompound(readWriteNbt);
             });
         }
 
-        return captureStateChange ? new BlockStateChange(oldState, block.getState()) : null;
-    }
-
-    /**
-     * Set the HEAD part of a bed.
-     *
-     * @param block The block being changed
-     * @param bed The bed block data
-     * @param applyPhysics Whether to apply neighbor physics
-     */
-    protected void setBedHead(Block block, Bed bed, boolean applyPhysics) {
-        // Bed activities will always be the FOOT part
-        Block relative = block.getRelative(bed.getFacing());
-
-        if (type().resultType().equals(ActionResultType.CREATES)) {
-            relative.setType(Material.AIR, applyPhysics);
-        } else {
-            relative.setType(bed.getMaterial(), applyPhysics);
-
-            if (bed.clone() instanceof Bed siblingBed) {
-                siblingBed.setPart(Bed.Part.HEAD);
-                relative.setBlockData(siblingBed, applyPhysics);
-            }
-        }
-    }
-
-    /**
-     * Set the TOP part of a bisected block.
-     *
-     * @param block The block being changed
-     * @param bisected The bisected block data
-     * @param material The material
-     * @param applyPhysics Whether to apply neighbor physics
-     */
-    protected void setBisectedTop(Block block, Bisected bisected, Material material, boolean applyPhysics) {
-        // Some bisected blocks don't need help
-        if (bisected instanceof Stairs || bisected instanceof TrapDoor) {
-            return;
-        }
-
-        // Bisected activities will always be the BOTTOM part
-        Block relative = block.getRelative(BlockFace.UP);
-
-        relative.setType(material, applyPhysics);
-        if (relative.getBlockData().clone() instanceof Bisected siblingBisected) {
-            siblingBisected.setHalf(Bisected.Half.TOP);
-            relative.setBlockData(siblingBisected, applyPhysics);
-        }
+        return new BlockUndoEntry(
+            ((Number) activityContext.primaryKey()).longValue(),
+            activityContext.worldUuid(),
+            activityContext.coordinate(),
+            oldLiveData,
+            newBlockData,
+            oldLiveNbt
+        );
     }
 
     @Override

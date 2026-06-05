@@ -64,6 +64,7 @@ import org.prism_mc.prism.api.activities.GroupedActivity;
 import org.prism_mc.prism.api.containers.PlayerContainer;
 import org.prism_mc.prism.api.containers.StringContainer;
 import org.prism_mc.prism.api.containers.TranslatableContainer;
+import org.prism_mc.prism.api.services.modifications.ActivityStream;
 import org.prism_mc.prism.api.services.pagination.PartialListPaginationResult;
 import org.prism_mc.prism.api.storage.ActivityBatch;
 import org.prism_mc.prism.api.storage.StorageAdapter;
@@ -814,6 +815,81 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
     }
 
     @Override
+    public ActivityStream streamActivities(ActivityQuery query) throws Exception {
+        // Enforce the modifications.max-per-operation cap as a hard ceiling on the PK fetch.
+        int maxPerOperation = configurationService.prismConfig().modifications().maxPerOperation();
+        ActivityQuery effectiveQuery = query;
+        if (maxPerOperation > 0 && (query.limit() <= 0 || query.limit() > maxPerOperation)) {
+            effectiveQuery = query.toBuilder().limit(maxPerOperation).build();
+        }
+
+        List<Long> pks = queryBuilder.queryActivityPks(effectiveQuery);
+        return new SqlBatchedActivityStream(pks, query);
+    }
+
+    /**
+     * Streams activities by holding only the matching primary keys in memory.
+     */
+    private final class SqlBatchedActivityStream implements ActivityStream {
+
+        private final List<Long> pks;
+        private final ActivityQuery query;
+        private final int total;
+        private int cursor;
+        private boolean closed;
+
+        SqlBatchedActivityStream(List<Long> pks, ActivityQuery query) {
+            this.pks = pks;
+            this.query = query;
+            this.total = pks.size();
+        }
+
+        @Override
+        public List<Activity> next(int limit) {
+            List<Long> batchPks;
+            synchronized (this) {
+                if (closed || cursor >= pks.size() || limit <= 0) {
+                    return List.of();
+                }
+
+                int end = Math.min(cursor + limit, pks.size());
+                batchPks = List.copyOf(pks.subList(cursor, end));
+                cursor = end;
+            }
+
+            var result = queryBuilder.queryActivitiesByPks(batchPks, query);
+            var mapped = activityMapper(result, query);
+
+            List<Activity> activities = new ArrayList<>(mapped.size());
+            for (var abstractActivity : mapped) {
+                if (abstractActivity instanceof Activity activity) {
+                    activities.add(activity);
+                }
+            }
+            return activities;
+        }
+
+        @Override
+        public synchronized void close() {
+            closed = true;
+            pks.clear();
+        }
+
+        @Override
+        public synchronized void reopen() {
+            if (closed) {
+                throw new IllegalStateException("Cannot reopen a closed ActivityStream");
+            }
+            cursor = 0;
+        }
+
+        @Override
+        public int total() {
+            return total;
+        }
+    }
+
+    @Override
     public PartialListPaginationResult<AbstractActivity> queryActivitiesPaginated(ActivityQuery query) {
         Result<org.jooq.Record> result = queryBuilder.queryActivities(query);
 
@@ -1085,17 +1161,30 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
         return queryBuilder.queryActivitiesPkBounds(query);
     }
 
+    /**
+     * Maximum number of activity ids per {@code markReversed} statement. Chunking
+     * keeps the generated SQL well under SQLite's statement size limit and below
+     * the bind-parameter ceilings of every supported driver, regardless of how
+     * jOOQ chooses to render the IN list. 1000 is a comfortable headroom value.
+     */
+    private static final int MARK_REVERSED_CHUNK_SIZE = 1000;
+
     @Override
     public void markReversed(List<Long> activityIds, boolean reversed) {
         if (activityIds.isEmpty()) {
             return;
         }
 
-        dslContext
-            .update(PRISM_ACTIVITIES)
-            .set(PRISM_ACTIVITIES.REVERSED, reversed)
-            .where(PRISM_ACTIVITIES.ACTIVITY_ID.in(activityIds))
-            .execute();
+        for (int start = 0; start < activityIds.size(); start += MARK_REVERSED_CHUNK_SIZE) {
+            int end = Math.min(start + MARK_REVERSED_CHUNK_SIZE, activityIds.size());
+            List<Long> chunk = activityIds.subList(start, end);
+
+            dslContext
+                .update(PRISM_ACTIVITIES)
+                .set(PRISM_ACTIVITIES.REVERSED, reversed)
+                .where(PRISM_ACTIVITIES.ACTIVITY_ID.in(chunk))
+                .execute();
+        }
     }
 
     @Override

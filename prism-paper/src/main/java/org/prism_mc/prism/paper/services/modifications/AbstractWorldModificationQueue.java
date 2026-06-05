@@ -23,6 +23,7 @@ package org.prism_mc.prism.paper.services.modifications;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -34,12 +35,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
 import org.prism_mc.prism.api.activities.Activity;
 import org.prism_mc.prism.api.activities.ActivityQuery;
+import org.prism_mc.prism.api.services.modifications.ActivityStream;
 import org.prism_mc.prism.api.services.modifications.ModificationQueue;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueMode;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueResult;
 import org.prism_mc.prism.api.services.modifications.ModificationResult;
 import org.prism_mc.prism.api.services.modifications.ModificationResultStatus;
 import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
+import org.prism_mc.prism.api.services.modifications.UndoEntry;
 import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
@@ -51,6 +54,11 @@ import org.prism_mc.prism.paper.utils.BlockUtils;
 import org.prism_mc.prism.paper.utils.EntityUtils;
 
 public abstract class AbstractWorldModificationQueue implements ModificationQueue {
+
+    /**
+     * Multiplier applied to maxPerTask when sizing each streaming refill.
+     */
+    private static final int BATCH_FETCH_MULTIPLIER = 5;
 
     /**
      * The logging service.
@@ -88,7 +96,12 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
     protected ModificationRuleset modificationRuleset;
 
     /**
-     * Manage a queue of pending modifications.
+     * The streaming activity source. Pulled in batches as the queue drains.
+     */
+    protected final ActivityStream activityStream;
+
+    /**
+     * The current in-memory batch handed to the executor. Refilled from the stream between executor runs.
      */
     protected final List<Activity> modificationsQueue = Collections.synchronizedList(new ArrayList<>());
 
@@ -116,6 +129,12 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
      * Count how many were read from the queue.
      */
     protected int countModificationsRead;
+
+    /**
+     * Total results processed across all statuses. Tracked separately from
+     * {@link #results} because APPLIED/PLANNED results are not retained there.
+     */
+    protected int countProcessed = 0;
 
     /**
      * Count how many were applied.
@@ -147,7 +166,10 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
     protected int countMovedEntities = 0;
 
     /**
-     * A list of all modification results.
+     * Non-applied results retained for {@code /pr report partial} and
+     * {@code /pr report skips}. Applied results are converted to
+     * {@link #undoEntries} and discarded; otherwise the list would pin one
+     * full Activity per applied block.
      */
     protected final List<ModificationResult> results = new ArrayList<>();
 
@@ -165,6 +187,27 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
     private int progressLastReportedPercent;
 
     /**
+     * Per-applied-block undo snapshots. Captured live from the world before
+     * the queue overwrote each block. Used by {@code /pr undo} to replay
+     * world state without re-querying the activity log.
+     */
+    protected final List<UndoEntry> undoEntries = new ArrayList<>();
+
+    /**
+     * Primary keys of activities applied during the current batch, awaiting a
+     * {@code markReversed} flush. Drained after each batch so the IN list size
+     * stays bounded and we don't hit per-statement limits on rollbacks of
+     * hundreds of thousands of activities.
+     */
+    private final List<Long> pendingReversalKeys = new ArrayList<>();
+
+    /**
+     * Set once a {@code markReversed} flush has failed and the owner has been
+     * notified, so subsequent batch failures don't spam the same error.
+     */
+    private boolean reversalErrorReported = false;
+
+    /**
      * Incrementally tracked bounding box min/max from result coordinates.
      */
     private double bbMinX = Double.MAX_VALUE;
@@ -174,6 +217,18 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
     private double bbMaxY = -Double.MAX_VALUE;
     private double bbMaxZ = -Double.MAX_VALUE;
     private boolean bbHasCoordinates = false;
+
+    /**
+     * Whether pre-processing has already run for this operation. Pre-process
+     * (drain lava, remove blocks, remove drops) must only fire on the first
+     * batch; subsequent refills pass a null pre-processor.
+     */
+    private boolean preProcessRan = false;
+
+    /**
+     * Whether the operation has been canceled or finalized.
+     */
+    private volatile boolean cancelled = false;
 
     /**
      * Construct a new world modification.
@@ -187,7 +242,7 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
      * @param modificationRuleset Modification rule set
      * @param owner The owner
      * @param query The query
-     * @param modifications A list of all modifications
+     * @param activityStream The streaming activity source
      * @param onEndCallback The ended callback
      */
     public AbstractWorldModificationQueue(
@@ -200,10 +255,9 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
         ModificationRuleset modificationRuleset,
         Object owner,
         ActivityQuery query,
-        final List<Activity> modifications,
+        ActivityStream activityStream,
         Consumer<ModificationQueueResult> onEndCallback
     ) {
-        modificationsQueue.addAll(modifications);
         this.loggingService = loggingService;
         this.configurationService = configurationService;
         this.messageService = messageService;
@@ -213,12 +267,26 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
         this.modificationRuleset = modificationRuleset;
         this.owner = owner;
         this.query = query;
+        this.activityStream = activityStream;
         this.onEndCallback = onEndCallback;
     }
 
     @Override
     public int queueSize() {
-        return modificationsQueue.size();
+        if (cancelled) {
+            return 0;
+        }
+        return Math.max(0, activityStream.total() - countProcessed);
+    }
+
+    @Override
+    public int total() {
+        return progressTotal;
+    }
+
+    @Override
+    public int processed() {
+        return countProcessed;
     }
 
     /**
@@ -383,7 +451,19 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
 
     @Override
     public void apply() {
+        resetState(ModificationQueueMode.COMPLETING);
+        announceStart();
+        fetchAndRunNextBatch();
+    }
+
+    /**
+     * Reset counters and prepare the result builder for a fresh apply or preview run.
+     *
+     * @param newMode The mode this run will operate in
+     */
+    protected void resetState(ModificationQueueMode newMode) {
         countModificationsRead = 0;
+        countProcessed = 0;
         countApplied = 0;
         countPartial = 0;
         countPlanned = 0;
@@ -393,92 +473,241 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
         countRemovedDrops = 0;
         countMovedEntities = 0;
         results.clear();
-        this.mode = ModificationQueueMode.COMPLETING;
-        execute();
+        undoEntries.clear();
+        modificationsQueue.clear();
+        pendingReversalKeys.clear();
+        reversalErrorReported = false;
+        preProcessRan = false;
+        cancelled = false;
+        activityStream.reopen();
+        progressTotal = activityStream.total();
+        progressLastReportedPercent = 0;
+        this.mode = newMode;
     }
 
-    protected void execute() {
-        String queueSizeMsg = "Modification queue beginning application. Queue size: {0}";
-        loggingService.debug(queueSizeMsg, modificationsQueue.size());
-
-        progressTotal = modificationsQueue.size();
-        progressLastReportedPercent = 0;
-
+    /**
+     * Send starting message.
+     */
+    private void announceStart() {
         if (progressTotal >= configurationService.prismConfig().modifications().progressReportThreshold()) {
             sendToOwner(receiver -> messageService.modificationsStarting(receiver, progressTotal));
         }
+    }
 
-        if (!modificationsQueue.isEmpty()) {
-            Location schedulerLocation = schedulerLocation();
-
-            // Build pre/post processors that the executor will call on region-safe threads
-            boolean shouldPreProcess =
-                mode.equals(ModificationQueueMode.COMPLETING) &&
-                query.worldUuid() != null &&
-                query.minCoordinate() != null &&
-                query.maxCoordinate() != null;
-
-            modificationExecutor.execute(
-                modificationsQueue,
-                mode,
-                modificationRuleset,
-                schedulerLocation,
-                this::applyModification,
-                result -> {
-                    results.add(result);
-                    trackBoundingBox(result);
-
-                    if (result.status().equals(ModificationResultStatus.PLANNED)) {
-                        countPlanned++;
-                    } else if (result.status().equals(ModificationResultStatus.APPLIED)) {
-                        countApplied++;
-                    } else if (result.status().equals(ModificationResultStatus.PARTIAL)) {
-                        countPartial++;
-                    } else {
-                        countSkipped++;
-                    }
-
-                    maybeReportProgress();
-                },
-                shouldPreProcess ? this::preProcess : null,
-                mode.equals(ModificationQueueMode.COMPLETING) ? this::postProcess : null,
-                () -> {
-                    ModificationQueueResult result = ModificationQueueResult.builder()
-                        .queue(this)
-                        .mode(mode)
-                        .results(results)
-                        .applied(countApplied)
-                        .partial(countPartial)
-                        .planned(countPlanned)
-                        .skipped(countSkipped)
-                        .drainedLava(countDrainedLava)
-                        .removedBlocks(countRemovedBlocks)
-                        .removedDrops(countRemovedDrops)
-                        .movedEntities(countMovedEntities)
-                        .build();
-
-                    // Heap dump at peak prism memory — queue drained, results list fully
-                    // populated, and any retained BlockState snapshots still alive. REQUIRES
-                    // the Spark plugin to be installed; without Spark the command is silently
-                    // rejected by Bukkit and no dump is produced. Dispatched via the global
-                    // scheduler because Bukkit.dispatchCommand must run on the main thread
-                    // (on Folia, this region thread is not the main thread).
-                    if (configurationService.prismConfig().modifications().debugMemory()) {
-                        loggingService.info(
-                            "Dispatching /spark heapdump at queue completion (mode={0}, results={1})",
-                            mode,
-                            results.size()
-                        );
-
-                        prismScheduler.runGlobal(() ->
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "spark heapdump")
-                        );
-                    }
-
-                    onEnd(result);
-                }
-            );
+    /**
+     * Pull the next batch off the activity stream (async, off the region
+     * thread), then resume executor scheduling on the global region. When
+     * the stream is exhausted, finalize the result and fire the end callback.
+     */
+    private void fetchAndRunNextBatch() {
+        if (cancelled) {
+            return;
         }
+
+        int batchSize = Math.max(modificationRuleset.maxPerTask() * BATCH_FETCH_MULTIPLIER, 1);
+
+        prismScheduler.runAsync(() -> {
+            List<Activity> batch;
+            try {
+                batch = activityStream.next(batchSize);
+            } catch (Exception e) {
+                loggingService.handleException(e);
+                prismScheduler.runGlobal(this::finalizeResult);
+                return;
+            }
+
+            if (cancelled) {
+                return;
+            }
+
+            if (batch.isEmpty()) {
+                prismScheduler.runGlobal(this::finalizeResult);
+                return;
+            }
+
+            prismScheduler.runGlobal(() -> {
+                if (cancelled) {
+                    return;
+                }
+                modificationsQueue.clear();
+                modificationsQueue.addAll(batch);
+                executeCurrentBatch();
+            });
+        });
+    }
+
+    /**
+     * Hand the current in-memory batch to the modification executor. When the
+     * executor finishes the batch, kick off another stream fetch — or finalize
+     * if the stream is drained.
+     */
+    private void executeCurrentBatch() {
+        String batchMsg = "Modification batch beginning application. Batch size: {0}";
+        loggingService.debug(batchMsg, modificationsQueue.size());
+
+        Location schedulerLocation = schedulerLocation();
+
+        // Pre-process (drain lava, remove drops/blocks) fires only on the first batch.
+        // After that, blocks are already cleared and re-running would either re-clear
+        // newly-placed rollback blocks or inflate counts.
+        boolean shouldPreProcess =
+            !preProcessRan &&
+            mode.equals(ModificationQueueMode.COMPLETING) &&
+            query.worldUuid() != null &&
+            query.minCoordinate() != null &&
+            query.maxCoordinate() != null;
+
+        BiConsumer<World, BoundingBox> preProcessor = shouldPreProcess
+            ? (world, boundingBox) -> {
+                preProcess(world, boundingBox);
+                preProcessRan = true;
+            }
+            : null;
+
+        // Post-process (move entities) runs at the end of every batch. The
+        // movedEntities count can be slightly inflated for multi-batch runs
+        // since the same entities may fall within the cumulative bounding box
+        // on successive passes; the operation itself is idempotent.
+        BiConsumer<World, BoundingBox> postProcessor = mode.equals(ModificationQueueMode.COMPLETING)
+            ? this::postProcess
+            : null;
+
+        modificationExecutor.execute(
+            modificationsQueue,
+            mode,
+            modificationRuleset,
+            schedulerLocation,
+            this::applyModification,
+            result -> {
+                trackBoundingBox(result);
+                countProcessed++;
+
+                if (result.status().equals(ModificationResultStatus.PLANNED)) {
+                    countPlanned++;
+                    // Don't pin the result — keep just the lightweight undo
+                    // snapshot, which cancelPreview replays to revert client
+                    // packets without holding Activity refs.
+                    if (result.undoEntry() != null) {
+                        undoEntries.add(result.undoEntry());
+                    }
+                } else if (result.status().equals(ModificationResultStatus.APPLIED)) {
+                    countApplied++;
+                    // Same shape as PLANNED: snapshot is all the queue and
+                    // any future /pr undo need; the Activity ref would just
+                    // pin memory per block.
+                    if (result.undoEntry() != null) {
+                        undoEntries.add(result.undoEntry());
+                    }
+                    if (mode.equals(ModificationQueueMode.COMPLETING)) {
+                        pendingReversalKeys.add((long) result.activity().primaryKey());
+                    }
+                } else if (result.status().equals(ModificationResultStatus.PARTIAL)) {
+                    countPartial++;
+                    results.add(result);
+                } else {
+                    countSkipped++;
+                    results.add(result);
+                }
+
+                maybeReportProgress();
+            },
+            preProcessor,
+            postProcessor,
+            () -> {
+                flushPendingReversalKeys();
+                fetchAndRunNextBatch();
+            }
+        );
+    }
+
+    /**
+     * Snapshot and clear the keys accumulated during the just-completed batch,
+     * then mark them reversed off the region thread. Done per-batch so the IN
+     * list never grows large enough to exceed driver/statement limits during
+     * rollbacks of very large queries.
+     */
+    private void flushPendingReversalKeys() {
+        if (pendingReversalKeys.isEmpty()) {
+            return;
+        }
+
+        List<Long> snapshot = new ArrayList<>(pendingReversalKeys);
+        pendingReversalKeys.clear();
+        boolean reversed = markReversedState();
+
+        prismScheduler.runAsync(() -> {
+            try {
+                storageAdapter.markReversed(snapshot, reversed);
+            } catch (Exception e) {
+                loggingService.handleException(e);
+                notifyReversalFailureOnce();
+            }
+        });
+    }
+
+    /**
+     * Notify the owning player/sender of a reversal-marking failure, at most
+     * once per operation.
+     */
+    private void notifyReversalFailureOnce() {
+        synchronized (this) {
+            if (reversalErrorReported) {
+                return;
+            }
+            reversalErrorReported = true;
+        }
+
+        if (owner() instanceof Player player) {
+            prismScheduler.runForEntity(player, () -> messageService.errorQueueReversedFailure(player));
+        } else if (owner() instanceof CommandSender sender) {
+            prismScheduler.runGlobal(() -> messageService.errorQueueReversedFailure(sender));
+        }
+    }
+
+    /**
+     * Stream exhausted (or errored). Build the final result and notify the
+     * registered end callback.
+     */
+    private void finalizeResult() {
+        if (cancelled) {
+            return;
+        }
+
+        ModificationQueueResult result = ModificationQueueResult.builder()
+            .queue(this)
+            .mode(mode)
+            .results(results)
+            .undoEntries(undoEntries)
+            .applied(countApplied)
+            .partial(countPartial)
+            .planned(countPlanned)
+            .skipped(countSkipped)
+            .drainedLava(countDrainedLava)
+            .removedBlocks(countRemovedBlocks)
+            .removedDrops(countRemovedDrops)
+            .movedEntities(countMovedEntities)
+            .build();
+
+        if (configurationService.prismConfig().modifications().debugMemory()) {
+            loggingService.info(
+                "Dispatching /spark heapdump at queue completion (mode={0}, results={1})",
+                mode,
+                results.size()
+            );
+            prismScheduler.runGlobal(() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "spark heapdump"));
+        }
+
+        loggingService.debug("Modification queue fully processed, finishing up.");
+        onEnd(result);
+    }
+
+    /**
+     * Set the queue mode and start streaming for a preview run.
+     */
+    protected void startPreview() {
+        resetState(ModificationQueueMode.PLANNING);
+        announceStart();
+        fetchAndRunNextBatch();
     }
 
     /**
@@ -503,7 +732,13 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
 
     @Override
     public void destroy() {
+        cancelled = true;
         modificationExecutor.cancel();
+        try {
+            activityStream.close();
+        } catch (Exception e) {
+            loggingService.handleException(e);
+        }
     }
 
     /**
@@ -518,7 +753,7 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
             return;
         }
 
-        int processed = results.size();
+        int processed = countProcessed;
         int percent = (int) (((long) processed * 100L) / progressTotal);
 
         if (percent >= progressLastReportedPercent + modConfig.progressReportStepPercent() && percent < 100) {
@@ -555,34 +790,9 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
      * @param result The result
      */
     protected void onEnd(ModificationQueueResult result) {
-        if (result.mode().equals(ModificationQueueMode.COMPLETING)) {
-            // Get PKs of all applied activities
-            List<Long> primarykeys = result
-                .results()
-                .stream()
-                .filter(r -> r.status().equals(ModificationResultStatus.APPLIED))
-                .map(r -> (long) ((Activity) r.activity()).primaryKey())
-                .toList();
-
-            // Run the database update off the main thread to avoid blocking ticks
-            prismScheduler.runAsync(() -> {
-                try {
-                    storageAdapter.markReversed(primarykeys, markReversedState());
-                } catch (Exception e) {
-                    loggingService.handleException(e);
-
-                    if (owner() instanceof Player player) {
-                        prismScheduler.runForEntity(player, () -> {
-                            messageService.errorQueueReversedFailure(player);
-                        });
-                    } else if (owner() instanceof CommandSender sender) {
-                        prismScheduler.runGlobal(() -> {
-                            messageService.errorQueueReversedFailure(sender);
-                        });
-                    }
-                }
-            });
-        }
+        // Reversal flags are written per-batch via flushPendingReversalKeys to
+        // keep the IN list short. By the time we get here, every applied
+        // activity has already been scheduled for marking.
 
         // Execute the callback, letting the caller know we've ended
         onEndCallback.accept(result);

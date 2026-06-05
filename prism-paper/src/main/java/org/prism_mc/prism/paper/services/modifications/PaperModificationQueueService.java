@@ -24,28 +24,34 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.tr7zw.nbtapi.NBT;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import org.bukkit.Location;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Chest;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.activities.Activity;
 import org.prism_mc.prism.api.activities.ActivityQuery;
+import org.prism_mc.prism.api.services.modifications.ActivityStream;
 import org.prism_mc.prism.api.services.modifications.ModificationQueue;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueMode;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueResult;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueService;
-import org.prism_mc.prism.api.services.modifications.ModificationResult;
 import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
 import org.prism_mc.prism.api.services.modifications.Previewable;
+import org.prism_mc.prism.api.services.modifications.UndoEntry;
 import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.core.injection.factories.RestoreFactory;
 import org.prism_mc.prism.core.injection.factories.RollbackFactory;
@@ -53,16 +59,27 @@ import org.prism_mc.prism.core.services.cache.CacheService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 import org.prism_mc.prism.paper.services.messages.MessageService;
-import org.prism_mc.prism.paper.services.modifications.state.BlockStateChange;
 import org.prism_mc.prism.paper.services.scheduling.PrismScheduler;
+import org.prism_mc.prism.paper.utils.BlockUtils;
 
 @Singleton
 public class PaperModificationQueueService implements ModificationQueueService {
 
     /**
+     * Batch size for the undo snapshot replay. Sized to amortize region-hop
+     * cost without holding a giant slice live on any single tick.
+     */
+    private static final int UNDO_REPLAY_BATCH_SIZE = 5000;
+
+    /**
      * The configuration service.
      */
     private final ConfigurationService configurationService;
+
+    /**
+     * The logging service.
+     */
+    private final LoggingService loggingService;
 
     /**
      * The message service.
@@ -75,6 +92,13 @@ public class PaperModificationQueueService implements ModificationQueueService {
      * and written from the global region thread when queues are created/cleared.
      */
     private volatile ModificationQueue currentQueue = null;
+
+    /**
+     * Set while an undo replay is in flight. Undo bypasses the normal queue
+     * machinery (no Activity flow, no executor) but still needs to lock out
+     * other modifications.
+     */
+    private final AtomicBoolean undoInProgress = new AtomicBoolean(false);
 
     /**
      * The restore factory.
@@ -130,6 +154,7 @@ public class PaperModificationQueueService implements ModificationQueueService {
         StorageAdapter storageAdapter
     ) {
         this.configurationService = configurationService;
+        this.loggingService = loggingService;
         this.messageService = messageService;
         this.restoreFactory = restoreFactory;
         this.rollbackFactory = rollbackFactory;
@@ -180,7 +205,7 @@ public class PaperModificationQueueService implements ModificationQueueService {
 
     @Override
     public boolean queueAvailable() {
-        return currentQueue == null;
+        return currentQueue == null && !undoInProgress.get();
     }
 
     @Override
@@ -197,44 +222,188 @@ public class PaperModificationQueueService implements ModificationQueueService {
 
     @Override
     public void clearEverythingForOwner(Object owner) {
+        clearEverythingForOwner(owner, null);
+    }
+
+    /**
+     * Cancel the current queue and invalidate the cached result for {@code owner}.
+     *
+     * @param owner The owner
+     * @param onComplete Optional callback fired once cleanup (including any reveal) finishes
+     */
+    public void clearEverythingForOwner(Object owner, Runnable onComplete) {
+        // Capture the in-flight preview's query before destroy() nulls currentQueue.
+        // Without this, cancelling a preview before it finishes leaves phantom block
+        // changes on the player's client — finalizeResult never runs, so queueResults
+        // has no entry to drive the reveal below.
+        ActivityQuery previewQuery = null;
+        ModificationQueue active = currentQueue;
+        if (
+            active != null &&
+            active.owner().equals(owner) &&
+            active instanceof Previewable &&
+            active.mode().equals(ModificationQueueMode.PLANNING)
+        ) {
+            previewQuery = active.query();
+        }
+
         cancelQueueForOwner(owner);
 
         ModificationQueueResult result = queueResults.getIfPresent(owner);
         if (result != null) {
-            // If queue has a cancellable result, cancel it
-            if (result.queue() instanceof Previewable) {
-                cancelPreview(owner, result);
+            if (
+                previewQuery == null &&
+                result.queue() instanceof Previewable &&
+                result.mode().equals(ModificationQueueMode.PLANNING)
+            ) {
+                previewQuery = result.queue().query();
             }
 
             queueResults.invalidate(owner);
         }
+
+        if (previewQuery != null && owner instanceof Player player) {
+            revealLiveBlocks(player, previewQuery, onComplete);
+        } else if (onComplete != null) {
+            onComplete.run();
+        }
     }
 
     /**
-     * Re-send live blocks for ones we faked.
+     * Cleanup for an owner who has disconnected.
      *
      * @param owner The owner
-     * @param queueResult The queue result
      */
-    protected void cancelPreview(Object owner, ModificationQueueResult queueResult) {
-        if (!queueResult.mode().equals(ModificationQueueMode.PLANNING)) {
+    public void disconnectedOwner(Object owner) {
+        cancelQueueForOwner(owner);
+        queueResults.invalidate(owner);
+    }
+
+    /**
+     * Reveal live block state at every location the preview touched.
+     *
+     * @param player The previewing player
+     * @param query The query the preview was built from
+     * @param onComplete Optional callback fired on the player's region thread when the reveal finishes
+     */
+    protected void revealLiveBlocks(Player player, ActivityQuery query, Runnable onComplete) {
+        prismScheduler.runAsync(() -> {
+            ActivityStream stream;
+            try {
+                stream = storageAdapter.streamActivities(query);
+            } catch (Exception e) {
+                loggingService.handleException(e);
+                if (onComplete != null) {
+                    prismScheduler.runForEntity(player, onComplete);
+                }
+                return;
+            }
+
+            int total = stream.total();
+            int[] processed = { 0 };
+            int[] lastReportedPercent = { 0 };
+            revealNextBatch(player, stream, total, processed, lastReportedPercent, onComplete);
+        });
+    }
+
+    /**
+     * Pull the next batch of previewed activities and reveal their live block
+     * state to the player. Recurses until the stream is drained, then closes
+     * it and fires {@code onComplete}. Each batch hops to the player's region
+     * thread because {@code block.getBlockData()} and {@code sendBlockChange}
+     * must run there on Folia.
+     *
+     * @param player The previewing player
+     * @param stream The stream opened from the result's query
+     * @param total Total activity count, captured once for progress denominator
+     * @param processed Single-cell mutable counter, summed across batches
+     * @param lastReportedPercent Single-cell mutable percent-floor used to throttle progress messages
+     * @param onComplete Optional callback fired when the stream is drained or errors
+     */
+    private void revealNextBatch(
+        Player player,
+        ActivityStream stream,
+        int total,
+        int[] processed,
+        int[] lastReportedPercent,
+        Runnable onComplete
+    ) {
+        int batchSize = Math.max(1, configurationService.prismConfig().modifications().cancelPreviewBatchSize());
+
+        prismScheduler.runAsync(() -> {
+            List<Activity> batch;
+            try {
+                batch = stream.next(batchSize);
+            } catch (Exception e) {
+                loggingService.handleException(e);
+                stream.close();
+
+                if (onComplete != null) {
+                    prismScheduler.runForEntity(player, onComplete);
+                }
+
+                return;
+            }
+
+            if (batch.isEmpty()) {
+                stream.close();
+
+                if (onComplete != null) {
+                    prismScheduler.runForEntity(player, onComplete);
+                }
+
+                return;
+            }
+
+            prismScheduler.runForEntity(player, () -> {
+                for (Activity activity : batch) {
+                    if (activity.coordinate() == null || activity.worldUuid() == null) {
+                        continue;
+                    }
+
+                    World world = Bukkit.getWorld(activity.worldUuid());
+                    if (world == null) {
+                        continue;
+                    }
+
+                    Block block = world.getBlockAt(
+                        activity.coordinate().intX(),
+                        activity.coordinate().intY(),
+                        activity.coordinate().intZ()
+                    );
+
+                    player.sendBlockChange(block.getLocation(), block.getBlockData());
+                }
+
+                processed[0] += batch.size();
+                maybeReportProgress(player, processed[0], total, lastReportedPercent);
+
+                revealNextBatch(player, stream, total, processed, lastReportedPercent, onComplete);
+            });
+        });
+    }
+
+    /**
+     * Send a {@code modifications-progress} message to the receiver when a new
+     * progress-report milestone is reached. Mirrors the throttle used by the
+     * normal modification pipeline so cancel and undo runs behave consistently
+     * with rollback/restore.
+     *
+     * @param receiver The owner to message
+     * @param processed Items processed so far
+     * @param total Total items being processed
+     * @param lastReportedPercent Single-cell mutable percent-floor; updated when a milestone fires
+     */
+    private void maybeReportProgress(CommandSender receiver, int processed, int total, int[] lastReportedPercent) {
+        var modConfig = configurationService.prismConfig().modifications();
+        if (total < modConfig.progressReportThreshold()) {
             return;
         }
 
-        if (owner instanceof Player player) {
-            for (
-                final Iterator<ModificationResult> iterator = queueResult.results().listIterator();
-                iterator.hasNext();
-            ) {
-                final ModificationResult result = iterator.next();
-
-                if (result.stateChange() instanceof BlockStateChange blockStateChange) {
-                    Location loc = blockStateChange.oldState().getLocation();
-                    player.sendBlockChange(loc, blockStateChange.oldState().getBlockData());
-                }
-
-                iterator.remove();
-            }
+        int percent = (int) (((long) processed * 100L) / total);
+        if (percent >= lastReportedPercent[0] + modConfig.progressReportStepPercent() && percent < 100) {
+            lastReportedPercent[0] = percent;
+            messageService.modificationsProgress(receiver, percent, processed, total);
         }
     }
 
@@ -259,12 +428,12 @@ public class PaperModificationQueueService implements ModificationQueueService {
         ModificationRuleset modificationRuleset,
         Object owner,
         ActivityQuery query,
-        List<Activity> modifications
+        ActivityStream activityStream
     ) {
         if (clazz.equals(PaperRollback.class)) {
-            return newRollbackQueue(modificationRuleset, owner, query, modifications);
+            return newRollbackQueue(modificationRuleset, owner, query, activityStream);
         } else if (clazz.equals(PaperRestore.class)) {
-            return newRestoreQueue(modificationRuleset, owner, query, modifications);
+            return newRestoreQueue(modificationRuleset, owner, query, activityStream);
         }
 
         throw new IllegalArgumentException("Invalid modification queue.");
@@ -275,7 +444,7 @@ public class PaperModificationQueueService implements ModificationQueueService {
         ModificationRuleset modificationRuleset,
         Object owner,
         ActivityQuery query,
-        List<Activity> modifications
+        ActivityStream activityStream
     ) {
         if (!queueAvailable()) {
             throw new IllegalStateException("No queue available until current queue finished.");
@@ -284,7 +453,7 @@ public class PaperModificationQueueService implements ModificationQueueService {
         // Cancel any existing queues/results
         clearEverythingForOwner(owner);
 
-        this.currentQueue = rollbackFactory.create(modificationRuleset, owner, query, modifications, this::onEnd);
+        this.currentQueue = rollbackFactory.create(modificationRuleset, owner, query, activityStream, this::onEnd);
 
         return this.currentQueue;
     }
@@ -294,7 +463,7 @@ public class PaperModificationQueueService implements ModificationQueueService {
         ModificationRuleset modificationRuleset,
         Object owner,
         ActivityQuery query,
-        List<Activity> modifications
+        ActivityStream activityStream
     ) {
         if (!queueAvailable()) {
             throw new IllegalStateException("No queue available until current queue finished.");
@@ -303,7 +472,7 @@ public class PaperModificationQueueService implements ModificationQueueService {
         // Cancel any existing queues/results
         clearEverythingForOwner(owner);
 
-        this.currentQueue = restoreFactory.create(modificationRuleset, owner, query, modifications, this::onEnd);
+        this.currentQueue = restoreFactory.create(modificationRuleset, owner, query, activityStream, this::onEnd);
 
         return this.currentQueue;
     }
@@ -337,15 +506,16 @@ public class PaperModificationQueueService implements ModificationQueueService {
         CompletableFuture<ModificationQueueResult> future = new CompletableFuture<>();
 
         prismScheduler.runAsync(() -> {
-            List<Activity> modifications;
+            ActivityStream activityStream;
             try {
-                modifications = storageAdapter.queryActivities(query);
+                activityStream = storageAdapter.streamActivities(query);
             } catch (Exception e) {
                 future.completeExceptionally(e);
                 return;
             }
 
-            if (modifications.isEmpty()) {
+            if (activityStream.total() == 0) {
+                activityStream.close();
                 future.complete(
                     ModificationQueueResult.builder()
                         .mode(
@@ -359,7 +529,7 @@ public class PaperModificationQueueService implements ModificationQueueService {
                 return;
             }
 
-            prismScheduler.runGlobal(() -> runQueue(type, owner, query, ruleset, modifications, future));
+            prismScheduler.runGlobal(() -> runQueue(type, owner, query, ruleset, activityStream, future));
         });
 
         return future;
@@ -378,15 +548,16 @@ public class PaperModificationQueueService implements ModificationQueueService {
         Object owner,
         ActivityQuery query,
         ModificationRuleset ruleset,
-        List<Activity> modifications,
+        ActivityStream activityStream,
         CompletableFuture<ModificationQueueResult> future
     ) {
         ModificationQueue queue;
         try {
             queue = type == ModificationType.RESTORE
-                ? newRestoreQueue(ruleset, owner, query, modifications)
-                : newRollbackQueue(ruleset, owner, query, modifications);
+                ? newRestoreQueue(ruleset, owner, query, activityStream)
+                : newRollbackQueue(ruleset, owner, query, activityStream);
         } catch (Exception e) {
+            activityStream.close();
             future.completeExceptionally(e);
             return;
         }
@@ -489,5 +660,181 @@ public class PaperModificationQueueService implements ModificationQueueService {
     @Override
     public Optional<ModificationQueueResult> queueResultForOwner(Object owner) {
         return Optional.ofNullable(queueResults.getIfPresent(owner));
+    }
+
+    /**
+     * Replay the captured pre-modification world state for a previously
+     * completed rollback/restore.
+     *
+     * @param sender The command sender requesting the undo
+     * @param queueResult The cached result whose entries we're replaying
+     * @param undoOfRollback True if undoing a rollback, false if undoing a restore
+     */
+    public void applyUndo(CommandSender sender, ModificationQueueResult queueResult, boolean undoOfRollback) {
+        if (!undoInProgress.compareAndSet(false, true)) {
+            messageService.errorQueueNotFree(sender);
+            return;
+        }
+
+        // Snapshot the entries — the cached result list could be mutated by
+        // cancelPreview or eviction while we iterate async.
+        List<UndoEntry> entries = List.copyOf(queueResult.undoEntries());
+        if (entries.isEmpty()) {
+            undoInProgress.set(false);
+            messageService.modificationsUndoNoResult(sender);
+            return;
+        }
+
+        int[] applied = { 0 };
+        int[] skipped = { 0 };
+        int[] lastReportedPercent = { 0 };
+
+        replayUndoBatch(sender, entries, 0, applied, skipped, lastReportedPercent, undoOfRollback);
+    }
+
+    /**
+     * Process one batch of undo entries on a region-safe thread, then recurse
+     * (async-hopping in between) until the snapshot list is drained.
+     */
+    private void replayUndoBatch(
+        CommandSender sender,
+        List<UndoEntry> entries,
+        int cursor,
+        int[] applied,
+        int[] skipped,
+        int[] lastReportedPercent,
+        boolean undoOfRollback
+    ) {
+        if (cursor >= entries.size()) {
+            finishUndo(sender, applied[0], skipped[0], entries, undoOfRollback);
+            return;
+        }
+
+        int end = Math.min(cursor + UNDO_REPLAY_BATCH_SIZE, entries.size());
+        List<UndoEntry> batch = entries.subList(cursor, end);
+
+        Runnable applyBatch = () -> {
+            for (UndoEntry entry : batch) {
+                if (!(entry instanceof BlockUndoEntry block)) {
+                    continue;
+                }
+
+                World world = Bukkit.getWorld(block.worldUuid());
+                if (world == null) {
+                    skipped[0]++;
+                    continue;
+                }
+
+                Block live = world.getBlockAt(
+                    block.coordinate().intX(),
+                    block.coordinate().intY(),
+                    block.coordinate().intZ()
+                );
+
+                // Live-state guard: only revert if the block is still what the
+                // original modification wrote. If something else is there now,
+                // someone (or something) has built over it since — leave it.
+                if (!live.getBlockData().matches(block.newBlockData())) {
+                    skipped[0]++;
+                    continue;
+                }
+
+                BlockData writtenData = block.oldBlockData();
+                BlockData replacedData = block.newBlockData();
+
+                boolean physics = writtenData.getMaterial() != org.bukkit.Material.AIR;
+
+                BlockUtils.reconcileBedPartner(live, writtenData, replacedData, physics);
+                BlockUtils.reconcileBisectedPartner(live, writtenData, replacedData, physics);
+
+                live.setBlockData(writtenData, physics);
+                if (block.oldTileNbt() != null && live.getType() != org.bukkit.Material.AIR) {
+                    NBT.modify(live.getState(), nbt -> {
+                        nbt.mergeCompound(block.oldTileNbt());
+                    });
+                }
+
+                // Double-chest halves are separate snapshots. Re-placing one must reconnect its
+                // partner: a half removed after its partner during the original op is captured as
+                // SINGLE, so verbatim replay yields LEFT/RIGHT beside SINGLE — reconcile (which is
+                // order-independent) repairs it once both halves land. Deliberately no partner
+                // *downgrade* on removal: when both halves are being undone, eagerly downgrading the
+                // survivor to SINGLE makes its own snapshot's live-guard miss and leaves it behind.
+                if (writtenData instanceof Chest chest) {
+                    BlockUtils.reconcileChestConnection(live, chest, physics);
+                }
+
+                applied[0]++;
+            }
+
+            maybeReportProgress(sender, end, entries.size(), lastReportedPercent);
+
+            // Schedule the next batch via async hop, then back to the region
+            // thread for the writes. Keeps any single tick bounded.
+            prismScheduler.runAsync(() ->
+                prismScheduler.runGlobal(() ->
+                    replayUndoBatch(sender, entries, end, applied, skipped, lastReportedPercent, undoOfRollback)
+                )
+            );
+        };
+
+        if (sender instanceof Player player) {
+            prismScheduler.runForEntity(player, applyBatch);
+        } else {
+            prismScheduler.runGlobal(applyBatch);
+        }
+    }
+
+    /**
+     * Final step of undo: flip the activity reversed flag in storage, message
+     * the user with applied/skipped counts, and clear the busy flag.
+     */
+    private void finishUndo(
+        CommandSender sender,
+        int applied,
+        int skipped,
+        List<UndoEntry> entries,
+        boolean undoOfRollback
+    ) {
+        List<Long> primarykeys = entries
+            .stream()
+            .filter(BlockUndoEntry.class::isInstance)
+            .map(e -> ((BlockUndoEntry) e).activityPk())
+            .toList();
+
+        // undoOfRollback=true means the original op marked reversed=true; we flip back to false.
+        // undoOfRollback=false (restore was original) means we flip back to true.
+        boolean newReversedState = !undoOfRollback;
+
+        prismScheduler.runAsync(() -> {
+            try {
+                storageAdapter.markReversed(primarykeys, newReversedState);
+            } catch (Exception e) {
+                loggingService.handleException(e);
+            } finally {
+                undoInProgress.set(false);
+            }
+
+            Runnable notify = () -> {
+                messageService.modificationsAppliedSuccess(sender);
+                messageService.modificationsApplied(sender, applied);
+                if (skipped > 0) {
+                    // Synthetic result so the message template's {result.skipped}
+                    // placeholder renders; undo doesn't run through the queue
+                    // so there's no real ModificationQueueResult to reuse.
+                    ModificationQueueResult conflictView = ModificationQueueResult.builder()
+                        .mode(ModificationQueueMode.COMPLETING)
+                        .results(List.of())
+                        .skipped(skipped)
+                        .build();
+                    messageService.modificationsSkipped(sender, conflictView);
+                }
+            };
+            if (sender instanceof Player player) {
+                prismScheduler.runForEntity(player, notify);
+            } else {
+                prismScheduler.runGlobal(notify);
+            }
+        });
     }
 }
