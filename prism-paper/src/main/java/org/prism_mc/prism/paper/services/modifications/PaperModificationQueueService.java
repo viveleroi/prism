@@ -38,6 +38,8 @@ import javax.annotation.Nullable;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Chest;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.activities.Activity;
@@ -58,6 +60,7 @@ import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.scheduling.PrismScheduler;
+import org.prism_mc.prism.paper.utils.BlockUtils;
 
 @Singleton
 public class PaperModificationQueueService implements ModificationQueueService {
@@ -736,12 +739,31 @@ public class PaperModificationQueueService implements ModificationQueueService {
                     continue;
                 }
 
-                live.setBlockData(block.oldBlockData());
+                BlockData writtenData = block.oldBlockData();
+                BlockData replacedData = block.newBlockData();
+
+                boolean physics = writtenData.getMaterial() != org.bukkit.Material.AIR;
+
+                BlockUtils.reconcileBedPartner(live, writtenData, replacedData, physics);
+                BlockUtils.reconcileBisectedPartner(live, writtenData, replacedData, physics);
+
+                live.setBlockData(writtenData, physics);
                 if (block.oldTileNbt() != null && live.getType() != org.bukkit.Material.AIR) {
                     NBT.modify(live.getState(), nbt -> {
                         nbt.mergeCompound(block.oldTileNbt());
                     });
                 }
+
+                // Double-chest halves are separate snapshots. Re-placing one must reconnect its
+                // partner: a half removed after its partner during the original op is captured as
+                // SINGLE, so verbatim replay yields LEFT/RIGHT beside SINGLE — reconcile (which is
+                // order-independent) repairs it once both halves land. Deliberately no partner
+                // *downgrade* on removal: when both halves are being undone, eagerly downgrading the
+                // survivor to SINGLE makes its own snapshot's live-guard miss and leaves it behind.
+                if (writtenData instanceof Chest chest) {
+                    BlockUtils.reconcileChestConnection(live, chest, physics);
+                }
+
                 applied[0]++;
             }
 

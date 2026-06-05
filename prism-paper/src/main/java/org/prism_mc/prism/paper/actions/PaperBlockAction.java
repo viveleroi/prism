@@ -30,15 +30,10 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.TileState;
-import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Chest;
-import org.bukkit.block.data.type.Stairs;
-import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import org.prism_mc.prism.api.actions.BlockAction;
@@ -280,14 +275,6 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
                 return canSet;
             }
 
-            if (mode.equals(ModificationQueueMode.COMPLETING)) {
-                // If rolling back a removal, we need to place the top half of a bisected block
-                // This happens first otherwise the block will break again
-                if (finalBlockData instanceof Bisected bisected) {
-                    setBisectedTop(block, bisected, bisected.getMaterial(), applyPhysics);
-                }
-            }
-
             // If the action type removes a block, rollback means we re-set it
             undoEntry = setBlock(
                 activityContext,
@@ -366,14 +353,6 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             var canSet = canSet(block, finalBlockData, modificationRuleset, activityContext);
             if (canSet != null) {
                 return canSet;
-            }
-
-            if (mode.equals(ModificationQueueMode.COMPLETING)) {
-                // If rolling back a removal, we need to place the top half of a bisected block
-                // This happens first otherwise the block will break again
-                if (finalBlockData instanceof Bisected bisected) {
-                    setBisectedTop(block, bisected, bisected.getMaterial(), applyPhysics);
-                }
             }
 
             // If the action type creates a block, restore means we re-set it
@@ -482,14 +461,22 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
         ModificationQueueMode mode,
         boolean applyPhysics
     ) {
+        // A removal (clearing to air) must never trigger neighbor physics, even when
+        // applyPhysics is enabled. With physics on, removing a block detaches anything
+        // resting on it (flowers, buttons, crops) into an item drop *before* the queue
+        // reaches that neighbor's own activity — so the rollback leaves the build short,
+        // and the popped block's undo snapshot captures air, making it unrecoverable.
+        // Placements still honor applyPhysics so light/redstone updates can propagate.
+        boolean removing = newBlockData == null || newBlockData.getMaterial() == Material.AIR;
+        boolean physics = applyPhysics && !removing;
+
         if (mode.equals(ModificationQueueMode.COMPLETING)) {
-            // Set the bed head part before applying the root block change
-            // otherwise the bed will just re-break.
-            if (newBlockData instanceof Bed bed) {
-                setBedHead(block, bed, applyPhysics);
-            } else if (oldBlockData instanceof Bed bed) {
-                setBedHead(block, bed, applyPhysics);
-            }
+            // Double blocks (beds, doors, tall plants) are stored as a single activity for the
+            // lower/foot half; the partner is synthesized here. Reconcile it *before* writing the
+            // root block: placing the root with physics would otherwise re-break it, and removals
+            // (physics disabled) would orphan the upper half / head.
+            BlockUtils.reconcileBedPartner(block, newBlockData, oldBlockData, physics);
+            BlockUtils.reconcileBisectedPartner(block, newBlockData, oldBlockData, physics);
         }
 
         if (newBlockData == null) {
@@ -512,7 +499,7 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             NBT.get(block.getState(), oldLiveNbt::mergeCompound);
         }
 
-        block.setBlockData(newBlockData, applyPhysics);
+        block.setBlockData(newBlockData, physics);
 
         // Set NBT for the new state (e.g., restoring chest contents)
         if (block.getType() != Material.AIR && readWriteNbt != null) {
@@ -529,53 +516,6 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
             newBlockData,
             oldLiveNbt
         );
-    }
-
-    /**
-     * Set the HEAD part of a bed.
-     *
-     * @param block The block being changed
-     * @param bed The bed block data
-     * @param applyPhysics Whether to apply neighbor physics
-     */
-    protected void setBedHead(Block block, Bed bed, boolean applyPhysics) {
-        // Bed activities will always be the FOOT part
-        Block relative = block.getRelative(bed.getFacing());
-
-        if (type().resultType().equals(ActionResultType.CREATES)) {
-            relative.setType(Material.AIR, applyPhysics);
-        } else {
-            relative.setType(bed.getMaterial(), applyPhysics);
-
-            if (bed.clone() instanceof Bed siblingBed) {
-                siblingBed.setPart(Bed.Part.HEAD);
-                relative.setBlockData(siblingBed, applyPhysics);
-            }
-        }
-    }
-
-    /**
-     * Set the TOP part of a bisected block.
-     *
-     * @param block The block being changed
-     * @param bisected The bisected block data
-     * @param material The material
-     * @param applyPhysics Whether to apply neighbor physics
-     */
-    protected void setBisectedTop(Block block, Bisected bisected, Material material, boolean applyPhysics) {
-        // Some bisected blocks don't need help
-        if (bisected instanceof Stairs || bisected instanceof TrapDoor) {
-            return;
-        }
-
-        // Bisected activities will always be the BOTTOM part
-        Block relative = block.getRelative(BlockFace.UP);
-
-        relative.setType(material, applyPhysics);
-        if (relative.getBlockData().clone() instanceof Bisected siblingBisected) {
-            siblingBisected.setHalf(Bisected.Half.TOP);
-            relative.setBlockData(siblingBisected, applyPhysics);
-        }
     }
 
     @Override
