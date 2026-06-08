@@ -83,6 +83,7 @@ import org.prism_mc.prism.paper.commands.TeleportCommand;
 import org.prism_mc.prism.paper.commands.UndoCommand;
 import org.prism_mc.prism.paper.commands.VaultCommand;
 import org.prism_mc.prism.paper.commands.WandCommand;
+import org.prism_mc.prism.paper.commands.WebCommand;
 import org.prism_mc.prism.paper.integrations.worldedit.WorldEditIntegration;
 import org.prism_mc.prism.paper.listeners.block.BlockBreakListener;
 import org.prism_mc.prism.paper.listeners.block.BlockBurnListener;
@@ -155,6 +156,7 @@ import org.prism_mc.prism.paper.services.recording.PaperRecordingService;
 import org.prism_mc.prism.paper.services.recording.wal.WalService;
 import org.prism_mc.prism.paper.services.scheduling.PrismScheduler;
 import org.prism_mc.prism.paper.services.scheduling.SchedulingService;
+import org.prism_mc.prism.paper.services.web.WebService;
 import org.prism_mc.prism.paper.utils.VersionUtils;
 
 public class PrismPaper implements PrismPaperApi {
@@ -203,6 +205,11 @@ public class PrismPaper implements PrismPaperApi {
      */
     @Getter
     private StorageAdapter storageAdapter;
+
+    /**
+     * The web service.
+     */
+    private WebService webService;
 
     /**
      * The action factory.
@@ -313,6 +320,10 @@ public class PrismPaper implements PrismPaperApi {
             modificationQueueService = injectorProvider.injector().getInstance(PaperModificationQueueService.class);
             prismScheduler = injectorProvider.injector().getInstance(PrismScheduler.class);
             injectorProvider.injector().getInstance(SchedulingService.class);
+
+            // Start the web server if auto-start is enabled
+            webService = injectorProvider.injector().getInstance(WebService.class);
+            webService.startIfAutoStart();
 
             // Register the API as a Bukkit service for third-party plugins
             Bukkit.getServicesManager().register(PrismPaperApi.class, this, loaderPlugin(), ServicePriority.Normal);
@@ -621,6 +632,7 @@ public class PrismPaper implements PrismPaperApi {
             commandManager.registerCommand(injectorProvider.injector().getInstance(TeleportCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(UndoCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(WandCommand.class));
+            commandManager.registerCommand(injectorProvider.injector().getInstance(WebCommand.class));
         }
     }
 
@@ -795,6 +807,10 @@ public class PrismPaper implements PrismPaperApi {
      * On disable.
      */
     public void onDisable() {
+        if (webService != null) {
+            webService.stop();
+        }
+
         Bukkit.getServicesManager().unregisterAll(loaderPlugin());
 
         if (recordingService instanceof PaperRecordingService paperRecordingService) {

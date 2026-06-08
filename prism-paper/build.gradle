@@ -43,6 +43,81 @@ compileJava {
     options.compilerArgs += ["-parameters"]
 }
 
+// ---------------------------------------------------------------------------
+// prism-web frontend build
+//
+// Builds the React/Vite app and emits its assets to src/main/resources/web so
+// they are bundled into the jar and served by StaticFileHandler. The build runs
+// automatically as part of processResources.
+//
+// It skips gracefully when pnpm/node is unavailable (or when -PskipWeb is set),
+// so contributors without a JavaScript toolchain can still build the plugin —
+// the resulting jar simply won't contain the web UI.
+// ---------------------------------------------------------------------------
+def isWindows = System.getProperty('os.name').toLowerCase().contains('win')
+def webDir = file("$rootDir/prism-web")
+def webOutput = file('src/main/resources/web')
+
+// Wraps a pnpm invocation so it resolves on both Windows (via cmd) and *nix.
+def pnpm = { List<String> pnpmArgs ->
+    isWindows ? (['cmd', '/c', 'pnpm'] + pnpmArgs) : (['pnpm'] + pnpmArgs)
+}
+
+// Probe for pnpm once, at configuration time, so both web tasks share the result.
+def pnpmAvailable = {
+    if (project.hasProperty('skipWeb')) {
+        return false
+    }
+
+    try {
+        def probe = (isWindows ? ['cmd', '/c', 'where', 'pnpm'] : ['which', 'pnpm']).execute()
+        probe.waitFor()
+        return probe.exitValue() == 0
+    } catch (ignored) {
+        return false
+    }
+}()
+
+// prism-web is part of a pnpm workspace whose root (and lockfile) live at the
+// repository root, so the install runs there rather than in prism-web.
+def pnpmInstall = tasks.register('pnpmInstall', Exec) {
+    onlyIf { pnpmAvailable }
+    workingDir = rootDir
+    commandLine pnpm(['install', '--frozen-lockfile'])
+
+    inputs.file(new File(rootDir, 'pnpm-lock.yaml'))
+    inputs.file(new File(rootDir, 'package.json'))
+    inputs.file(new File(webDir, 'package.json'))
+    // pnpm writes this manifest after a successful install; use it as a cheap
+    // up-to-date marker instead of snapshotting the whole node_modules tree.
+    outputs.file(new File(rootDir, 'node_modules/.modules.yaml'))
+}
+
+def buildWeb = tasks.register('buildWeb', Exec) {
+    dependsOn pnpmInstall
+    onlyIf { pnpmAvailable }
+    workingDir = webDir
+    commandLine pnpm(['build'])
+
+    inputs.dir(new File(webDir, 'src'))
+    inputs.file(new File(webDir, 'package.json'))
+    inputs.file(new File(webDir, 'vite.config.ts'))
+    inputs.file(new File(webDir, 'tsconfig.json'))
+    inputs.file(new File(webDir, 'index.html'))
+    inputs.dir(new File(webDir, 'public'))
+    outputs.dir(webOutput)
+}
+
+processResources.dependsOn buildWeb
+
+// Surface a clear warning when the web UI is being left out of the build.
+gradle.taskGraph.whenReady { graph ->
+    if (!pnpmAvailable && graph.hasTask(tasks.getByName('processResources'))) {
+        def reason = project.hasProperty('skipWeb') ? '-PskipWeb was set' : 'pnpm was not found on PATH'
+        logger.warn("prism-web: ${reason} — building WITHOUT the bundled web UI.")
+    }
+}
+
 shadowJar {
     archiveFileName = 'prism-paper.jarinjar'
 

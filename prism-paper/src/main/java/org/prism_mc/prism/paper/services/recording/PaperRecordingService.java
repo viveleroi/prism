@@ -204,6 +204,11 @@ public class PaperRecordingService implements RecordingService {
     }
 
     @Override
+    public int droppedCount() {
+        return droppedActivities.get();
+    }
+
+    @Override
     public int resetDroppedCount() {
         return droppedActivities.getAndSet(0);
     }
