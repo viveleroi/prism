@@ -40,4 +40,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Run Gradle Check
-        run: ./gradlew check
+        # -PskipWeb: CI runs Checkstyle only and has no JS toolchain; skip the
+        # prism-web build so the buildWeb guard doesn't fail the check.
+        run: ./gradlew check -PskipWeb

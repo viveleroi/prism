@@ -57,6 +57,7 @@ compileJava {
 def isWindows = System.getProperty('os.name').toLowerCase().contains('win')
 def webDir = file("$rootDir/prism-web")
 def webOutput = file('src/main/resources/web')
+def skipWeb = project.hasProperty('skipWeb')
 
 // Wraps a pnpm invocation so it resolves on both Windows (via cmd) and *nix.
 def pnpm = { List<String> pnpmArgs ->
@@ -64,11 +65,7 @@ def pnpm = { List<String> pnpmArgs ->
 }
 
 // Probe for pnpm once, at configuration time, so both web tasks share the result.
-def pnpmAvailable = {
-    if (project.hasProperty('skipWeb')) {
-        return false
-    }
-
+def pnpmOnPath = {
     try {
         def probe = (isWindows ? ['cmd', '/c', 'where', 'pnpm'] : ['which', 'pnpm']).execute()
         probe.waitFor()
@@ -78,10 +75,12 @@ def pnpmAvailable = {
     }
 }()
 
+def buildWebUi = !skipWeb
+
 // prism-web is part of a pnpm workspace whose root (and lockfile) live at the
 // repository root, so the install runs there rather than in prism-web.
 def pnpmInstall = tasks.register('pnpmInstall', Exec) {
-    onlyIf { pnpmAvailable }
+    onlyIf { buildWebUi }
     workingDir = rootDir
     commandLine pnpm(['install', '--frozen-lockfile'])
 
@@ -95,7 +94,7 @@ def pnpmInstall = tasks.register('pnpmInstall', Exec) {
 
 def buildWeb = tasks.register('buildWeb', Exec) {
     dependsOn pnpmInstall
-    onlyIf { pnpmAvailable }
+    onlyIf { buildWebUi }
     workingDir = webDir
     commandLine pnpm(['build'])
 
@@ -110,11 +109,19 @@ def buildWeb = tasks.register('buildWeb', Exec) {
 
 processResources.dependsOn buildWeb
 
-// Surface a clear warning when the web UI is being left out of the build.
 gradle.taskGraph.whenReady { graph ->
-    if (!pnpmAvailable && graph.hasTask(tasks.getByName('processResources'))) {
-        def reason = project.hasProperty('skipWeb') ? '-PskipWeb was set' : 'pnpm was not found on PATH'
-        logger.warn("prism-web: ${reason} — building WITHOUT the bundled web UI.")
+    if (!graph.hasTask(tasks.getByName('processResources'))) {
+        return
+    }
+
+    if (skipWeb) {
+        logger.warn('prism-web: -PskipWeb was set — building WITHOUT the bundled web UI.')
+    } else if (!pnpmOnPath) {
+        throw new GradleException(
+            'prism-web: pnpm was not found on PATH, so the bundled web UI cannot be built. '
+                + 'Install pnpm (https://pnpm.io/installation) on this build machine, '
+                + 'or pass -PskipWeb to deliberately build the plugin without the web UI.'
+        )
     }
 }
 
