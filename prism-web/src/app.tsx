@@ -18,11 +18,14 @@ const queryClient = new QueryClient({
   },
 });
 
+// BASE_URL is slash-terminated ("/" or "/prism/"); React Router wants no trailing slash, except root.
+const routerBasename = import.meta.env.BASE_URL.replace(/\/$/, "") || "/";
+
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <BrowserRouter>
+        <BrowserRouter basename={routerBasename}>
           <Banner />
           <Content />
         </BrowserRouter>
@@ -51,7 +54,7 @@ function Dashboard() {
     <>
       <header className="relative z-10 border-b bg-card/50 backdrop-blur-[18px]">
         <div className="py-4 px-8 flex items-center gap-4 max-w-[1240px] mx-auto">
-          <img src="/prism-retro-square-sm.png" alt="" className="h-8 w-auto" />
+          <img src={`${import.meta.env.BASE_URL}prism-retro-square-sm.png`} alt="" className="h-8 w-auto" />
           <h1 className="text-brand text-2xl mr-4">prism</h1>
           <nav className="flex gap-2">
             <NavLink to="/">

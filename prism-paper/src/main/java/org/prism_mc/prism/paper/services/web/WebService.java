@@ -182,13 +182,17 @@ public class WebService {
             server = HttpServer.create(new InetSocketAddress(config.bindAddress(), config.port()), 0);
             server.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
 
+            // Prefix all contexts with the configured base path (empty by default). The proxy must
+            // forward the full path without stripping the prefix.
+            String prefix = config.contextPrefix();
+
             // API endpoints
             server.createContext(
-                "/api/v1/activities",
+                prefix + "/api/v1/activities",
                 new ActivitiesHandler(objectMapper, apiKey, loggingService, storageAdapter, config.maxResults())
             );
             server.createContext(
-                "/api/v1/reports/recording-queue",
+                prefix + "/api/v1/reports/recording-queue",
                 new RecordingQueueReportHandler(
                     objectMapper,
                     apiKey,
@@ -198,7 +202,7 @@ public class WebService {
                 )
             );
             server.createContext(
-                "/api/v1/status",
+                prefix + "/api/v1/status",
                 new StatusHandler(
                     objectMapper,
                     apiKey,
@@ -213,8 +217,9 @@ public class WebService {
                 )
             );
 
-            // Static file serving
-            server.createContext("/", new StaticFileHandler());
+            // Static file serving. Registered at the root so it catches asset requests under the
+            // base prefix; the handler strips the prefix and injects the base href into HTML/JS/CSS.
+            server.createContext("/", new StaticFileHandler(prefix, config.baseHref()));
 
             server.start();
             loggingService.info("Web server started on port {0}", config.port());
