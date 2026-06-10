@@ -3,7 +3,10 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  // Production builds bake a placeholder base into asset/API URLs that the plugin replaces at
+  // serve time with the configured web.base-path (default "/"). Dev is always served from root.
+  base: command === "build" ? "/__PRISM_BASE_PATH__/" : "/",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -23,4 +26,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

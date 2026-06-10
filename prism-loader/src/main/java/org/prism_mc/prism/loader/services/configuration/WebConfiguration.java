@@ -57,4 +57,36 @@ public class WebConfiguration {
 
     @Comment("Maximum number of results returned per query.")
     private int maxResults = 1000;
+
+    @Comment(
+        """
+        The base path the web UI and API are served under. Leave empty to serve from the domain
+        root. Set this (e.g. "/prism") to host behind a reverse proxy on a sub-path. When set, the
+        proxy must forward the full path WITHOUT stripping the prefix (in Caddy use "handle", not
+        "handle_path"; in nginx do not rewrite the path)."""
+    )
+    private String basePath = "";
+
+    /**
+     * The normalized context prefix derived from {@link #basePath}: empty, or a leading-slash path
+     * with no trailing slash (e.g. "/prism"). Used to register HTTP contexts and to strip the
+     * prefix from incoming requests.
+     *
+     * @return The context prefix
+     */
+    public String contextPrefix() {
+        String trimmed = basePath.replaceAll("^/+", "").replaceAll("/+$", "");
+        return trimmed.isEmpty() ? "" : "/" + trimmed;
+    }
+
+    /**
+     * The base href derived from {@link #basePath}, always slash-wrapped (e.g. "/" or "/prism/").
+     * Injected into served HTML/JS/CSS so the client requests assets and the API under the prefix.
+     *
+     * @return The base href
+     */
+    public String baseHref() {
+        String prefix = contextPrefix();
+        return prefix.isEmpty() ? "/" : prefix + "/";
+    }
 }

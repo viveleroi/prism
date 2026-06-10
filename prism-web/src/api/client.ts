@@ -27,7 +27,10 @@ export function clearApiKey(): void {
 }
 
 export async function apiFetch<T>(path: string): Promise<T> {
-  const res = await fetch(path, {
+  // Resolve the request against the app's base URL so it works when hosted under a sub-path.
+  // BASE_URL is slash-terminated ("/" or "/prism/"); strip the path's leading slash to join cleanly.
+  const url = `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
+  const res = await fetch(url, {
     headers: { Authorization: `Bearer ${getApiKey()}` },
   });
 
