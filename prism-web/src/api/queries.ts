@@ -1,5 +1,5 @@
 import { apiFetch } from "./client";
-import type { ActivitiesResponse, ActivityQueryParams, QueueReportResponse, StatusResponse } from "./types";
+import type { ActivitiesResponse, ActivityQueryParams, QueueReportResponse, StatusResponse, World } from "./types";
 
 export async function fetchActivities(params: ActivityQueryParams): Promise<ActivitiesResponse> {
   const searchParams = new URLSearchParams();
@@ -19,4 +19,8 @@ export async function fetchQueueReport(): Promise<QueueReportResponse> {
 
 export async function fetchStatus(): Promise<StatusResponse> {
   return apiFetch<StatusResponse>("/api/v1/status");
+}
+
+export async function fetchWorlds(): Promise<World[]> {
+  return apiFetch<World[]>("/api/v1/worlds");
 }

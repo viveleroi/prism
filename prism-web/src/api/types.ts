@@ -78,6 +78,16 @@ export interface StatusResponse {
   walMode: string;
   purgeActive: boolean;
   connection: ConnectionStatus;
+  /** Default relative time range the UI pre-applies as a "since" filter. Empty to apply none. */
+  defaultActivityRange: string;
+  /** First recorded world id the UI pre-applies as a "world" filter. Null if no worlds exist. */
+  defaultWorldId: number | null;
+}
+
+export interface World {
+  id: number;
+  name: string;
+  uuid: string;
 }
 
 export interface ActivityQueryParams {

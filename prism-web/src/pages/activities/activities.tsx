@@ -1,6 +1,6 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { useState, type FormEvent, type ReactNode } from "react";
-import { fetchActivities } from "../../api/queries";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { fetchActivities, fetchStatus, fetchWorlds } from "../../api/queries";
 import type { ActivityQueryParams, ActivityResult } from "../../api/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,7 @@ interface FilterDef {
   label: string;
   group: string;
   description: string;
-  type: "text" | "coordinate" | "bounds" | "boolean";
+  type: "text" | "coordinate" | "bounds" | "boolean" | "world";
   placeholder?: string;
   /** When true, this filter can be negated (key sent as `excludeXxx`). */
   negatable?: boolean;
@@ -176,9 +176,8 @@ const AVAILABLE_FILTERS: FilterDef[] = [
     negatable: true,
     label: "World",
     group: "Location",
-    description: "World name",
-    type: "text",
-    placeholder: "world",
+    description: "World to filter by",
+    type: "world",
   },
   {
     key: "at",
@@ -254,11 +253,15 @@ export function ActivitiesPage() {
   const [grouped, setGrouped] = useState(true);
   const [offset, setOffset] = useState(0);
 
-  const buildParams = (): ActivityQueryParams => {
+  const buildParams = (
+    filters: string[] = activeFilters,
+    values: FilterValues = filterValues,
+    negations: FilterNegations = filterNegations,
+  ): ActivityQueryParams => {
     const params: ActivityQueryParams = { limit, offset, sort, grouped };
 
-    for (const key of activeFilters) {
-      const val = filterValues[key];
+    for (const key of filters) {
+      const val = values[key];
       if (val === undefined || val === "") continue;
 
       if (key === "reversed") {
@@ -271,7 +274,7 @@ export function ActivitiesPage() {
         }
       } else {
         const def = AVAILABLE_FILTERS.find((f) => f.key === key);
-        const paramKey = def?.negatable && filterNegations[key] && def.excludeKey ? def.excludeKey : key;
+        const paramKey = def?.negatable && negations[key] && def.excludeKey ? def.excludeKey : key;
         (params as Record<string, string>)[paramKey] = val;
       }
     }
@@ -286,10 +289,45 @@ export function ActivitiesPage() {
     grouped: true,
   });
 
+  const { data: status, isError: statusError } = useQuery({
+    queryKey: ["status"],
+    queryFn: fetchStatus,
+  });
+
+  const { data: worlds } = useQuery({
+    queryKey: ["worlds"],
+    queryFn: fetchWorlds,
+  });
+
+  const [seeded, setSeeded] = useState(false);
+
+  useEffect(() => {
+    if (seeded) return;
+    // Wait for the status request to settle (success or failure) before running the first query.
+    if (status === undefined && !statusError) return;
+
+    const initialFilters: string[] = [];
+    const initialValues: FilterValues = {};
+    if (status?.defaultActivityRange) {
+      initialFilters.push("since");
+      initialValues.since = status.defaultActivityRange;
+    }
+    if (status?.defaultWorldId != null) {
+      initialFilters.push("world");
+      initialValues.world = String(status.defaultWorldId);
+    }
+
+    setActiveFilters(initialFilters);
+    setFilterValues(initialValues);
+    setQueryParams({ ...buildParams(initialFilters, initialValues, {}), offset: 0 });
+    setSeeded(true);
+  }, [status, statusError, seeded]);
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["activities", queryParams],
     queryFn: () => fetchActivities(queryParams),
     placeholderData: keepPreviousData,
+    enabled: seeded,
   });
 
   const handleSubmit = (e: FormEvent) => {
@@ -394,6 +432,34 @@ export function ActivitiesPage() {
                             onChange={(e) => updateFilter(key, e.target.value)}
                             placeholder={def.placeholder}
                           />
+                        )}
+                        {def.type === "world" && (
+                          <Select value={filterValues[key] ?? ""} onValueChange={(v) => updateFilter(key, v)}>
+                            <SelectTrigger>
+                              {(() => {
+                                const selected = worlds?.find((w) => String(w.id) === filterValues[key]);
+                                if (selected) {
+                                  return <span className="truncate">{selected.name}</span>;
+                                }
+                                return (
+                                  <span className="truncate text-muted-foreground">
+                                    {worlds === undefined ? "Loading worlds…" : "Select a world"}
+                                  </span>
+                                );
+                              })()}
+                            </SelectTrigger>
+                            <SelectContent>
+                              {(worlds ?? []).length === 0 && (
+                                <div className="px-2.5 py-1.5 text-xs text-muted-foreground">No worlds recorded</div>
+                              )}
+                              {(worlds ?? []).map((world) => (
+                                <SelectItem key={world.id} value={String(world.id)}>
+                                  {world.name}
+                                  <span className="ml-2 text-xs text-muted-foreground">{world.uuid}</span>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         )}
                         {def.type === "coordinate" && (
                           <CoordinateInput value={filterValues[key] ?? ",,"} onChange={(v) => updateFilter(key, v)} />
@@ -530,10 +596,26 @@ export function ActivitiesPage() {
               </div>
             </div>
           </form>
+
+          <p className="text-xs text-muted-foreground mt-4 border-t pt-3">
+            Queries are fastest when they can use a database index. Prism's default indexes work best with either: a
+            world alone or with coordinate/time bounds, or actions, players, blocks, entities, or items. Other
+            combinations may not use an index and can be <strong>extremely</strong> slow on large databases without
+            custom indexes.{" "}
+            <a
+              href="https://docs.prism-mc.org/databases/indexes/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-foreground"
+            >
+              Learn more about indexes
+            </a>
+            .
+          </p>
         </CardContent>
       </Card>
 
-      {isLoading && <p className="text-sm text-muted-foreground mb-3">Loading...</p>}
+      {(!seeded || isLoading) && <p className="text-sm text-muted-foreground mb-3">Loading...</p>}
       {error && <p className="text-sm text-muted-foreground mb-3">Error: {error.message}</p>}
 
       {data && (

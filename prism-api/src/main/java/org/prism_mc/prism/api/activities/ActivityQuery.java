@@ -259,6 +259,16 @@ public class ActivityQuery {
     private UUID worldUuidExcluded;
 
     /**
+     * The world id.
+     */
+    private Integer worldId;
+
+    /**
+     * The world id to exclude.
+     */
+    private Integer worldIdExcluded;
+
+    /**
      * Describe the sort directions.
      */
     public enum Sort {
