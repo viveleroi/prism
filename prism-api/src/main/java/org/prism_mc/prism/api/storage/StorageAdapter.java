@@ -105,6 +105,13 @@ public interface StorageAdapter {
     PartialListPaginationResult<AbstractActivity> queryActivitiesPaginated(ActivityQuery query) throws Exception;
 
     /**
+     * Get all worlds recorded in storage, ordered by primary key.
+     *
+     * @return The recorded worlds
+     */
+    List<World> worlds();
+
+    /**
      * Get the connection pool status.
      *
      * @return The connection status

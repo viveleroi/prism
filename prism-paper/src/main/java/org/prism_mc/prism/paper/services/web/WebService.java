@@ -191,6 +191,12 @@ public class WebService {
                 prefix + "/api/v1/activities",
                 new ActivitiesHandler(objectMapper, apiKey, loggingService, storageAdapter, config.maxResults())
             );
+
+            server.createContext(
+                prefix + "/api/v1/worlds",
+                new WorldsHandler(objectMapper, apiKey, loggingService, storageAdapter)
+            );
+
             server.createContext(
                 prefix + "/api/v1/reports/recording-queue",
                 new RecordingQueueReportHandler(
@@ -201,6 +207,7 @@ public class WebService {
                     queueMaxCapacity
                 )
             );
+
             server.createContext(
                 prefix + "/api/v1/status",
                 new StatusHandler(
@@ -213,7 +220,8 @@ public class WebService {
                     walMode,
                     storageAdapter,
                     recordingService,
-                    purgeService
+                    purgeService,
+                    config.defaultActivityRange()
                 )
             );
 

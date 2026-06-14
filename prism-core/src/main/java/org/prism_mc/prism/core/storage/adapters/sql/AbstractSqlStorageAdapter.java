@@ -69,6 +69,7 @@ import org.prism_mc.prism.api.services.pagination.PartialListPaginationResult;
 import org.prism_mc.prism.api.storage.ActivityBatch;
 import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.api.storage.StorageConnectionStatus;
+import org.prism_mc.prism.api.storage.World;
 import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.api.util.Pair;
 import org.prism_mc.prism.core.injection.factories.SqlActivityQueryBuilderFactory;
@@ -1159,6 +1160,21 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
     @Override
     public Pair<Integer, Integer> getActivitiesPkBounds(ActivityQuery query) {
         return queryBuilder.queryActivitiesPkBounds(query);
+    }
+
+    @Override
+    public List<World> worlds() {
+        return dslContext
+            .select(PRISM_WORLDS.WORLD_ID, PRISM_WORLDS.WORLD, PRISM_WORLDS.WORLD_UUID)
+            .from(PRISM_WORLDS)
+            .orderBy(PRISM_WORLDS.WORLD_ID.asc())
+            .fetch(record ->
+                new World(
+                    record.get(PRISM_WORLDS.WORLD_ID).intValue(),
+                    record.get(PRISM_WORLDS.WORLD),
+                    record.get(PRISM_WORLDS.WORLD_UUID)
+                )
+            );
     }
 
     /**

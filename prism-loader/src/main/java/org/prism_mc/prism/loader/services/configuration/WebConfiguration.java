@@ -60,6 +60,15 @@ public class WebConfiguration {
 
     @Comment(
         """
+        The default time range applied to activity queries when the user has not supplied a "since"
+        filter. Accepts a relative time string (e.g. "3d", "12h", "1w"). Constraining the default
+        query to a recent window lets it scan far fewer rows. Leave empty to apply no default range
+        (not recommended on large databases)."""
+    )
+    private String defaultActivityRange = "3d";
+
+    @Comment(
+        """
         The base path the web UI and API are served under. Leave empty to serve from the domain
         root. Set this (e.g. "/prism") to host behind a reverse proxy on a sub-path. When set, the
         proxy must forward the full path WITHOUT stripping the prefix (in Caddy use "handle", not

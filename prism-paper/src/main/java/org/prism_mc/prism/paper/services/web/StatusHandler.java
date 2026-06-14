@@ -23,11 +23,13 @@ package org.prism_mc.prism.paper.services.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.bukkit.Bukkit;
 import org.prism_mc.prism.api.services.recording.RecordingService;
 import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.api.storage.StorageConnectionStatus;
+import org.prism_mc.prism.api.storage.World;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 import org.prism_mc.prism.paper.services.purge.PurgeService;
 
@@ -69,6 +71,11 @@ public class StatusHandler extends ApiHandler {
     private final PurgeService purgeService;
 
     /**
+     * The default relative time range the web UI should pre-apply as a "since" filter. May be empty.
+     */
+    private final String defaultActivityRange;
+
+    /**
      * Constructor.
      *
      * @param objectMapper The object mapper
@@ -81,6 +88,7 @@ public class StatusHandler extends ApiHandler {
      * @param storageAdapter The storage adapter
      * @param recordingService The recording service
      * @param purgeService The purge service
+     * @param defaultActivityRange The default relative time range the web UI should pre-apply
      */
     protected StatusHandler(
         ObjectMapper objectMapper,
@@ -92,7 +100,8 @@ public class StatusHandler extends ApiHandler {
         String walMode,
         StorageAdapter storageAdapter,
         RecordingService recordingService,
-        PurgeService purgeService
+        PurgeService purgeService,
+        String defaultActivityRange
     ) {
         super(objectMapper, apiKey, loggingService);
         this.version = version;
@@ -102,6 +111,7 @@ public class StatusHandler extends ApiHandler {
         this.storageAdapter = storageAdapter;
         this.recordingService = recordingService;
         this.purgeService = purgeService;
+        this.defaultActivityRange = defaultActivityRange;
     }
 
     @Override
@@ -116,6 +126,10 @@ public class StatusHandler extends ApiHandler {
         response.put("queueCapacity", queueCapacity);
         response.put("walMode", walMode);
         response.put("purgeActive", !purgeService.queueFree());
+
+        response.put("defaultActivityRange", defaultActivityRange == null ? "" : defaultActivityRange);
+        List<World> worlds = storageAdapter.worlds();
+        response.put("defaultWorldId", worlds.isEmpty() ? null : worlds.getFirst().id());
 
         StorageConnectionStatus connectionStatus = storageAdapter.connectionStatus();
         Map<String, Object> connection = new HashMap<>();

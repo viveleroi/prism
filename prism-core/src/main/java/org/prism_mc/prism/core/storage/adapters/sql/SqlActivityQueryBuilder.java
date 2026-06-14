@@ -676,6 +676,14 @@ public class SqlActivityQueryBuilder {
             query.worldUuidExcluded() != null ? List.of(query.worldUuidExcluded().toString()) : List.of()
         );
 
+        if (query.worldId() != null) {
+            conditions.add(PRISM_ACTIVITIES.WORLD_ID.eq(UInteger.valueOf(query.worldId())));
+        }
+
+        if (query.worldIdExcluded() != null) {
+            conditions.add(PRISM_ACTIVITIES.WORLD_ID.ne(UInteger.valueOf(query.worldIdExcluded())));
+        }
+
         return conditions;
     }
 

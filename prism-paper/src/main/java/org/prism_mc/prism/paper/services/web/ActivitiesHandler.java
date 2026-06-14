@@ -27,8 +27,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.prism_mc.prism.api.actions.Action;
 import org.prism_mc.prism.api.actions.BlockAction;
 import org.prism_mc.prism.api.actions.CustomData;
@@ -129,16 +127,19 @@ public class ActivitiesHandler extends ApiHandler {
             }
         }
 
+        // Worlds are filtered by their storage id because world names are not unique.
         if (params.containsKey("world")) {
-            World world = Bukkit.getWorld(params.get("world"));
-            if (world != null) {
-                builder.worldUuid(world.getUID());
+            try {
+                builder.worldId(Integer.parseInt(params.get("world")));
+            } catch (NumberFormatException ignored) {
+                // Ignore a malformed world id
             }
         }
         if (params.containsKey("excludeWorld")) {
-            World world = Bukkit.getWorld(params.get("excludeWorld"));
-            if (world != null) {
-                builder.worldUuidExcluded(world.getUID());
+            try {
+                builder.worldIdExcluded(Integer.parseInt(params.get("excludeWorld")));
+            } catch (NumberFormatException ignored) {
+                // Ignore a malformed world id
             }
         }
 
