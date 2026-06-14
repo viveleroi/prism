@@ -118,8 +118,9 @@ public class NbtService {
         if (cachedDefaultNbt != null) {
             trimEntityNbt(entity, cachedDefaultNbt, consumer);
         } else {
+            // Include a dummy position to avoid "Block-attached entity at invalid position: null"
             EntitySnapshot entitySnapshot = Bukkit.getEntityFactory()
-                .createEntitySnapshot(String.format("{id:\"%s\"}", key));
+                .createEntitySnapshot(String.format("{id:\"%s\",block_pos:[I;0,0,0]}", key));
 
             Entity dummyEntity = entitySnapshot.createEntity(Bukkit.getWorlds().getFirst());
             NBT.get(dummyEntity, defaultNbt -> {
