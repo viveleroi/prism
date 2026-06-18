@@ -20,8 +20,12 @@
 
 package org.prism_mc.prism.paper.utils;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.experimental.UtilityClass;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -52,6 +56,18 @@ public class BlockUtils {
         BlockFace.WEST,
         BlockFace.NORTH,
         BlockFace.SOUTH,
+    };
+
+    /**
+     * The six orthogonal faces of a cube.
+     */
+    private static final BlockFace[] cubeFaces = {
+        BlockFace.NORTH,
+        BlockFace.SOUTH,
+        BlockFace.EAST,
+        BlockFace.WEST,
+        BlockFace.UP,
+        BlockFace.DOWN,
     };
 
     /**
@@ -476,21 +492,29 @@ public class BlockUtils {
         List<Location> rejectAccumulator,
         Block startBlock
     ) {
-        for (BlockFace face : BlockFace.values()) {
-            Block neighbor = startBlock.getRelative(face);
+        Deque<Block> queue = new ArrayDeque<>();
+        Set<Location> visited = new HashSet<>();
+        queue.add(startBlock);
+        visited.add(startBlock.getLocation());
 
-            // Skip visited
-            if (matchAccumulator.contains(neighbor) || rejectAccumulator.contains(neighbor.getLocation())) {
-                continue;
-            }
+        while (!queue.isEmpty()) {
+            Block current = queue.poll();
 
-            if (TagLib.RECURSIVE_DETACHABLES.isTagged(neighbor.getType())) {
-                matchAccumulator.add(neighbor);
+            for (BlockFace face : cubeFaces) {
+                Block neighbor = current.getRelative(face);
 
-                // Recurse
-                allSideDetachables(matchAccumulator, rejectAccumulator, neighbor);
-            } else {
-                rejectAccumulator.add(neighbor.getLocation());
+                // Skip visited
+                if (!visited.add(neighbor.getLocation())) {
+                    continue;
+                }
+
+                if (TagLib.RECURSIVE_DETACHABLES.isTagged(neighbor.getType())) {
+                    matchAccumulator.add(neighbor);
+
+                    queue.add(neighbor);
+                } else {
+                    rejectAccumulator.add(neighbor.getLocation());
+                }
             }
         }
 
