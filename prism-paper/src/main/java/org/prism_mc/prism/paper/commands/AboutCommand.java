@@ -29,6 +29,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 
 @Command(value = "prism", alias = { "pr" })
@@ -62,7 +63,7 @@ public class AboutCommand {
      * @param sender The command sender
      */
     @Command
-    @Permission("prism.help")
+    @Permission(PrismPermissions.PERM_COMMAND_HELP)
     public void onDefault(final CommandSender sender) {
         messageService.about(sender, version);
 
@@ -82,7 +83,7 @@ public class AboutCommand {
      * @param sender The command sender
      */
     @Command("about")
-    @Permission("prism.help")
+    @Permission(PrismPermissions.PERM_COMMAND_HELP)
     public void onAbout(final CommandSender sender) {
         this.onDefault(sender);
     }

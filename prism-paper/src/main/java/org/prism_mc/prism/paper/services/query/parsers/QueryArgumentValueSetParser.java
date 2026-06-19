@@ -23,12 +23,15 @@ package org.prism_mc.prism.paper.services.query.parsers;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
+import org.prism_mc.prism.paper.services.limits.EffectiveLimits;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 
 public abstract class QueryArgumentValueSetParser<T, R> extends QueryArgumentParser<T> {
@@ -53,6 +56,51 @@ public abstract class QueryArgumentValueSetParser<T, R> extends QueryArgumentPar
     @Override
     public boolean isPresent(Arguments arguments) {
         return arguments.getListArgument(parameter, clazz).isPresent();
+    }
+
+    @Override
+    public boolean checkLimit(CommandSender sender, Arguments arguments, EffectiveLimits limits) {
+        var allowed = limits.allowedValues(baseParameter());
+        if (allowed.isEmpty()) {
+            return true;
+        }
+
+        var values = arguments.getListArgument(parameter, clazz);
+        if (values.isEmpty()) {
+            return true;
+        }
+
+        if (isExcludeParameter()) {
+            // An exclusion filter would return everything except the listed
+            // values, which by definition includes values outside the whitelist.
+            String token = values.get().isEmpty() ? "" : limitToken(values.get().get(0));
+            messageService.errorLimitValueNotAllowed(sender, parameter, token == null ? "" : token);
+
+            return false;
+        }
+
+        for (T value : values.get()) {
+            String token = limitToken(value);
+            if (token == null || !allowed.get().contains(token.toLowerCase(Locale.ROOT))) {
+                messageService.errorLimitValueNotAllowed(sender, parameter, token == null ? "" : token);
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Convert a parsed value into the token compared against the configured
+     * whitelist. The default uses the value's string form; override when that
+     * is not the user-facing token (e.g. players, whose token is their name).
+     *
+     * @param value The parsed value
+     * @return The comparable token
+     */
+    protected String limitToken(T value) {
+        return String.valueOf(value);
     }
 
     /**

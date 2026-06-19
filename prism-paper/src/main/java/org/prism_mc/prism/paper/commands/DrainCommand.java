@@ -29,6 +29,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.modifications.state.BlockStateChange;
 import org.prism_mc.prism.paper.utils.BlockUtils;
@@ -59,7 +60,6 @@ public class DrainCommand {
     }
 
     @Command("drain")
-    @Permission("prism.drain")
     public class DrainSubCommand {
 
         /**
@@ -69,6 +69,7 @@ public class DrainCommand {
          * @param radius The radius
          */
         @Command("lava")
+        @Permission(PrismPermissions.PERM_COMMAND_DRAIN_LAVA)
         public void onDrainLava(final Player player, @Optional Integer radius) {
             if (radius == null) {
                 radius = configurationService.prismConfig().defaults().drainRadius();
@@ -103,6 +104,7 @@ public class DrainCommand {
          * @param radius The radius
          */
         @Command("water")
+        @Permission(PrismPermissions.PERM_COMMAND_DRAIN_WATER)
         public void onDrainWater(final Player player, @Optional Integer radius) {
             if (radius == null) {
                 radius = configurationService.prismConfig().defaults().drainRadius();

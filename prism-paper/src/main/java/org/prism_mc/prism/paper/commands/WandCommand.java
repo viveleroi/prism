@@ -30,6 +30,7 @@ import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
 import org.prism_mc.prism.api.services.wands.Wand;
 import org.prism_mc.prism.api.services.wands.WandMode;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.modifications.PaperModificationQueueService;
 import org.prism_mc.prism.paper.services.query.QueryService;
@@ -165,14 +166,10 @@ public class WandCommand {
      * player supplies no filters of their own.
      */
     private void activate(Player player, WandMode wandMode, Arguments arguments) {
-        boolean canInspect = player.hasPermission("prism.inspect") || player.hasPermission("prism.lookup");
-        boolean canModify = player.hasPermission("prism.modify");
+        String wandPerm = wandPermissionFor(wandMode);
+        String commandPath = wandCommandPathFor(wandMode);
 
-        if (
-            (wandMode == WandMode.INSPECT && !canInspect) ||
-            (wandMode == WandMode.ROLLBACK && !canModify) ||
-            (wandMode == WandMode.RESTORE && !canModify)
-        ) {
+        if (!player.hasPermission(wandPerm)) {
             messageService.errorInsufficientPermission(player);
 
             return;
@@ -184,6 +181,7 @@ public class WandCommand {
 
         var builderOpt = queryService.queryFromArguments(
             player,
+            commandPath,
             arguments,
             player.getLocation(),
             QueryService.LOCATION_PARSERS,
@@ -201,5 +199,21 @@ public class WandCommand {
                 .build();
 
         wandService.activateWand(player, wandMode, builderOpt.get().build(), modificationRuleset);
+    }
+
+    private static String wandPermissionFor(WandMode mode) {
+        return switch (mode) {
+            case INSPECT -> PrismPermissions.PERM_COMMAND_WAND_INSPECT;
+            case ROLLBACK -> PrismPermissions.PERM_COMMAND_WAND_ROLLBACK;
+            case RESTORE -> PrismPermissions.PERM_COMMAND_WAND_RESTORE;
+        };
+    }
+
+    private static String wandCommandPathFor(WandMode mode) {
+        return switch (mode) {
+            case INSPECT -> PrismPermissions.PATH_WAND_INSPECT;
+            case ROLLBACK -> PrismPermissions.PATH_WAND_ROLLBACK;
+            case RESTORE -> PrismPermissions.PATH_WAND_RESTORE;
+        };
     }
 }

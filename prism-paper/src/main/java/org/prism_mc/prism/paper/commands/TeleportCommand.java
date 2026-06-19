@@ -30,6 +30,7 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.activities.ActivityQuery;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.lookup.LookupService;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.scheduling.PrismScheduler;
@@ -70,7 +71,7 @@ public class TeleportCommand {
     public class TeleportSubCommand {
 
         @Command("id")
-        @Permission("prism.lookup")
+        @Permission(PrismPermissions.PERM_COMMAND_TELEPORT_ID)
         public class TeleportToActivity {
 
             /**
@@ -105,7 +106,7 @@ public class TeleportCommand {
         }
 
         @Command("loc")
-        @Permission("prism.lookup")
+        @Permission(PrismPermissions.PERM_COMMAND_TELEPORT_LOC)
         public class TeleportToLocation {
 
             /**

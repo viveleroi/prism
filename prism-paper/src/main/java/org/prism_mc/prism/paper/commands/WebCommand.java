@@ -24,6 +24,7 @@ import com.google.inject.Inject;
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
 import org.bukkit.command.CommandSender;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.web.WebService;
 
@@ -53,7 +54,6 @@ public class WebCommand {
     }
 
     @Command("web")
-    @Permission("prism.admin")
     public class WebSubCommand {
 
         /**
@@ -61,6 +61,7 @@ public class WebCommand {
          *
          * @param sender The command sender
          */
+        @Permission(PrismPermissions.PERM_COMMAND_WEB_START)
         @Command("start")
         public void onWebStart(final CommandSender sender) {
             switch (webService.start()) {
@@ -77,6 +78,7 @@ public class WebCommand {
          *
          * @param sender The command sender
          */
+        @Permission(PrismPermissions.PERM_COMMAND_WEB_STOP)
         @Command("stop")
         public void onWebStop(final CommandSender sender) {
             if (webService.stop()) {

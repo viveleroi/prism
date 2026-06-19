@@ -31,6 +31,7 @@ import org.prism_mc.prism.api.services.recording.RecordingService;
 import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.api.storage.StorageConnectionStatus;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.purge.PurgeService;
 import org.prism_mc.prism.paper.services.recording.wal.WalService;
@@ -119,7 +120,7 @@ public class StatusCommand {
      * @param mode The optional view mode
      */
     @Command("status")
-    @Permission("prism.admin")
+    @Permission(PrismPermissions.PERM_COMMAND_STATUS)
     public void onStatus(final CommandSender sender, @Optional StatusMode mode) {
         if (mode == StatusMode.SCOREBOARD) {
             if (!(sender instanceof Player player)) {

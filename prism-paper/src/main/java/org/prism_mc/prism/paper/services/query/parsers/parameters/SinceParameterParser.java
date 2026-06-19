@@ -21,6 +21,7 @@
 package org.prism_mc.prism.paper.services.query.parsers.parameters;
 
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
+import java.util.Optional;
 import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
@@ -62,5 +63,19 @@ public class SinceParameterParser extends StringQueryArgumentParser {
         }
 
         return true;
+    }
+
+    /**
+     * Resolve the lower time bound (the {@code after} timestamp) this query
+     * would use — the explicit {@code since:} value, or the configured default
+     * it falls back to — without mutating the builder. Empty means the query
+     * has no lower bound and would reach arbitrarily far into the past. Used by
+     * the look-back limit to floor that bound.
+     *
+     * @param arguments The arguments
+     * @return The effective lower-bound timestamp, or empty if unbounded
+     */
+    public Optional<Long> effectiveLowerBound(Arguments arguments) {
+        return parseSingleParameter(arguments, null).map(DateUtils::parseTimestamp);
     }
 }

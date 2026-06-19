@@ -26,6 +26,7 @@ import dev.triumphteam.cmd.core.annotations.Command;
 import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.core.services.cache.CacheService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 
 @Command(value = "prism", alias = { "pr" })
@@ -68,7 +69,7 @@ public class CacheCommand {
     public class CacheSubCommand {
 
         @Command("list")
-        @Permission("prism.admin")
+        @Permission(PrismPermissions.PERM_COMMAND_CACHE_LIST)
         public class ListCaches {
 
             /**

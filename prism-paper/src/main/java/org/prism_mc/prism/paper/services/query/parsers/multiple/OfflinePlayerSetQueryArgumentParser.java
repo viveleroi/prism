@@ -56,4 +56,9 @@ public abstract class OfflinePlayerSetQueryArgumentParser extends QueryArgumentV
             Arrays.stream(defaultValue.split(",")).collect(Collectors.toSet())
         );
     }
+
+    @Override
+    protected String limitToken(OfflinePlayer value) {
+        return value.getName();
+    }
 }

@@ -21,7 +21,6 @@
 package org.prism_mc.prism.paper.commands;
 
 import com.google.inject.Inject;
-import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
 import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.api.services.modifications.ModificationQueueMode;
@@ -60,8 +59,10 @@ public class UndoCommand {
      *
      * @param sender The command sender
      */
+    // No @Permission: undo acts only on the sender's own last completed
+    // modification, so it is implicitly gated by the rollback/restore/preview
+    // perms that produced that result.
     @Command(value = "undo")
-    @Permission("prism.modify")
     public void onUndo(final CommandSender sender) {
         // Ensure a queue is free
         if (!modificationQueueService.queueAvailable()) {

@@ -25,7 +25,6 @@ import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.core.argument.keyed.Argument;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
-import dev.triumphteam.cmd.core.argument.keyed.Flag;
 import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
@@ -101,6 +100,7 @@ import org.prism_mc.prism.paper.listeners.block.BlockPistonRetractListener;
 import org.prism_mc.prism.paper.listeners.block.BlockPlaceListener;
 import org.prism_mc.prism.paper.listeners.block.BlockSpreadListener;
 import org.prism_mc.prism.paper.listeners.block.TntPrimeListener;
+import org.prism_mc.prism.paper.listeners.command.PrismTabCompleteListener;
 import org.prism_mc.prism.paper.listeners.entity.EntityBlockFormListener;
 import org.prism_mc.prism.paper.listeners.entity.EntityChangeBlockListener;
 import org.prism_mc.prism.paper.listeners.entity.EntityDamageByEntityListener;
@@ -151,11 +151,15 @@ import org.prism_mc.prism.paper.listeners.structure.StructureGrowListener;
 import org.prism_mc.prism.paper.listeners.vehicle.VehicleDestroyListener;
 import org.prism_mc.prism.paper.listeners.vehicle.VehicleEnterListener;
 import org.prism_mc.prism.paper.listeners.vehicle.VehicleExitListener;
+import org.prism_mc.prism.paper.permissions.PrismFlags;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.providers.InjectorProvider;
+import org.prism_mc.prism.paper.services.limits.LimitService;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.modifications.ModificationType;
 import org.prism_mc.prism.paper.services.modifications.PaperModificationQueueService;
 import org.prism_mc.prism.paper.services.purge.PurgeService;
+import org.prism_mc.prism.paper.services.query.QueryService;
 import org.prism_mc.prism.paper.services.recording.PaperRecordingService;
 import org.prism_mc.prism.paper.services.recording.wal.WalService;
 import org.prism_mc.prism.paper.services.scheduling.PrismScheduler;
@@ -337,7 +341,19 @@ public class PrismPaper implements PrismPaperApi {
                 injectorProvider.injector().getInstance(WorldEditIntegration.class);
             }
 
+            // Register the permission tree so command @Permission annotations
+            // and per-parameter/per-flag checks resolve against known nodes.
+            // QueryService is the source of truth for parameter names so the
+            // tree extends automatically when new parsers are added.
+            var queryService = injectorProvider.injector().getInstance(QueryService.class);
+            PrismPermissions.register(Bukkit.getPluginManager(), queryService.parameterNames());
+
+            // Register the custom, config-defined parameter-limit permission nodes.
+            var limitService = injectorProvider.injector().getInstance(LimitService.class);
+            PrismPermissions.registerLimitNodes(Bukkit.getPluginManager(), limitService.permissionNodes());
+
             // Register event listeners
+            registerEvent(PrismTabCompleteListener.class);
             registerEvent(AsyncPlayerChatListener.class);
             registerEvent(BlockBreakListener.class);
             registerEvent(BlockBurnListener.class);
@@ -588,17 +604,7 @@ public class PrismPaper implements PrismPaperApi {
                 Arrays.asList("chunk", "world", "worldedit")
             );
 
-            commandManager.registerFlags(
-                FlagKey.of("query-flags"),
-                Flag.flag("dl").longFlag("drainlava").argument(Boolean.class).build(),
-                Flag.flag("ow").longFlag("overwrite").build(),
-                Flag.flag("nd").longFlag("nodefaults").build(),
-                Flag.flag("ng").longFlag("nogroup").build(),
-                Flag.flag("ph").longFlag("physics").argument(Boolean.class).build(),
-                Flag.flag("rd").longFlag("removedrops").argument(Boolean.class).build(),
-                Flag.flag("c").longFlag("count").build(),
-                Flag.flag("s").longFlag("sort").argument(String.class).build()
-            );
+            commandManager.registerFlags(FlagKey.of("query-flags"), PrismFlags.toFlagArray(PrismFlags.QUERY));
 
             commandManager.registerNamedArguments(
                 ArgumentKey.of("query-parameters"),
@@ -613,11 +619,7 @@ public class PrismPaper implements PrismPaperApi {
                 queryParameterArguments(SuggestionKey.of("reversible-actions"))
             );
 
-            commandManager.registerFlags(
-                FlagKey.of("purge-flags"),
-                Flag.flag("nd").longFlag("nodefaults").build(),
-                Flag.flag("v").longFlag("verbose").build()
-            );
+            commandManager.registerFlags(FlagKey.of("purge-flags"), PrismFlags.toFlagArray(PrismFlags.PURGE));
 
             commandManager.registerCommand(injectorProvider.injector().getInstance(AboutCommand.class));
             commandManager.registerCommand(injectorProvider.injector().getInstance(AirtagCommand.class));

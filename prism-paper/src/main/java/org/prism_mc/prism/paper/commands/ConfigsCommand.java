@@ -24,12 +24,15 @@ import com.google.inject.Inject;
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
 import java.io.IOException;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.alerts.PaperAlertService;
 import org.prism_mc.prism.paper.services.filters.PaperFilterService;
+import org.prism_mc.prism.paper.services.limits.LimitService;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.translation.PaperTranslationService;
 
@@ -72,6 +75,11 @@ public class ConfigsCommand {
     private final PaperFilterService filterService;
 
     /**
+     * The limit service.
+     */
+    private final LimitService limitService;
+
+    /**
      * Construct the command.
      *
      * @param loggingService The logging service
@@ -86,7 +94,8 @@ public class ConfigsCommand {
         StorageAdapter storageAdapter,
         PaperTranslationService translationService,
         ConfigurationService configurationService,
-        PaperFilterService filterService
+        PaperFilterService filterService,
+        LimitService limitService
     ) {
         this.alertService = alertService;
         this.loggingService = loggingService;
@@ -95,10 +104,10 @@ public class ConfigsCommand {
         this.translationService = translationService;
         this.configurationService = configurationService;
         this.filterService = filterService;
+        this.limitService = limitService;
     }
 
     @Command("configs")
-    @Permission("prism.admin")
     public class ConfigsSubCommand {
 
         @Command("prism")
@@ -110,12 +119,18 @@ public class ConfigsCommand {
              * @param sender The command sender
              */
             @Command("reload")
-            @Permission("prism.admin")
+            @Permission(PrismPermissions.PERM_COMMAND_CONFIGS_RELOAD)
             public void onReloadConfig(final CommandSender sender) {
                 configurationService.loadConfigurations();
 
                 filterService.loadFilters();
                 alertService.loadAlerts();
+
+                limitService.loadLimits();
+                PrismPermissions.registerLimitNodes(
+                    Bukkit.getServer().getPluginManager(),
+                    limitService.permissionNodes()
+                );
 
                 messageService.reloadedConfig(sender);
             }
@@ -130,7 +145,7 @@ public class ConfigsCommand {
              * @param sender The command sender
              */
             @Command("reload")
-            @Permission("prism.admin")
+            @Permission(PrismPermissions.PERM_COMMAND_CONFIGS_LOCALES_RELOAD)
             public void onReloadLocales(final CommandSender sender) {
                 try {
                     translationService.reloadTranslations();
@@ -152,6 +167,7 @@ public class ConfigsCommand {
              * @param sender The command sender
              */
             @Command("write-hikari")
+            @Permission(PrismPermissions.PERM_COMMAND_CONFIGS_WRITE_HIKARI)
             public void onHikariWrite(final CommandSender sender) {
                 try {
                     storageAdapter.writeHikariPropertiesFile();

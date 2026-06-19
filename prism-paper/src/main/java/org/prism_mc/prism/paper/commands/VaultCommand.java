@@ -41,6 +41,7 @@ import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 import org.prism_mc.prism.paper.actions.PaperItemStackAction;
 import org.prism_mc.prism.paper.actions.types.PaperActionTypeRegistry;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.lookup.LookupService;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.query.QueryService;
@@ -137,9 +138,9 @@ public class VaultCommand {
     @CommandFlags(key = "query-flags")
     @NamedArguments("query-parameters")
     @Command(value = "vault", alias = "v")
-    @Permission("prism.modification")
+    @Permission(PrismPermissions.PERM_COMMAND_VAULT)
     public void onVault(final Player player, final Arguments arguments) {
-        var optionalBuilder = queryService.queryFromArguments(player, arguments);
+        var optionalBuilder = queryService.queryFromArguments(player, PrismPermissions.PATH_VAULT, arguments);
         optionalBuilder.ifPresent(builder -> {
             // If not action parameter, use our defaults
             if (arguments.getListArgument("a", String.class).isEmpty()) {

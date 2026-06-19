@@ -34,6 +34,7 @@ import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.modifications.PaperModificationQueueService;
 import org.prism_mc.prism.paper.services.query.QueryService;
@@ -116,7 +117,7 @@ public class RollbackCommand {
     @CommandFlags(key = "query-flags")
     @NamedArguments("modification-parameters")
     @Command(value = "rollback", alias = { "rb" })
-    @Permission("prism.modify")
+    @Permission(PrismPermissions.PERM_COMMAND_ROLLBACK)
     public void onRollback(final CommandSender sender, final Arguments arguments) {
         // Ensure a queue is free
         if (!modificationQueueService.queueAvailable()) {
@@ -127,6 +128,7 @@ public class RollbackCommand {
 
         var builder = queryService.queryFromArguments(
             sender,
+            PrismPermissions.PATH_ROLLBACK,
             arguments,
             DefaultsConfiguration.CommandType.MODIFICATION
         );

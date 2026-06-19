@@ -30,6 +30,7 @@ import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.lookup.LookupService;
 import org.prism_mc.prism.paper.services.query.QueryService;
 
@@ -78,9 +79,14 @@ public class LookupCommand {
     @CommandFlags(key = "query-flags")
     @NamedArguments("query-parameters")
     @Command(value = "lookup", alias = { "l" })
-    @Permission("prism.lookup")
+    @Permission(PrismPermissions.PERM_COMMAND_LOOKUP)
     public void onLookup(final CommandSender sender, final Arguments arguments) {
-        var builder = queryService.queryFromArguments(sender, arguments, DefaultsConfiguration.CommandType.LOOKUP);
+        var builder = queryService.queryFromArguments(
+            sender,
+            PrismPermissions.PATH_LOOKUP,
+            arguments,
+            DefaultsConfiguration.CommandType.LOOKUP
+        );
         if (builder.isPresent()) {
             final ActivityQuery query = builder
                 .get()

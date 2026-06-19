@@ -35,6 +35,7 @@ import org.prism_mc.prism.api.services.pagination.ListPaginationResult;
 import org.prism_mc.prism.api.services.pagination.PaginationHandler;
 import org.prism_mc.prism.api.services.recording.RecordingService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.pagination.PaginationService;
 
@@ -88,7 +89,6 @@ public class ReportCommand {
     }
 
     @Command("report")
-    @Permission("prism.modify")
     public class ReportSubCommand {
 
         /**
@@ -97,6 +97,7 @@ public class ReportCommand {
          * @param sender The command sender
          */
         @Command("modification-queue")
+        @Permission(PrismPermissions.PERM_COMMAND_REPORT_QUEUE)
         public void onModificationQueueReport(final CommandSender sender) {
             if (modificationQueueService.currentQueue() == null) {
                 messageService.errorQueueReportEmpty(sender);
@@ -123,6 +124,7 @@ public class ReportCommand {
          * @param sender The command sender
          */
         @Command("recording-queue")
+        @Permission(PrismPermissions.PERM_COMMAND_REPORT_RECORDING_QUEUE)
         public void onRecordingQueueReport(final CommandSender sender) {
             var queue = recordingService.queue();
 
@@ -146,6 +148,7 @@ public class ReportCommand {
          * @param sender The command sender
          */
         @Command("partial")
+        @Permission(PrismPermissions.PERM_COMMAND_REPORT_PARTIAL)
         public void onPartialReport(final CommandSender sender) {
             Optional<ModificationQueueResult> resultOptional = modificationQueueService.queueResultForOwner(sender);
             if (resultOptional.isEmpty()) {
@@ -189,6 +192,7 @@ public class ReportCommand {
          * @param sender The command sender
          */
         @Command("skips")
+        @Permission(PrismPermissions.PERM_COMMAND_REPORT_SKIPS)
         public void onSkipsReport(final CommandSender sender) {
             Optional<ModificationQueueResult> resultOptional = modificationQueueService.queueResultForOwner(sender);
             if (resultOptional.isEmpty()) {

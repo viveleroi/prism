@@ -35,9 +35,9 @@ import org.prism_mc.prism.paper.utils.MaterialTagResolver;
 public class AirtagService {
 
     /**
-     * Permission node prefix granting a numeric airtag limit, e.g. {@code prism.airtag.limit.5}.
+     * Permission node prefix granting a numeric airtag limit, e.g. {@code prism.command.airtags.limit.5}.
      */
-    public static final String LIMIT_PERMISSION_PREFIX = "prism.airtag.limit.";
+    public static final String LIMIT_PERMISSION_PREFIX = "prism.command.airtags.limit.";
 
     /**
      * Sentinel limit value meaning no cap on the number of airtags.

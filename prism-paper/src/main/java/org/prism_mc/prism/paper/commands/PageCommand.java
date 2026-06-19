@@ -21,7 +21,6 @@
 package org.prism_mc.prism.paper.commands;
 
 import com.google.inject.Inject;
-import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
 import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.paper.services.messages.MessageService;
@@ -58,8 +57,9 @@ public class PageCommand {
      * @param sender The command sender
      * @param page The new page
      */
+    // No @Permission: paging only re-renders the results of a query the player
+    // already ran, so it is implicitly available to anyone who could run it.
     @Command(value = "page")
-    @Permission("prism.lookup")
     public void onPage(CommandSender sender, Integer page) {
         var paginationHandler = paginationService.cache().getIfPresent(sender);
 

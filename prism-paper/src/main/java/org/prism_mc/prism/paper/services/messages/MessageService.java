@@ -155,6 +155,18 @@ public interface MessageService {
     @Message("prism.error.param-unsupported")
     void errorParamUnsupported(CommandSender receiver, @Placeholder String param);
 
+    @Message("prism.error.limit-max")
+    void errorLimitMax(CommandSender receiver, @Placeholder String param, @Placeholder Integer max);
+
+    @Message("prism.error.limit-min")
+    void errorLimitMin(CommandSender receiver, @Placeholder String param, @Placeholder Integer min);
+
+    @Message("prism.error.limit-age")
+    void errorLimitAge(CommandSender receiver, @Placeholder String param, @Placeholder String value);
+
+    @Message("prism.error.limit-value-not-allowed")
+    void errorLimitValueNotAllowed(CommandSender receiver, @Placeholder String param, @Placeholder String value);
+
     @Message("prism.error.player-only")
     void errorPlayerOnly(CommandSender receiver);
 

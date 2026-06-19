@@ -24,6 +24,7 @@ import com.google.inject.Inject;
 import de.tr7zw.nbtapi.NBT;
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
+import dev.triumphteam.cmd.core.annotations.Optional;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import dev.triumphteam.gui.guis.PaginatedGui;
@@ -52,6 +53,7 @@ import org.prism_mc.prism.paper.actions.PaperItemStackAction;
 import org.prism_mc.prism.paper.actions.types.PaperActionTypeRegistry;
 import org.prism_mc.prism.paper.api.activities.PaperActivity;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.airtags.Airtags;
 import org.prism_mc.prism.paper.services.lookup.LookupService;
 import org.prism_mc.prism.paper.services.messages.MessageService;
@@ -155,7 +157,7 @@ public class AirtagsCommand {
          *
          * @param player The player invoking the command
          */
-        @Permission("prism.airtags")
+        @Permission(PrismPermissions.PERM_COMMAND_AIRTAGS)
         @Command(Command.DEFAULT_CMD_NAME)
         public void onAirtags(final Player player) {
             showAirtags(player, null);
@@ -167,7 +169,7 @@ public class AirtagsCommand {
          * @param player The player invoking the command
          * @param target The target player whose airtags to display
          */
-        @Permission("prism.airtags")
+        @Permission(PrismPermissions.PERM_COMMAND_AIRTAGS)
         @Command("view")
         public void onView(final Player player, final OfflinePlayer target) {
             showAirtags(player, target);
@@ -178,7 +180,7 @@ public class AirtagsCommand {
          *
          * @param player The player invoking the command
          */
-        @Permission("prism.airtags")
+        @Permission(PrismPermissions.PERM_COMMAND_AIRTAGS)
         @Command("untag")
         public void onUntag(final Player player) {
             ItemStack itemStack = player.getInventory().getItemInMainHand();
@@ -226,11 +228,13 @@ public class AirtagsCommand {
          * @param player The player invoking the command
          * @param airtag The airtag id to delete
          */
-        @Permission("prism.airtags")
+        @Permission(PrismPermissions.PERM_COMMAND_AIRTAGS)
         @Command("delete")
         public void onDelete(final Player player, final String airtag) {
             String normalized = airtag.toUpperCase(Locale.ROOT);
-            UUID ownerFilter = player.hasPermission("prism.airtags.others") ? null : player.getUniqueId();
+            UUID ownerFilter = player.hasPermission(PrismPermissions.PERM_COMMAND_AIRTAGS_OTHERS)
+                ? null
+                : player.getUniqueId();
 
             prismScheduler.runAsync(() -> {
                 int deleted;
@@ -253,17 +257,28 @@ public class AirtagsCommand {
         }
 
         /**
-         * Open a vault of the airtagged items.
+         * Open a vault of the airtagged items so they can be recovered.
          *
          * @param player The player invoking the command
+         * @param target The player whose vault to open, or {@code null} for the sender's own
          */
-        @Permission("prism.airtags.vault")
+        @Permission(PrismPermissions.PERM_COMMAND_AIRTAGS_VAULT)
         @Command("vault")
-        public void onVault(final Player player) {
+        public void onVault(final Player player, @Optional final OfflinePlayer target) {
+            OfflinePlayer effectiveTarget = target == null ? player : target;
+            boolean self = effectiveTarget.getUniqueId().equals(player.getUniqueId());
+
+            if (!self && !player.hasPermission(PrismPermissions.PERM_COMMAND_AIRTAGS_OTHERS)) {
+                messageService.errorInsufficientPermission(player);
+                return;
+            }
+
+            UUID owner = effectiveTarget.getUniqueId();
+
             prismScheduler.runAsync(() -> {
                 List<AirtagSummary> airtags;
                 try {
-                    airtags = storageAdapter.queryAirtagsForPlayer(player.getUniqueId(), AIRTAGS_QUERY_LIMIT);
+                    airtags = storageAdapter.queryAirtagsForPlayer(owner, AIRTAGS_QUERY_LIMIT);
                 } catch (Exception ex) {
                     loggingService.handleException(ex);
                     prismScheduler.runForEntity(player, () -> messageService.errorQueryExec(player));
@@ -275,7 +290,7 @@ public class AirtagsCommand {
                     return;
                 }
 
-                prismScheduler.runForEntity(player, () -> openVault(player, airtags));
+                prismScheduler.runForEntity(player, () -> openVault(player, owner, airtags));
             });
         }
     }
@@ -290,7 +305,7 @@ public class AirtagsCommand {
         OfflinePlayer effectiveTarget = target == null ? player : target;
         boolean self = effectiveTarget.getUniqueId().equals(player.getUniqueId());
 
-        if (!self && !player.hasPermission("prism.airtags.others")) {
+        if (!self && !player.hasPermission(PrismPermissions.PERM_COMMAND_AIRTAGS_OTHERS)) {
             messageService.errorInsufficientPermission(player);
             return;
         }
@@ -321,10 +336,11 @@ public class AirtagsCommand {
     /**
      * Open the vault GUI.
      *
-     * @param player The player
+     * @param player The player viewing the vault
+     * @param owner The owner of the airtags, whose airtag is consumed when an item is recovered
      * @param airtags The airtag summaries to display
      */
-    private void openVault(Player player, List<AirtagSummary> airtags) {
+    private void openVault(Player player, UUID owner, List<AirtagSummary> airtags) {
         var title = MiniMessage.miniMessage()
             .deserialize(translationService.messageOf(player, "prism.airtags-vault-gui-title"));
         var next = MiniMessage.miniMessage()
@@ -374,7 +390,6 @@ public class AirtagsCommand {
 
         gui.open(player);
 
-        UUID owner = player.getUniqueId();
         gui.setCloseGuiAction(event -> {
             if (taken.isEmpty()) {
                 return;
