@@ -122,7 +122,9 @@ public class NbtService {
             EntitySnapshot entitySnapshot = Bukkit.getEntityFactory()
                 .createEntitySnapshot(String.format("{id:\"%s\",block_pos:[I;0,0,0]}", key));
 
-            Entity dummyEntity = entitySnapshot.createEntity(Bukkit.getWorlds().getFirst());
+            // Create the dummy entity at the source entity's location so that on Folia it belongs to the
+            // same region as the entity being processed.
+            Entity dummyEntity = entitySnapshot.createEntity(entity.getLocation());
             NBT.get(dummyEntity, defaultNbt -> {
                 // Create a nbt container not attached to the entity so we can reuse it
                 ReadWriteNBT cacheNbt = NBT.createNBTObject();
