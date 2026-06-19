@@ -31,9 +31,10 @@ CREATE PROCEDURE %prefix%create_activity (
     IN `p_causeBlockData` VARCHAR(255),
     IN `p_causeBlockTranslationKey` VARCHAR(155),
     IN `p_serializerVersion` SMALLINT,
-    IN `p_serializedData` TEXT,
+    IN `p_serializedData` LONGTEXT,
     IN `p_descriptor` VARCHAR(255),
-    IN `p_metadata` VARCHAR(255)
+    IN `p_metadata` VARCHAR(255),
+    IN `p_affectedItemAirtag` CHAR(6)
 )
 BEGIN
     DECLARE v_affectedItemId INT DEFAULT NULL;
@@ -53,7 +54,7 @@ BEGIN
 
     -- Create the affected item
     IF `p_affectedItemMaterial` IS NOT NULL THEN
-        CALL %prefix%get_or_create_item(p_affectedItemMaterial, p_affectedItemData, v_affectedItemId);
+        CALL %prefix%get_or_create_item(p_affectedItemMaterial, p_affectedItemData, p_affectedItemAirtag, v_affectedItemId);
     END IF;
 
     -- Create the affected block

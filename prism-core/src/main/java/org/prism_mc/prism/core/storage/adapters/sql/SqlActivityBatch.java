@@ -22,6 +22,7 @@ package org.prism_mc.prism.core.storage.adapters.sql;
 
 import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIONS;
 import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ACTIVITIES;
+import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_AIRTAGS;
 import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_BLOCKS;
 import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_CAUSES;
 import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_ENTITY_TYPES;
@@ -29,6 +30,7 @@ import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAda
 import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_PLAYERS;
 import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAdapter.PRISM_WORLDS;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +56,48 @@ import org.prism_mc.prism.core.storage.dbo.records.PrismActivitiesRecord;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
 public class SqlActivityBatch implements ActivityBatch {
+
+    /**
+     * Upper bound on the bytes we'll send to serialized_data. Set to the highest value the
+     * MySQL/MariaDB protocol stack can carry: max_allowed_packet caps at 1 GiB on both servers,
+     * less 16 MiB of headroom for the rest of the batched statement.
+     *
+     * <p>Stock servers ship with much lower max_allowed_packet defaults blobs that exceed those
+     * will fail at the server with a clear packet-too-large error until the operator raises
+     * max_allowed_packet. This guard exists to keep a single pathological NBT (deeply nested
+     * shulkers, etc.) from crashing the batch before the wire — not to second-guess the
+     * server's configured packet size.
+     */
+    static final int MAX_SERIALIZED_DATA_BYTES = 1024 * 1024 * 1024 - 16 * 1024 * 1024;
+
+    /**
+     * Returns the payload if it will fit, otherwise null and logs a warning.
+     *
+     * @param serializedData The serialized custom data
+     * @param actionKey The action key (for logging)
+     * @param loggingService The logging service
+     * @return The payload, or null if it was dropped
+     */
+    static String guardSerializedDataSize(String serializedData, String actionKey, LoggingService loggingService) {
+        if (serializedData == null) {
+            return null;
+        }
+
+        int byteLength = serializedData.getBytes(StandardCharsets.UTF_8).length;
+        if (byteLength > MAX_SERIALIZED_DATA_BYTES) {
+            loggingService.warn(
+                "Dropping serialized NBT for action ''{0}'' ({1} bytes exceeds {2} byte safety limit). " +
+                "Activity will be recorded without custom data; container contents may not fully rollback.",
+                actionKey,
+                byteLength,
+                MAX_SERIALIZED_DATA_BYTES
+            );
+
+            return null;
+        }
+
+        return serializedData;
+    }
 
     /**
      * The logging service.
@@ -136,10 +180,16 @@ public class SqlActivityBatch implements ActivityBatch {
             record.setEntityTypeId(entityTypeId);
         }
 
-        // Set the item relationship
+        // Set the item relationship. The airtag, if any, links the item row to its airtag.
         if (activity.action() instanceof ItemAction itemAction) {
             record.setItemId(
-                UInteger.valueOf(getOrCreateItemId(itemAction.serializeMaterial(), itemAction.serializeItemData()))
+                UInteger.valueOf(
+                    getOrCreateItemId(
+                        itemAction.serializeMaterial(),
+                        itemAction.serializeItemData(),
+                        itemAction.itemAirtag()
+                    )
+                )
             );
             record.setItemQuantity(UShort.valueOf(itemAction.quantity()));
         }
@@ -224,8 +274,16 @@ public class SqlActivityBatch implements ActivityBatch {
 
         if (activity.action() instanceof CustomData customDataAction) {
             if (customDataAction.hasCustomData()) {
-                record.setSerializerVersion(UShort.valueOf(serializerVersion));
-                record.setSerializedData(customDataAction.serializeCustomData());
+                String customData = guardSerializedDataSize(
+                    customDataAction.serializeCustomData(),
+                    activity.action().type().key(),
+                    loggingService
+                );
+
+                if (customData != null) {
+                    record.setSerializerVersion(UShort.valueOf(serializerVersion));
+                    record.setSerializedData(customData);
+                }
             }
         }
 
@@ -253,9 +311,13 @@ public class SqlActivityBatch implements ActivityBatch {
             );
         }
 
-        // Item
+        // Item. The airtag, if any, links the item row to its airtag.
         if (walRecord.getItemMaterial() != null) {
-            record.setItemId(UInteger.valueOf(getOrCreateItemId(walRecord.getItemMaterial(), walRecord.getItemData())));
+            record.setItemId(
+                UInteger.valueOf(
+                    getOrCreateItemId(walRecord.getItemMaterial(), walRecord.getItemData(), walRecord.getItemAirtag())
+                )
+            );
             record.setItemQuantity(UShort.valueOf(walRecord.getItemQuantity()));
         }
 
@@ -343,8 +405,16 @@ public class SqlActivityBatch implements ActivityBatch {
 
         // Custom data
         if (walRecord.getSerializedData() != null) {
-            record.setSerializerVersion(UShort.valueOf(walRecord.getSerializerVersion()));
-            record.setSerializedData(walRecord.getSerializedData());
+            String customData = guardSerializedDataSize(
+                walRecord.getSerializedData(),
+                walRecord.getActionKey(),
+                loggingService
+            );
+
+            if (customData != null) {
+                record.setSerializerVersion(UShort.valueOf(walRecord.getSerializerVersion()));
+                record.setSerializedData(customData);
+            }
         }
 
         records.add(record);
@@ -363,7 +433,7 @@ public class SqlActivityBatch implements ActivityBatch {
      * @return The cached or newly loaded value
      * @throws SQLException If the loader throws
      */
-    private <K, V> V cachedGetOrCreate(
+    private static <K, V> V cachedGetOrCreate(
         com.github.benmanes.caffeine.cache.Cache<K, V> cache,
         K key,
         SqlSupplier<V> loader
@@ -598,10 +668,11 @@ public class SqlActivityBatch implements ActivityBatch {
      *
      * @param material The material
      * @param data The item data
+     * @param airtag The Prism airtag ID, or {@code null} if not airtagged
      * @return The primary key
      * @throws SQLException The database exception
      */
-    private int getOrCreateItemId(String material, String data) throws SQLException {
+    private int getOrCreateItemId(String material, String data, String airtag) throws SQLException {
         return cachedGetOrCreate(cacheService.itemDataPkMap(), data, () -> {
             UInteger intPk = dslContext
                 .select(PRISM_ITEMS.ITEM_ID)
@@ -614,10 +685,12 @@ public class SqlActivityBatch implements ActivityBatch {
                 return intPk.intValue();
             }
 
+            UInteger airtagId = resolveAirtagId(airtag);
+
             try {
                 intPk = dslContext
-                    .insertInto(PRISM_ITEMS, PRISM_ITEMS.MATERIAL, PRISM_ITEMS.DATA)
-                    .values(material, data)
+                    .insertInto(PRISM_ITEMS, PRISM_ITEMS.MATERIAL, PRISM_ITEMS.DATA, PRISM_ITEMS.AIRTAG_ID)
+                    .values(material, data, airtagId)
                     .returningResult(PRISM_ITEMS.ITEM_ID)
                     .fetchOne(PRISM_ITEMS.ITEM_ID);
             } catch (Exception e) {
@@ -638,9 +711,25 @@ public class SqlActivityBatch implements ActivityBatch {
     }
 
     /**
-     * Get or create the player record and return the primary key.
+     * Resolve the primary key of an airtag row by its airtag id, or null.
      *
-     * <p>Note: This will update the player name on cache miss.</p>
+     * @param airtag The airtag, or null
+     * @return The airtag primary key, or null if the airtag is null or not recorded
+     */
+    private UInteger resolveAirtagId(String airtag) {
+        if (airtag == null) {
+            return null;
+        }
+
+        return dslContext
+            .select(PRISM_AIRTAGS.AIRTAG_ID)
+            .from(PRISM_AIRTAGS)
+            .where(PRISM_AIRTAGS.AIRTAG.eq(airtag))
+            .fetchOne(PRISM_AIRTAGS.AIRTAG_ID);
+    }
+
+    /**
+     * Get or create the player record and return the primary key.
      *
      * @param playerUuid The player uuid
      * @param playerName The player name
@@ -648,6 +737,25 @@ public class SqlActivityBatch implements ActivityBatch {
      * @throws SQLException The database exception
      */
     private long getOrCreatePlayerId(UUID playerUuid, String playerName) throws SQLException {
+        return getOrCreatePlayerId(dslContext, cacheService, playerUuid, playerName);
+    }
+
+    /**
+     * Get or create the player record and return the primary key.
+     *
+     * @param dslContext The DSL context
+     * @param cacheService The cache service
+     * @param playerUuid The player uuid
+     * @param playerName The player name
+     * @return The primary key
+     * @throws SQLException The database exception
+     */
+    static long getOrCreatePlayerId(
+        DSLContext dslContext,
+        CacheService cacheService,
+        UUID playerUuid,
+        String playerName
+    ) throws SQLException {
         return cachedGetOrCreate(cacheService.playerUuidPkMap(), playerUuid, () -> {
             // Create the player or update the name
             dslContext
