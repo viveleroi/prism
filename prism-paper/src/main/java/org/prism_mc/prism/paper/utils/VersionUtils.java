@@ -44,9 +44,29 @@ public class VersionUtils {
     static {
         var segments = Bukkit.getServer().getBukkitVersion().split("-");
         String[] split = segments[0].split("\\.");
-        serverMajorVersion = Byte.parseByte(split[0]);
-        serverMinorVersion = split.length > 1 ? Byte.parseByte(split[1]) : 0;
-        serverPatchVersion = split.length > 2 ? Byte.parseByte(split[2]) : 0;
+        serverMajorVersion = parseSegment(split, 0);
+        serverMinorVersion = parseSegment(split, 1);
+        serverPatchVersion = parseSegment(split, 2);
+    }
+
+    /**
+     * Parse a numeric version segment, defaulting to zero when the segment is
+     * missing or non-numeric (e.g. build metadata such as "build.12").
+     *
+     * @param split The dot-split version segments
+     * @param index The index to parse
+     * @return The parsed value, or zero
+     */
+    private static byte parseSegment(String[] split, int index) {
+        if (index >= split.length) {
+            return 0;
+        }
+
+        try {
+            return Byte.parseByte(split[index]);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     /**
@@ -58,7 +78,15 @@ public class VersionUtils {
      * @return True if the server is at least the version
      */
     public static boolean atLeast(int major, int minor, int patch) {
-        return (serverMajorVersion >= major && serverMinorVersion >= minor && serverPatchVersion >= patch);
+        if (serverMajorVersion != major) {
+            return serverMajorVersion > major;
+        }
+
+        if (serverMinorVersion != minor) {
+            return serverMinorVersion > minor;
+        }
+
+        return serverPatchVersion >= patch;
     }
 
     /**
