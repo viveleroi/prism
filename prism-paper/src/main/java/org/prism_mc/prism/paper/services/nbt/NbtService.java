@@ -28,9 +28,7 @@ import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 import de.tr7zw.nbtapi.iface.ReadableNBT;
 import java.util.function.Consumer;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntitySnapshot;
 import org.prism_mc.prism.core.services.cache.CacheService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.configuration.cache.CacheConfiguration;
@@ -118,13 +116,14 @@ public class NbtService {
         if (cachedDefaultNbt != null) {
             trimEntityNbt(entity, cachedDefaultNbt, consumer);
         } else {
-            // Include a dummy position to avoid "Block-attached entity at invalid position: null"
-            EntitySnapshot entitySnapshot = Bukkit.getEntityFactory()
-                .createEntitySnapshot(String.format("{id:\"%s\",block_pos:[I;0,0,0]}", key));
+            Class<? extends Entity> entityClass = entity.getType().getEntityClass();
+            if (entityClass == null) {
+                trimEntityNbt(entity, NBT.createNBTObject(), consumer);
 
-            // Create the dummy entity at the source entity's location so that on Folia it belongs to the
-            // same region as the entity being processed.
-            Entity dummyEntity = entitySnapshot.createEntity(entity.getLocation());
+                return;
+            }
+
+            Entity dummyEntity = entity.getWorld().createEntity(entity.getLocation(), entityClass);
             NBT.get(dummyEntity, defaultNbt -> {
                 // Create a nbt container not attached to the entity so we can reuse it
                 ReadWriteNBT cacheNbt = NBT.createNBTObject();
