@@ -71,7 +71,7 @@ public class AboutCommand {
             .append(link("Discord", "https://discord.gg/7FxZScH4EJ"))
             .append(Component.text(" "))
             .append(link("Docs", "https://docs.prism-mc.org"))
-            .build();
+            .asComponent();
 
         sender.sendMessage(links);
     }
@@ -101,6 +101,6 @@ public class AboutCommand {
             .append(Component.text("]", NamedTextColor.AQUA))
             .clickEvent(ClickEvent.openUrl(url))
             .hoverEvent(HoverEvent.showText(Component.text("Click to open in a browser")))
-            .build();
+            .asComponent();
     }
 }

@@ -126,7 +126,7 @@ public class PaperItemStackAction extends PaperMaterialAction implements ItemAct
             complete.append(Component.text(")"));
         }
 
-        return complete.hoverEvent(itemStack).build();
+        return complete.hoverEvent(itemStack).asComponent();
     }
 
     @Override
