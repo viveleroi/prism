@@ -163,7 +163,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
             .append(Component.text(" or ", NamedTextColor.WHITE))
             .append(Component.text("a:", NamedTextColor.GRAY))
             .append(Component.text(actionType.familyKey(), TextColor.fromCSSHexString("#ffd782")))
-            .build();
+            .asComponent();
 
         var builder = Component.text()
             .append(Component.translatable(actionType.pastTenseTranslationKey()))
@@ -173,7 +173,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
             builder.decorate(TextDecoration.STRIKETHROUGH);
         }
 
-        return builder.build();
+        return builder.asComponent();
     }
 
     /**
@@ -221,12 +221,12 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
                 .append(banned)
                 .append(Component.text(" "))
                 .append(Component.text(offlinePlayer.isBanned() ? yes : no, NamedTextColor.WHITE))
-                .build();
+                .asComponent();
 
             return Component.text()
                 .append(Component.text(playerContainer.name()))
                 .hoverEvent(HoverEvent.showText(hover))
-                .build();
+                .asComponent();
         } else if (cause.container() instanceof TranslatableContainer translatableContainer) {
             return Component.translatable(translatableContainer.translationKey());
         } else {
@@ -285,14 +285,14 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
                 i++;
             }
 
-            builder.hoverEvent(HoverEvent.showText(metadataBuilder.build()));
+            builder.hoverEvent(HoverEvent.showText(metadataBuilder.asComponent()));
         }
 
         if (value.reversed()) {
             builder.decorate(TextDecoration.STRIKETHROUGH);
         }
 
-        return builder.build();
+        return builder.asComponent();
     }
 
     /**
@@ -326,7 +326,7 @@ public class ActivityPlaceholderResolver implements IPlaceholderResolver<Command
             builder.clickEvent(ClickEvent.runCommand(command));
         }
 
-        return builder.build();
+        return builder.asComponent();
     }
 
     /**

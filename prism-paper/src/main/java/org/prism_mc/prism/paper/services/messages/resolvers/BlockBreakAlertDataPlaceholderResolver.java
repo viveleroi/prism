@@ -49,7 +49,7 @@ public class BlockBreakAlertDataPlaceholderResolver
         final Method method,
         final @Nullable Object[] parameters
     ) {
-        Component color = Component.text().color(value.color()).build();
+        Component color = Component.text().color(value.color()).asComponent();
         Component blockName = block(value.blockTranslationKey(), value.itemKey());
         Component playerName = Component.text(value.playerName());
         Component count = Component.text(value.count());
@@ -80,6 +80,6 @@ public class BlockBreakAlertDataPlaceholderResolver
         return Component.text()
             .append(Component.translatable(blockTranslationKey))
             .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_ITEM, HoverEvent.ShowItem.showItem(itemKey, 1)))
-            .build();
+            .asComponent();
     }
 }

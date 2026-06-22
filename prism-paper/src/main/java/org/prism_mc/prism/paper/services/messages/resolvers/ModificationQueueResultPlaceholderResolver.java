@@ -96,7 +96,7 @@ public class ModificationQueueResultPlaceholderResolver
                 .clickEvent(ClickEvent.runCommand("/prism report partial"));
         }
 
-        return builder.build();
+        return builder.asComponent();
     }
 
     /**
@@ -119,6 +119,6 @@ public class ModificationQueueResultPlaceholderResolver
                 .clickEvent(ClickEvent.runCommand("/prism report skips"));
         }
 
-        return builder.build();
+        return builder.asComponent();
     }
 }

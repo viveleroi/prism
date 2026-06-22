@@ -48,7 +48,7 @@ public class ItemAlertDataPlaceholderResolver implements IPlaceholderResolver<Co
         final Method method,
         final @Nullable Object[] parameters
     ) {
-        Component color = Component.text().color(value.color()).build();
+        Component color = Component.text().color(value.color()).asComponent();
         Component objectName = item(value.translationKey(), value.itemKey());
         Component playerName = Component.text(value.playerName());
 
@@ -73,6 +73,6 @@ public class ItemAlertDataPlaceholderResolver implements IPlaceholderResolver<Co
         return Component.text()
             .append(Component.translatable(translationKey))
             .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_ITEM, HoverEvent.ShowItem.showItem(itemKey, 1)))
-            .build();
+            .asComponent();
     }
 }

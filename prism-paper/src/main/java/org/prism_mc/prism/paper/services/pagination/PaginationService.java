@@ -176,7 +176,7 @@ public class PaginationService {
                 );
             }
 
-            sender.sendMessage(builder.build());
+            sender.sendMessage(builder.asComponent());
         }
     }
 }
