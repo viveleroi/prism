@@ -79,15 +79,16 @@ public class WandCommand {
         @NamedArguments("query-parameters")
         @Command(Command.DEFAULT_CMD_NAME)
         public void onWand(final Player player, final Arguments arguments) {
-            boolean hasParameters = queryService.hasAnyParameter(arguments);
+            boolean hasConfiguration =
+                queryService.hasAnyParameter(arguments) || queryService.hasAnyQueryFlag(arguments);
 
-            if (!hasParameters && wandService.hasActiveWand(player)) {
+            if (!hasConfiguration && wandService.hasActiveWand(player)) {
                 wandService.deactivateWand(player);
 
                 return;
             }
 
-            activate(player, WandMode.INSPECT, arguments, hasParameters);
+            activate(player, WandMode.INSPECT, arguments, hasConfiguration);
         }
 
         /**
@@ -130,23 +131,24 @@ public class WandCommand {
         }
 
         private void onModeCommand(Player player, WandMode wandMode, Arguments arguments) {
-            boolean hasParameters = queryService.hasAnyParameter(arguments);
+            boolean hasConfiguration =
+                queryService.hasAnyParameter(arguments) || queryService.hasAnyQueryFlag(arguments);
 
             java.util.Optional<Wand> activeWand = wandService.getWand(player);
-            if (activeWand.isPresent() && activeWand.get().mode().equals(wandMode) && !hasParameters) {
+            if (activeWand.isPresent() && activeWand.get().mode().equals(wandMode) && !hasConfiguration) {
                 wandService.deactivateWand(player);
 
                 return;
             }
 
-            activate(player, wandMode, arguments, hasParameters);
+            activate(player, wandMode, arguments, hasConfiguration);
         }
     }
 
     /**
      * Validate permissions, parse filter parameters, and activate the wand.
      */
-    private void activate(Player player, WandMode wandMode, Arguments arguments, boolean hasParameters) {
+    private void activate(Player player, WandMode wandMode, Arguments arguments, boolean hasConfiguration) {
         boolean canInspect = player.hasPermission("prism.inspect") || player.hasPermission("prism.lookup");
         boolean canModify = player.hasPermission("prism.modify");
 
@@ -161,7 +163,7 @@ public class WandCommand {
         }
 
         ActivityQuery activityQuery = null;
-        if (hasParameters) {
+        if (hasConfiguration) {
             var builderOpt = queryService.queryFromArguments(
                 player,
                 arguments,
