@@ -88,11 +88,11 @@ public class NbtService {
             )
             .evictionListener((key, value, cause) -> {
                 String msg = "Evicting entity nbt default from cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                loggingService.debug(() -> String.format(msg, key, value, cause));
             })
             .removalListener((key, value, cause) -> {
                 String msg = "Removing entity nbt default from cache: Key: %s, Value: %s, Removal Cause: %s";
-                loggingService.debug(String.format(msg, key, value, cause));
+                loggingService.debug(() -> String.format(msg, key, value, cause));
             });
 
         if (configurationService.prismConfig().cache().recordStats()) {
@@ -132,10 +132,12 @@ public class NbtService {
                 // Cache the default nbt for this entity
                 entityNbtDefaults.put(key, cacheNbt);
 
-                loggingService.debug(
-                    "Caching default entity nbt for {0}. Byte length: {1}",
-                    key,
-                    StringUtils.getUtf8Mb4Length(defaultNbt.toString())
+                loggingService.debug(() ->
+                    String.format(
+                        "Caching default entity nbt for %s. Byte length: %d",
+                        key,
+                        StringUtils.getUtf8Mb4Length(defaultNbt.toString())
+                    )
                 );
 
                 trimEntityNbt(entity, defaultNbt, consumer);
@@ -154,8 +156,6 @@ public class NbtService {
         String key = entity.getType().getKey().getKey();
 
         NBT.get(entity, nbt -> {
-            var originalByteLength = StringUtils.getUtf8Mb4Length(nbt.toString());
-
             // First, filter by extracting differences with the default
             var filtered = nbt.extractDifference(defaultNbt);
 
@@ -166,12 +166,13 @@ public class NbtService {
 
             consumer.accept(filtered);
 
-            var filteredByteLength = StringUtils.getUtf8Mb4Length(filtered.toString());
-            loggingService.debug(
-                "Filtered entity nbt. Original Byte length: {1} Filtered: {2}",
-                key,
-                originalByteLength,
-                filteredByteLength
+            loggingService.debug(() ->
+                String.format(
+                    "Filtered entity nbt for %s. Original Byte length: %d Filtered: %d",
+                    key,
+                    StringUtils.getUtf8Mb4Length(nbt.toString()),
+                    StringUtils.getUtf8Mb4Length(filtered.toString())
+                )
             );
         });
     }
