@@ -67,6 +67,11 @@ public class PaperItemStackAction extends PaperMaterialAction implements ItemAct
     private final ReadWriteNBT readWriteNbt;
 
     /**
+     * The serialized item nbt string.
+     */
+    private String serializedItemData;
+
+    /**
      * Construct a new item stack action.
      *
      * @param type The action type
@@ -136,7 +141,11 @@ public class PaperItemStackAction extends PaperMaterialAction implements ItemAct
 
     @Override
     public String serializeItemData() {
-        return readWriteNbt.toString();
+        if (serializedItemData == null) {
+            serializedItemData = readWriteNbt.toString();
+        }
+
+        return serializedItemData;
     }
 
     @Override

@@ -56,6 +56,11 @@ public class PaperEntityAction extends PaperAction implements EntityAction {
     private final ReadWriteNBT readWriteNbt;
 
     /**
+     * The serialized custom nbt string.
+     */
+    private String serializedCustomData;
+
+    /**
      * Construct a new entity action.
      *
      * @param type The action type
@@ -113,7 +118,15 @@ public class PaperEntityAction extends PaperAction implements EntityAction {
 
     @Override
     public @Nullable String serializeCustomData() {
-        return readWriteNbt != null ? readWriteNbt.toString() : null;
+        if (readWriteNbt == null) {
+            return null;
+        }
+
+        if (serializedCustomData == null) {
+            serializedCustomData = readWriteNbt.toString();
+        }
+
+        return serializedCustomData;
     }
 
     @Override

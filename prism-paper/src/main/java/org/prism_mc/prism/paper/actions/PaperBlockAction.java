@@ -64,6 +64,11 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
     private ReadWriteNBT readWriteNbt;
 
     /**
+     * The serialized custom nbt string.
+     */
+    private String serializedCustomData;
+
+    /**
      * Construct a block state action.
      *
      * @param type The action type
@@ -224,16 +229,23 @@ public class PaperBlockAction extends PaperAction implements BlockAction {
     public void mergeCompound(String nbtString) {
         if (readWriteNbt != null) {
             readWriteNbt.mergeCompound(NBT.parseNBT(nbtString));
+
+            // Mutating the container invalidates any cached serialization.
+            serializedCustomData = null;
         }
     }
 
     @Override
     public @Nullable String serializeCustomData() {
-        if (this.readWriteNbt != null) {
-            return this.readWriteNbt.toString();
+        if (this.readWriteNbt == null) {
+            return null;
         }
 
-        return null;
+        if (serializedCustomData == null) {
+            serializedCustomData = this.readWriteNbt.toString();
+        }
+
+        return serializedCustomData;
     }
 
     @Override

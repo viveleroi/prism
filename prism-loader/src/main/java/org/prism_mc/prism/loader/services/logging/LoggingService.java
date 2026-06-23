@@ -20,6 +20,7 @@
 
 package org.prism_mc.prism.loader.services.logging;
 
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
@@ -67,6 +68,21 @@ public class LoggingService {
     public void debug(String message, Object... args) {
         if (configurationService.prismConfig().debug()) {
             logger.log(Level.INFO, message, args);
+        }
+    }
+
+    /**
+     * Log a lazily-constructed debug message.
+     *
+     * <p>The supplier is only invoked when debug logging is enabled, so any
+     * expensive work building the message (e.g. serializing NBT to a string)
+     * is deferred and skipped entirely when debug is off.</p>
+     *
+     * @param messageSupplier The message supplier
+     */
+    public void debug(Supplier<String> messageSupplier) {
+        if (configurationService.prismConfig().debug()) {
+            logger.info(messageSupplier.get());
         }
     }
 
