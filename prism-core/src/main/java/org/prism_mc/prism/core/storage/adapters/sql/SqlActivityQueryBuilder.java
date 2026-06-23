@@ -234,8 +234,10 @@ public class SqlActivityQueryBuilder {
         } else {
             if (query.sort().equals(ActivityQuery.Sort.ASCENDING)) {
                 queryBuilder.addOrderBy(PRISM_ACTIVITIES.TIMESTAMP.asc());
+                queryBuilder.addOrderBy(PRISM_ACTIVITIES.ACTIVITY_ID.asc());
             } else {
                 queryBuilder.addOrderBy(PRISM_ACTIVITIES.TIMESTAMP.desc());
+                queryBuilder.addOrderBy(PRISM_ACTIVITIES.ACTIVITY_ID.desc());
             }
         }
 
@@ -311,8 +313,10 @@ public class SqlActivityQueryBuilder {
             addModificationOrdering(queryBuilder);
         } else if (query.sort().equals(ActivityQuery.Sort.ASCENDING)) {
             queryBuilder.addOrderBy(PRISM_ACTIVITIES.TIMESTAMP.asc());
+            queryBuilder.addOrderBy(PRISM_ACTIVITIES.ACTIVITY_ID.asc());
         } else {
             queryBuilder.addOrderBy(PRISM_ACTIVITIES.TIMESTAMP.desc());
+            queryBuilder.addOrderBy(PRISM_ACTIVITIES.ACTIVITY_ID.desc());
         }
 
         if (query.limit() > 0) {
