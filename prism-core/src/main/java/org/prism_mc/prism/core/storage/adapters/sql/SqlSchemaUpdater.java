@@ -37,6 +37,7 @@ import org.jooq.Field;
 import org.jooq.Index;
 import org.jooq.Table;
 import org.jooq.impl.SQLDataType;
+import org.jooq.types.UInteger;
 import org.prism_mc.prism.core.storage.dbo.Indexes;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 
@@ -46,7 +47,7 @@ public class SqlSchemaUpdater {
     /**
      * The current/latest schema version for fresh installations.
      */
-    public static final String CURRENT_SCHEMA_VERSION = "402";
+    public static final String CURRENT_SCHEMA_VERSION = "403";
 
     /**
      * The logger.
@@ -79,6 +80,11 @@ public class SqlSchemaUpdater {
         if ("401".equals(schemaVersion)) {
             update401To402(dslContext);
             schemaVersion = "402";
+        }
+
+        if ("402".equals(schemaVersion)) {
+            update402To403(dslContext);
+            schemaVersion = "403";
         }
     }
 
@@ -211,6 +217,69 @@ public class SqlSchemaUpdater {
         dslContext.update(PRISM_META).set(PRISM_META.V, "402").where(PRISM_META.K.eq("schema_ver")).execute();
 
         loggingService.info("Schema updated to 402.");
+    }
+
+    /**
+     * Update schema from 402 to 403.
+     *
+     * @param dslContext The DSL context
+     */
+    protected void update402To403(DSLContext dslContext) {
+        loggingService.info("Updating schema from 402 to 403...");
+
+        dslContext
+            .alterTable(PRISM_AIRTAGS)
+            .addColumn(PRISM_AIRTAGS.LATEST_ITEM_ID, SQLDataType.INTEGERUNSIGNED)
+            .execute();
+
+        dslContext
+            .alterTable(PRISM_AIRTAGS)
+            .addColumn(PRISM_AIRTAGS.LATEST_ITEM_TIMESTAMP, SQLDataType.INTEGERUNSIGNED)
+            .execute();
+
+        backfillAirtagLatestItems(dslContext);
+
+        // Update the schema version
+        dslContext.update(PRISM_META).set(PRISM_META.V, "403").where(PRISM_META.K.eq("schema_ver")).execute();
+
+        loggingService.info("Schema updated to 403.");
+    }
+
+    /**
+     * Backfill the airtag latest-item pointer for existing airtags.
+     *
+     * @param dslContext The DSL context
+     */
+    protected void backfillAirtagLatestItems(DSLContext dslContext) {
+        loggingService.info("Backfilling airtag latest-item pointers; this may take a while on large databases...");
+
+        var latestItems = PRISM_ITEMS.as("latest_items");
+
+        Field<UInteger> latestItemId = dslContext
+            .select(PRISM_ACTIVITIES.AFFECTED_ITEM_ID)
+            .from(PRISM_ACTIVITIES)
+            .join(latestItems)
+            .on(latestItems.ITEM_ID.eq(PRISM_ACTIVITIES.AFFECTED_ITEM_ID))
+            .where(latestItems.AIRTAG_ID.eq(PRISM_AIRTAGS.AIRTAG_ID))
+            .orderBy(PRISM_ACTIVITIES.TIMESTAMP.desc(), PRISM_ACTIVITIES.ACTIVITY_ID.desc())
+            .limit(1)
+            .asField();
+
+        Field<UInteger> latestItemTimestamp = dslContext
+            .select(PRISM_ACTIVITIES.TIMESTAMP)
+            .from(PRISM_ACTIVITIES)
+            .join(latestItems)
+            .on(latestItems.ITEM_ID.eq(PRISM_ACTIVITIES.AFFECTED_ITEM_ID))
+            .where(latestItems.AIRTAG_ID.eq(PRISM_AIRTAGS.AIRTAG_ID))
+            .orderBy(PRISM_ACTIVITIES.TIMESTAMP.desc(), PRISM_ACTIVITIES.ACTIVITY_ID.desc())
+            .limit(1)
+            .asField();
+
+        dslContext
+            .update(PRISM_AIRTAGS)
+            .set(PRISM_AIRTAGS.LATEST_ITEM_ID, latestItemId)
+            .set(PRISM_AIRTAGS.LATEST_ITEM_TIMESTAMP, latestItemTimestamp)
+            .execute();
     }
 
     /**

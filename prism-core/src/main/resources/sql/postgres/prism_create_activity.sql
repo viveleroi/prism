@@ -148,5 +148,13 @@ BEGIN
         p_serializedData
     )
     RETURNING activity_id INTO v_activityId;
+
+    IF p_affectedItemAirtag IS NOT NULL AND v_affectedItemId IS NOT NULL THEN
+        UPDATE %prefix%airtags
+        SET latest_item_id = v_affectedItemId,
+            latest_item_timestamp = p_timestamp
+        WHERE airtag = p_affectedItemAirtag
+            AND (latest_item_timestamp IS NULL OR p_timestamp >= latest_item_timestamp);
+    END IF;
 END;
 $$ LANGUAGE plpgsql;

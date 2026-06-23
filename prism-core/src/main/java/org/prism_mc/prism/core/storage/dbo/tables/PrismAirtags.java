@@ -30,7 +30,7 @@ import org.jooq.ForeignKey;
 import org.jooq.Identity;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row4;
+import org.jooq.Row6;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -97,6 +97,26 @@ public class PrismAirtags extends TableImpl<PrismAirtagsRecord> {
     public final TableField<PrismAirtagsRecord, UInteger> CREATED_AT = createField(
         DSL.name("created_at"),
         SQLDataType.INTEGERUNSIGNED.nullable(false),
+        this,
+        ""
+    );
+
+    /**
+     * The column <code>prism_airtags.latest_item_id</code>.
+     */
+    public final TableField<PrismAirtagsRecord, UInteger> LATEST_ITEM_ID = createField(
+        DSL.name("latest_item_id"),
+        SQLDataType.INTEGERUNSIGNED,
+        this,
+        ""
+    );
+
+    /**
+     * The column <code>prism_airtags.latest_item_timestamp</code>.
+     */
+    public final TableField<PrismAirtagsRecord, UInteger> LATEST_ITEM_TIMESTAMP = createField(
+        DSL.name("latest_item_timestamp"),
+        SQLDataType.INTEGERUNSIGNED,
         this,
         ""
     );
@@ -173,7 +193,7 @@ public class PrismAirtags extends TableImpl<PrismAirtagsRecord> {
     }
 
     @Override
-    public Row4<UInteger, String, UInteger, UInteger> fieldsRow() {
-        return (Row4) super.fieldsRow();
+    public Row6<UInteger, String, UInteger, UInteger, UInteger, UInteger> fieldsRow() {
+        return (Row6) super.fieldsRow();
     }
 }
