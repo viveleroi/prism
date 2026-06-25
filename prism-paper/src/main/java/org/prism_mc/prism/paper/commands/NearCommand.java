@@ -31,6 +31,7 @@ import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.services.lookup.LookupService;
 import org.prism_mc.prism.paper.services.query.QueryService;
 import org.prism_mc.prism.paper.utils.LocationUtils;
@@ -84,7 +85,14 @@ public class NearCommand {
     public void onNear(final Player player, final Arguments arguments) {
         Location loc = player.getLocation();
 
-        var builderOpt = queryService.queryFromArguments(player, arguments, loc, QueryService.LOCATION_PARSERS);
+        var builderOpt = queryService.queryFromArguments(
+            player,
+            arguments,
+            loc,
+            QueryService.LOCATION_PARSERS,
+            DefaultsConfiguration.CommandType.NEAR
+        );
+
         if (builderOpt.isEmpty()) {
             return;
         }
@@ -93,6 +101,7 @@ public class NearCommand {
             loc,
             configurationService.prismConfig().defaults().nearRadius()
         );
+
         Coordinate maxCoordinate = LocationUtils.getMaxCoordinate(
             loc,
             configurationService.prismConfig().defaults().nearRadius()

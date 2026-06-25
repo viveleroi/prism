@@ -32,6 +32,7 @@ import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.services.modifications.ActivityStream;
 import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.modifications.PaperModificationQueueService;
@@ -124,7 +125,12 @@ public class RollbackCommand {
             return;
         }
 
-        var builder = queryService.queryFromArguments(sender, arguments);
+        var builder = queryService.queryFromArguments(
+            sender,
+            arguments,
+            DefaultsConfiguration.CommandType.MODIFICATION
+        );
+
         if (builder.isPresent()) {
             var queryBuilder = builder.get().rollback();
 
@@ -137,6 +143,9 @@ public class RollbackCommand {
 
             final ActivityQuery query = queryBuilder.build();
             prismScheduler.runAsync(() -> {
+                // Ownership transferred to the ModificationQueue, which closes the stream
+                // (or reopens it for preview->apply). Cannot use try-with-resources here.
+                @SuppressWarnings("resource")
                 ActivityStream activityStream = openStream(sender, query);
                 if (activityStream == null) {
                     return;
@@ -156,7 +165,7 @@ public class RollbackCommand {
 
                     // Load the modification ruleset from the configs, and apply flags
                     var modificationRuleset = modificationQueueService
-                        .applyFlagsToModificationRuleset(arguments)
+                        .applyFlagsToModificationRuleset(arguments, DefaultsConfiguration.CommandType.MODIFICATION)
                         .build();
 
                     try {

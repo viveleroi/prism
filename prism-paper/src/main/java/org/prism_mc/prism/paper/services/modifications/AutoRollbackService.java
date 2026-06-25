@@ -119,6 +119,9 @@ public class AutoRollbackService {
         loggingService.info("Auto-rollback: querying activities for banned player {0}...", playerName);
 
         prismScheduler.runAsync(() -> {
+            // Ownership transferred to the ModificationQueue, which closes the stream
+            // (or reopens it for preview->apply). Cannot use try-with-resources here.
+            @SuppressWarnings("resource")
             ActivityStream activityStream = openStream(playerName, query);
             if (activityStream == null) {
                 return;

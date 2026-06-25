@@ -90,7 +90,7 @@ public abstract class QueryArgumentValueSetParser<T, R> extends QueryArgumentPar
         }
 
         if (canUseDefaultValue(parameter, arguments)) {
-            String defaultValueString = defaultsConfiguration.parameters().get(parameter);
+            String defaultValueString = activeParameters().get(parameter);
             Set<R> parsedDefault = defaultValueParser.apply(defaultValueString);
             builder.defaultUsed(String.format("%s:%s", parameter, defaultValueString));
             return parsedDefault;

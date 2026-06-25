@@ -26,10 +26,12 @@ import dev.triumphteam.cmd.core.annotations.CommandFlags;
 import dev.triumphteam.cmd.core.annotations.NamedArguments;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import org.bukkit.entity.Player;
-import org.prism_mc.prism.api.activities.ActivityQuery;
+import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
 import org.prism_mc.prism.api.services.wands.Wand;
 import org.prism_mc.prism.api.services.wands.WandMode;
+import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.services.messages.MessageService;
+import org.prism_mc.prism.paper.services.modifications.PaperModificationQueueService;
 import org.prism_mc.prism.paper.services.query.QueryService;
 import org.prism_mc.prism.paper.services.wands.WandService;
 
@@ -40,6 +42,11 @@ public class WandCommand {
      * The message service.
      */
     private final MessageService messageService;
+
+    /**
+     * The modification queue service.
+     */
+    private final PaperModificationQueueService modificationQueueService;
 
     /**
      * The query service.
@@ -55,12 +62,19 @@ public class WandCommand {
      * Construct the wand command.
      *
      * @param messageService The message service
+     * @param modificationQueueService The modification queue service
      * @param queryService The query service
      * @param wandService The wand service
      */
     @Inject
-    public WandCommand(MessageService messageService, QueryService queryService, WandService wandService) {
+    public WandCommand(
+        MessageService messageService,
+        PaperModificationQueueService modificationQueueService,
+        QueryService queryService,
+        WandService wandService
+    ) {
         this.messageService = messageService;
+        this.modificationQueueService = modificationQueueService;
         this.queryService = queryService;
         this.wandService = wandService;
     }
@@ -88,7 +102,7 @@ public class WandCommand {
                 return;
             }
 
-            activate(player, WandMode.INSPECT, arguments, hasConfiguration);
+            activate(player, WandMode.INSPECT, arguments);
         }
 
         /**
@@ -141,14 +155,16 @@ public class WandCommand {
                 return;
             }
 
-            activate(player, wandMode, arguments, hasConfiguration);
+            activate(player, wandMode, arguments);
         }
     }
 
     /**
-     * Validate permissions, parse filter parameters, and activate the wand.
+     * Validate permissions, parse filter parameters, and activate the wand. The query is built
+     * unconditionally so configured wand defaults (parameters and flags) apply even when the
+     * player supplies no filters of their own.
      */
-    private void activate(Player player, WandMode wandMode, Arguments arguments, boolean hasConfiguration) {
+    private void activate(Player player, WandMode wandMode, Arguments arguments) {
         boolean canInspect = player.hasPermission("prism.inspect") || player.hasPermission("prism.lookup");
         boolean canModify = player.hasPermission("prism.modify");
 
@@ -162,20 +178,28 @@ public class WandCommand {
             return;
         }
 
-        ActivityQuery activityQuery = null;
-        if (hasConfiguration) {
-            var builderOpt = queryService.queryFromArguments(
-                player,
-                arguments,
-                player.getLocation(),
-                QueryService.LOCATION_PARSERS
-            );
-            if (builderOpt.isEmpty()) {
-                return;
-            }
-            activityQuery = builderOpt.get().build();
+        DefaultsConfiguration.CommandType commandType = wandMode == WandMode.INSPECT
+            ? DefaultsConfiguration.CommandType.WAND_INSPECT
+            : DefaultsConfiguration.CommandType.WAND_MODIFICATION;
+
+        var builderOpt = queryService.queryFromArguments(
+            player,
+            arguments,
+            player.getLocation(),
+            QueryService.LOCATION_PARSERS,
+            commandType
+        );
+
+        if (builderOpt.isEmpty()) {
+            return;
         }
 
-        wandService.activateWand(player, wandMode, activityQuery);
+        ModificationRuleset modificationRuleset = wandMode == WandMode.INSPECT
+            ? null
+            : modificationQueueService
+                .applyFlagsToModificationRuleset(arguments, DefaultsConfiguration.CommandType.WAND_MODIFICATION)
+                .build();
+
+        wandService.activateWand(player, wandMode, builderOpt.get().build(), modificationRuleset);
     }
 }

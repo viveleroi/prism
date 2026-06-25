@@ -26,6 +26,7 @@ import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.bukkit.Location;
@@ -33,6 +34,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.actions.types.PaperActionTypeRegistry;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 import org.prism_mc.prism.paper.integrations.worldedit.WorldEditIntegration;
@@ -87,6 +89,11 @@ public class QueryService {
     protected final MessageService messageService;
 
     /**
+     * The configuration service.
+     */
+    protected final ConfigurationService configurationService;
+
+    /**
      * All registered argument/query parsers.
      */
     public static final List<QueryArgumentParser<?>> parsers = new ArrayList<>();
@@ -128,6 +135,7 @@ public class QueryService {
         Provider<WorldEditIntegration> worldEditIntegration
     ) {
         this.messageService = messageService;
+        this.configurationService = configurationService;
         this.idParameterParser = new IdParameterParser(messageService, configurationService.prismConfig().defaults());
 
         // World parser must be first
@@ -236,10 +244,27 @@ public class QueryService {
         CommandSender sender,
         Arguments arguments
     ) {
+        return queryFromArguments(sender, arguments, (DefaultsConfiguration.CommandType) null);
+    }
+
+    /**
+     * Start a query builder from command-derived parameters, applying the defaults
+     * configured for the given command (merged over the base defaults).
+     *
+     * @param sender The command sender
+     * @param arguments The arguments
+     * @param command The command whose defaults should apply, or null for base only
+     * @return The activity query builder
+     */
+    public Optional<PaperActivityQuery.PaperActivityQueryBuilder<?, ?>> queryFromArguments(
+        CommandSender sender,
+        Arguments arguments,
+        DefaultsConfiguration.CommandType command
+    ) {
         if (sender instanceof Player player) {
-            return queryFromArguments(sender, arguments, player.getLocation(), Set.of());
+            return queryFromArguments(sender, arguments, player.getLocation(), Set.of(), command);
         } else {
-            return queryFromArguments(sender, arguments, null, Set.of());
+            return queryFromArguments(sender, arguments, null, Set.of(), command);
         }
     }
 
@@ -305,6 +330,53 @@ public class QueryService {
         Location referenceLocation,
         Set<Class<? extends QueryArgumentParser<?>>> excludedParsers
     ) {
+        return queryFromArguments(sender, arguments, referenceLocation, excludedParsers, null);
+    }
+
+    /**
+     * Start a query builder from command-derived parameters, refusing any parsers in the
+     * excluded set and applying the defaults configured for the given command. If the user
+     * supplied an excluded parameter, an error is sent and an empty optional is returned.
+     *
+     * @param sender The command sender
+     * @param arguments The arguments
+     * @param referenceLocation The reference location
+     * @param excludedParsers Parser classes that are not allowed for this command
+     * @param command The command whose defaults should apply, or null for base only
+     * @return The activity query builder
+     */
+    public Optional<PaperActivityQuery.PaperActivityQueryBuilder<?, ?>> queryFromArguments(
+        CommandSender sender,
+        Arguments arguments,
+        Location referenceLocation,
+        Set<Class<? extends QueryArgumentParser<?>>> excludedParsers,
+        DefaultsConfiguration.CommandType command
+    ) {
+        var defaults = configurationService.prismConfig().defaults();
+        Map<String, String> defaultParameters = command == null ? defaults.parameters() : defaults.parameters(command);
+
+        QueryArgumentParser.setActiveParameters(defaultParameters);
+        try {
+            Map<String, String> defaultFlags = command == null ? defaults.flags() : defaults.flags(command);
+
+            return buildQuery(sender, arguments, referenceLocation, excludedParsers, defaultFlags);
+        } finally {
+            QueryArgumentParser.clearActiveParameters();
+        }
+    }
+
+    /**
+     * Build the query, applying the supplied resolved default flags where the player did
+     * not provide their own. The active default-parameter map is expected to already be
+     * set on {@link QueryArgumentParser} for the duration of this call.
+     */
+    private Optional<PaperActivityQuery.PaperActivityQueryBuilder<?, ?>> buildQuery(
+        CommandSender sender,
+        Arguments arguments,
+        Location referenceLocation,
+        Set<Class<? extends QueryArgumentParser<?>>> excludedParsers,
+        Map<String, String> defaultFlags
+    ) {
         // Reject any excluded parameters the user supplied up front
         for (var parser : parsers) {
             if (excludedParsers.contains(parser.getClass()) && parser.isPresent(arguments)) {
@@ -322,14 +394,23 @@ public class QueryService {
 
         var builder = PaperActivityQuery.builder();
 
+        // Default flags only apply when defaults are not suppressed for this query
+        boolean useDefaultFlags = !arguments.hasFlag("nodefaults") && !QueryArgumentParser.isSkipDefaults();
+
         // Count flag
         if (arguments.hasFlag("count")) {
             builder.countOnly(true);
+        } else if (useDefaultFlags && Boolean.parseBoolean(defaultFlags.get("count"))) {
+            builder.countOnly(true);
+            builder.defaultUsed("--count");
         }
 
         // No-group flag
         if (arguments.hasFlag("nogroup")) {
             builder.grouped(false);
+        } else if (useDefaultFlags && Boolean.parseBoolean(defaultFlags.get("nogroup"))) {
+            builder.grouped(false);
+            builder.defaultUsed("--nogroup");
         }
 
         // Sort flag
@@ -342,6 +423,22 @@ public class QueryService {
                 default -> {
                     messageService.errorParamInvalid(sender, "sort:" + sortFlag.get());
                     return Optional.empty();
+                }
+            }
+        } else if (useDefaultFlags && defaultFlags.containsKey("sort")) {
+            // A misconfigured default sort is ignored rather than failing every query
+            String sortValue = defaultFlags.get("sort").toLowerCase(Locale.ROOT);
+            switch (sortValue) {
+                case "asc" -> {
+                    builder.sort(ActivityQuery.Sort.ASCENDING);
+                    builder.defaultUsed("--sort asc");
+                }
+                case "desc" -> {
+                    builder.sort(ActivityQuery.Sort.DESCENDING);
+                    builder.defaultUsed("--sort desc");
+                }
+                default -> {
+                    // Ignore invalid configured default
                 }
             }
         }

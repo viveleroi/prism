@@ -29,6 +29,7 @@ import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.services.lookup.LookupService;
 import org.prism_mc.prism.paper.services.query.QueryService;
 
@@ -79,7 +80,7 @@ public class LookupCommand {
     @Command(value = "lookup", alias = { "l" })
     @Permission("prism.lookup")
     public void onLookup(final CommandSender sender, final Arguments arguments) {
-        var builder = queryService.queryFromArguments(sender, arguments);
+        var builder = queryService.queryFromArguments(sender, arguments, DefaultsConfiguration.CommandType.LOOKUP);
         if (builder.isPresent()) {
             final ActivityQuery query = builder
                 .get()

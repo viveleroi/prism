@@ -57,6 +57,7 @@ import org.prism_mc.prism.core.injection.factories.RestoreFactory;
 import org.prism_mc.prism.core.injection.factories.RollbackFactory;
 import org.prism_mc.prism.core.services.cache.CacheService;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.scheduling.PrismScheduler;
@@ -185,17 +186,46 @@ public class PaperModificationQueueService implements ModificationQueueService {
      * Apply flags to the modification ruleset.
      *
      * @param arguments The arguments
+     * @param command The command whose default flags apply, or null to ignore configured defaults
      * @return The builder
      */
-    public ModificationRuleset.ModificationRulesetBuilder applyFlagsToModificationRuleset(Arguments arguments) {
+    public ModificationRuleset.ModificationRulesetBuilder applyFlagsToModificationRuleset(
+        Arguments arguments,
+        DefaultsConfiguration.CommandType command
+    ) {
         var builder = configurationService.prismConfig().modifications().toRulesetBuilder();
-        builder.overwrite(arguments.hasFlag("overwrite"));
 
-        arguments.getFlagValue("drainlava", Boolean.class).ifPresent(builder::drainLava);
-        arguments.getFlagValue("physics", Boolean.class).ifPresent(builder::applyPhysics);
-        arguments.getFlagValue("removedrops", Boolean.class).ifPresent(builder::removeDrops);
+        Map<String, String> defaultFlags = command == null || arguments.hasFlag("nodefaults")
+            ? Map.of()
+            : configurationService.prismConfig().defaults().flags(command);
+
+        builder.overwrite(arguments.hasFlag("overwrite") || Boolean.parseBoolean(defaultFlags.get("overwrite")));
+
+        resolveBooleanFlag(arguments, defaultFlags, "drainlava").ifPresent(builder::drainLava);
+        resolveBooleanFlag(arguments, defaultFlags, "physics").ifPresent(builder::applyPhysics);
+        resolveBooleanFlag(arguments, defaultFlags, "removedrops").ifPresent(builder::removeDrops);
 
         return builder;
+    }
+
+    /**
+     * Resolve a boolean modification flag, preferring the player-supplied value and falling back
+     * to the configured default when present.
+     *
+     * @param arguments The arguments
+     * @param defaultFlags The resolved default flags
+     * @param flag The flag name
+     * @return The effective value, or empty when neither supplied nor configured
+     */
+    private Optional<Boolean> resolveBooleanFlag(Arguments arguments, Map<String, String> defaultFlags, String flag) {
+        Optional<Boolean> supplied = arguments.getFlagValue(flag, Boolean.class);
+        if (supplied.isPresent()) {
+            return supplied;
+        }
+
+        String defaultValue = defaultFlags.get(flag);
+
+        return defaultValue != null ? Optional.of(Boolean.parseBoolean(defaultValue)) : Optional.empty();
     }
 
     @Override

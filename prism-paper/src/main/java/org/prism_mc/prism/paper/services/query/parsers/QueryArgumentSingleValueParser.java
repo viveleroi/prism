@@ -100,7 +100,7 @@ public abstract class QueryArgumentSingleValueParser<T> extends QueryArgumentPar
         }
 
         if (canUseDefaultValue(parameter, arguments)) {
-            String defaultValueString = defaultsConfiguration.parameters().get(parameter);
+            String defaultValueString = activeParameters().get(parameter);
             T parsedDefault = valueParser.parse(defaultValueString, parameter);
 
             if (builder != null) {

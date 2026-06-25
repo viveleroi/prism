@@ -77,6 +77,12 @@ public abstract class AbstractModificationWand {
     protected ActivityQuery activityQuery;
 
     /**
+     * The optional modification ruleset (derived from activation flags) applied to every use of
+     * this wand. When null, the server's configured defaults are used.
+     */
+    protected ModificationRuleset modificationRuleset;
+
+    /**
      * Provide an activity query template that all subsequent uses of this wand layer their
      * world/coordinate restrictions on top of.
      *
@@ -84,6 +90,15 @@ public abstract class AbstractModificationWand {
      */
     public void setActivityQuery(ActivityQuery activityQuery) {
         this.activityQuery = activityQuery;
+    }
+
+    /**
+     * Provide a modification ruleset applied to every use of this wand.
+     *
+     * @param modificationRuleset The modification ruleset, or null to use the server defaults
+     */
+    public void setModificationRuleset(ModificationRuleset modificationRuleset) {
+        this.modificationRuleset = modificationRuleset;
     }
 
     /**
@@ -155,14 +170,12 @@ public abstract class AbstractModificationWand {
                     return;
                 }
 
-                ModificationRuleset modificationRuleset = configurationService
-                    .prismConfig()
-                    .modifications()
-                    .toRulesetBuilder()
-                    .build();
+                ModificationRuleset ruleset = modificationRuleset != null
+                    ? modificationRuleset
+                    : configurationService.prismConfig().modifications().toRulesetBuilder().build();
 
                 try {
-                    modificationQueueService.newQueue(clazz, modificationRuleset, owner, query, activityStream).apply();
+                    modificationQueueService.newQueue(clazz, ruleset, owner, query, activityStream).apply();
                 } catch (Exception e) {
                     activityStream.close();
                     loggingService.handleException(e);
