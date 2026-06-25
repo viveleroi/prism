@@ -300,8 +300,34 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             prefix
         );
 
-        var catalog = new DefaultCatalog(configurationService.storageConfig().primaryDataSource().catalog());
+        // Initialize all of the shared static DBOs, aliases, and database model
+        initializeDataObjects(
+            prefix,
+            configurationService.storageConfig().primaryDataSource().catalog(),
+            configurationService.storageConfig().primaryDataSource().schema()
+        );
 
+        // Turn off jooq crap. Lame
+        System.setProperty("org.jooq.no-logo", "true");
+        System.setProperty("org.jooq.no-tips", "true");
+
+        // Load any drivers
+        HikariConfigFactories.loadDriver(configurationService.storageConfig().primaryStorageType());
+        listDrivers();
+    }
+
+    /**
+     * Initialize the shared static database objects, table/field aliases, and database model.
+     *
+     * <p>This is the single source of truth for the {@code PRISM_*} static fields. Both the
+     * storage adapter constructor and the standalone schema-update CLI route through here so the
+     * two cannot drift out of sync and leave a DBO null for code that expects it.</p>
+     *
+     * @param prefix The schema/table prefix
+     * @param catalog The catalog name
+     * @param schema The schema name
+     */
+    public static void initializeDataObjects(String prefix, String catalog, String schema) {
         // Initialize all of our DBOs
         PRISM_ACTIONS = new PrismActions(prefix);
         PRISM_ACTIVITIES = new PrismActivities(prefix);
@@ -314,8 +340,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
         PRISM_PLAYERS = new PrismPlayers(prefix);
         PRISM_WORLDS = new PrismWorlds(prefix);
         PRISM_DATABASE = new PrismDatabase(
-            catalog,
-            configurationService.storageConfig().primaryDataSource().schema(),
+            new DefaultCatalog(catalog),
+            schema,
             Arrays.asList(
                 PRISM_ACTIONS,
                 PRISM_ACTIVITIES,
@@ -344,14 +370,6 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
         REPLACED_BLOCKS_TRANSLATION_KEY = REPLACED_BLOCKS.TRANSLATION_KEY.as("replaced_block_translation_key");
         CAUSE_ENTITY_TYPES_TRANSLATION_KEY = CAUSE_ENTITY_TYPES.TRANSLATION_KEY.as("cause_entity_type_translation_key");
         CAUSE_BLOCKS_TRANSLATION_KEY = CAUSE_BLOCKS.TRANSLATION_KEY.as("cause_block_translation_key");
-
-        // Turn off jooq crap. Lame
-        System.setProperty("org.jooq.no-logo", "true");
-        System.setProperty("org.jooq.no-tips", "true");
-
-        // Load any drivers
-        HikariConfigFactories.loadDriver(configurationService.storageConfig().primaryStorageType());
-        listDrivers();
     }
 
     /**
@@ -532,6 +550,8 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             .column(PRISM_AIRTAGS.AIRTAG)
             .column(PRISM_AIRTAGS.PLAYER_ID)
             .column(PRISM_AIRTAGS.CREATED_AT)
+            .column(PRISM_AIRTAGS.LATEST_ITEM_ID)
+            .column(PRISM_AIRTAGS.LATEST_ITEM_TIMESTAMP)
             .primaryKey(PRISM_AIRTAGS.AIRTAG_ID)
             .unique(PRISM_AIRTAGS.AIRTAG)
             .constraints(
@@ -1227,25 +1247,13 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
 
     @Override
     public List<AirtagSummary> queryAirtagsForPlayer(UUID playerUuid, int limit) {
-        // Resolve each airtag to the affected item of its most recent activity
-        var latestItems = PRISM_ITEMS.as("latest_items");
-        Field<UInteger> latestItemId = dslContext
-            .select(PRISM_ACTIVITIES.AFFECTED_ITEM_ID)
-            .from(PRISM_ACTIVITIES)
-            .join(latestItems)
-            .on(latestItems.ITEM_ID.eq(PRISM_ACTIVITIES.AFFECTED_ITEM_ID))
-            .where(latestItems.AIRTAG_ID.eq(PRISM_AIRTAGS.AIRTAG_ID))
-            .orderBy(PRISM_ACTIVITIES.TIMESTAMP.desc(), PRISM_ACTIVITIES.ACTIVITY_ID.desc())
-            .limit(1)
-            .asField();
-
         return dslContext
             .select(PRISM_AIRTAGS.AIRTAG, PRISM_ITEMS.MATERIAL, PRISM_ITEMS.DATA, PRISM_AIRTAGS.CREATED_AT)
             .from(PRISM_AIRTAGS)
             .join(PRISM_PLAYERS)
             .on(PRISM_PLAYERS.PLAYER_ID.eq(PRISM_AIRTAGS.PLAYER_ID))
             .join(PRISM_ITEMS)
-            .on(PRISM_ITEMS.ITEM_ID.eq(latestItemId))
+            .on(PRISM_ITEMS.ITEM_ID.eq(PRISM_AIRTAGS.LATEST_ITEM_ID))
             .where(PRISM_PLAYERS.PLAYER_UUID.eq(playerUuid.toString()))
             .orderBy(PRISM_AIRTAGS.CREATED_AT.desc())
             .limit(limit)

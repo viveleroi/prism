@@ -36,12 +36,6 @@ import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.prism_mc.prism.core.storage.HikariConfigFactories;
 import org.prism_mc.prism.core.storage.adapters.mysql.MysqlSchemaUpdater;
-import org.prism_mc.prism.core.storage.dbo.DefaultCatalog;
-import org.prism_mc.prism.core.storage.dbo.PrismDatabase;
-import org.prism_mc.prism.core.storage.dbo.tables.PrismActivities;
-import org.prism_mc.prism.core.storage.dbo.tables.PrismItems;
-import org.prism_mc.prism.core.storage.dbo.tables.PrismMeta;
-import org.prism_mc.prism.core.storage.dbo.tables.PrismPlayers;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.configuration.storage.StorageConfiguration;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
@@ -175,16 +169,10 @@ public class SqlSchemaUpdateCli implements SchemaUpdateCli {
      * @param prefix The table prefix
      */
     private void initializeDbo(StorageConfiguration storageConfig, String prefix) {
-        AbstractSqlStorageAdapter.PRISM_META = new PrismMeta(prefix);
-        AbstractSqlStorageAdapter.PRISM_ACTIVITIES = new PrismActivities(prefix);
-        AbstractSqlStorageAdapter.PRISM_ITEMS = new PrismItems(prefix);
-        AbstractSqlStorageAdapter.PRISM_PLAYERS = new PrismPlayers(prefix);
-
-        var catalog = new DefaultCatalog(storageConfig.primaryDataSource().catalog());
-        AbstractSqlStorageAdapter.PRISM_DATABASE = new PrismDatabase(
-            catalog,
-            storageConfig.primaryDataSource().schema(),
-            java.util.List.of(AbstractSqlStorageAdapter.PRISM_META, AbstractSqlStorageAdapter.PRISM_ACTIVITIES)
+        AbstractSqlStorageAdapter.initializeDataObjects(
+            prefix,
+            storageConfig.primaryDataSource().catalog(),
+            storageConfig.primaryDataSource().schema()
         );
     }
 

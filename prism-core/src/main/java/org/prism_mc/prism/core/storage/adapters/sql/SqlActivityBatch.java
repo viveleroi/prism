@@ -33,7 +33,9 @@ import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAda
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.jooq.DSLContext;
 import org.jooq.types.UInteger;
@@ -130,6 +132,19 @@ public class SqlActivityBatch implements ActivityBatch {
     private List<PrismActivitiesRecord> records = new ArrayList<>();
 
     /**
+     * The newest airtagged item seen in this batch.
+     */
+    private Map<String, AirtagPointer> pendingAirtagPointers = new HashMap<>();
+
+    /**
+     * The affected item of an airtagged activity, with the activity's timestamp.
+     *
+     * @param itemId The affected item primary key
+     * @param timestampSeconds The activity timestamp, in epoch seconds
+     */
+    private record AirtagPointer(int itemId, long timestampSeconds) {}
+
+    /**
      * Construct a new batch handler.
      *
      * @param loggingService The logging service
@@ -155,6 +170,7 @@ public class SqlActivityBatch implements ActivityBatch {
     @Override
     public void startBatch() {
         records = new ArrayList<>();
+        pendingAirtagPointers = new HashMap<>();
     }
 
     @Override
@@ -182,16 +198,14 @@ public class SqlActivityBatch implements ActivityBatch {
 
         // Set the item relationship. The airtag, if any, links the item row to its airtag.
         if (activity.action() instanceof ItemAction itemAction) {
-            record.setItemId(
-                UInteger.valueOf(
-                    getOrCreateItemId(
-                        itemAction.serializeMaterial(),
-                        itemAction.serializeItemData(),
-                        itemAction.itemAirtag()
-                    )
-                )
+            int itemId = getOrCreateItemId(
+                itemAction.serializeMaterial(),
+                itemAction.serializeItemData(),
+                itemAction.itemAirtag()
             );
+            record.setItemId(UInteger.valueOf(itemId));
             record.setItemQuantity(UShort.valueOf(itemAction.quantity()));
+            trackAirtagPointer(itemAction.itemAirtag(), itemId, activity.timestamp() / 1000);
         }
 
         // Set the block relationship
@@ -313,12 +327,14 @@ public class SqlActivityBatch implements ActivityBatch {
 
         // Item. The airtag, if any, links the item row to its airtag.
         if (walRecord.getItemMaterial() != null) {
-            record.setItemId(
-                UInteger.valueOf(
-                    getOrCreateItemId(walRecord.getItemMaterial(), walRecord.getItemData(), walRecord.getItemAirtag())
-                )
+            int itemId = getOrCreateItemId(
+                walRecord.getItemMaterial(),
+                walRecord.getItemData(),
+                walRecord.getItemAirtag()
             );
+            record.setItemId(UInteger.valueOf(itemId));
             record.setItemQuantity(UShort.valueOf(walRecord.getItemQuantity()));
+            trackAirtagPointer(walRecord.getItemAirtag(), itemId, walRecord.getTimestamp() / 1000);
         }
 
         // Block
@@ -912,8 +928,49 @@ public class SqlActivityBatch implements ActivityBatch {
         }
     }
 
+    /**
+     * Record the affected item of an airtagged activity so the airtag's latest-item
+     * pointer can be advanced on commit. Keeps the newest activity per airtag.
+     *
+     * @param airtag The airtag, or null if the item isn't airtagged
+     * @param itemId The affected item primary key
+     * @param timestampSeconds The activity timestamp, in epoch seconds
+     */
+    private void trackAirtagPointer(String airtag, int itemId, long timestampSeconds) {
+        if (airtag == null) {
+            return;
+        }
+
+        pendingAirtagPointers.merge(airtag, new AirtagPointer(itemId, timestampSeconds), (existing, candidate) ->
+            candidate.timestampSeconds() >= existing.timestampSeconds() ? candidate : existing
+        );
+    }
+
+    /**
+     * Advance each airtag's latest-item pointer to the newest item seen in this batch.
+     */
+    private void flushAirtagPointers() {
+        for (var entry : pendingAirtagPointers.entrySet()) {
+            AirtagPointer pointer = entry.getValue();
+            UInteger timestamp = UInteger.valueOf(pointer.timestampSeconds());
+
+            dslContext
+                .update(PRISM_AIRTAGS)
+                .set(PRISM_AIRTAGS.LATEST_ITEM_ID, UInteger.valueOf(pointer.itemId()))
+                .set(PRISM_AIRTAGS.LATEST_ITEM_TIMESTAMP, timestamp)
+                .where(
+                    PRISM_AIRTAGS.AIRTAG.eq(entry.getKey()).and(
+                        PRISM_AIRTAGS.LATEST_ITEM_TIMESTAMP.isNull()
+                            .or(PRISM_AIRTAGS.LATEST_ITEM_TIMESTAMP.le(timestamp))
+                    )
+                )
+                .execute();
+        }
+    }
+
     @Override
     public void commitBatch() {
         dslContext.batchInsert(records).execute();
+        flushAirtagPointers();
     }
 }

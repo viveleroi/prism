@@ -24,15 +24,15 @@ import static org.prism_mc.prism.core.storage.adapters.sql.AbstractSqlStorageAda
 
 import org.jooq.Field;
 import org.jooq.Record1;
-import org.jooq.Record4;
-import org.jooq.Row4;
+import org.jooq.Record6;
+import org.jooq.Row6;
 import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.types.UInteger;
 
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PrismAirtagsRecord
     extends UpdatableRecordImpl<PrismAirtagsRecord>
-    implements Record4<UInteger, String, UInteger, UInteger> {
+    implements Record6<UInteger, String, UInteger, UInteger, UInteger, UInteger> {
 
     private static final long serialVersionUID = 1L;
 
@@ -96,6 +96,36 @@ public class PrismAirtagsRecord
         return (UInteger) get(3);
     }
 
+    /**
+     * Setter for <code>prism_airtags.latest_item_id</code>.
+     */
+    public PrismAirtagsRecord setLatestItemId(UInteger value) {
+        set(4, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>prism_airtags.latest_item_id</code>.
+     */
+    public UInteger getLatestItemId() {
+        return (UInteger) get(4);
+    }
+
+    /**
+     * Setter for <code>prism_airtags.latest_item_timestamp</code>.
+     */
+    public PrismAirtagsRecord setLatestItemTimestamp(UInteger value) {
+        set(5, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>prism_airtags.latest_item_timestamp</code>.
+     */
+    public UInteger getLatestItemTimestamp() {
+        return (UInteger) get(5);
+    }
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -106,17 +136,17 @@ public class PrismAirtagsRecord
     }
 
     // -------------------------------------------------------------------------
-    // Record4 type implementation
+    // Record6 type implementation
     // -------------------------------------------------------------------------
 
     @Override
-    public Row4<UInteger, String, UInteger, UInteger> fieldsRow() {
-        return (Row4) super.fieldsRow();
+    public Row6<UInteger, String, UInteger, UInteger, UInteger, UInteger> fieldsRow() {
+        return (Row6) super.fieldsRow();
     }
 
     @Override
-    public Row4<UInteger, String, UInteger, UInteger> valuesRow() {
-        return (Row4) super.valuesRow();
+    public Row6<UInteger, String, UInteger, UInteger, UInteger, UInteger> valuesRow() {
+        return (Row6) super.valuesRow();
     }
 
     @Override
@@ -140,6 +170,16 @@ public class PrismAirtagsRecord
     }
 
     @Override
+    public Field<UInteger> field5() {
+        return PRISM_AIRTAGS.LATEST_ITEM_ID;
+    }
+
+    @Override
+    public Field<UInteger> field6() {
+        return PRISM_AIRTAGS.LATEST_ITEM_TIMESTAMP;
+    }
+
+    @Override
     public UInteger component1() {
         return getAirtagId();
     }
@@ -157,6 +197,16 @@ public class PrismAirtagsRecord
     @Override
     public UInteger component4() {
         return getCreatedAt();
+    }
+
+    @Override
+    public UInteger component5() {
+        return getLatestItemId();
+    }
+
+    @Override
+    public UInteger component6() {
+        return getLatestItemTimestamp();
     }
 
     @Override
@@ -204,11 +254,42 @@ public class PrismAirtagsRecord
     }
 
     @Override
-    public PrismAirtagsRecord values(UInteger value1, String value2, UInteger value3, UInteger value4) {
+    public UInteger value5() {
+        return getLatestItemId();
+    }
+
+    @Override
+    public PrismAirtagsRecord value5(UInteger value) {
+        setLatestItemId(value);
+        return this;
+    }
+
+    @Override
+    public UInteger value6() {
+        return getLatestItemTimestamp();
+    }
+
+    @Override
+    public PrismAirtagsRecord value6(UInteger value) {
+        setLatestItemTimestamp(value);
+        return this;
+    }
+
+    @Override
+    public PrismAirtagsRecord values(
+        UInteger value1,
+        String value2,
+        UInteger value3,
+        UInteger value4,
+        UInteger value5,
+        UInteger value6
+    ) {
         value1(value1);
         value2(value2);
         value3(value3);
         value4(value4);
+        value5(value5);
+        value6(value6);
         return this;
     }
 
@@ -226,11 +307,20 @@ public class PrismAirtagsRecord
     /**
      * Create a detached, initialised PrismAirtagsRecord.
      */
-    public PrismAirtagsRecord(UInteger airtagId, String airtag, UInteger playerId, UInteger createdAt) {
+    public PrismAirtagsRecord(
+        UInteger airtagId,
+        String airtag,
+        UInteger playerId,
+        UInteger createdAt,
+        UInteger latestItemId,
+        UInteger latestItemTimestamp
+    ) {
         super(PRISM_AIRTAGS);
         setAirtagId(airtagId);
         setAirtag(airtag);
         setPlayerId(playerId);
         setCreatedAt(createdAt);
+        setLatestItemId(latestItemId);
+        setLatestItemTimestamp(latestItemTimestamp);
     }
 }
