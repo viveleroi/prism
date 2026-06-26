@@ -22,6 +22,7 @@ package org.prism_mc.prism.api.services.wands;
 
 import java.util.UUID;
 import org.prism_mc.prism.api.activities.ActivityQuery;
+import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
 import org.prism_mc.prism.api.util.Coordinate;
 
 public interface Wand {
@@ -47,6 +48,14 @@ public interface Wand {
      * @param activityQuery The activity query template, or null to clear
      */
     default void setActivityQuery(ActivityQuery activityQuery) {}
+
+    /**
+     * Provide a modification ruleset (derived from flags such as drainlava, physics, removedrops,
+     * overwrite) applied to every modifying use of this wand. Non-modification wands ignore it.
+     *
+     * @param modificationRuleset The modification ruleset, or null to use the server defaults
+     */
+    default void setModificationRuleset(ModificationRuleset modificationRuleset) {}
 
     /**
      * Use this wand on the given world/coordinate.

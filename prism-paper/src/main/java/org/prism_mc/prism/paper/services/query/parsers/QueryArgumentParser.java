@@ -21,6 +21,7 @@
 package org.prism_mc.prism.paper.services.query.parsers;
 
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
+import java.util.Map;
 import lombok.Getter;
 import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
@@ -54,6 +55,11 @@ public abstract class QueryArgumentParser<T> {
     private static final ThreadLocal<Boolean> SKIP_DEFAULTS = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
     /**
+     * Per-thread resolved default-parameter map for the duration of a single {@code queryFromArguments} call.
+     */
+    private static final ThreadLocal<Map<String, String>> ACTIVE_PARAMETERS = new ThreadLocal<>();
+
+    /**
      * Toggle the per-thread skip-defaults flag.
      *
      * @param skip True to suppress defaults
@@ -67,6 +73,31 @@ public abstract class QueryArgumentParser<T> {
      */
     public static void clearSkipDefaults() {
         SKIP_DEFAULTS.remove();
+    }
+
+    /**
+     * Check whether the per-thread skip-defaults flag is set.
+     *
+     * @return True if defaults should be suppressed
+     */
+    public static boolean isSkipDefaults() {
+        return Boolean.TRUE.equals(SKIP_DEFAULTS.get());
+    }
+
+    /**
+     * Set the per-thread resolved default-parameter map.
+     *
+     * @param parameters The resolved default parameters
+     */
+    public static void setActiveParameters(Map<String, String> parameters) {
+        ACTIVE_PARAMETERS.set(parameters);
+    }
+
+    /**
+     * Reset the per-thread resolved default-parameter map.
+     */
+    public static void clearActiveParameters() {
+        ACTIVE_PARAMETERS.remove();
     }
 
     /**
@@ -196,14 +227,27 @@ public abstract class QueryArgumentParser<T> {
      * @return True if default can be used
      */
     protected boolean canUseDefaultValue(String parameter, Arguments arguments) {
-        if (Boolean.TRUE.equals(SKIP_DEFAULTS.get())) {
+        if (isSkipDefaults()) {
             return false;
         }
         return (
             hasArgumentConflicts(arguments).length == 0 &&
             !arguments.hasFlag("nodefaults") &&
-            defaultsConfiguration.parameters().containsKey(parameter)
+            activeParameters().containsKey(parameter)
         );
+    }
+
+    /**
+     * Resolve the default-parameter map to use for the current query. Uses the
+     * per-thread map set by {@code QueryService} when present, otherwise falls back
+     * to the base configuration map.
+     *
+     * @return The active default-parameter map
+     */
+    protected Map<String, String> activeParameters() {
+        Map<String, String> active = ACTIVE_PARAMETERS.get();
+
+        return active != null ? active : defaultsConfiguration.parameters();
     }
 
     /**

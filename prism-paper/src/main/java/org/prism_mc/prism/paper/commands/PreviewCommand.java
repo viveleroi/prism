@@ -34,6 +34,7 @@ import org.prism_mc.prism.api.services.modifications.ModificationRuleset;
 import org.prism_mc.prism.api.services.modifications.Previewable;
 import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.modifications.PaperModificationQueueService;
@@ -158,7 +159,12 @@ public class PreviewCommand {
     @Command(value = "preview-restore", alias = { "prs" })
     @Permission("prism.modify")
     public void onPreviewRestore(final Player player, final Arguments arguments) {
-        var builder = queryService.queryFromArguments(player, arguments);
+        var builder = queryService.queryFromArguments(
+            player,
+            arguments,
+            DefaultsConfiguration.CommandType.MODIFICATION
+        );
+
         if (builder.isPresent()) {
             var queryBuilder = builder.get().modification().reversed(true);
 
@@ -170,7 +176,9 @@ public class PreviewCommand {
             final ActivityQuery query = queryBuilder.build();
 
             // Load the modification ruleset from the configs, and apply flags
-            var modificationRuleset = modificationQueueService.applyFlagsToModificationRuleset(arguments).build();
+            var modificationRuleset = modificationQueueService
+                .applyFlagsToModificationRuleset(arguments, DefaultsConfiguration.CommandType.MODIFICATION)
+                .build();
 
             preview(PaperRestore.class, player, query, modificationRuleset);
         }
@@ -186,7 +194,12 @@ public class PreviewCommand {
     @Command(value = "preview-rollback", alias = { "prb" })
     @Permission("prism.modify")
     public void onPreviewRollback(final Player player, final Arguments arguments) {
-        var builder = queryService.queryFromArguments(player, arguments);
+        var builder = queryService.queryFromArguments(
+            player,
+            arguments,
+            DefaultsConfiguration.CommandType.MODIFICATION
+        );
+
         if (builder.isPresent()) {
             var queryBuilder = builder.get().modification().reversed(false);
 
@@ -198,7 +211,9 @@ public class PreviewCommand {
             final ActivityQuery query = queryBuilder.build();
 
             // Load the modification ruleset from the configs, and apply flags
-            var modificationRuleset = modificationQueueService.applyFlagsToModificationRuleset(arguments).build();
+            var modificationRuleset = modificationQueueService
+                .applyFlagsToModificationRuleset(arguments, DefaultsConfiguration.CommandType.MODIFICATION)
+                .build();
 
             preview(PaperRollback.class, player, query, modificationRuleset);
         }
@@ -227,6 +242,9 @@ public class PreviewCommand {
         messageService.modificationsQuerying(player);
 
         prismScheduler.runAsync(() -> {
+            // Ownership transferred to the ModificationQueue, which closes the stream
+            // (or reopens it for preview->apply). Cannot use try-with-resources here.
+            @SuppressWarnings("resource")
             ActivityStream activityStream = openStream(player, query);
             if (activityStream == null) {
                 return;
