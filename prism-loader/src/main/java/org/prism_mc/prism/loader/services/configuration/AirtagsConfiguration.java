@@ -32,7 +32,7 @@ public class AirtagsConfiguration {
 
     @Comment(
         """
-        The number of airtags a player may own when they have no prism.airtag.limit.<n>
+        The number of airtags a player may own when they have no prism.command.airtags.limit.<n>
         permission node. Set to -1 for unlimited."""
     )
     private int defaultLimit = -1;

@@ -32,6 +32,7 @@ import org.prism_mc.prism.loader.services.logging.LoggingService;
 import org.prism_mc.prism.paper.actions.PaperItemStackAction;
 import org.prism_mc.prism.paper.actions.types.PaperActionTypeRegistry;
 import org.prism_mc.prism.paper.api.activities.PaperActivity;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.airtags.AirtagIdGenerator;
 import org.prism_mc.prism.paper.services.airtags.AirtagService;
 import org.prism_mc.prism.paper.services.airtags.Airtags;
@@ -110,7 +111,7 @@ public class AirtagCommand {
      * @param player The player
      */
     @Command("airtag")
-    @Permission("prism.airtag")
+    @Permission(PrismPermissions.PERM_COMMAND_AIRTAG)
     public void onAirtag(final Player player) {
         if (!validateAirtaggable(player, player.getInventory().getItemInMainHand())) {
             return;

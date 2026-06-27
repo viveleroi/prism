@@ -27,6 +27,7 @@ import org.prism_mc.prism.api.services.filters.FilterMode;
 import org.prism_mc.prism.loader.services.configuration.alerts.AlertsConfiguration;
 import org.prism_mc.prism.loader.services.configuration.cache.CacheConfiguration;
 import org.prism_mc.prism.loader.services.configuration.filters.FilterConfiguration;
+import org.prism_mc.prism.loader.services.configuration.limits.LimitConfiguration;
 import org.prism_mc.prism.loader.services.configuration.purge.PurgeConfiguration;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
@@ -91,6 +92,15 @@ public class PrismConfiguration {
         exists, anything not explicitly allowed is denied. Use this for whitelist-style setups."""
     )
     private FilterMode filterMode = FilterMode.ORDERED;
+
+    @Comment(
+        """
+        Optional, permission-gated limits on query parameter values (e.g. cap the
+        radius, restrict which worlds/actions may be queried). Each entry is tied
+        to a custom permission node and only applies to players who hold it.
+        Leave empty for no limits."""
+    )
+    private List<LimitConfiguration> limits = new ArrayList<>();
 
     @Comment("Configure rules for modifications (rollbacks/restores).")
     private ModificationConfiguration modifications = new ModificationConfiguration();

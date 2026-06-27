@@ -21,9 +21,12 @@
 package org.prism_mc.prism.paper.services.query.parsers;
 
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
+import java.util.Locale;
 import java.util.Optional;
+import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
+import org.prism_mc.prism.paper.services.limits.EffectiveLimits;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 
 public abstract class QueryArgumentSingleValueParser<T> extends QueryArgumentParser<T> {
@@ -67,6 +70,36 @@ public abstract class QueryArgumentSingleValueParser<T> extends QueryArgumentPar
     @Override
     public boolean isPresent(Arguments arguments) {
         return arguments.getArgument(parameter, clazz).isPresent();
+    }
+
+    @Override
+    public boolean checkLimit(CommandSender sender, Arguments arguments, EffectiveLimits limits) {
+        var allowed = limits.allowedValues(baseParameter());
+        if (allowed.isEmpty()) {
+            return true;
+        }
+
+        var value = arguments.getArgument(parameter, clazz);
+        if (value.isEmpty()) {
+            return true;
+        }
+
+        String token = String.valueOf(value.get());
+        if (isExcludeParameter()) {
+            // An exclusion filter would return everything except the listed
+            // value, which by definition includes values outside the whitelist.
+            messageService.errorLimitValueNotAllowed(sender, parameter, token);
+
+            return false;
+        }
+
+        if (!allowed.get().contains(token.toLowerCase(Locale.ROOT))) {
+            messageService.errorLimitValueNotAllowed(sender, parameter, token);
+
+            return false;
+        }
+
+        return true;
     }
 
     /**

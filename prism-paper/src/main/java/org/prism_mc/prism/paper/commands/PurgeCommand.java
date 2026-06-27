@@ -30,6 +30,7 @@ import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.services.purges.PurgeQueue;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.purge.PurgeService;
 import org.prism_mc.prism.paper.services.query.QueryService;
@@ -79,7 +80,6 @@ public class PurgeCommand {
     }
 
     @Command("purge")
-    @Permission("prism.purge")
     public class PurgeSubCommand {
 
         /**
@@ -91,12 +91,13 @@ public class PurgeCommand {
         @CommandFlags(key = "purge-flags")
         @NamedArguments("query-parameters")
         @Command("start")
+        @Permission(PrismPermissions.PERM_COMMAND_PURGE_START)
         public void onPurgeStart(final CommandSender sender, final Arguments arguments) {
             if (!purgeService.queueFree()) {
                 messageService.errorPurgeQueryNotFree(sender);
             }
 
-            var builder = queryService.queryFromArguments(sender, arguments);
+            var builder = queryService.queryFromArguments(sender, PrismPermissions.PATH_PURGE_START, arguments);
             if (builder.isPresent()) {
                 final ActivityQuery query = builder
                     .get()
@@ -125,6 +126,7 @@ public class PurgeCommand {
         }
 
         @Command("stop")
+        @Permission(PrismPermissions.PERM_COMMAND_PURGE_STOP)
         public void onPurgeStop(final CommandSender sender) {
             if (purgeService.queueFree()) {
                 messageService.errorPurgeNotRunning(sender);

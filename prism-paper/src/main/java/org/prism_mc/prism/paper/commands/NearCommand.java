@@ -32,6 +32,7 @@ import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.api.util.Coordinate;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.lookup.LookupService;
 import org.prism_mc.prism.paper.services.query.QueryService;
 import org.prism_mc.prism.paper.utils.LocationUtils;
@@ -81,12 +82,13 @@ public class NearCommand {
     @CommandFlags(key = "query-flags")
     @NamedArguments("query-parameters")
     @Command("near")
-    @Permission("prism.lookup")
+    @Permission(PrismPermissions.PERM_COMMAND_NEAR)
     public void onNear(final Player player, final Arguments arguments) {
         Location loc = player.getLocation();
 
         var builderOpt = queryService.queryFromArguments(
             player,
+            PrismPermissions.PATH_NEAR,
             arguments,
             loc,
             QueryService.LOCATION_PARSERS,

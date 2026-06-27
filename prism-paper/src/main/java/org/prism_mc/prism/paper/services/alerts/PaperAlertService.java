@@ -554,7 +554,7 @@ public class PaperAlertService {
         }
 
         // Let players bypass
-        if (player.hasPermission("prism.alert.bypass")) {
+        if (player.hasPermission("prism.alerts.bypass")) {
             return false;
         }
 

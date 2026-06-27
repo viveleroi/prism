@@ -24,6 +24,8 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -38,6 +40,10 @@ import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.actions.types.PaperActionTypeRegistry;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 import org.prism_mc.prism.paper.integrations.worldedit.WorldEditIntegration;
+import org.prism_mc.prism.paper.permissions.PrismFlags;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
+import org.prism_mc.prism.paper.services.limits.EffectiveLimits;
+import org.prism_mc.prism.paper.services.limits.LimitService;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.query.parsers.QueryArgumentParser;
 import org.prism_mc.prism.paper.services.query.parsers.parameters.AboveParameterParser;
@@ -94,6 +100,11 @@ public class QueryService {
     protected final ConfigurationService configurationService;
 
     /**
+     * The limit service.
+     */
+    private final LimitService limitService;
+
+    /**
      * All registered argument/query parsers.
      */
     public static final List<QueryArgumentParser<?>> parsers = new ArrayList<>();
@@ -123,6 +134,12 @@ public class QueryService {
     private final IdParameterParser idParameterParser;
 
     /**
+     * The since parser, used to resolve a query's effective lower time bound
+     * when enforcing the permission-gated look-back limit.
+     */
+    private final SinceParameterParser sinceParameterParser;
+
+    /**
      * The query service.
      *
      * @param actionRegistry The action registry
@@ -132,10 +149,12 @@ public class QueryService {
         PaperActionTypeRegistry actionRegistry,
         ConfigurationService configurationService,
         MessageService messageService,
+        LimitService limitService,
         Provider<WorldEditIntegration> worldEditIntegration
     ) {
         this.messageService = messageService;
         this.configurationService = configurationService;
+        this.limitService = limitService;
         this.idParameterParser = new IdParameterParser(messageService, configurationService.prismConfig().defaults());
 
         // World parser must be first
@@ -200,7 +219,30 @@ public class QueryService {
         parsers.add(new ExcludeItemTagParameterParser(messageService, configurationService.prismConfig().defaults()));
         parsers.add(new RadiusQueryArgumentParser(messageService, configurationService.prismConfig().defaults()));
         parsers.add(new ReversedParameterParser(messageService, configurationService.prismConfig().defaults()));
-        parsers.add(new SinceParameterParser(messageService, configurationService.prismConfig().defaults()));
+
+        this.sinceParameterParser = new SinceParameterParser(
+            messageService,
+            configurationService.prismConfig().defaults()
+        );
+
+        parsers.add(sinceParameterParser);
+    }
+
+    /**
+     * Names of every parameter recognized by the registered parsers, including
+     * the id parser. Source of truth for permission-tree construction so adding
+     * a new parser automatically extends the per-command parameter perms.
+     *
+     * @return Unmodifiable set of parameter names (raw, including {@code !} suffixes)
+     */
+    public Set<String> parameterNames() {
+        Set<String> names = new LinkedHashSet<>();
+        names.add(idParameterParser.parameter());
+        for (var parser : parsers) {
+            names.add(parser.parameter());
+        }
+
+        return Collections.unmodifiableSet(names);
     }
 
     /**
@@ -237,14 +279,17 @@ public class QueryService {
      * Start a query builder from command-derived parameters.
      *
      * @param sender The command sender
+     * @param commandPath The permission path for this command (e.g. "lookup.lookup").
+     *                    Used to gate which parameters and flags the sender may use.
      * @param arguments The arguments
      * @return The activity query builder
      */
     public Optional<PaperActivityQuery.PaperActivityQueryBuilder<?, ?>> queryFromArguments(
         CommandSender sender,
+        String commandPath,
         Arguments arguments
     ) {
-        return queryFromArguments(sender, arguments, (DefaultsConfiguration.CommandType) null);
+        return queryFromArguments(sender, commandPath, arguments, (DefaultsConfiguration.CommandType) null);
     }
 
     /**
@@ -252,19 +297,21 @@ public class QueryService {
      * configured for the given command (merged over the base defaults).
      *
      * @param sender The command sender
+     * @param commandPath The permission path for this command
      * @param arguments The arguments
      * @param command The command whose defaults should apply, or null for base only
      * @return The activity query builder
      */
     public Optional<PaperActivityQuery.PaperActivityQueryBuilder<?, ?>> queryFromArguments(
         CommandSender sender,
+        String commandPath,
         Arguments arguments,
         DefaultsConfiguration.CommandType command
     ) {
         if (sender instanceof Player player) {
-            return queryFromArguments(sender, arguments, player.getLocation(), Set.of(), command);
+            return queryFromArguments(sender, commandPath, arguments, player.getLocation(), Set.of(), command);
         } else {
-            return queryFromArguments(sender, arguments, null, Set.of(), command);
+            return queryFromArguments(sender, commandPath, arguments, null, Set.of(), command);
         }
     }
 
@@ -275,6 +322,7 @@ public class QueryService {
      * cannot leak into other queries.
      *
      * @param sender The command sender
+     * @param commandPath The permission path for this command
      * @param arguments The arguments
      * @param referenceLocation The reference location
      * @param skipDefaults If true, parsers will not substitute any configured defaults
@@ -282,35 +330,21 @@ public class QueryService {
      */
     public Optional<PaperActivityQuery.PaperActivityQueryBuilder<?, ?>> queryFromArguments(
         CommandSender sender,
+        String commandPath,
         Arguments arguments,
         Location referenceLocation,
         boolean skipDefaults
     ) {
         if (!skipDefaults) {
-            return queryFromArguments(sender, arguments, referenceLocation);
+            return queryFromArguments(sender, commandPath, arguments, referenceLocation, Set.of());
         }
 
         QueryArgumentParser.setSkipDefaults(true);
         try {
-            return queryFromArguments(sender, arguments, referenceLocation);
+            return queryFromArguments(sender, commandPath, arguments, referenceLocation, Set.of());
         } finally {
             QueryArgumentParser.clearSkipDefaults();
         }
-    }
-
-    /**
-     * Start a query builder from command-derived parameters.
-     *
-     * @param referenceLocation The reference location
-     * @param arguments The arguments
-     * @return The activity query builder
-     */
-    public Optional<PaperActivityQuery.PaperActivityQueryBuilder<?, ?>> queryFromArguments(
-        CommandSender sender,
-        Arguments arguments,
-        Location referenceLocation
-    ) {
-        return queryFromArguments(sender, arguments, referenceLocation, Set.of());
     }
 
     /**
@@ -319,6 +353,7 @@ public class QueryService {
      * optional is returned.
      *
      * @param sender The command sender
+     * @param commandPath The permission path for this command
      * @param arguments The arguments
      * @param referenceLocation The reference location
      * @param excludedParsers Parser classes that are not allowed for this command
@@ -326,11 +361,12 @@ public class QueryService {
      */
     public Optional<PaperActivityQuery.PaperActivityQueryBuilder<?, ?>> queryFromArguments(
         CommandSender sender,
+        String commandPath,
         Arguments arguments,
         Location referenceLocation,
         Set<Class<? extends QueryArgumentParser<?>>> excludedParsers
     ) {
-        return queryFromArguments(sender, arguments, referenceLocation, excludedParsers, null);
+        return queryFromArguments(sender, commandPath, arguments, referenceLocation, excludedParsers, null);
     }
 
     /**
@@ -339,6 +375,7 @@ public class QueryService {
      * supplied an excluded parameter, an error is sent and an empty optional is returned.
      *
      * @param sender The command sender
+     * @param commandPath The permission path for this command
      * @param arguments The arguments
      * @param referenceLocation The reference location
      * @param excludedParsers Parser classes that are not allowed for this command
@@ -347,6 +384,7 @@ public class QueryService {
      */
     public Optional<PaperActivityQuery.PaperActivityQueryBuilder<?, ?>> queryFromArguments(
         CommandSender sender,
+        String commandPath,
         Arguments arguments,
         Location referenceLocation,
         Set<Class<? extends QueryArgumentParser<?>>> excludedParsers,
@@ -359,7 +397,7 @@ public class QueryService {
         try {
             Map<String, String> defaultFlags = command == null ? defaults.flags() : defaults.flags(command);
 
-            return buildQuery(sender, arguments, referenceLocation, excludedParsers, defaultFlags);
+            return buildQuery(sender, commandPath, arguments, referenceLocation, excludedParsers, defaultFlags);
         } finally {
             QueryArgumentParser.clearActiveParameters();
         }
@@ -372,6 +410,7 @@ public class QueryService {
      */
     private Optional<PaperActivityQuery.PaperActivityQueryBuilder<?, ?>> buildQuery(
         CommandSender sender,
+        String commandPath,
         Arguments arguments,
         Location referenceLocation,
         Set<Class<? extends QueryArgumentParser<?>>> excludedParsers,
@@ -383,6 +422,51 @@ public class QueryService {
                 messageService.errorParamUnsupported(sender, parser.parameter());
 
                 return Optional.empty();
+            }
+        }
+
+        // Enforce per-parameter and per-flag permissions for this command.
+        // The id parser sits outside the `parsers` list, so check it explicitly.
+        if (
+            idParameterParser.isPresent(arguments) &&
+            !hasParameterPerm(sender, commandPath, idParameterParser.parameter())
+        ) {
+            messageService.errorInsufficientPermission(sender);
+            return Optional.empty();
+        }
+
+        for (var parser : parsers) {
+            if (excludedParsers.contains(parser.getClass())) {
+                continue;
+            }
+
+            if (parser.isPresent(arguments) && !hasParameterPerm(sender, commandPath, parser.parameter())) {
+                messageService.errorInsufficientPermission(sender);
+                return Optional.empty();
+            }
+        }
+
+        for (String flagName : PrismFlags.LONG_NAMES) {
+            if (arguments.hasFlag(flagName) && !hasFlagPerm(sender, commandPath, flagName)) {
+                messageService.errorInsufficientPermission(sender);
+                return Optional.empty();
+            }
+        }
+
+        // Enforce opt-in, permission-gated limits on parameter values. checkLimit
+        // is called for every parser — not just the ones the sender typed — so a
+        // limit also constrains the value a parser would substitute from a config
+        // default. A violation messages the sender and aborts the query.
+        EffectiveLimits limits = limitService.effectiveLimits(sender, commandPath);
+        if (!limits.isEmpty()) {
+            for (var parser : parsers) {
+                if (excludedParsers.contains(parser.getClass())) {
+                    continue;
+                }
+
+                if (!parser.checkLimit(sender, arguments, limits)) {
+                    return Optional.empty();
+                }
             }
         }
 
@@ -476,6 +560,60 @@ public class QueryService {
             }
         }
 
+        // Floor the query's lower time bound so a look-back limit is enforced
+        // even when the sender omits since:/before: entirely — a value-only check
+        // can't catch an unbounded query, so this clamps it after parsing.
+        applyLookbackLimit(arguments, limits, builder);
+
         return Optional.of(builder);
+    }
+
+    /**
+     * Clamp the query's lower time bound to the sender's permitted look-back
+     * window. Does nothing when no look-back limit applies; otherwise raises the
+     * {@code after} bound to {@code now - cap} whenever the query would
+     * otherwise reach further back (including when it has no lower bound at all).
+     *
+     * @param arguments The arguments
+     * @param limits The effective limits
+     * @param builder The query builder
+     */
+    private void applyLookbackLimit(
+        Arguments arguments,
+        EffectiveLimits limits,
+        PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder
+    ) {
+        var cap = limits.maxLookbackSeconds();
+        if (cap.isEmpty()) {
+            return;
+        }
+
+        long floor = (System.currentTimeMillis() / 1000L) - cap.get();
+        var effectiveAfter = sinceParameterParser.effectiveLowerBound(arguments);
+        if (effectiveAfter.isEmpty() || effectiveAfter.get() < floor) {
+            builder.after(floor);
+        }
+    }
+
+    /**
+     * Test whether the sender holds the per-command parameter permission.
+     * Returns true unconditionally when commandPath is null so call sites
+     * that have no meaningful command context can opt out of gating.
+     */
+    private boolean hasParameterPerm(CommandSender sender, String commandPath, String parameterName) {
+        if (commandPath == null) {
+            return true;
+        }
+        return sender.hasPermission(PrismPermissions.parameterPerm(commandPath, parameterName));
+    }
+
+    /**
+     * Test whether the sender holds the per-command flag permission.
+     */
+    private boolean hasFlagPerm(CommandSender sender, String commandPath, String flagName) {
+        if (commandPath == null) {
+            return true;
+        }
+        return sender.hasPermission(PrismPermissions.flagPerm(commandPath, flagName));
     }
 }

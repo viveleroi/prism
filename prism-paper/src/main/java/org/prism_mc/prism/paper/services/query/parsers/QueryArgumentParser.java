@@ -26,6 +26,7 @@ import lombok.Getter;
 import org.bukkit.command.CommandSender;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
+import org.prism_mc.prism.paper.services.limits.EffectiveLimits;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.query.ParameterContext;
 import org.prism_mc.prism.paper.services.query.QueryService;
@@ -199,6 +200,42 @@ public abstract class QueryArgumentParser<T> {
         Arguments arguments,
         PaperActivityQuery.PaperActivityQueryBuilder<?, ?> builder
     );
+
+    /**
+     * Validate the user-supplied value(s) for this parameter against the sender's
+     * effective limits. Implementations that find a violation message the sender
+     * and return false. The default imposes no limit.
+     *
+     * @param sender The command sender
+     * @param arguments The arguments
+     * @param limits The effective limits
+     * @return False if a limit was violated
+     */
+    public boolean checkLimit(CommandSender sender, Arguments arguments, EffectiveLimits limits) {
+        return true;
+    }
+
+    /**
+     * The base parameter name limits are keyed by — the trailing {@code !} that
+     * marks an exclude-variant is stripped so {@code a} and {@code a!} share one
+     * constraint, matching how permission nodes and configured limits are keyed.
+     *
+     * @return The base parameter name
+     */
+    protected String baseParameter() {
+        return isExcludeParameter() ? parameter.substring(0, parameter.length() - 1) : parameter;
+    }
+
+    /**
+     * Whether this parser is the exclude variant of a parameter (its name ends
+     * in {@code !}). An exclusion filter inherently permits everything not
+     * listed, so it cannot be constrained to an allowed-value whitelist.
+     *
+     * @return True if this is an exclude-variant parser
+     */
+    protected boolean isExcludeParameter() {
+        return parameter.endsWith("!");
+    }
 
     /**
      * Alert the sender if conflicts are present.

@@ -29,6 +29,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.modifications.state.BlockStateChange;
 import org.prism_mc.prism.paper.utils.BlockUtils;
@@ -65,7 +66,7 @@ public class ExtinguishCommand {
      * @param radius The radius
      */
     @Command(value = "extinguish", alias = { "ex" })
-    @Permission("prism.extinguish")
+    @Permission(PrismPermissions.PERM_COMMAND_EXTINGUISH)
     public void onExtinguish(final Player player, @Optional Integer radius) {
         if (radius == null) {
             radius = configurationService.prismConfig().defaults().extinguishRadius();

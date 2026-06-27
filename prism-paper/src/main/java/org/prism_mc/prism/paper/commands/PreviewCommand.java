@@ -36,6 +36,7 @@ import org.prism_mc.prism.api.storage.StorageAdapter;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.configuration.DefaultsConfiguration;
 import org.prism_mc.prism.loader.services.logging.LoggingService;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.modifications.PaperModificationQueueService;
 import org.prism_mc.prism.paper.services.modifications.PaperRestore;
@@ -116,8 +117,9 @@ public class PreviewCommand {
      *
      * @param player The player
      */
+    // No @Permission: applying acts only on a preview the player already
+    // started, so it is implicitly gated by the preview-rollback/restore perms.
     @Command(value = "preview-apply")
-    @Permission("prism.modify")
     public void onApply(final Player player) {
         Optional<ModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
         if (optionalQueue.isEmpty()) {
@@ -136,8 +138,9 @@ public class PreviewCommand {
      *
      * @param player The player
      */
+    // No @Permission: cancelling acts only on a preview the player already
+    // started, so it is implicitly gated by the preview-rollback/restore perms.
     @Command(value = "preview-cancel")
-    @Permission("prism.modify")
     public void onCancel(final Player player) {
         Optional<ModificationQueue> optionalQueue = modificationQueueService.currentQueueForOwner(player);
         if (optionalQueue.isEmpty()) {
@@ -157,10 +160,11 @@ public class PreviewCommand {
      */
     @NamedArguments("modification-parameters")
     @Command(value = "preview-restore", alias = { "prs" })
-    @Permission("prism.modify")
+    @Permission(PrismPermissions.PERM_COMMAND_PREVIEW_RESTORE)
     public void onPreviewRestore(final Player player, final Arguments arguments) {
         var builder = queryService.queryFromArguments(
             player,
+            PrismPermissions.PATH_PREVIEW_RESTORE,
             arguments,
             DefaultsConfiguration.CommandType.MODIFICATION
         );
@@ -192,10 +196,11 @@ public class PreviewCommand {
      */
     @NamedArguments("modification-parameters")
     @Command(value = "preview-rollback", alias = { "prb" })
-    @Permission("prism.modify")
+    @Permission(PrismPermissions.PERM_COMMAND_PREVIEW_ROLLBACK)
     public void onPreviewRollback(final Player player, final Arguments arguments) {
         var builder = queryService.queryFromArguments(
             player,
+            PrismPermissions.PATH_PREVIEW_ROLLBACK,
             arguments,
             DefaultsConfiguration.CommandType.MODIFICATION
         );

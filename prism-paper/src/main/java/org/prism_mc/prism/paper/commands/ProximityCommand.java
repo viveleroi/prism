@@ -35,6 +35,7 @@ import org.prism_mc.prism.api.activities.Activity;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
+import org.prism_mc.prism.paper.permissions.PrismPermissions;
 import org.prism_mc.prism.paper.services.lookup.LookupService;
 import org.prism_mc.prism.paper.services.messages.MessageService;
 import org.prism_mc.prism.paper.services.query.QueryService;
@@ -103,7 +104,7 @@ public class ProximityCommand {
     @CommandFlags(key = "query-flags")
     @NamedArguments("query-parameters")
     @Command(value = "proximity", alias = { "prox" })
-    @Permission("prism.lookup")
+    @Permission(PrismPermissions.PERM_COMMAND_PROXIMITY)
     public void onProximity(final CommandSender sender, final Integer activityId, final Arguments arguments) {
         var dArg = arguments.getArgument("d", String.class);
         var rArg = arguments.getArgument("r", Integer.class);
@@ -180,7 +181,13 @@ public class ProximityCommand {
         // Bypass config-driven defaults: proximity already forces an explicit
         // window via d:/r:/before:/since:, and the anchor activity supplies
         // the implicit world/location reference
-        var builderOpt = queryService.queryFromArguments(sender, arguments, anchorLocation, true);
+        var builderOpt = queryService.queryFromArguments(
+            sender,
+            PrismPermissions.PATH_PROXIMITY,
+            arguments,
+            anchorLocation,
+            true
+        );
         if (builderOpt.isEmpty()) {
             return;
         }
