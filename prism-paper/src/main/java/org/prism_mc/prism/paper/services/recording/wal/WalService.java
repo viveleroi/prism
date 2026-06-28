@@ -373,12 +373,16 @@ public class WalService {
 
             batch.commitBatch();
             loggingService.info("WAL replay complete, {0} activities recovered", uncommitted.size());
+
+            // Only remove the WAL once the records are safely in the database.
+            cleanupFiles();
         } catch (Exception e) {
             loggingService.handleException(e);
-            loggingService.error("WAL replay failed, some activities may be lost");
+            loggingService.error(
+                "WAL replay failed (database may be unavailable); keeping {0} WAL entries for retry on next start.",
+                uncommitted.size()
+            );
         }
-
-        cleanupFiles();
     }
 
     /**
