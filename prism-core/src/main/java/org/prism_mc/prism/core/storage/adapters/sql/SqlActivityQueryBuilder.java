@@ -723,8 +723,18 @@ public class SqlActivityQueryBuilder {
         }
 
         if (!excluded.isEmpty()) {
+            // NULL NOT IN (...) evaluates to NULL (not TRUE) in SQL, which would
+            // silently drop every row whose FK is null (e.g. excluding a cause
+            // player would also exclude all non-player-caused activities). Keep
+            // null-FK rows by OR-ing an explicit IS NULL check.
             conditions.add(
-                outerField.notIn(dslContext.select(idField).from(table).where(nameField.in(excluded)).fetch(idField))
+                outerField
+                    .isNull()
+                    .or(
+                        outerField.notIn(
+                            dslContext.select(idField).from(table).where(nameField.in(excluded)).fetch(idField)
+                        )
+                    )
             );
         }
     }
@@ -757,8 +767,12 @@ public class SqlActivityQueryBuilder {
         }
 
         if (!excluded.isEmpty()) {
+            // NULL NOT IN (...) is NULL, not TRUE, so a bare NOT IN would drop
+            // every null-FK row. OR an IS NULL check to retain them.
             queryBuilder.addConditions(
-                outerField.notIn(dslContext.select(idField).from(table).where(nameField.in(excluded)))
+                outerField
+                    .isNull()
+                    .or(outerField.notIn(dslContext.select(idField).from(table).where(nameField.in(excluded))))
             );
         }
     }
