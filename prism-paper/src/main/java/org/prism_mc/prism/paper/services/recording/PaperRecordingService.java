@@ -255,6 +255,18 @@ public class PaperRecordingService implements RecordingService {
     }
 
     /**
+     * Flush all aggregated activities into the queue regardless of age.
+     *
+     * <p>Aggregatable activities never touch the queue during normal operation
+     * (they go straight into the aggregator). On shutdown the queue can
+     * therefore be empty while the aggregator still holds pending entries, so
+     * this must run before the shutdown drain/WAL logic to avoid losing them.</p>
+     */
+    public void flushAggregatorAll() {
+        aggregator.flushAll(activity -> offerToQueue(activity));
+    }
+
+    /**
      * Drains the queue synchronously with a timeout.
      *
      * <p>Attempts to flush all pending activities to the database before

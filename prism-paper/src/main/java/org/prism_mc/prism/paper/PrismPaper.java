@@ -825,6 +825,13 @@ public class PrismPaper implements PrismPaperApi {
         Bukkit.getServicesManager().unregisterAll(loaderPlugin());
 
         if (recordingService instanceof PaperRecordingService paperRecordingService) {
+            // Move any aggregated-but-unflushed activities into the queue first.
+            // They never enter the queue during normal operation, so without
+            // this the queue could be empty while the aggregator still holds
+            // pending entries — and the drain/WAL block below would be skipped,
+            // silently dropping them.
+            paperRecordingService.flushAggregatorAll();
+
             if (!recordingService.queue().isEmpty()) {
                 int drainTimeout = bootstrap
                     .loader()
