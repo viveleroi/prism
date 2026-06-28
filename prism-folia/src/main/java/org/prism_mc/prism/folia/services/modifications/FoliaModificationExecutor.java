@@ -173,6 +173,8 @@ public class FoliaModificationExecutor implements ModificationExecutor {
             // Clip the overall bounding box to this region's boundaries
             BoundingBox regionBounds = regionBoundingBox(regionKey);
             boolean[] regionPreProcessed = { false };
+            // Persisted read pointer for PLANNING mode (see processRegionBatch).
+            int[] regionReadIndex = { 0 };
 
             ScheduledTask task = prismScheduler.runAtLocationFixedRate(
                 regionLocation,
@@ -187,6 +189,7 @@ public class FoliaModificationExecutor implements ModificationExecutor {
                         regionBounds,
                         preProcessor,
                         regionPreProcessed,
+                        regionReadIndex,
                         applyFn,
                         onResult,
                         remainingRegions,
@@ -225,6 +228,7 @@ public class FoliaModificationExecutor implements ModificationExecutor {
         BoundingBox regionBounds,
         BiConsumer<World, BoundingBox> preProcessor,
         boolean[] regionPreProcessed,
+        int[] regionReadIndex,
         Function<Activity, ModificationResult> applyFn,
         Consumer<ModificationResult> onResult,
         AtomicInteger remainingRegions,
@@ -240,7 +244,7 @@ public class FoliaModificationExecutor implements ModificationExecutor {
         }
 
         int iterationCount = 0;
-        int index = 0;
+        int index = regionReadIndex[0];
 
         while (index < regionQueue.size() && iterationCount < ruleset.maxPerTask()) {
             Activity activity = regionQueue.get(index);
@@ -272,6 +276,12 @@ public class FoliaModificationExecutor implements ModificationExecutor {
             }
         }
 
+        // Persist the read pointer so the next tick resumes where this one left
+        // off. In PLANNING mode items are not removed, so without this the index
+        // would reset to 0 each tick and a region with more than maxPerTask
+        // activities would reprocess the same prefix forever and never complete.
+        regionReadIndex[0] = index;
+
         // If this region's batch is done, cancel its task and check completion
         boolean regionDone =
             regionQueue.isEmpty() || (mode.equals(ModificationQueueMode.PLANNING) && index >= regionQueue.size());
@@ -282,7 +292,7 @@ public class FoliaModificationExecutor implements ModificationExecutor {
                 loggingService.debug("Folia executor: all regions completed, running post-processing.");
 
                 // Run post-processing per-region on each region's thread
-                runPostProcessing(world, postProcessor, postProcessRemaining, regionLocations, onComplete);
+                runPostProcessing(postProcessor, postProcessRemaining, regionLocations, onComplete);
             }
         }
     }
@@ -291,7 +301,6 @@ public class FoliaModificationExecutor implements ModificationExecutor {
      * Run post-processing (entity moves) on each region's thread with clipped bounding boxes.
      */
     private void runPostProcessing(
-        World world,
         BiConsumer<World, BoundingBox> postProcessor,
         AtomicInteger postProcessRemaining,
         List<Location> regionLocations,
@@ -305,11 +314,15 @@ public class FoliaModificationExecutor implements ModificationExecutor {
 
         for (Location regionLocation : regionLocations) {
             prismScheduler.runAtLocation(regionLocation, () -> {
+                // Use each region's own world — a batch may span multiple worlds,
+                // so the world captured from the last-finishing region is not
+                // necessarily this region's world.
+                World regionWorld = regionLocation.getWorld();
                 int regionX = (int) Math.floor(regionLocation.getX()) >> REGION_BLOCK_SHIFT;
                 int regionZ = (int) Math.floor(regionLocation.getZ()) >> REGION_BLOCK_SHIFT;
-                BoundingBox regionBounds = regionBoundingBox(new RegionKey(world.getUID(), regionX, regionZ));
+                BoundingBox regionBounds = regionBoundingBox(new RegionKey(regionWorld.getUID(), regionX, regionZ));
 
-                postProcessor.accept(world, regionBounds);
+                postProcessor.accept(regionWorld, regionBounds);
 
                 if (postProcessRemaining.decrementAndGet() == 0) {
                     // All regions post-processed, fire final completion
