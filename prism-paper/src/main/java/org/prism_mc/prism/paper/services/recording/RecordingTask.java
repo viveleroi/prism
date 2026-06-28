@@ -125,11 +125,23 @@ public class RecordingTask implements Runnable {
             int batchMax = storageConfig.primaryDataSource().batchMax();
 
             List<Activity> drained = new ArrayList<>(batchMax);
-            recordingService.queue().drainTo(drained, batchMax);
+            long walBatchId;
+
+            // In always mode the drain and WAL batch registration must be atomic
+            // so the batch id order matches the WAL file order; otherwise, with
+            // parallelism > 1, two workers can register batch ids out of drain
+            // order and the positional checkpoint mis-skips records on replay.
+            if (walService.isAlwaysMode()) {
+                synchronized (walService.orderingLock()) {
+                    recordingService.queue().drainTo(drained, batchMax);
+                    walBatchId = drained.isEmpty() ? -1 : walService.startBatch(drained.size());
+                }
+            } else {
+                recordingService.queue().drainTo(drained, batchMax);
+                walBatchId = walService.startBatch(drained.size());
+            }
 
             if (!drained.isEmpty()) {
-                long walBatchId = walService.startBatch(drained.size());
-
                 try {
                     ActivityBatch batch = storageAdapter.createActivityBatch();
                     batch.startBatch();

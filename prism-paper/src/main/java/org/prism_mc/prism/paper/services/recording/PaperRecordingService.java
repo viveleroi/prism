@@ -199,6 +199,26 @@ public class PaperRecordingService implements RecordingService {
      * @return True if the activity was accepted
      */
     private boolean offerToQueue(Activity activity) {
+        // In always mode the queue offer and WAL append must happen as a unit so
+        // the WAL file order matches the queue order; otherwise concurrent
+        // producers (e.g. Folia region threads) can interleave them and break the
+        // positional checkpoint. Other modes have no such ordering constraint.
+        if (walService.isAlwaysMode()) {
+            synchronized (walService.orderingLock()) {
+                return offerAndAppend(activity);
+            }
+        }
+
+        return offerAndAppend(activity);
+    }
+
+    /**
+     * Offer the activity to the queue and, if accepted, append it to the WAL.
+     *
+     * @param activity The activity
+     * @return True if the activity was accepted
+     */
+    private boolean offerAndAppend(Activity activity) {
         if (!queue.offer(activity)) {
             if (droppedActivities.getAndIncrement() == 0) {
                 loggingService.warn(
