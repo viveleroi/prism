@@ -80,6 +80,14 @@ public class WalService {
     private boolean initialized;
 
     /**
+     * Guards the (queue offer + WAL append) and (queue drain + WAL startBatch)
+     * pairs so the WAL file order, queue/drain order, and batch-id order stay
+     * aligned. Only used in "always" mode, where the checkpoint is positional
+     * and would otherwise mis-skip records under concurrent producers/drainers.
+     */
+    private final Object orderingLock = new Object();
+
+    /**
      * Construct the WAL service.
      *
      * @param dataPath The plugin data directory
@@ -115,8 +123,19 @@ public class WalService {
      *
      * @return True if WAL mode is "always"
      */
-    private boolean isAlwaysMode() {
+    public boolean isAlwaysMode() {
         return MODE_ALWAYS.equals(configurationService.prismConfig().recording().walMode());
+    }
+
+    /**
+     * The lock callers hold to keep queue offer/drain ordered with respect to
+     * WAL append/startBatch. Only meaningful in "always" mode; see
+     * {@link #orderingLock}.
+     *
+     * @return The ordering lock
+     */
+    public Object orderingLock() {
+        return orderingLock;
     }
 
     /**
