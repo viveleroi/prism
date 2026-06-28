@@ -22,7 +22,9 @@ package org.prism_mc.prism.paper.services.recording.wal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -59,6 +61,7 @@ public class WalWriter {
     private long nextBatchId;
     private long contiguousCommitted;
 
+    private FileOutputStream fileOutputStream;
     private BufferedWriter writer;
 
     /**
@@ -81,12 +84,19 @@ public class WalWriter {
     public void initialize() throws IOException {
         Files.createDirectories(walDir);
 
-        writer = Files.newBufferedWriter(
-            walDir.resolve(WAL_FILE),
-            StandardCharsets.UTF_8,
-            StandardOpenOption.CREATE,
-            StandardOpenOption.APPEND
-        );
+        openWriter();
+    }
+
+    /**
+     * Open (or reopen) the append writer over a {@link FileOutputStream} so the
+     * underlying file descriptor is reachable for {@link FileOutputStream#getFD()}
+     * syncs in {@link #flush()}.
+     *
+     * @throws IOException If the file cannot be opened
+     */
+    private void openWriter() throws IOException {
+        fileOutputStream = new FileOutputStream(walDir.resolve(WAL_FILE).toFile(), true);
+        writer = new BufferedWriter(new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8));
     }
 
     /**
@@ -126,6 +136,9 @@ public class WalWriter {
                 writer.newLine();
             }
             writer.flush();
+            // Force the bytes to stable storage so records survive an OS crash or
+            // power loss, not just a JVM crash.
+            fileOutputStream.getFD().sync();
             totalWritten.addAndGet(toWrite.size());
         } catch (IOException e) {
             loggingService.handleException(e);
@@ -160,6 +173,15 @@ public class WalWriter {
         if (info == null) {
             return;
         }
+
+        // Flush the buffer first so totalWritten reflects every appended record
+        // before we evaluate the truncate condition below. Without this,
+        // contiguousCommitted (advanced on DB commit) can exceed totalWritten
+        // (advanced only by the periodic flush) while committed records still
+        // sit unflushed in the buffer — truncate() would then fire, reset the
+        // checkpoint, and those records would later be re-flushed without a
+        // checkpoint and replayed as duplicates on the next crash.
+        flush();
 
         info.committed = true;
 
@@ -217,12 +239,7 @@ public class WalWriter {
             nextBatchId = 0;
             nextSequence.set(0);
 
-            writer = Files.newBufferedWriter(
-                walDir.resolve(WAL_FILE),
-                StandardCharsets.UTF_8,
-                StandardOpenOption.CREATE,
-                StandardOpenOption.APPEND
-            );
+            openWriter();
         } catch (IOException e) {
             loggingService.handleException(e);
         }
