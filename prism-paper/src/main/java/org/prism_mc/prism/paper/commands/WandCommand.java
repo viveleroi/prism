@@ -94,8 +94,7 @@ public class WandCommand {
         @NamedArguments("query-parameters")
         @Command(Command.DEFAULT_CMD_NAME)
         public void onWand(final Player player, final Arguments arguments) {
-            boolean hasConfiguration =
-                queryService.hasAnyParameter(arguments) || queryService.hasAnyQueryFlag(arguments);
+            boolean hasConfiguration = queryService.hasAnyParameter(arguments) || queryService.hasAnyFlag(arguments);
 
             if (!hasConfiguration && wandService.hasActiveWand(player)) {
                 wandService.deactivateWand(player);
@@ -146,8 +145,7 @@ public class WandCommand {
         }
 
         private void onModeCommand(Player player, WandMode wandMode, Arguments arguments) {
-            boolean hasConfiguration =
-                queryService.hasAnyParameter(arguments) || queryService.hasAnyQueryFlag(arguments);
+            boolean hasConfiguration = queryService.hasAnyParameter(arguments) || queryService.hasAnyFlag(arguments);
 
             java.util.Optional<Wand> activeWand = wandService.getWand(player);
             if (activeWand.isPresent() && activeWand.get().mode().equals(wandMode) && !hasConfiguration) {
