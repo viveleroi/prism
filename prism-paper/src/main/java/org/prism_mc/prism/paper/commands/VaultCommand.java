@@ -208,6 +208,13 @@ public class VaultCommand {
                             if (activity.action() instanceof PaperItemStackAction itemStackAction) {
                                 gui.addItem(
                                     new GuiItem(itemStackAction.itemStack(), event -> {
+                                        if (player.getInventory().firstEmpty() == -1) {
+                                            event.setCancelled(true);
+                                            messageService.errorVaultInventoryFull(player);
+
+                                            return;
+                                        }
+
                                         reversedKeys.add((Long) activity.primaryKey());
                                         loggingService.info(
                                             "{0} took {1} for activity #{2} from the vault inventory",
