@@ -98,6 +98,9 @@ public interface MessageService {
     @Message("prism.error.no-item-in-hand")
     void errorNoItemInHand(CommandSender receiver);
 
+    @Message("prism.error.vault-inventory-full")
+    void errorVaultInventoryFull(CommandSender receiver);
+
     @Message("prism.error.non-item-action")
     void errorNonItemAction(CommandSender receiver);
 

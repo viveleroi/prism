@@ -362,6 +362,13 @@ public class AirtagsCommand {
             String code = airtag.airtag();
             gui.addItem(
                 new GuiItem(item, event -> {
+                    if (player.getInventory().firstEmpty() == -1) {
+                        event.setCancelled(true);
+                        messageService.errorVaultInventoryFull(player);
+
+                        return;
+                    }
+
                     // The take proceeds natively; record it so the airtag is consumed on close.
                     taken.add(code);
                     messageService.airtagsVaultReminder(player);
