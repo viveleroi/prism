@@ -124,11 +124,6 @@ public class QueryService {
     );
 
     /**
-     * Query flag names.
-     */
-    public static final Set<String> QUERY_FLAGS = Set.of("count", "nogroup", "sort");
-
-    /**
      * The ID parameter parser, which has the highest priority.
      */
     private final IdParameterParser idParameterParser;
@@ -266,13 +261,13 @@ public class QueryService {
     }
 
     /**
-     * Check if any query flags are present.
+     * Check if any command flag is present.
      *
      * @param arguments The arguments
-     * @return True if a grouping/count/sort flag is present
+     * @return True if the sender supplied any flag (query or modification)
      */
-    public boolean hasAnyQueryFlag(Arguments arguments) {
-        return arguments.getAllFlags().stream().anyMatch(QUERY_FLAGS::contains);
+    public boolean hasAnyFlag(Arguments arguments) {
+        return !arguments.getAllFlags().isEmpty();
     }
 
     /**
