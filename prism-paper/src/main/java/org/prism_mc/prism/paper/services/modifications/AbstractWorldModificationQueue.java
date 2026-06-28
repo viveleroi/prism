@@ -348,7 +348,7 @@ public abstract class AbstractWorldModificationQueue implements ModificationQueu
      * @param regionBounds The region-safe bounding box to clip operations to
      */
     protected void postProcess(World world, BoundingBox regionBounds) {
-        if (!modificationRuleset.moveEntities() || results.isEmpty()) {
+        if (!modificationRuleset.moveEntities() || (countApplied == 0 && countPartial == 0)) {
             return;
         }
 
