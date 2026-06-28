@@ -26,6 +26,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.tr7zw.nbtapi.NBT;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -718,8 +719,9 @@ public class PaperModificationQueueService implements ModificationQueueService {
         int[] applied = { 0 };
         int[] skipped = { 0 };
         int[] lastReportedPercent = { 0 };
+        List<Long> appliedKeys = new ArrayList<>();
 
-        replayUndoBatch(sender, entries, 0, applied, skipped, lastReportedPercent, undoOfRollback);
+        replayUndoBatch(sender, entries, 0, applied, skipped, appliedKeys, lastReportedPercent, undoOfRollback);
     }
 
     /**
@@ -732,11 +734,12 @@ public class PaperModificationQueueService implements ModificationQueueService {
         int cursor,
         int[] applied,
         int[] skipped,
+        List<Long> appliedKeys,
         int[] lastReportedPercent,
         boolean undoOfRollback
     ) {
         if (cursor >= entries.size()) {
-            finishUndo(sender, applied[0], skipped[0], entries, undoOfRollback);
+            finishUndo(sender, applied[0], skipped[0], appliedKeys, undoOfRollback);
             return;
         }
 
@@ -749,52 +752,58 @@ public class PaperModificationQueueService implements ModificationQueueService {
                     continue;
                 }
 
-                World world = Bukkit.getWorld(block.worldUuid());
-                if (world == null) {
+                try {
+                    World world = Bukkit.getWorld(block.worldUuid());
+                    if (world == null) {
+                        skipped[0]++;
+                        continue;
+                    }
+
+                    Block live = world.getBlockAt(
+                        block.coordinate().intX(),
+                        block.coordinate().intY(),
+                        block.coordinate().intZ()
+                    );
+
+                    // Live-state guard: only revert if the block is still what the
+                    // original modification wrote. If something else is there now,
+                    // someone (or something) has built over it since — leave it.
+                    if (!live.getBlockData().matches(block.newBlockData())) {
+                        skipped[0]++;
+                        continue;
+                    }
+
+                    BlockData writtenData = block.oldBlockData();
+                    BlockData replacedData = block.newBlockData();
+
+                    boolean physics = writtenData.getMaterial() != org.bukkit.Material.AIR;
+
+                    BlockUtils.reconcileBedPartner(live, writtenData, replacedData, physics);
+                    BlockUtils.reconcileBisectedPartner(live, writtenData, replacedData, physics);
+
+                    live.setBlockData(writtenData, physics);
+                    if (block.oldTileNbt() != null && live.getType() != org.bukkit.Material.AIR) {
+                        NBT.modify(live.getState(), nbt -> {
+                            nbt.mergeCompound(block.oldTileNbt());
+                        });
+                    }
+
+                    // Double-chest halves are separate snapshots. Re-placing one must reconnect its
+                    // partner: a half removed after its partner during the original op is captured as
+                    // SINGLE, so verbatim replay yields LEFT/RIGHT beside SINGLE — reconcile (which is
+                    // order-independent) repairs it once both halves land. Deliberately no partner
+                    // *downgrade* on removal: when both halves are being undone, eagerly downgrading the
+                    // survivor to SINGLE makes its own snapshot's live-guard miss and leaves it behind.
+                    if (writtenData instanceof Chest chest) {
+                        BlockUtils.reconcileChestConnection(live, chest, physics);
+                    }
+
+                    applied[0]++;
+                    appliedKeys.add(block.activityPk());
+                } catch (Exception e) {
                     skipped[0]++;
-                    continue;
+                    loggingService.handleThrowable(String.format("An undo error occurred. %s", block), e);
                 }
-
-                Block live = world.getBlockAt(
-                    block.coordinate().intX(),
-                    block.coordinate().intY(),
-                    block.coordinate().intZ()
-                );
-
-                // Live-state guard: only revert if the block is still what the
-                // original modification wrote. If something else is there now,
-                // someone (or something) has built over it since — leave it.
-                if (!live.getBlockData().matches(block.newBlockData())) {
-                    skipped[0]++;
-                    continue;
-                }
-
-                BlockData writtenData = block.oldBlockData();
-                BlockData replacedData = block.newBlockData();
-
-                boolean physics = writtenData.getMaterial() != org.bukkit.Material.AIR;
-
-                BlockUtils.reconcileBedPartner(live, writtenData, replacedData, physics);
-                BlockUtils.reconcileBisectedPartner(live, writtenData, replacedData, physics);
-
-                live.setBlockData(writtenData, physics);
-                if (block.oldTileNbt() != null && live.getType() != org.bukkit.Material.AIR) {
-                    NBT.modify(live.getState(), nbt -> {
-                        nbt.mergeCompound(block.oldTileNbt());
-                    });
-                }
-
-                // Double-chest halves are separate snapshots. Re-placing one must reconnect its
-                // partner: a half removed after its partner during the original op is captured as
-                // SINGLE, so verbatim replay yields LEFT/RIGHT beside SINGLE — reconcile (which is
-                // order-independent) repairs it once both halves land. Deliberately no partner
-                // *downgrade* on removal: when both halves are being undone, eagerly downgrading the
-                // survivor to SINGLE makes its own snapshot's live-guard miss and leaves it behind.
-                if (writtenData instanceof Chest chest) {
-                    BlockUtils.reconcileChestConnection(live, chest, physics);
-                }
-
-                applied[0]++;
             }
 
             maybeReportProgress(sender, end, entries.size(), lastReportedPercent);
@@ -803,7 +812,16 @@ public class PaperModificationQueueService implements ModificationQueueService {
             // thread for the writes. Keeps any single tick bounded.
             prismScheduler.runAsync(() ->
                 prismScheduler.runGlobal(() ->
-                    replayUndoBatch(sender, entries, end, applied, skipped, lastReportedPercent, undoOfRollback)
+                    replayUndoBatch(
+                        sender,
+                        entries,
+                        end,
+                        applied,
+                        skipped,
+                        appliedKeys,
+                        lastReportedPercent,
+                        undoOfRollback
+                    )
                 )
             );
         };
@@ -823,22 +841,16 @@ public class PaperModificationQueueService implements ModificationQueueService {
         CommandSender sender,
         int applied,
         int skipped,
-        List<UndoEntry> entries,
+        List<Long> appliedKeys,
         boolean undoOfRollback
     ) {
-        List<Long> primarykeys = entries
-            .stream()
-            .filter(BlockUndoEntry.class::isInstance)
-            .map(e -> ((BlockUndoEntry) e).activityPk())
-            .toList();
-
         // undoOfRollback=true means the original op marked reversed=true; we flip back to false.
         // undoOfRollback=false (restore was original) means we flip back to true.
         boolean newReversedState = !undoOfRollback;
 
         prismScheduler.runAsync(() -> {
             try {
-                storageAdapter.markReversed(primarykeys, newReversedState);
+                storageAdapter.markReversed(appliedKeys, newReversedState);
             } catch (Exception e) {
                 loggingService.handleException(e);
             } finally {
