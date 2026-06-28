@@ -162,7 +162,7 @@ public class PrismItems extends TableImpl<PrismItemsRecord> {
     }
 
     @Override
-    public Row4<UShort, String, String, String> fieldsRow() {
+    public Row4<UInteger, String, String, UInteger> fieldsRow() {
         return (Row4) super.fieldsRow();
     }
 }
