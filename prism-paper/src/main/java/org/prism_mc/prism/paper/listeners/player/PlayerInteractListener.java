@@ -190,6 +190,13 @@ public class PlayerInteractListener extends AbstractListener implements Listener
             if (TagLib.LECTERN_ITEMS.isTagged(heldItem.getType()) && ItemUtils.nullOrAir(lecternItem)) {
                 recordItemInsertActivity(location, player, heldItem);
             }
+        } else if (TagLib.WOODEN_SHELVES.isTagged(block.getType())) {
+            // Shelves (1.21.9+) swap the main-hand item into the interacted slot.
+            // The API doesn't expose which slot was clicked, so we can only record
+            // the placed item and not the specific item swapped back out.
+            if (!ItemUtils.nullOrAir(heldItem)) {
+                recordItemInsertActivity(location, player, heldItem);
+            }
         } else if (blockState instanceof InventoryHolder inventoryHolder) {
             // Ignore if this event is disabled
             if (!configurationService.prismConfig().actions().inventoryOpen()) {
