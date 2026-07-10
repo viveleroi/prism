@@ -23,6 +23,7 @@ package org.prism_mc.prism.paper.commands;
 import com.google.inject.Inject;
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
+import dev.triumphteam.cmd.core.annotations.CommandFlags;
 import dev.triumphteam.cmd.core.annotations.NamedArguments;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import java.util.Optional;
@@ -158,6 +159,7 @@ public class PreviewCommand {
      * @param player The player
      * @param arguments The arguments
      */
+    @CommandFlags(key = "query-flags")
     @NamedArguments("modification-parameters")
     @Command(value = "preview-restore", alias = { "prs" })
     @Permission(PrismPermissions.PERM_COMMAND_PREVIEW_RESTORE)
@@ -194,6 +196,7 @@ public class PreviewCommand {
      * @param player The player
      * @param arguments The arguments
      */
+    @CommandFlags(key = "query-flags")
     @NamedArguments("modification-parameters")
     @Command(value = "preview-rollback", alias = { "prb" })
     @Permission(PrismPermissions.PERM_COMMAND_PREVIEW_ROLLBACK)
