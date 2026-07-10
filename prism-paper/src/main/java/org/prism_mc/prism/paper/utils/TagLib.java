@@ -535,4 +535,16 @@ public class TagLib {
         Material.WRITTEN_BOOK,
         Material.WRITABLE_BOOK
     );
+
+    /**
+     * Shelves that players can display items on. Resolved from the vanilla
+     * {@code minecraft:wooden_shelves} tag, which is absent before Minecraft 1.21.9.
+     */
+    public static final CustomTag<Material> WOODEN_SHELVES = new CustomTag<>(Material.class);
+
+    static {
+        if (VersionUtils.atLeast(1, 21, 9)) {
+            WOODEN_SHELVES.append(Tag.WOODEN_SHELVES);
+        }
+    }
 }
