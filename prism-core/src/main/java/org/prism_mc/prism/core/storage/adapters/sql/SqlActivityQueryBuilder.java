@@ -348,7 +348,7 @@ public class SqlActivityQueryBuilder {
             pkValues.add(UInteger.valueOf(pk));
         }
 
-        queryBuilder.addConditions(PRISM_ACTIVITIES.ACTIVITY_ID.in(pkValues));
+        queryBuilder.addConditions(PRISM_ACTIVITIES.ACTIVITY_ID.in(pkValues.stream().map(DSL::inline).toList()));
 
         if (query.modification()) {
             addModificationOrdering(queryBuilder);
@@ -717,9 +717,8 @@ public class SqlActivityQueryBuilder {
         Collection<String> excluded
     ) {
         if (!included.isEmpty()) {
-            conditions.add(
-                outerField.in(dslContext.select(idField).from(table).where(nameField.in(included)).fetch(idField))
-            );
+            var includedIds = dslContext.select(idField).from(table).where(nameField.in(included)).fetch(idField);
+            conditions.add(outerField.in(includedIds.stream().map(DSL::inline).toList()));
         }
 
         if (!excluded.isEmpty()) {
@@ -727,15 +726,8 @@ public class SqlActivityQueryBuilder {
             // silently drop every row whose FK is null (e.g. excluding a cause
             // player would also exclude all non-player-caused activities). Keep
             // null-FK rows by OR-ing an explicit IS NULL check.
-            conditions.add(
-                outerField
-                    .isNull()
-                    .or(
-                        outerField.notIn(
-                            dslContext.select(idField).from(table).where(nameField.in(excluded)).fetch(idField)
-                        )
-                    )
-            );
+            var excludedIds = dslContext.select(idField).from(table).where(nameField.in(excluded)).fetch(idField);
+            conditions.add(outerField.isNull().or(outerField.notIn(excludedIds.stream().map(DSL::inline).toList())));
         }
     }
 

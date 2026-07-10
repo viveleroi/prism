@@ -1345,7 +1345,7 @@ public abstract class AbstractSqlStorageAdapter implements StorageAdapter {
             dslContext
                 .update(PRISM_ACTIVITIES)
                 .set(PRISM_ACTIVITIES.REVERSED, reversed)
-                .where(PRISM_ACTIVITIES.ACTIVITY_ID.in(chunk))
+                .where(PRISM_ACTIVITIES.ACTIVITY_ID.in(chunk.stream().map(DSL::inline).toList()))
                 .execute();
         }
     }
