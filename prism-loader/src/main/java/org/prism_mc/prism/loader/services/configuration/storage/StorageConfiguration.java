@@ -48,11 +48,14 @@ public class StorageConfiguration {
     @Comment(
         """
         Set which storage system to use.
-        Available options: H2, MARIADB, MYSQL, POSTGRES, SQLITE
+        Available options: CLICKHOUSE, H2, MARIADB, MYSQL, POSTGRES, SQLITE
         NOTE: Only one storage system may be used at a time.
         Transferring data from one to another is not yet supported."""
     )
     private StorageType primaryStorageType = StorageType.SQLITE;
+
+    @Comment("Settings for ClickHouse")
+    private ClickhouseDataSourceConfiguration clickhouse = new ClickhouseDataSourceConfiguration();
 
     @Comment(
         """
@@ -84,6 +87,7 @@ public class StorageConfiguration {
      */
     public DataSourceConfiguration primaryDataSource() {
         return switch (primaryStorageType) {
+            case CLICKHOUSE -> clickhouse;
             case H2 -> h2;
             case MARIADB -> mariadb;
             case MYSQL -> mysql;

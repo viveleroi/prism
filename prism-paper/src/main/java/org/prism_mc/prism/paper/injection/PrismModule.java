@@ -56,6 +56,7 @@ import org.prism_mc.prism.core.injection.factories.RestoreFactory;
 import org.prism_mc.prism.core.injection.factories.RollbackFactory;
 import org.prism_mc.prism.core.injection.factories.SqlActivityQueryBuilderFactory;
 import org.prism_mc.prism.core.services.cache.CacheService;
+import org.prism_mc.prism.core.storage.adapters.clickhouse.ClickhouseStorageAdapter;
 import org.prism_mc.prism.core.storage.adapters.h2.H2StorageAdapter;
 import org.prism_mc.prism.core.storage.adapters.mariadb.MariaDbStorageAdapter;
 import org.prism_mc.prism.core.storage.adapters.mysql.MysqlActivityQueryBuilder;
@@ -370,6 +371,7 @@ public class PrismModule extends AbstractModule {
 
         // Bind the correct storage adapter
         switch (storageType) {
+            case CLICKHOUSE -> bind(StorageAdapter.class).to(ClickhouseStorageAdapter.class).in(Singleton.class);
             case H2 -> bind(StorageAdapter.class).to(H2StorageAdapter.class).in(Singleton.class);
             case MARIADB -> bind(StorageAdapter.class).to(MariaDbStorageAdapter.class).in(Singleton.class);
             case MYSQL -> bind(StorageAdapter.class).to(MysqlStorageAdapter.class).in(Singleton.class);

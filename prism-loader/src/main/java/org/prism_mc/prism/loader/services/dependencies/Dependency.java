@@ -56,6 +56,20 @@ public enum Dependency {
         "7EEd/fDAPyUhhkjOiYYWMLcWgOWFippyeOusjlXKs9c=",
         Relocation.of("caffeine", "com{}github{}benmanes{}caffeine")
     ),
+    CLICKHOUSE_DRIVER(
+        "com.clickhouse",
+        "clickhouse-jdbc",
+        "0.9.8",
+        "nb6f1wOItnQpvnlC9Tt5hKS3H9Dy9yfxcznyDifs9WQ=",
+        "clickhouse-jdbc-0.9.8-all.jar",
+        EnumSet.of(
+            DependencyRepository.PRISM_MIRROR,
+            DependencyRepository.LUCK_MIRROR,
+            DependencyRepository.MAVEN_CENTRAL
+        ),
+        Relocation.of("clickhouse", "com{}clickhouse"),
+        Relocation.of("jspecify", "org{}jspecify")
+    ),
     CONFIGURATE_CORE(
         "org.spongepowered",
         "configurate-core",
@@ -155,8 +169,8 @@ public enum Dependency {
     JOOQ(
         "org.jooq",
         "jooq",
-        "3.17.35",
-        "7IjJxH0MM06u28/z9wQbckRBdhHTniIvwYT5pkvWsq0=",
+        "3.21.6",
+        "0s2TUoX0yfLAZ2B4zh77GMcsDOCKWyOg7kIp3UBk8HQ=",
         Relocation.of("jooq", "org{}jooq"),
         Relocation.of("reactivestreams", "org{}reactivestreams"),
         Relocation.of("r2dbc", "org{}r2dbc")
