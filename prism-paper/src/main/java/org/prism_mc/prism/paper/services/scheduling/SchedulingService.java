@@ -130,6 +130,7 @@ public class SchedulingService {
                     .usingJobData("command", commandConfig.command())
                     .build();
                 commandJob.getJobDataMap().put("prismScheduler", prismScheduler);
+                commandJob.getJobDataMap().put("loggingService", loggingService);
 
                 // Build the start cron trigger
                 CronTrigger commandTrigger = TriggerBuilder.newTrigger()

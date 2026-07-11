@@ -21,6 +21,7 @@
 package org.prism_mc.prism.paper.services.scheduling;
 
 import org.bukkit.Bukkit;
+import org.prism_mc.prism.loader.services.logging.LoggingService;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -37,6 +38,15 @@ public class PrismCommandJob implements Job {
 
         String command = dataMap.getString("command");
         if (command != null) {
+            // A paused server (empty for pause-when-empty-seconds) stops ticking the game thread, so
+            // runGlobal tasks would queue up and all fire at once when it resumes. Skip instead.
+            if (Bukkit.getServer().isPaused()) {
+                LoggingService loggingService = (LoggingService) dataMap.get("loggingService");
+                loggingService.debug("Skipping scheduled command because the server is paused: {0}", command);
+
+                return;
+            }
+
             PrismScheduler prismScheduler = (PrismScheduler) dataMap.get("prismScheduler");
             // Jobs via the scheduler are async, but commands must execute on the game thread
             prismScheduler.runGlobal(() -> {
