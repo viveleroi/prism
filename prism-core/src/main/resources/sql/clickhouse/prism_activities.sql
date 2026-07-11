@@ -1,0 +1,48 @@
+CREATE TABLE IF NOT EXISTS %prefix%activities
+(
+    activity_id                       UInt64 CODEC(DoubleDelta, ZSTD),
+    `timestamp`                       DateTime CODEC(DoubleDelta, ZSTD),
+    world                             LowCardinality(String),
+    world_uuid                        LowCardinality(String),
+    x                                 Int32 CODEC(T64, ZSTD),
+    y                                 Int32 CODEC(T64, ZSTD),
+    z                                 Int32 CODEC(T64, ZSTD),
+    action                            LowCardinality(String),
+    affected_material                 LowCardinality(String),
+    affected_item_data                String CODEC(ZSTD),
+    affected_item_airtag              LowCardinality(String),
+    affected_item_quantity            Nullable(UInt16),
+    affected_block_ns                 LowCardinality(String),
+    affected_block_name               LowCardinality(String),
+    affected_block_data               String CODEC(ZSTD),
+    affected_block_translation_key    LowCardinality(String),
+    replaced_block_ns                 LowCardinality(String),
+    replaced_block_name               LowCardinality(String),
+    replaced_block_data               String CODEC(ZSTD),
+    affected_entity_type              LowCardinality(String),
+    affected_player                   LowCardinality(String),
+    affected_player_uuid              String,
+    cause                             LowCardinality(String),
+    cause_player                      LowCardinality(String),
+    cause_player_uuid                 String,
+    cause_entity_type                 LowCardinality(String),
+    cause_entity_type_translation_key LowCardinality(String),
+    cause_block_ns                    LowCardinality(String),
+    cause_block_name                  LowCardinality(String),
+    cause_block_translation_key       LowCardinality(String),
+    descriptor                        LowCardinality(String),
+    metadata                          String CODEC(ZSTD),
+    serializer_version                Nullable(UInt16),
+    serialized_data                   String CODEC(ZSTD),
+    reversed                          UInt8 DEFAULT 0,
+    INDEX idx_x x TYPE minmax GRANULARITY 4,
+    INDEX idx_z z TYPE minmax GRANULARITY 4,
+    INDEX idx_activity_id activity_id TYPE minmax GRANULARITY 4,
+    INDEX idx_affected_item_airtag affected_item_airtag TYPE bloom_filter GRANULARITY 4,
+    INDEX idx_cause_player cause_player TYPE bloom_filter GRANULARITY 4,
+    INDEX idx_affected_player affected_player TYPE bloom_filter GRANULARITY 4
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMM(`timestamp`)
+ORDER BY (world, `timestamp`)
+SETTINGS enable_block_number_column = 1, enable_block_offset_column = 1

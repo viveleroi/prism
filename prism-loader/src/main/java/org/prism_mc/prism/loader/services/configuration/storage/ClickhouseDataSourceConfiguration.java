@@ -18,13 +18,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.prism_mc.prism.loader.storage;
+package org.prism_mc.prism.loader.services.configuration.storage;
 
-public enum StorageType {
-    CLICKHOUSE,
-    H2,
-    MARIADB,
-    MYSQL,
-    POSTGRES,
-    SQLITE,
+import lombok.Getter;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+
+@ConfigSerializable
+@Getter
+public class ClickhouseDataSourceConfiguration extends SqlDataSourceConfiguration {
+
+    /**
+     * Constructor.
+     */
+    public ClickhouseDataSourceConfiguration() {
+        super("8123", "default");
+    }
 }

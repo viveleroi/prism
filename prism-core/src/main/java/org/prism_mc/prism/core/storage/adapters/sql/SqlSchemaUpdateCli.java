@@ -35,6 +35,7 @@ import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.prism_mc.prism.core.storage.HikariConfigFactories;
+import org.prism_mc.prism.core.storage.adapters.clickhouse.ClickhouseSchemaUpdater;
 import org.prism_mc.prism.core.storage.adapters.mysql.MysqlSchemaUpdater;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.loader.services.configuration.storage.StorageConfiguration;
@@ -55,6 +56,32 @@ public class SqlSchemaUpdateCli implements SchemaUpdateCli {
 
         loggingService.info("Storage type: {0}", storageType);
         loggingService.info("Table prefix: {0}", prefix);
+
+        // ClickHouse uses a hand-written denormalized schema, so run its dedicated updater instead of
+        // the normalized jOOQ / SqlSchemaUpdater path (which assumes the normalized tables and DBO
+        // fields).
+        if (storageType == StorageType.CLICKHOUSE) {
+            // Set the context classloader so JDBC DriverManager can find
+            // relocated drivers loaded via JarInJarClassLoader
+            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+
+            // Load JDBC drivers
+            HikariConfigFactories.loadDriver(storageType);
+
+            HikariConfig hikariConfig = buildHikariConfig(storageConfig, storageType, dataPath);
+
+            loggingService.info("Connecting to database...");
+            try (
+                HikariDataSource dataSource = new HikariDataSource(hikariConfig);
+                Connection connection = dataSource.getConnection()
+            ) {
+                new ClickhouseSchemaUpdater(loggingService).update(connection, prefix);
+            }
+
+            loggingService.info("ClickHouse schema update complete.");
+
+            return;
+        }
 
         // Initialize DBO static fields required by SqlSchemaUpdater
         initializeDbo(storageConfig, prefix);
@@ -187,6 +214,7 @@ public class SqlSchemaUpdateCli implements SchemaUpdateCli {
      */
     private HikariConfig buildHikariConfig(StorageConfiguration storageConfig, StorageType storageType, Path dataPath) {
         return switch (storageType) {
+            case CLICKHOUSE -> HikariConfigFactories.clickhouse(storageConfig, false);
             case SQLITE -> {
                 var configuredPath = storageConfig.sqlite().path();
                 var databaseFilename = storageConfig.sqlite().database() + ".db";
@@ -213,6 +241,7 @@ public class SqlSchemaUpdateCli implements SchemaUpdateCli {
      */
     private SQLDialect resolveDialect(StorageType storageType) {
         return switch (storageType) {
+            case CLICKHOUSE -> SQLDialect.CLICKHOUSE;
             case SQLITE -> SQLDialect.SQLITE;
             case H2 -> SQLDialect.H2;
             case MYSQL -> SQLDialect.MYSQL;

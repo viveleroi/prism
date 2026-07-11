@@ -80,7 +80,11 @@ public class SqlActivityBatch implements ActivityBatch {
      * @param loggingService The logging service
      * @return The payload, or null if it was dropped
      */
-    static String guardSerializedDataSize(String serializedData, String actionKey, LoggingService loggingService) {
+    public static String guardSerializedDataSize(
+        String serializedData,
+        String actionKey,
+        LoggingService loggingService
+    ) {
         if (serializedData == null) {
             return null;
         }

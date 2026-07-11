@@ -128,6 +128,7 @@ gradle.taskGraph.whenReady { graph ->
 shadowJar {
     archiveFileName = 'prism-paper.jarinjar'
 
+    relocate 'com.clickhouse', 'org.prism_mc.prism.libs.clickhouse'
     relocate 'com.cronutils', 'org.prism_mc.prism.libs.cronutils'
     relocate 'com.fasterxml.jackson', 'org.prism_mc.prism.libs.jackson'
     relocate 'com.github.benmanes.caffeine', 'org.prism_mc.prism.libs.caffeine'
@@ -142,6 +143,7 @@ shadowJar {
     relocate 'net.kyori.moonshine', 'org.prism_mc.prism.libs.kyori.moonshine'
     relocate 'org.aopalliance', 'org.prism_mc.prism.libs.aopalliance'
     relocate 'org.jooq', 'org.prism_mc.prism.libs.jooq'
+    relocate 'org.jspecify', 'org.prism_mc.prism.libs.jspecify'
     relocate 'org.mariadb', 'org.prism_mc.prism.libs.mariadb'
     relocate 'org.postgresql', 'org.prism_mc.prism.libs.postgresql'
     relocate 'org.quartz', 'org.prism_mc.prism.libs.quartz'

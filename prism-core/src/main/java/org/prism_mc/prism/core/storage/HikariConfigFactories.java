@@ -76,6 +76,7 @@ public class HikariConfigFactories {
      */
     public static void loadDriver(StorageType storageType) {
         switch (storageType) {
+            case CLICKHOUSE -> tryDriverClassNames("com.clickhouse.jdbc.ClickHouseDriver");
             case H2 -> tryDriverClassNames("org.h2.Driver");
             case MARIADB -> tryDriverClassNames("org.mariadb.jdbc.Driver");
             case MYSQL -> tryDriverClassNames("org.mysql.jdbc.Driver");
@@ -84,6 +85,39 @@ public class HikariConfigFactories {
                 // ignored
             }
         }
+    }
+
+    /**
+     * Create a hikari configuration for ClickHouse databases.
+     *
+     * @param storageConfiguration The storage configuration
+     * @return The hikari configuration
+     */
+    public static HikariConfig clickhouse(StorageConfiguration storageConfiguration) {
+        return clickhouse(storageConfiguration, storageConfiguration.spy());
+    }
+
+    /**
+     * Create a hikari configuration for ClickHouse databases.
+     *
+     * @param storageConfiguration The storage configuration
+     * @param enableSpy Whether to enable P6Spy query logging
+     * @return The hikari configuration
+     */
+    public static HikariConfig clickhouse(StorageConfiguration storageConfiguration, boolean enableSpy) {
+        HikariConfig hikariConfig = createSharedConfig(storageConfiguration, enableSpy);
+
+        String host = storageConfiguration.clickhouse().host();
+        String port = storageConfiguration.clickhouse().port();
+        String database = storageConfiguration.clickhouse().database();
+
+        loadDriver(StorageType.CLICKHOUSE);
+
+        hikariConfig.setJdbcUrl(
+            "jdbc:" + (enableSpy ? "p6spy:" : "") + String.format("clickhouse://%s:%s/%s", host, port, database)
+        );
+
+        return hikariConfig;
     }
 
     /**

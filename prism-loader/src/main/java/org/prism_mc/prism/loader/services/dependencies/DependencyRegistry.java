@@ -45,6 +45,14 @@ public class DependencyRegistry {
             Dependency
         >builder()
         .putAll(
+            StorageType.CLICKHOUSE,
+            Dependency.HIKARI,
+            Dependency.JOOQ,
+            Dependency.R2DBC,
+            Dependency.REACTIVE_STREAMS,
+            Dependency.CLICKHOUSE_DRIVER
+        )
+        .putAll(
             StorageType.H2,
             Dependency.HIKARI,
             Dependency.JOOQ,
