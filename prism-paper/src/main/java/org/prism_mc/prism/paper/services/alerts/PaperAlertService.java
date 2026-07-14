@@ -224,7 +224,7 @@ public class PaperAlertService {
         var query = PaperActivityQuery.builder()
             .grouped(false)
             .actionType(PaperActionTypeRegistry.BLOCK_PLACE)
-            .affectedMaterial(blockState.getType().toString().toLowerCase(Locale.ENGLISH))
+            .affectedBlock(blockState.getType().toString().toLowerCase(Locale.ENGLISH))
             .location(blockState.getLocation())
             .limit(1)
             .build();
