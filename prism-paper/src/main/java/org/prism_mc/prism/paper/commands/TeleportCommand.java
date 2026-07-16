@@ -95,9 +95,9 @@ public class TeleportCommand {
                             player,
                             new Location(
                                 world,
-                                activity.coordinate().intX(),
+                                activity.coordinate().intX() + 0.5,
                                 activity.coordinate().intY(),
-                                activity.coordinate().intZ()
+                                activity.coordinate().intZ() + 0.5
                             )
                         );
                     }
@@ -135,7 +135,7 @@ public class TeleportCommand {
                     messageService.teleportingTo(player, worldName, x, y, z);
                 }
 
-                prismScheduler.teleport(player, new Location(world, x, y, z));
+                prismScheduler.teleport(player, new Location(world, x + 0.5, y, z + 0.5));
             }
         }
     }
