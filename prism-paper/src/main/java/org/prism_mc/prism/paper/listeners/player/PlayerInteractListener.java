@@ -154,7 +154,10 @@ public class PlayerInteractListener extends AbstractListener implements Listener
         final Location location = block.getLocation();
         final ItemStack heldItem = player.getInventory().getItemInMainHand();
 
-        if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+        if (
+            event.getAction().equals(Action.RIGHT_CLICK_BLOCK) &&
+            (player.isSneaking() || !block.getType().isInteractable())
+        ) {
             alertService.alertItemUse(event.getPlayer(), heldItem);
         }
 
