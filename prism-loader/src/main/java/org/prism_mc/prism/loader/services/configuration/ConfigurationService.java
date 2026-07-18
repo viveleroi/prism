@@ -156,11 +156,19 @@ public class ConfigurationService {
 
             return config;
         } catch (final ConfigurateException e) {
-            if (e.getCause() != null) {
-                logger.log(Level.SEVERE, "An exception occurred", e);
-            }
-        }
+            logger.log(
+                Level.SEVERE,
+                """
 
-        return null;
+                ========================= PRISM CONFIG ERROR =========================
+                Could not load {0} because of an invalid value.
+                Prism will run with DEFAULT settings for this file until you fix it.
+                Details: {1}
+                ======================================================================""",
+                new Object[] { file.getName(), e.getMessage() }
+            );
+
+            return defaultConfig;
+        }
     }
 }
