@@ -65,7 +65,7 @@ public class PrismItems extends TableImpl<PrismItemsRecord> {
      */
     public final TableField<PrismItemsRecord, UInteger> ITEM_ID = createField(
         DSL.name("item_id"),
-        SQLDataType.INTEGERUNSIGNED.nullable(false).identity(true),
+        SQLDataType.INTEGERUNSIGNED.nullable(false).autoIncrement(),
         this,
         ""
     );

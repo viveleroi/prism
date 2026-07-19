@@ -67,7 +67,7 @@ public class PrismEntityTypes extends TableImpl<PrismEntityTypesRecord> {
      */
     public final TableField<PrismEntityTypesRecord, UInteger> ENTITY_TYPE_ID = createField(
         DSL.name("entity_type_id"),
-        SQLDataType.INTEGERUNSIGNED.nullable(false).identity(true),
+        SQLDataType.INTEGERUNSIGNED.nullable(false).autoIncrement(),
         this,
         ""
     );

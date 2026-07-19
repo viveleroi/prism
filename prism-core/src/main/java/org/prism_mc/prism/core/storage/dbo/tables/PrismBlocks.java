@@ -67,7 +67,7 @@ public class PrismBlocks extends TableImpl<PrismBlocksRecord> {
      */
     public final TableField<PrismBlocksRecord, UInteger> BLOCK_ID = createField(
         DSL.name("block_id"),
-        SQLDataType.INTEGERUNSIGNED.nullable(false).identity(true),
+        SQLDataType.INTEGERUNSIGNED.nullable(false).autoIncrement(),
         this,
         ""
     );

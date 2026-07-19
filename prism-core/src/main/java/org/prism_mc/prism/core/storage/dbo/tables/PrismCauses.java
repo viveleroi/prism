@@ -66,7 +66,7 @@ public class PrismCauses extends TableImpl<PrismCausesRecord> {
      */
     public final TableField<PrismCausesRecord, UInteger> CAUSE_ID = createField(
         DSL.name("cause_id"),
-        SQLDataType.INTEGERUNSIGNED.nullable(false).identity(true),
+        SQLDataType.INTEGERUNSIGNED.nullable(false).autoIncrement(),
         this,
         ""
     );
