@@ -164,6 +164,9 @@ public class ActionsConfiguration {
     )
     private boolean inventoryOpen = false;
 
+    @Comment("item-break is when an item breaks from durability loss - tools, weapons, armor, etc.")
+    private boolean itemBreak = false;
+
     @Comment(
         """
         item-despawn is when an item entity naturally despawns from age (5 minutes by default).

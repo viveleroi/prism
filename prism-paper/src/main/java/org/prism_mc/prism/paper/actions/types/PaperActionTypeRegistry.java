@@ -119,6 +119,7 @@ public class PaperActionTypeRegistry extends AbstractActionTypeRegistry {
     );
     public static final ActionType INVENTORY_OPEN = new BlockActionType("inventory-open", ActionResultType.NONE, false);
     public static final ActionType ITEM_AIRTAG = new ItemActionType("item-airtag", ActionResultType.NONE, false);
+    public static final ActionType ITEM_BREAK = new ItemActionType("item-break", ActionResultType.REMOVES, false);
     public static final ActionType ITEM_DESPAWN = new ItemActionType("item-despawn", ActionResultType.REMOVES, false);
     public static final ActionType ITEM_DESTROY = new ItemActionType("item-destroy", ActionResultType.REMOVES, false);
     public static final ActionType ITEM_DISPENSE = new ItemActionType(
@@ -229,6 +230,7 @@ public class PaperActionTypeRegistry extends AbstractActionTypeRegistry {
         registerAction(HOPPER_REMOVE);
         registerAction(INVENTORY_OPEN);
         registerAction(ITEM_AIRTAG);
+        registerAction(ITEM_BREAK);
         registerAction(ITEM_DESPAWN);
         registerAction(ITEM_DESTROY);
         registerAction(ITEM_DISPENSE);
