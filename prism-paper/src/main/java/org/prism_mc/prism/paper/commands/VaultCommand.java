@@ -197,37 +197,33 @@ public class VaultCommand {
                         .deserialize(translationService.messageOf(player, "prism.vault-gui-previous"));
 
                     prismScheduler.runForEntity(player, () -> {
-                        var gui = Gui.paginated()
-                            .title(title)
-                            .disableAllInteractions()
-                            .enableItemTake()
-                            .rows(6)
-                            .create();
+                        var gui = Gui.paginated().title(title).disableAllInteractions().rows(6).create();
 
                         for (var activity : results) {
                             if (activity.action() instanceof PaperItemStackAction itemStackAction) {
-                                gui.addItem(
-                                    new GuiItem(itemStackAction.itemStack(), event -> {
-                                        if (player.getInventory().firstEmpty() == -1) {
-                                            event.setCancelled(true);
-                                            messageService.errorVaultInventoryFull(player);
+                                var guiItem = new GuiItem(itemStackAction.itemStack());
+                                guiItem.setAction(event -> {
+                                    event.setCancelled(true);
 
-                                            return;
-                                        }
+                                    if (player.getInventory().firstEmpty() == -1) {
+                                        messageService.errorVaultInventoryFull(player);
 
-                                        reversedKeys.add((Long) activity.primaryKey());
-                                        loggingService.info(
-                                            "{0} took {1} for activity #{2} from the vault inventory",
-                                            player.getName(),
-                                            itemStackAction
-                                                .itemStack()
-                                                .getType()
-                                                .toString()
-                                                .toLowerCase(Locale.ENGLISH),
-                                            activity.primaryKey()
-                                        );
-                                    })
-                                );
+                                        return;
+                                    }
+
+                                    player.getInventory().addItem(itemStackAction.itemStack().clone());
+                                    gui.removePageItem(guiItem);
+
+                                    reversedKeys.add((Long) activity.primaryKey());
+                                    loggingService.info(
+                                        "{0} took {1} for activity #{2} from the vault inventory",
+                                        player.getName(),
+                                        itemStackAction.itemStack().getType().toString().toLowerCase(Locale.ENGLISH),
+                                        activity.primaryKey()
+                                    );
+                                });
+
+                                gui.addItem(guiItem);
                             }
                         }
 
