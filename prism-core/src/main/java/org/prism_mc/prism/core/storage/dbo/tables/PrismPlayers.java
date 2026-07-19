@@ -66,7 +66,7 @@ public class PrismPlayers extends TableImpl<PrismPlayersRecord> {
      */
     public final TableField<PrismPlayersRecord, UInteger> PLAYER_ID = createField(
         DSL.name("player_id"),
-        SQLDataType.INTEGERUNSIGNED.nullable(false).identity(true),
+        SQLDataType.INTEGERUNSIGNED.nullable(false).autoIncrement(),
         this,
         ""
     );

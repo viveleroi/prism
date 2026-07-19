@@ -66,7 +66,7 @@ public class PrismActions extends TableImpl<PrismActionsRecord> {
      */
     public final TableField<PrismActionsRecord, UInteger> ACTION_ID = createField(
         DSL.name("action_id"),
-        SQLDataType.INTEGERUNSIGNED.nullable(false).identity(true),
+        SQLDataType.INTEGERUNSIGNED.nullable(false).autoIncrement(),
         this,
         ""
     );

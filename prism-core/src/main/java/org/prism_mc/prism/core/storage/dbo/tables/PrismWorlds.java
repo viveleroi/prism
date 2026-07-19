@@ -66,7 +66,7 @@ public class PrismWorlds extends TableImpl<PrismWorldsRecord> {
      */
     public final TableField<PrismWorldsRecord, UInteger> WORLD_ID = createField(
         DSL.name("world_id"),
-        SQLDataType.INTEGERUNSIGNED.nullable(false).identity(true),
+        SQLDataType.INTEGERUNSIGNED.nullable(false).autoIncrement(),
         this,
         ""
     );

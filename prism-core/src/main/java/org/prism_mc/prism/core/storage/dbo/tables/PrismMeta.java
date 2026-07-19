@@ -67,7 +67,7 @@ public class PrismMeta extends TableImpl<PrismMetaRecord> {
      */
     public final TableField<PrismMetaRecord, UInteger> META_ID = createField(
         DSL.name("meta_id"),
-        SQLDataType.INTEGERUNSIGNED.nullable(false).identity(true),
+        SQLDataType.INTEGERUNSIGNED.nullable(false).autoIncrement(),
         this,
         ""
     );

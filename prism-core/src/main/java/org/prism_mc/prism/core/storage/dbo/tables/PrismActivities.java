@@ -69,7 +69,7 @@ public class PrismActivities extends TableImpl<PrismActivitiesRecord> {
      */
     public final TableField<PrismActivitiesRecord, UInteger> ACTIVITY_ID = createField(
         DSL.name("activity_id"),
-        SQLDataType.INTEGERUNSIGNED.nullable(false).identity(true),
+        SQLDataType.INTEGERUNSIGNED.nullable(false).autoIncrement(),
         this,
         ""
     );

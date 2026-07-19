@@ -66,7 +66,7 @@ public class PrismAirtags extends TableImpl<PrismAirtagsRecord> {
      */
     public final TableField<PrismAirtagsRecord, UInteger> AIRTAG_ID = createField(
         DSL.name("airtag_id"),
-        SQLDataType.INTEGERUNSIGNED.nullable(false).identity(true),
+        SQLDataType.INTEGERUNSIGNED.nullable(false).autoIncrement(),
         this,
         ""
     );
