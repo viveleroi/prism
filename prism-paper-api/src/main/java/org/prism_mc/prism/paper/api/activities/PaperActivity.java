@@ -87,6 +87,10 @@ public class PaperActivity extends Activity {
         } else if (cause instanceof EntityType causeEntityType) {
             return new Cause(new PaperEntityContainer(causeEntityType));
         } else if (cause instanceof Block block) {
+            if (!Bukkit.isOwnedByCurrentRegion(block)) {
+                return new Cause(new StringContainer("unknown"));
+            }
+
             return new Cause(new PaperBlockContainer(block.getState()));
         } else if (cause instanceof BlockState causeBlockState) {
             return new Cause(new PaperBlockContainer(causeBlockState));
