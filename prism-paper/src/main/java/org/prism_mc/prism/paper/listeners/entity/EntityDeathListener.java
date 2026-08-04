@@ -90,9 +90,17 @@ public class EntityDeathListener extends AbstractListener implements Listener {
 
         // Resolve cause using last damage
         Object causeObj = null;
+        var damageSource = event.getDamageSource();
         EntityDamageEvent damageEvent = entity.getLastDamageCause();
 
-        if (damageEvent != null && !damageEvent.isCancelled()) {
+        // Entities can die without being damaged, i.e. a plugin calling setHealth(0). The last damage
+        // cause is then a stale event from earlier in the entity's life, possibly in another world, so
+        // it's only usable when it describes the damage this death is attributed to.
+        if (
+            damageEvent != null &&
+            !damageEvent.isCancelled() &&
+            damageEvent.getDamageSource().getDamageType().equals(damageSource.getDamageType())
+        ) {
             if (damageEvent instanceof EntityDamageByEntityEvent entityDamageByEntityEvent) {
                 causeObj = entityDamageByEntityEvent.getDamager();
 
@@ -103,11 +111,15 @@ public class EntityDeathListener extends AbstractListener implements Listener {
                         causeObj = blockProjectileSource.getBlock();
                     }
                 }
-            } else if (damageEvent instanceof EntityDamageByBlockEvent) {
-                causeObj = ((EntityDamageByBlockEvent) damageEvent).getDamager();
+            } else if (damageEvent instanceof EntityDamageByBlockEvent entityDamageByBlockEvent) {
+                causeObj = entityDamageByBlockEvent.getDamagerBlockState();
             } else {
                 causeObj = damageEvent.getCause();
             }
+        }
+
+        if (causeObj == null) {
+            causeObj = damageSource.getDamageType();
         }
 
         var builder = PaperActivity.builder().action(action).location(entity.getLocation()).cause(causeObj);

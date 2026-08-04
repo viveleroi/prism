@@ -27,6 +27,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -93,6 +94,8 @@ public class PaperActivity extends Activity {
             return new Cause(new StringContainer(enumNameToString(igniteCause.name())));
         } else if (cause instanceof EntityDamageEvent.DamageCause damageCause) {
             return new Cause(new StringContainer(enumNameToString(damageCause.name())));
+        } else if (cause instanceof DamageType damageType) {
+            return new Cause(new StringContainer(enumNameToString(damageType.getKey().getKey())));
         } else if (cause instanceof EntityUnleashEvent.UnleashReason unleashReason) {
             return new Cause(new StringContainer(enumNameToString(unleashReason.name())));
         } else if (cause instanceof TNTPrimeEvent.PrimeCause primeCause) {
