@@ -179,7 +179,7 @@ public class PaperAlertService {
         }
 
         locations = locationCacheBuilder.build();
-        cacheService.caches().put("alerts", alerts);
+        cacheService.caches().put("alertedLocations", locations);
 
         loadAlerts();
     }
@@ -362,6 +362,7 @@ public class PaperAlertService {
     public void loadAlerts() {
         blockBreakAlerts.clear();
         blockPlaceAlerts.clear();
+        itemUseAlerts.clear();
 
         if (configurationService.prismConfig().alerts().blockBreakAlerts().enabled()) {
             for (var config : configurationService.prismConfig().alerts().blockBreakAlerts().alerts()) {
