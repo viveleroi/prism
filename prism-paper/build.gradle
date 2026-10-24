@@ -28,6 +28,9 @@ dependencies {
     compileOnly project.property('deps.paper-api')
     compileOnly project.property('deps.quartz')
     compileOnly project.property('deps.triumph-gui')
+    compileOnly(project.property('deps.fawe-core')) {
+        transitive = false
+    }
     compileOnly project.property('deps.world-edit-core')
     compileOnly project.property('deps.world-edit-bukkit')
     compileOnly project(':prism-api')
