@@ -29,10 +29,6 @@ import org.bukkit.Bukkit;
 import org.prism_mc.prism.loader.services.configuration.ConfigurationService;
 import org.prism_mc.prism.paper.services.recording.PaperRecordingService;
 
-/**
- * Handler that listens for WorldEdit EditSessionEvents and wraps
- * the extent with a PrismLoggingExtent to capture block changes.
- */
 public class WorldEditLoggingHandler {
 
     /**
@@ -46,7 +42,12 @@ public class WorldEditLoggingHandler {
     private final ConfigurationService configurationService;
 
     /**
-     * Construct the WorldEditLoggingHandler.
+     * Whether FAWE is installed.
+     */
+    private final boolean fawe;
+
+    /**
+     * Constructor.
      *
      * @param recordingService The recording service
      * @param configurationService The configuration service
@@ -54,6 +55,21 @@ public class WorldEditLoggingHandler {
     public WorldEditLoggingHandler(PaperRecordingService recordingService, ConfigurationService configurationService) {
         this.recordingService = recordingService;
         this.configurationService = configurationService;
+        this.fawe = isFawePresent();
+    }
+
+    /**
+     * Check if FAWE classes are available.
+     *
+     * @return true if FAWE is present
+     */
+    private static boolean isFawePresent() {
+        try {
+            Class.forName("com.fastasyncworldedit.core.Fawe");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     /**
@@ -63,8 +79,11 @@ public class WorldEditLoggingHandler {
      */
     @Subscribe
     public void onEditSession(EditSessionEvent event) {
-        // Use BEFORE_CHANGE stage
-        if (event.getStage() != EditSession.Stage.BEFORE_CHANGE) {
+        // FAWE: by BEFORE_HISTORY the extent is (almost always) a delegating extent, so our
+        // processor or fallback extent is registered in place rather than replacing the
+        // extent, which FAWE would block as an unknown third-party extent.
+        EditSession.Stage stage = fawe ? EditSession.Stage.BEFORE_HISTORY : EditSession.Stage.BEFORE_CHANGE;
+        if (event.getStage() != stage) {
             return;
         }
 
@@ -74,12 +93,6 @@ public class WorldEditLoggingHandler {
             !configurationService.prismConfig().actions().worldeditPlace()
         ) {
             return;
-        }
-
-        // Get the actor (may be null for non-player operations)
-        Player actor = null;
-        if (event.getActor() != null && event.getActor() instanceof Player) {
-            actor = (Player) event.getActor();
         }
 
         // Get the Bukkit world
@@ -93,14 +106,18 @@ public class WorldEditLoggingHandler {
             return;
         }
 
-        // Get the Bukkit player if actor is available
+        // Get the Bukkit player if the actor is a player
         org.bukkit.entity.Player bukkitPlayer = null;
-        if (actor != null) {
+        if (event.getActor() instanceof Player actor) {
             bukkitPlayer = Bukkit.getPlayer(actor.getUniqueId());
         }
 
-        event.setExtent(
-            new PrismLoggingExtent(event.getExtent(), bukkitPlayer, bukkitWorld, recordingService, configurationService)
-        );
+        var recorder = new WorldEditChangeRecorder(bukkitPlayer, bukkitWorld, recordingService, configurationService);
+
+        if (fawe) {
+            FaweLoggingHelper.addProcessor(event, recorder);
+        } else {
+            event.setExtent(new PrismLoggingExtent(event.getExtent(), recorder));
+        }
     }
 }

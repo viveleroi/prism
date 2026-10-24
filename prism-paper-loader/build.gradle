@@ -70,5 +70,6 @@ bukkitPluginYaml {
     authors.add("viveleroi")
     depend.add("NBTAPI")
     softDepend.add("WorldEdit")
+    softDepend.add("FastAsyncWorldEdit")
     load.set(xyz.jpenilla.resourcefactory.bukkit.BukkitPluginYaml.PluginLoadOrder.STARTUP)
 }

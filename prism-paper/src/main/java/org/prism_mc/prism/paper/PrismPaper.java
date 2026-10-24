@@ -338,7 +338,11 @@ public class PrismPaper implements PrismPaperApi {
             Bukkit.getServicesManager().register(PrismPaperApi.class, this, loaderPlugin(), ServicePriority.Normal);
 
             // Initialize WorldEdit integration if available (for block logging)
-            if (Bukkit.getPluginManager().getPlugin("WorldEdit") != null) {
+            // Supports both WorldEdit and FastAsyncWorldEdit (FAWE)
+            if (
+                Bukkit.getPluginManager().getPlugin("WorldEdit") != null ||
+                Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit") != null
+            ) {
                 injectorProvider.injector().getInstance(WorldEditIntegration.class);
             }
 
